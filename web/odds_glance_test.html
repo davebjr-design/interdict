@@ -1,0 +1,222 @@
+<title>Odds Screen Glance Test</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: a facilitator frame around one fixed game screen. Screen is a dark bridge display (committed dark look), the frame uses the same tokens. */
+:root{
+  --bg:#0c1114; --panel:#131a1f; --panel2:#19232a; --line:#26343d;
+  --fg:#d7e2e6; --dim:#87a0a8; --accent:#e8a33d; --good:#58c4a0; --bad:#e2634f; --band:#3d8fa6;
+  --display:'Barlow Condensed','Arial Narrow',sans-serif; --body:'IBM Plex Sans',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--body);margin:0;
+  padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:880px;margin:0 auto;display:grid;gap:20px}
+h1{font:600 30px/1.1 var(--display);letter-spacing:.04em;text-transform:uppercase;margin:0;text-wrap:balance}
+h2{font:600 14px/1 var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:0 0 10px}
+p{margin:0}
+.dim{color:var(--dim)}
+.bar{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+button{font:600 15px var(--body);background:var(--accent);color:#1b1304;border:0;border-radius:3px;padding:11px 18px;cursor:pointer}
+button.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button:disabled{opacity:.45;cursor:default}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:16px}
+ul.crit{margin:0;padding-left:18px;display:grid;gap:4px}
+
+/* the screen under test */
+.screen{background:var(--panel);border:1px solid var(--line);padding:18px;display:grid;gap:16px;position:relative;min-height:420px}
+.screen header{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:10px;font:600 15px var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.screen header b{color:var(--accent)}
+.big{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.big .num{font:600 72px/1 var(--mono);color:var(--fg);letter-spacing:-.03em}
+.big .num small{font-size:34px;color:var(--dim)}
+.big .lab{font:600 18px var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.big .rng{font:500 18px var(--mono);color:var(--band)}
+.scale{position:relative;height:34px;margin:4px 0 0}
+.scale .track{position:absolute;left:0;right:0;top:14px;height:6px;background:var(--panel2);border-radius:3px}
+.scale .band{position:absolute;top:10px;height:14px;background:var(--band);opacity:.75;border-radius:2px}
+.scale .pt{position:absolute;top:4px;width:3px;height:26px;background:var(--fg)}
+.scale .t{position:absolute;top:24px;font:500 11px var(--mono);color:var(--dim);transform:translateX(-50%)}
+.age{font:500 13px var(--mono);color:var(--accent)}
+.cols{display:grid;grid-template-columns:1.2fr 1fr;gap:20px}
+.why{display:grid;gap:6px;font:500 14px var(--mono)}
+.why div{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--line);padding-bottom:4px}
+.why .p{color:var(--good)} .why .n{color:var(--bad)}
+.acts{display:grid;gap:8px}
+.act{border:1px solid var(--line);padding:10px 12px;display:grid;gap:2px;background:var(--panel2)}
+.act b{font:700 20px var(--display);letter-spacing:.1em}
+.act span{font:400 13px var(--mono);color:var(--dim)}
+.act.fire b{color:var(--accent)}
+.cover{position:absolute;inset:0;background:var(--bg);display:grid;place-items:center;text-align:center;padding:20px}
+
+/* questions */
+.q{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:14px}
+.q:first-child{border-top:0;padding-top:0}
+.q .t{font-weight:600}
+label.opt{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:3px;cursor:pointer;background:var(--panel2)}
+label.opt:has(input:checked){border-color:var(--accent)}
+textarea{width:100%;min-height:70px;background:var(--panel2);color:var(--fg);border:1px solid var(--line);border-radius:3px;padding:8px;font:inherit}
+table{width:100%;border-collapse:collapse;font:500 14px var(--mono)}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}
+th{color:var(--dim);font:600 12px var(--display);letter-spacing:.12em;text-transform:uppercase}
+.ok{color:var(--good)} .no{color:var(--bad)}
+.verdict{font:600 22px var(--display);letter-spacing:.06em;text-transform:uppercase}
+@media(max-width:640px){.cols{grid-template-columns:1fr}.big .num{font-size:56px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <div>
+    <h1>Odds Screen Glance Test</h1>
+    <p class="dim">Show one person this screen for five seconds, hide it, then ask what they saw. Three testers. This is the Week 0 comprehension check for the firing decision.</p>
+  </div>
+
+  <div class="card">
+    <h2>How to run it</h2>
+    <ul class="crit">
+      <li>Hand the tester the device. Say only: "You are the captain. You have five seconds to read this, then I will ask what you saw."</li>
+      <li>Press <b>Show screen</b>. It hides itself after five seconds. Do not explain anything.</li>
+      <li>Read the three questions aloud (or let them tap), then ask the last one in their own words.</li>
+      <li>Record each tester with <b>Save tester</b>. After three, the verdict appears.</li>
+    </ul>
+    <p class="dim" style="margin-top:10px">Pass: at least two of three testers get the odds and the waiting question right. Fail on either means the screen needs a redesign before Stage 1.</p>
+  </div>
+
+  <section aria-label="Screen under test">
+    <div class="bar" style="margin-bottom:10px">
+      <button id="show">Show screen (5 s)</button>
+      <button id="again" class="ghost" disabled>Show again</button>
+      <span class="dim" id="status">Tester 1 of 3. Screen is hidden.</span>
+    </div>
+
+    <div class="screen" id="screen">
+      <header><span>Firing solution <b>· Cutter Meridian-4</b></span><span>Range 41 km · Missile ready</span></header>
+
+      <div>
+        <div class="big">
+          <span class="lab">Kill chance</span>
+          <span class="num">68<small>%</small></span>
+          <span class="rng">likely 55 to 79</span>
+        </div>
+        <div class="scale" aria-hidden="true">
+          <div class="track"></div>
+          <div class="band" style="left:55%;width:24%"></div>
+          <div class="pt" style="left:68%"></div>
+          <span class="t" style="left:0%">0</span><span class="t" style="left:50%">50</span><span class="t" style="left:100%">100</span>
+        </div>
+        <p class="age" style="margin-top:22px">Track data 3 min old · range widens about 3 points a minute</p>
+      </div>
+
+      <div class="cols">
+        <div>
+          <h2>Why this number</h2>
+          <div class="why">
+            <div><span>Base shot</span><span>55</span></div>
+            <div><span>Track quality</span><span class="p">+14</span></div>
+            <div><span>Target unaware</span><span class="p">+8</span></div>
+            <div><span>Long range</span><span class="n">−9</span></div>
+            <div><span>Aging data</span><span class="n">−3</span></div>
+          </div>
+        </div>
+        <div class="acts">
+          <div class="act fire"><b>Fire</b><span>Reveals us · +20 exposure · +5 heat</span></div>
+          <div class="act"><b>Hold</b><span>Heat 47% · odds slip as data ages</span></div>
+          <div class="act"><b>Break off</b><span>Safe now · cutter may be warned</span></div>
+        </div>
+      </div>
+
+      <div class="cover" id="hidden-cover">
+        <div><p style="font:600 28px var(--display);letter-spacing:.08em;text-transform:uppercase">Screen hidden</p><p class="dim">Press Show screen when the tester is ready.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <form class="card" id="form" aria-label="Questions" style="display:grid;gap:14px" hidden>
+    <h2>Questions</h2>
+    <div class="q">
+      <div class="t">1. How likely was the shot to kill?</div>
+      <label class="opt"><input type="radio" name="q1" value="a"> About two in three, but it could be a fair bit lower or higher</label>
+      <label class="opt"><input type="radio" name="q1" value="b"> Almost certain</label>
+      <label class="opt"><input type="radio" name="q1" value="c"> About one in three</label>
+      <label class="opt"><input type="radio" name="q1" value="d"> I couldn't tell</label>
+    </div>
+    <div class="q">
+      <div class="t">2. If you wait four more minutes, the number will probably…</div>
+      <label class="opt"><input type="radio" name="q2" value="a"> Get worse and less certain</label>
+      <label class="opt"><input type="radio" name="q2" value="b"> Get better</label>
+      <label class="opt"><input type="radio" name="q2" value="c"> Stay the same</label>
+      <label class="opt"><input type="radio" name="q2" value="d"> I couldn't tell</label>
+    </div>
+    <div class="q">
+      <div class="t">3. What does firing cost, besides the missile?</div>
+      <label class="opt"><input type="radio" name="q3" value="a"> It reveals our position and adds heat</label>
+      <label class="opt"><input type="radio" name="q3" value="b"> Nothing</label>
+      <label class="opt"><input type="radio" name="q3" value="c"> Crew injuries</label>
+      <label class="opt"><input type="radio" name="q3" value="d"> I couldn't tell</label>
+    </div>
+    <div class="q">
+      <div class="t">4. In your own words: what would you do, and why?</div>
+      <textarea id="free" placeholder="Write what they say, as close to their words as you can"></textarea>
+    </div>
+    <div class="bar"><button type="submit">Save tester</button><span class="dim" id="saved"></span></div>
+  </form>
+
+  <div class="card" id="results" hidden>
+    <h2>Results</h2>
+    <div style="overflow-x:auto"><table><thead><tr><th>Tester</th><th>Odds</th><th>Waiting</th><th>Cost</th><th>Their plan</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <p class="verdict" id="verdict" style="margin-top:14px"></p>
+    <p class="dim" id="note"></p>
+  </div>
+</div>
+
+<script>
+(function(){
+  var results=[], shown=false, timer=null;
+  var $=function(i){return document.getElementById(i)};
+  var hid=$('hidden-cover');
+  function run(){
+    clearInterval(timer);
+    var n=5; $('count').textContent=n; cover.hidden=true; hid.hidden=true;
+    $('show').disabled=true; $('again').disabled=true; $('status').textContent='Tester '+(results.length+1)+' of 3. Screen visible.';
+    var el=document.querySelector('.cover .count');
+    timer=setInterval(function(){
+      n--;
+      if(n<=0){clearInterval(timer);hid.hidden=false;hid.querySelector('p').textContent='Screen hidden';$('again').disabled=false;$('status').textContent='Tester '+(results.length+1)+' of 3. Ask the questions.';}
+    },1000);
+    shown=true;
+  }
+  $('show').addEventListener('click',run);
+  $('again').addEventListener('click',run);
+  $('form').addEventListener('submit',function(e){
+    e.preventDefault();
+    var f=new FormData($('form')); var q1=f.get('q1'),q2=f.get('q2'),q3=f.get('q3');
+    if(!q1||!q2||!q3){$('saved').textContent='Pick an answer for questions 1 to 3.';return;}
+    results.push({q1:q1==='a',q2:q2==='a',q3:q3==='a',free:$('free').value.trim()});
+    $('form').reset(); hid.hidden=false; $('form').hidden=true; $('again').disabled=true; $('show').disabled=false;
+    $('saved').textContent='';
+    $('status').textContent=results.length<3?'Tester '+(results.length+1)+' of 3. Screen is hidden.':'All three testers saved.';
+    render();
+  });
+  function render(){
+    $('results').hidden=false;
+    $('rows').innerHTML='';
+    results.forEach(function(r,i){
+      var tr=document.createElement('tr');
+      [String(i+1)].concat([r.q1,r.q2,r.q3].map(function(v){return v?'<span class="ok">right</span>':'<span class="no">missed</span>'})).concat([r.free||'(none)']).forEach(function(c,j){
+        var td=document.createElement(j===0?'th':'td'); if(j===0) td.textContent=c; else td.innerHTML=j===4?'':c; if(j===4) td.textContent=c; tr.appendChild(td);
+      });
+      $('rows').appendChild(tr);
+    });
+    if(results.length<3){$('verdict').textContent='Waiting for '+(3-results.length)+' more tester'+(3-results.length>1?'s':'');$('verdict').className='verdict dim';$('note').textContent='';return;}
+    var pass=results.filter(function(r){return r.q1&&r.q2}).length;
+    var ok=pass>=2;
+    $('verdict').textContent=ok?'Pass: '+pass+' of 3 read the odds and the waiting trend':'Fail: only '+pass+' of 3 read both';
+    $('verdict').className='verdict '+(ok?'ok':'no');
+    var miss=['q1','q2','q3'].map(function(k,i){return results.filter(function(r){return !r[k]}).length});
+    $('note').textContent='Misses by question: odds '+miss[0]+', waiting '+miss[1]+', cost '+miss[2]+'. Read the free answers for what they looked at first.';
+  }
+  hid.hidden=false;
+})();
+</script>
