@@ -131,18 +131,19 @@
      "difficulty": 5.5,
      "bands": {
       "great": {
-       "heat": -20,
+       "heat": -23,
        "exposure": 1
       },
       "fixed": {
-       "heat": -15,
+       "heat": -18,
        "exposure": 1
       },
       "unchanged": {
-       "heat": 0
+       "heat": -3
       },
       "worse": {
-       "crew_loss": 2
+       "crew_loss": 2,
+       "heat": -18
       }
      }
     },
@@ -161,19 +162,19 @@
      "bands": {
       "great": {
        "heat": -10,
-       "ai": -1
+       "ai": -2.6
       },
       "fixed": {
        "heat": -8,
-       "ai": -1
+       "ai": -2.6
       },
       "unchanged": {
        "heat": -3,
-       "ai": -1
+       "ai": -2.6
       },
       "worse": {
        "heat": -3,
-       "ai": -2
+       "ai": -2.6
       }
      }
     },
@@ -353,8 +354,8 @@
        "relay_risk": 0.14
       },
       "fixed": {
-       "kill": 0.53,
-       "heat": 6,
+       "kill": 0.45,
+       "heat": 9,
        "relay_risk": 0.1645
       },
       "unchanged": {
@@ -726,7 +727,7 @@
      "difficulty": 0.0,
      "bands": {
       "fixed": {
-       "trust_risk": 0.15
+       "trust_risk": -0.05
       }
      }
     },
@@ -1074,9 +1075,9 @@
        "info": 1.5
       },
       "fixed": {
-       "time": 6,
-       "heat": 3,
-       "info": 1
+       "time": 7,
+       "heat": 4,
+       "info": 0.8
       },
       "unchanged": {
        "time": 8,
@@ -1105,22 +1106,22 @@
      "bands": {
       "great": {
        "time": 1,
-       "exposure": 3,
+       "exposure": 1.5,
        "info": 2.4
       },
       "fixed": {
        "time": 1,
-       "exposure": 3,
-       "info": 2
+       "exposure": 1.5,
+       "info": 2.8
       },
       "unchanged": {
        "time": 2,
-       "exposure": 3,
+       "exposure": 2,
        "info": 1.5
       },
       "worse": {
        "time": 3,
-       "exposure": 4,
+       "exposure": 3,
        "info": 1
       }
      }
@@ -1402,19 +1403,24 @@
      "difficulty": 3.5,
      "bands": {
       "great": {
-       "clue": 0.8,
-       "time": 1
+       "clue": 0.2,
+       "time": 1.5,
+       "heat": 1
       },
       "fixed": {
-       "clue": 0.5,
-       "time": 1
+       "clue": 0.2,
+       "time": 1.5,
+       "heat": 1
       },
       "unchanged": {
-       "clue": 0.1,
-       "time": 1
+       "clue": 0.2,
+       "time": 1.5,
+       "heat": 1
       },
       "worse": {
-       "time": 1
+       "clue": 0.2,
+       "time": 1.5,
+       "heat": 1
       }
      }
     }
@@ -1433,7 +1439,7 @@
     {
      "by": "Dace",
      "lever": "ask_pell",
-     "line": "Pell will not say. I asked twice."
+     "line": "Pell will not say. I asked twice. It said 'no' in four different accents."
     }
    ]
   },
@@ -1502,6 +1508,33 @@
        "ai": -1
       }
      }
+    },
+    {
+     "id": "explain",
+     "label": "Explain it plainly",
+     "channel": "response",
+     "proposer": "Castellan",
+     "executor": "Captain",
+     "slots": 1,
+     "stances": [
+      "caution"
+     ],
+     "field": "sensors",
+     "difficulty": 0.0,
+     "bands": {
+      "great": {
+       "trust_risk": 0.2
+      },
+      "fixed": {
+       "trust_risk": 0.2
+      },
+      "unchanged": {
+       "trust_risk": 0.2
+      },
+      "worse": {
+       "trust_risk": 0.2
+      }
+     }
     }
    ],
    "objections": [
@@ -1518,7 +1551,12 @@
     {
      "by": "Dace",
      "lever": "deflect_pell",
-     "line": "Do not put that on Pell."
+     "line": "Do not put that on Pell. It will remember. It remembers everything, and it narrates."
+    },
+    {
+     "by": "Quill",
+     "lever": "explain",
+     "line": "Plain is not the same as honest."
     }
    ]
   },
@@ -1589,6 +1627,37 @@
        "gap": 0.2
       }
      }
+    },
+    {
+     "id": "report_carefully",
+     "label": "Report carefully, leaving gaps",
+     "channel": "report",
+     "proposer": "Dace",
+     "executor": "Captain",
+     "slots": 1,
+     "stances": [
+      "caution"
+     ],
+     "field": "sensors",
+     "difficulty": 0.0,
+     "bands": {
+      "great": {
+       "patron_trust": 0.2,
+       "gap": 0.3
+      },
+      "fixed": {
+       "patron_trust": 0.2,
+       "gap": 0.3
+      },
+      "unchanged": {
+       "patron_trust": 0.2,
+       "gap": 0.3
+      },
+      "worse": {
+       "patron_trust": 0.2,
+       "gap": 0.3
+      }
+     }
     }
    ],
    "objections": [
@@ -1605,7 +1674,12 @@
     {
      "by": "Dace",
      "lever": "silence",
-     "line": "Pell will notice."
+     "line": "Pell will notice. Pell notices when you breathe wrong."
+    },
+    {
+     "by": "Quill",
+     "lever": "report_carefully",
+     "line": "The gaps are the lie."
     }
    ]
   }

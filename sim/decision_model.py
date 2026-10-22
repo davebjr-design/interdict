@@ -76,6 +76,18 @@ def fun_report(DATA, N):
         tb = max(rows, key=lambda r: (r[3], r[0])); gap = (best - tb[0]) / span
         tones[card.get('tone', '?')] += 1; chain.append(card.get('tone', '?')[0].upper())
         print('%-24s %-9s %5d %7s %9d %9s %8.0f%%' % (cname[:24], card.get('tone', '?'), len(plans), 'NO-WIN' if nowin else 'ok', len(peaceful), ' + '.join(l['id'] for l in tb[1])[:9], gap * 100))
+    print('  PEACE COST: best plan with nobody opposed vs best plan overall (rule: exists, and costs more on pressure than breather)')
+    for cname, card in DATA['cards'].items():
+        if not card['weights']: continue
+        plans = legal_plans(card); rng = random.Random(5); rows = []
+        for p in plans:
+            sc = sum(score(card, resolve(p, rng, card)[0]) for _ in range(N // 4)) / (N // 4); rx = reactions(card, p)
+            rows.append((sc, ' + '.join(l['id'] for l in p), [n for n in names if rx[n][0] == 'O']))
+        best = max(rows); span = (best[0] - min(r[0] for r in rows)) or 1
+        calm = [r for r in rows if not r[2]]
+        if calm:
+            c = max(calm); print('    %-22s %-9s calm plan: %-30s costs %3.0f%% of range' % (cname[:22], card['tone'], c[1][:30], 100 * (best[0] - c[0]) / span))
+        else: print('    %-22s %-9s NO CALM PLAN (best leaves %s opposed)' % (cname[:22], card['tone'], min(rows, key=lambda r: len(r[2]))[2]))
     print('  pacing (P pressure, S story, V values, B breather): ' + ' '.join(chain))
     print('  tone mix: ' + ', '.join('%s %d' % kv for kv in tones.items()))
     print('  scoregap = outcome given up by the plan that best pleases officers vs the best outcome; peaceful = acceptable-outcome plans with at most one officer unhappy')
