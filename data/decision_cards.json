@@ -1042,7 +1042,7 @@
    ]
   },
   "card5_classification": {
-   "tone": "pressure",
+   "tone": "story",
    "slots": 2,
    "required": [
     "posture"

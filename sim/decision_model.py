@@ -74,7 +74,7 @@ def fun_report(DATA, N):
         peaceful = [r for r in good if len(r[2]) <= 1]           # acceptable AND at most one officer unhappy
         nowin = not peaceful
         tb = max(rows, key=lambda r: (r[3], r[0])); gap = (best - tb[0]) / span
-        tones[card.get('tone', '?')] += 1; chain.append(card.get('tone', '?')[0].upper())
+        tones[card.get('tone', '?')] += 1
         print('%-24s %-9s %5d %7s %9d %9s %8.0f%%' % (cname[:24], card.get('tone', '?'), len(plans), 'NO-WIN' if nowin else 'ok', len(peaceful), ' + '.join(l['id'] for l in tb[1])[:9], gap * 100))
     print('  PEACE COST: best plan with nobody opposed vs best plan overall (rule: exists, and costs more on pressure than breather)')
     for cname, card in DATA['cards'].items():
@@ -88,6 +88,11 @@ def fun_report(DATA, N):
         if calm:
             c = max(calm); print('    %-22s %-9s calm plan: %-30s costs %3.0f%% of range' % (cname[:22], card['tone'], c[1][:30], 100 * (best[0] - c[0]) / span))
         else: print('    %-22s %-9s NO CALM PLAN (best leaves %s opposed)' % (cname[:22], card['tone'], min(rows, key=lambda r: len(r[2]))[2]))
+    chain = [DATA['cards'][c]['tone'][0].upper() for c in DATA.get('order', DATA['cards'])]
+    run = best_run = 0
+    for t in chain:
+        run = run + 1 if t == 'P' else 0; best_run = max(best_run, run)
+    print('  story order: ' + ' '.join(chain) + '   longest pressure run: %d %s' % (best_run, 'ok' if best_run <= 2 else '<-- too many pressure cards in a row'))
     print('  pacing (P pressure, S story, V values, B breather): ' + ' '.join(chain))
     print('  tone mix: ' + ', '.join('%s %d' % kv for kv in tones.items()))
     print('  scoregap = outcome given up by the plan that best pleases officers vs the best outcome; peaceful = acceptable-outcome plans with at most one officer unhappy')
