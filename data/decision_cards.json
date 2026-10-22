@@ -259,7 +259,13 @@
    ],
    "base": {
     "crew_loss": 1
-   }
+   },
+   "tone": "pressure",
+   "required_any": [
+    "sink",
+    "ai",
+    "captain"
+   ]
   },
   "card6_firing_solution": {
    "slots": 2,
@@ -481,6 +487,10 @@
      "lever": "raise_ai",
      "line": "I don't like what Pell wants with it."
     }
+   ],
+   "tone": "pressure",
+   "required": [
+    "weapon"
    ]
   },
   "card10_core": {
@@ -648,7 +658,969 @@
      "lever": "keep",
      "line": "A second core aboard changes our signature."
     }
+   ],
+   "tone": "values",
+   "required": [
+    "core"
+   ]
+  },
+  "card1_briefing": {
+   "tone": "story",
+   "slots": 2,
+   "required": [
+    "framing",
+    "disclosure"
+   ],
+   "weights": {
+    "trust_risk": -10,
+    "time": -1
+   },
+   "levers": [
+    {
+     "id": "salvage_run",
+     "label": "A salvage run",
+     "channel": "framing",
+     "proposer": "Pike",
+     "executor": "Captain",
+     "slots": 1,
+     "stances": [
+      "money"
+     ],
+     "field": "sensors",
+     "difficulty": 0.0,
+     "bands": {
+      "fixed": {
+       "trust_risk": 0.1
+      }
+     }
+    },
+    {
+     "id": "rescue",
+     "label": "A rescue",
+     "channel": "framing",
+     "proposer": "Quill",
+     "executor": "Captain",
+     "slots": 1,
+     "stances": [
+      "conscience"
+     ],
+     "field": "sensors",
+     "difficulty": 0.0,
+     "bands": {
+      "fixed": {
+       "trust_risk": 0.4
+      }
+     }
+    },
+    {
+     "id": "duty_run",
+     "label": "A duty run",
+     "channel": "framing",
+     "proposer": "Castellan",
+     "executor": "Captain",
+     "slots": 1,
+     "stances": [
+      "loyalty"
+     ],
+     "field": "sensors",
+     "difficulty": 0.0,
+     "bands": {
+      "fixed": {
+       "trust_risk": 0.15
+      }
+     }
+    },
+    {
+     "id": "tell_all",
+     "label": "Tell them everything, odd coordinates included",
+     "channel": "disclosure",
+     "proposer": "Pell",
+     "executor": "Captain",
+     "slots": 1,
+     "stances": [
+      "conscience",
+      "loyalty"
+     ],
+     "field": "sensors",
+     "difficulty": 0.0,
+     "bands": {
+      "fixed": {
+       "trust_risk": -0.15,
+       "time": 1
+      }
+     }
+    },
+    {
+     "id": "tell_job",
+     "label": "Tell them the job",
+     "channel": "disclosure",
+     "proposer": "Dace",
+     "executor": "Captain",
+     "slots": 1,
+     "stances": [
+      "caution"
+     ],
+     "field": "sensors",
+     "difficulty": 0.0,
+     "bands": {
+      "fixed": {}
+     }
+    },
+    {
+     "id": "route_only",
+     "label": "Tell them the route only",
+     "channel": "disclosure",
+     "proposer": "Abara",
+     "executor": "Captain",
+     "slots": 1,
+     "stances": [
+      "secrecy"
+     ],
+     "field": "sensors",
+     "difficulty": 0.0,
+     "bands": {
+      "fixed": {
+       "trust_risk": 0.15
+      }
+     }
+    }
+   ],
+   "objections": [
+    {
+     "by": "Quill",
+     "lever": "salvage_run",
+     "line": "Money first, then."
+    },
+    {
+     "by": "Pike",
+     "lever": "rescue",
+     "line": "There is no one to rescue."
+    },
+    {
+     "by": "Castellan",
+     "lever": "route_only",
+     "line": "The old captain told us everything."
+    },
+    {
+     "by": "Pike",
+     "lever": "tell_all",
+     "line": "They will worry about the pay."
+    }
+   ]
+  },
+  "card3_route": {
+   "tone": "breather",
+   "slots": 1,
+   "required": [
+    "route"
+   ],
+   "weights": {
+    "time": -0.4,
+    "heat": -0.3,
+    "exposure": -2.5,
+    "margin": 0.6
+   },
+   "levers": [
+    {
+     "id": "slow_passive",
+     "label": "Slow and passive",
+     "channel": "route",
+     "proposer": "Pell",
+     "executor": "Captain",
+     "slots": 1,
+     "stances": [
+      "caution"
+     ],
+     "field": "sensors",
+     "difficulty": 0.0,
+     "bands": {
+      "fixed": {
+       "time": 14,
+       "heat": 0,
+       "exposure": 0,
+       "margin": 0
+      }
+     }
+    },
+    {
+     "id": "fast_burn",
+     "label": "Fast burn",
+     "channel": "route",
+     "proposer": "Pike",
+     "executor": "Captain",
+     "slots": 1,
+     "stances": [
+      "speed"
+     ],
+     "field": "sensors",
+     "difficulty": 0.0,
+     "bands": {
+      "fixed": {
+       "time": 0,
+       "heat": 4,
+       "exposure": 3,
+       "margin": 8
+      }
+     }
+    },
+    {
+     "id": "burn_coast",
+     "label": "Burn, then coast",
+     "channel": "route",
+     "proposer": "Abara",
+     "executor": "Captain",
+     "slots": 1,
+     "stances": [
+      "secrecy"
+     ],
+     "field": "sensors",
+     "difficulty": 0.0,
+     "bands": {
+      "fixed": {
+       "time": 8,
+       "heat": 2,
+       "exposure": 1.0,
+       "margin": 7
+      }
+     }
+    }
+   ],
+   "objections": [
+    {
+     "by": "Castellan",
+     "lever": "fast_burn",
+     "line": "The old captain would have gone slow."
+    },
+    {
+     "by": "Pike",
+     "lever": "slow_passive",
+     "line": "Fourteen minutes of heat we do not need."
+    }
+   ]
+  },
+  "card4_detection": {
+   "tone": "pressure",
+   "slots": 2,
+   "required": [
+    "sensing"
+   ],
+   "weights": {
+    "time": -0.3,
+    "heat": -0.3,
+    "exposure": -5
+   },
+   "levers": [
+    {
+     "id": "passive",
+     "label": "Stay passive",
+     "channel": "sensing",
+     "proposer": "Castellan",
+     "executor": "Castellan",
+     "slots": 1,
+     "stances": [
+      "caution",
+      "loyalty"
+     ],
+     "field": "sensors",
+     "difficulty": 4.0,
+     "bands": {
+      "great": {
+       "time": 30,
+       "heat": 9
+      },
+      "fixed": {
+       "time": 34,
+       "heat": 10
+      },
+      "unchanged": {
+       "time": 40,
+       "heat": 12
+      },
+      "worse": {
+       "time": 48,
+       "heat": 14,
+       "exposure": 1
+      }
+     }
+    },
+    {
+     "id": "ping",
+     "label": "A short active ping",
+     "channel": "sensing",
+     "proposer": "Pike",
+     "executor": "Castellan",
+     "slots": 1,
+     "stances": [
+      "speed"
+     ],
+     "field": "sensors",
+     "difficulty": 3.5,
+     "bands": {
+      "great": {
+       "time": 6,
+       "heat": 2,
+       "exposure": 3
+      },
+      "fixed": {
+       "time": 8,
+       "heat": 3,
+       "exposure": 3
+      },
+      "unchanged": {
+       "time": 12,
+       "heat": 3,
+       "exposure": 3
+      },
+      "worse": {
+       "time": 16,
+       "heat": 4,
+       "exposure": 4
+      }
+     }
+    },
+    {
+     "id": "reposition",
+     "label": "Change course for better geometry",
+     "channel": "nav",
+     "proposer": "Abara",
+     "executor": "Abara",
+     "slots": 1,
+     "stances": [
+      "caution"
+     ],
+     "field": "sensors",
+     "difficulty": 3.0,
+     "bands": {
+      "great": {
+       "time": 3
+      },
+      "fixed": {
+       "time": 4
+      },
+      "unchanged": {
+       "time": 5
+      },
+      "worse": {
+       "time": 7,
+       "exposure": 1
+      }
+     },
+     "synergy": [
+      {
+       "with": "passive",
+       "deltas": {
+        "time": -8
+       }
+      },
+      {
+       "with": "ping",
+       "deltas": {
+        "exposure": -1,
+        "time": -1
+       }
+      }
+     ]
+    }
+   ],
+   "objections": [
+    {
+     "by": "Castellan",
+     "lever": "ping",
+     "line": "Going active is a mistake."
+    },
+    {
+     "by": "Pike",
+     "lever": "passive",
+     "line": "We are cooking while we listen."
+    },
+    {
+     "by": "Dace",
+     "lever": "ping",
+     "line": "A ping tells everyone we are here."
+    }
+   ]
+  },
+  "card5_classification": {
+   "tone": "pressure",
+   "slots": 2,
+   "required": [
+    "posture"
+   ],
+   "weights": {
+    "time": -0.3,
+    "heat": -0.3,
+    "exposure": -5,
+    "info": 4,
+    "relay_risk": -10
+   },
+   "levers": [
+    {
+     "id": "listen",
+     "label": "Keep listening",
+     "channel": "posture",
+     "proposer": "Castellan",
+     "executor": "Castellan",
+     "slots": 1,
+     "stances": [
+      "caution",
+      "loyalty"
+     ],
+     "field": "sensors",
+     "difficulty": 4.0,
+     "bands": {
+      "great": {
+       "time": 5,
+       "heat": 2,
+       "info": 1.5
+      },
+      "fixed": {
+       "time": 6,
+       "heat": 3,
+       "info": 1
+      },
+      "unchanged": {
+       "time": 8,
+       "heat": 3,
+       "info": 0.4
+      },
+      "worse": {
+       "time": 10,
+       "heat": 4,
+       "info": 0
+      }
+     }
+    },
+    {
+     "id": "go_active",
+     "label": "Go active to resolve it",
+     "channel": "posture",
+     "proposer": "Pike",
+     "executor": "Castellan",
+     "slots": 1,
+     "stances": [
+      "speed"
+     ],
+     "field": "sensors",
+     "difficulty": 3.0,
+     "bands": {
+      "great": {
+       "time": 1,
+       "exposure": 3,
+       "info": 2.4
+      },
+      "fixed": {
+       "time": 1,
+       "exposure": 3,
+       "info": 2
+      },
+      "unchanged": {
+       "time": 2,
+       "exposure": 3,
+       "info": 1.5
+      },
+      "worse": {
+       "time": 3,
+       "exposure": 4,
+       "info": 1
+      }
+     }
+    },
+    {
+     "id": "break_off",
+     "label": "Break off",
+     "channel": "posture",
+     "proposer": "Quill",
+     "executor": "Captain",
+     "slots": 1,
+     "stances": [
+      "conscience",
+      "caution"
+     ],
+     "field": "sensors",
+     "difficulty": 0.0,
+     "bands": {
+      "fixed": {
+       "relay_risk": 0.35
+      }
+     }
+    },
+    {
+     "id": "cross_check",
+     "label": "Cross-check against the seeker data",
+     "channel": "intel",
+     "proposer": "Pell",
+     "executor": "Quill",
+     "slots": 1,
+     "stances": [
+      "caution"
+     ],
+     "field": "sensors",
+     "difficulty": 3.5,
+     "bands": {
+      "great": {
+       "time": 1,
+       "heat": 1,
+       "info": 1.2
+      },
+      "fixed": {
+       "time": 1,
+       "heat": 1,
+       "info": 1.0
+      },
+      "unchanged": {
+       "time": 1,
+       "heat": 1,
+       "info": 0.3
+      },
+      "worse": {
+       "time": 2,
+       "heat": 1
+      }
+     },
+     "synergy": [
+      {
+       "with": "listen",
+       "deltas": {
+        "info": 0.5
+       }
+      }
+     ]
+    }
+   ],
+   "objections": [
+    {
+     "by": "Quill",
+     "lever": "go_active",
+     "line": "If it is civilian, a ping tells the cutter too."
+    },
+    {
+     "by": "Pike",
+     "lever": "break_off",
+     "line": "We came here to be paid."
+    },
+    {
+     "by": "Castellan",
+     "lever": "go_active",
+     "line": "Going active is a mistake."
+    }
+   ]
+  },
+  "card7_waiting": {
+   "tone": "breather",
+   "slots": 2,
+   "required": [
+    "heat"
+   ],
+   "base": {
+    "crew_loss": 0.5
+   },
+   "weights": {
+    "heat": -0.5,
+    "exposure": -5,
+    "crew_loss": -6,
+    "safety": 2
+   },
+   "levers": [
+    {
+     "id": "vent_now",
+     "label": "Vent now",
+     "channel": "heat",
+     "proposer": "Pike",
+     "executor": "Captain",
+     "slots": 1,
+     "stances": [
+      "speed"
+     ],
+     "field": "sensors",
+     "difficulty": 0.0,
+     "bands": {
+      "fixed": {
+       "heat": -16,
+       "exposure": 3
+      }
+     }
+    },
+    {
+     "id": "hold_silent",
+     "label": "Hold silent",
+     "channel": "heat",
+     "proposer": "Castellan",
+     "executor": "Captain",
+     "slots": 1,
+     "stances": [
+      "caution"
+     ],
+     "field": "sensors",
+     "difficulty": 0.0,
+     "bands": {
+      "fixed": {
+       "heat": 4
+      }
+     }
+    },
+    {
+     "id": "burn_away",
+     "label": "Burn away",
+     "channel": "heat",
+     "proposer": "Abara",
+     "executor": "Captain",
+     "slots": 1,
+     "stances": [
+      "secrecy"
+     ],
+     "field": "sensors",
+     "difficulty": 0.0,
+     "bands": {
+      "fixed": {
+       "heat": 3,
+       "exposure": 2,
+       "safety": 2
+      }
+     }
+    },
+    {
+     "id": "rest_crew",
+     "label": "Rotate and rest the crew",
+     "channel": "crew",
+     "proposer": "Quill",
+     "executor": "Quill",
+     "slots": 1,
+     "stances": [
+      "conscience"
+     ],
+     "field": "engineering",
+     "difficulty": 3.0,
+     "bands": {
+      "great": {
+       "shield": 0.75
+      },
+      "fixed": {
+       "shield": 0.5
+      },
+      "unchanged": {
+       "shield": 0.2
+      },
+      "worse": {}
+     }
+    }
+   ],
+   "objections": [
+    {
+     "by": "Quill",
+     "lever": "vent_now",
+     "line": "A bloom shows the cutter exactly where we are."
+    },
+    {
+     "by": "Pike",
+     "lever": "hold_silent",
+     "line": "Heat keeps climbing. We lit ourselves up already."
+    },
+    {
+     "by": "Dace",
+     "lever": "burn_away",
+     "line": "Burning draws attention to the core."
+    }
+   ]
+  },
+  "card9_relay_tag": {
+   "tone": "story",
+   "slots": 2,
+   "required": [
+    "tag"
+   ],
+   "weights": {
+    "clue": 5,
+    "time": -1,
+    "heat": -0.3,
+    "trust_risk": -5
+   },
+   "levers": [
+    {
+     "id": "log_tag",
+     "label": "Log and photograph the tag",
+     "channel": "tag",
+     "proposer": "Castellan",
+     "executor": "Castellan",
+     "slots": 1,
+     "stances": [
+      "caution",
+      "loyalty"
+     ],
+     "field": "sensors",
+     "difficulty": 3.0,
+     "bands": {
+      "great": {
+       "clue": 1,
+       "time": 1,
+       "heat": 1
+      },
+      "fixed": {
+       "clue": 1,
+       "time": 1,
+       "heat": 1
+      },
+      "unchanged": {
+       "clue": 0.4,
+       "time": 1,
+       "heat": 1
+      },
+      "worse": {
+       "time": 2,
+       "heat": 1
+      }
+     }
+    },
+    {
+     "id": "ignore_tag",
+     "label": "Ignore the tag and carry on",
+     "channel": "tag",
+     "proposer": "Pike",
+     "executor": "Captain",
+     "slots": 1,
+     "stances": [
+      "speed"
+     ],
+     "field": "sensors",
+     "difficulty": 0.0,
+     "bands": {
+      "fixed": {
+       "trust_risk": 0.1
+      }
+     }
+    },
+    {
+     "id": "ask_pell",
+     "label": "Ask Pell what it sees",
+     "channel": "ai",
+     "proposer": "Dace",
+     "executor": "Dace",
+     "slots": 1,
+     "stances": [
+      "secrecy"
+     ],
+     "field": "ai",
+     "difficulty": 3.5,
+     "bands": {
+      "great": {
+       "clue": 0.8,
+       "time": 1
+      },
+      "fixed": {
+       "clue": 0.5,
+       "time": 1
+      },
+      "unchanged": {
+       "clue": 0.1,
+       "time": 1
+      },
+      "worse": {
+       "time": 1
+      }
+     }
+    }
+   ],
+   "objections": [
+    {
+     "by": "Pike",
+     "lever": "log_tag",
+     "line": "Every minute here is heat."
+    },
+    {
+     "by": "Quill",
+     "lever": "ignore_tag",
+     "line": "We are being used."
+    },
+    {
+     "by": "Dace",
+     "lever": "ask_pell",
+     "line": "Pell will not say. I asked twice."
+    }
+   ]
+  },
+  "card11_confrontation": {
+   "tone": "story",
+   "slots": 1,
+   "required": [
+    "response"
+   ],
+   "weights": {
+    "trust_risk": -5,
+    "ai": 4
+   },
+   "levers": [
+    {
+     "id": "admit",
+     "label": "Admit it",
+     "channel": "response",
+     "proposer": "Quill",
+     "executor": "Captain",
+     "slots": 1,
+     "stances": [
+      "conscience"
+     ],
+     "field": "sensors",
+     "difficulty": 0.0,
+     "bands": {
+      "fixed": {
+       "trust_risk": 0.05
+      }
+     }
+    },
+    {
+     "id": "justify_pay",
+     "label": "Justify it with the pay",
+     "channel": "response",
+     "proposer": "Pike",
+     "executor": "Captain",
+     "slots": 1,
+     "stances": [
+      "money"
+     ],
+     "field": "sensors",
+     "difficulty": 0.0,
+     "bands": {
+      "fixed": {
+       "trust_risk": 0.15
+      }
+     }
+    },
+    {
+     "id": "deflect_pell",
+     "label": "Deflect to Pell",
+     "channel": "response",
+     "proposer": "Abara",
+     "executor": "Captain",
+     "slots": 1,
+     "stances": [
+      "secrecy"
+     ],
+     "field": "sensors",
+     "difficulty": 0.0,
+     "bands": {
+      "fixed": {
+       "trust_risk": 0.2,
+       "ai": -1
+      }
+     }
+    }
+   ],
+   "objections": [
+    {
+     "by": "Pike",
+     "lever": "admit",
+     "line": "Do not grovel."
+    },
+    {
+     "by": "Quill",
+     "lever": "justify_pay",
+     "line": "Pay is not an answer."
+    },
+    {
+     "by": "Dace",
+     "lever": "deflect_pell",
+     "line": "Do not put that on Pell."
+    }
+   ]
+  },
+  "card12_patron_call": {
+   "tone": "breather",
+   "slots": 1,
+   "required": [
+    "report"
+   ],
+   "weights": {
+    "patron_trust": 3,
+    "gap": -4
+   },
+   "levers": [
+    {
+     "id": "honest",
+     "label": "Report honestly",
+     "channel": "report",
+     "proposer": "Quill",
+     "executor": "Captain",
+     "slots": 1,
+     "stances": [
+      "conscience"
+     ],
+     "field": "sensors",
+     "difficulty": 0.0,
+     "bands": {
+      "fixed": {
+       "patron_trust": -0.3,
+       "gap": 0
+      }
+     }
+    },
+    {
+     "id": "say_wanted",
+     "label": "Report what the patron wants to hear",
+     "channel": "report",
+     "proposer": "Pike",
+     "executor": "Captain",
+     "slots": 1,
+     "stances": [
+      "money"
+     ],
+     "field": "sensors",
+     "difficulty": 0.0,
+     "bands": {
+      "fixed": {
+       "patron_trust": 0.5,
+       "gap": 0.5
+      }
+     }
+    },
+    {
+     "id": "silence",
+     "label": "Say nothing",
+     "channel": "report",
+     "proposer": "Abara",
+     "executor": "Captain",
+     "slots": 1,
+     "stances": [
+      "secrecy"
+     ],
+     "field": "sensors",
+     "difficulty": 0.0,
+     "bands": {
+      "fixed": {
+       "patron_trust": -0.2,
+       "gap": 0.2
+      }
+     }
+    }
+   ],
+   "objections": [
+    {
+     "by": "Quill",
+     "lever": "say_wanted",
+     "line": "The log will show the gap."
+    },
+    {
+     "by": "Pike",
+     "lever": "honest",
+     "line": "They pay us."
+    },
+    {
+     "by": "Dace",
+     "lever": "silence",
+     "line": "Pell will notice."
+    }
    ]
   }
- }
+ },
+ "order": [
+  "card1_briefing",
+  "card3_route",
+  "card4_detection",
+  "card5_classification",
+  "card6_firing_solution",
+  "card7_waiting",
+  "card8_heat_crisis",
+  "card9_relay_tag",
+  "card10_core",
+  "card11_confrontation",
+  "card12_patron_call"
+ ]
 }
