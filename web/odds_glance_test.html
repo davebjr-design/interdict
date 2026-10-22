@@ -178,12 +178,12 @@ th{color:var(--dim);font:600 12px var(--display);letter-spacing:.12em;text-trans
   var hid=$('hidden-cover');
   function run(){
     clearInterval(timer);
-    var n=5; $('count').textContent=n; cover.hidden=true; hid.hidden=true;
-    $('show').disabled=true; $('again').disabled=true; $('status').textContent='Tester '+(results.length+1)+' of 3. Screen visible.';
-    var el=document.querySelector('.cover .count');
+    var n=5; hid.hidden=true; $('form').hidden=true;
+    $('show').disabled=true; $('again').disabled=true; $('status').textContent='Tester '+(results.length+1)+' of 3. Screen visible: '+n+' s left.';
     timer=setInterval(function(){
       n--;
-      if(n<=0){clearInterval(timer);hid.hidden=false;hid.querySelector('p').textContent='Screen hidden';$('again').disabled=false;$('status').textContent='Tester '+(results.length+1)+' of 3. Ask the questions.';}
+      if(n<=0){clearInterval(timer);hid.hidden=false;$('form').hidden=false;$('again').disabled=false;$('status').textContent='Tester '+(results.length+1)+' of 3. Ask the questions.';}
+      else $('status').textContent='Tester '+(results.length+1)+' of 3. Screen visible: '+n+' s left.';
     },1000);
     shown=true;
   }
