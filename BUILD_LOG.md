@@ -46,3 +46,8 @@ Read this first each session. Keep it to one page.
 ## Oct 22 (night) - Pell lines
 - Drafted "Pell's Voice: Lines Across One Sortie" (Docs): 11 beats x 3 trust registers, aftermath lines, tells, running gags. Awaiting Dave's tone notes.
 - Concept doc: added fixed-prologue-crew / roster matrix / character cards / seats-not-names rule.
+
+## Oct 22 (late) - odds screen with dials
+- Dave: drop the hide-the-screen test mechanic (interface will be redesigned anyway); judge whether the info is right and what dials exist (learned attack patterns, equipment with active/passive buffs).
+- web/odds_screen.html: firing screen + dials (attack pattern skills, passive gear, limited-use active gear, ping, wait). Fixed an arithmetic error from the glance-test page (rows summed to 65, not 68; base is now 58).
+- web/odds_glance_test.html kept in the repo but superseded.

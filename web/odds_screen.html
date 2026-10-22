@@ -1,0 +1,164 @@
+<title>Odds Screen Prototype</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: the firing screen on the left, the dials (what the captain can change) on the right; stacks on a phone. Committed dark bridge-display look. */
+:root{
+  --bg:#0c1114; --panel:#131a1f; --panel2:#19232a; --line:#26343d;
+  --fg:#d7e2e6; --dim:#87a0a8; --accent:#e8a33d; --good:#58c4a0; --bad:#e2634f; --band:#3d8fa6;
+  --display:'Barlow Condensed','Arial Narrow',sans-serif; --body:'IBM Plex Sans',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--body);margin:0;
+  padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+.wrap{max-width:1000px;margin:0 auto;display:grid;gap:18px}
+h1{font:600 30px/1.1 var(--display);letter-spacing:.04em;text-transform:uppercase;margin:0}
+h2{font:600 14px/1 var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:0 0 10px}
+p{margin:0} .dim{color:var(--dim)}
+.grid{display:grid;grid-template-columns:1.25fr 1fr;gap:18px;align-items:start}
+.screen,.dials{background:var(--panel);border:1px solid var(--line);padding:18px;display:grid;gap:16px;min-width:0}
+.screen header{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:10px;font:600 15px var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.screen header b{color:var(--accent)}
+.big{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.big .num{font:600 72px/1 var(--mono);letter-spacing:-.03em}
+.big .num small{font-size:34px;color:var(--dim)}
+.big .lab{font:600 18px var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.big .rng{font:500 18px var(--mono);color:var(--band)}
+.scale{position:relative;height:34px}
+.scale .track{position:absolute;left:0;right:0;top:14px;height:6px;background:var(--panel2);border-radius:3px}
+.scale .band{position:absolute;top:10px;height:14px;background:var(--band);opacity:.75;border-radius:2px}
+.scale .pt{position:absolute;top:4px;width:3px;height:26px;background:var(--fg)}
+.scale .t{position:absolute;top:24px;font:500 11px var(--mono);color:var(--dim);transform:translateX(-50%)}
+.age{font:500 13px var(--mono);color:var(--accent)}
+.why{display:grid;gap:6px;font:500 14px var(--mono)}
+.why div{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--line);padding-bottom:4px}
+.p{color:var(--good)} .n{color:var(--bad)}
+.costs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.cost{border:1px solid var(--line);background:var(--panel2);padding:8px 10px}
+.cost b{display:block;font:700 12px var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.cost span{font:600 20px var(--mono)}
+.acts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.act{border:1px solid var(--line);padding:10px 12px;display:grid;gap:2px;background:var(--panel2)}
+.act b{font:700 20px var(--display);letter-spacing:.1em}
+.act span{font:400 12px var(--mono);color:var(--dim)}
+.act.fire b{color:var(--accent)}
+.group{display:grid;gap:8px}
+label.row{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:3px;cursor:pointer;background:var(--panel2)}
+label.row:has(input:checked){border-color:var(--accent)}
+label.row.off{opacity:.5;cursor:not-allowed}
+label.row b{font-weight:600} label.row small{display:block;color:var(--dim);font:400 12px var(--mono)}
+.tag{font:600 11px var(--display);letter-spacing:.14em;text-transform:uppercase;border:1px solid var(--line);padding:1px 6px;color:var(--dim);margin-left:6px;white-space:nowrap}
+button{font:600 14px var(--body);background:var(--accent);color:#1b1304;border:0;border-radius:3px;padding:9px 14px;cursor:pointer}
+button.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+button:disabled{opacity:.4;cursor:default}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+@media(max-width:760px){.grid{grid-template-columns:1fr}.big .num{font-size:56px}.costs,.acts{grid-template-columns:1fr}}
+</style>
+
+<div class="wrap">
+  <div>
+    <h1>Odds Screen Prototype</h1>
+    <p class="dim">The firing decision with its dials. Change a skill, gear or a sensor action on the right and watch the odds, the band and the costs move. Numbers are placeholders; the structure is what is being judged.</p>
+  </div>
+
+  <div class="grid">
+    <div class="screen" id="screen">
+      <header><span>Firing solution <b>· Cutter Meridian-4</b></span><span>Range 41 km · Missile ready</span></header>
+      <div>
+        <div class="big"><span class="lab">Kill chance</span><span class="num" id="num">68<small>%</small></span><span class="rng" id="rng"></span></div>
+        <div class="scale" aria-hidden="true">
+          <div class="track"></div><div class="band" id="bandbar"></div><div class="pt" id="ptbar"></div>
+          <span class="t" style="left:0%">0</span><span class="t" style="left:50%">50</span><span class="t" style="left:100%">100</span>
+        </div>
+        <p class="age" id="age" style="margin-top:20px"></p>
+      </div>
+      <div>
+        <h2>Why this number <span class="dim" style="letter-spacing:0;text-transform:none;font-weight:400">· starts from 58</span></h2>
+        <div class="why" id="why"></div>
+      </div>
+      <div>
+        <h2>If you fire</h2>
+        <div class="costs">
+          <div class="cost"><b>Exposure</b><span id="c-exp"></span></div>
+          <div class="cost"><b>Heat</b><span id="c-heat"></span></div>
+          <div class="cost"><b>Relay warned</b><span id="c-relay"></span></div>
+        </div>
+      </div>
+      <div class="acts">
+        <div class="act fire"><b>Fire</b><span id="a-fire"></span></div>
+        <div class="act"><b>Hold</b><span id="a-hold"></span></div>
+        <div class="act"><b>Break off</b><span>Safe now · cutter may be warned</span></div>
+      </div>
+    </div>
+
+    <div class="dials">
+      <div class="group">
+        <h2>Attack pattern <span class="tag">learned skill</span></h2>
+        <label class="row"><input type="radio" name="pat" value="std" checked><span><b>Standard shot</b><small>No bonus, no extra cost</small></span></label>
+        <label class="row" id="r-lurk"><input type="radio" name="pat" value="lurk"><span><b>Lurk and snap</b><small>+4 if the target is unaware. Lost if you ping.</small></span></label>
+        <label class="row"><input type="radio" name="pat" value="decoy"><span><b>Decoy first</b><small>+6 kill chance · +6 exposure · costs a minute</small></span></label>
+      </div>
+      <div class="group">
+        <h2>Always-on gear <span class="tag">passive</span></h2>
+        <label class="row"><input type="checkbox" id="mk2"><span><b>Seeker Mk II</b><small>+4 kill chance · band 3 narrower</small></span></label>
+        <label class="row"><input type="checkbox" id="baffle"><span><b>Baffled tubes</b><small>Firing exposure −8</small></span></label>
+      </div>
+      <div class="group">
+        <h2>Activate <span class="tag">active · limited</span></h2>
+        <label class="row" id="r-jam"><input type="checkbox" id="jam"><span><b>Jammer pulse</b><small>Relay warned −10 pts · +4 heat · one use</small></span></label>
+        <label class="row" id="r-over"><input type="checkbox" id="over"><span><b>Sink overclock</b><small>Heat −10 on firing · crew strain · one use</small></span></label>
+      </div>
+      <div class="group">
+        <h2>Sensors and time</h2>
+        <label class="row"><input type="checkbox" id="ping"><span><b>Active ping</b><small>Fresh track, narrower band · target becomes aware · +15 exposure</small></span></label>
+        <div class="bar"><button id="wait" class="ghost">Wait 1 minute</button><button id="reset" class="ghost">Reset</button><span class="dim" id="waited"></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)};
+  var waited=0;
+  function sign(v){return (v>=0?'+':'−')+Math.abs(v)}
+  function render(){
+    var pat=document.querySelector('input[name=pat]:checked').value;
+    var ping=$('ping').checked, mk2=$('mk2').checked, baffle=$('baffle').checked, jam=$('jam').checked, over=$('over').checked;
+    var decoyMin=pat==='decoy'?1:0;
+    var age=ping?0:3+waited+decoyMin;
+    var track=14+(ping?6:0);
+    var unaware=ping?0:8+(pat==='lurk'?4:0);
+    var range=-9;
+    var aging=-age;
+    var gear=(pat==='decoy'?6:0)+(mk2?4:0);
+    var kill=Math.max(2,Math.min(98,58+track+unaware+range+aging+gear));
+    var half=Math.max(5,12+1.5*(age-3)-(mk2?3:0));
+    var lo=Math.max(0,Math.round(kill-half)), hi=Math.min(100,Math.round(kill+half));
+    $('num').innerHTML=Math.round(kill)+'<small>%</small>';
+    $('rng').textContent='likely '+lo+' to '+hi;
+    $('bandbar').style.left=lo+'%'; $('bandbar').style.width=(hi-lo)+'%'; $('ptbar').style.left=kill+'%';
+    $('age').textContent='Track data '+(age===0?'fresh':age+' min old')+' · range '+(age===0?'will':'widens')+(age===0?' widen':' about 3 points a minute')+(jam||over?'':'');
+    var rows=[['Track quality',track],['Target awareness',unaware],['Long range',range],['Data age',aging],['Skills and gear',gear]];
+    $('why').innerHTML=rows.map(function(r){var c=r[1]>0?'p':r[1]<0?'n':'';return '<div><span>'+r[0]+'</span><span class="'+c+'">'+(r[1]===0?'0':sign(r[1]))+'</span></div>'}).join('');
+    var exp=20+(ping?15:0)+(pat==='decoy'?6:0)-(baffle?8:0);
+    var heat=47+Math.round(waited*1.5)+5+(jam?4:0)-(over?10:0);
+    var relay=Math.max(0,Math.round(16-(jam?10:0)+(ping?4:0)));
+    $('c-exp').textContent=exp+' gm'; $('c-heat').textContent=heat+'%'; $('c-relay').textContent=relay+'%';
+    $('c-heat').className=heat>=40?'n':''; $('c-relay').className=relay>=15?'n':'p';
+    $('a-fire').textContent='Reveals us · '+exp+' exposure · heat '+heat+'%';
+    $('a-hold').textContent='Heat '+(47+Math.round(waited*1.5))+'% · odds slip as data ages';
+    $('waited').textContent=waited?('Waited '+waited+' min'):'';
+    var lurk=$('r-lurk'); lurk.classList.toggle('off',ping);
+  }
+  document.querySelectorAll('input').forEach(function(i){i.addEventListener('change',render)});
+  $('wait').addEventListener('click',function(){waited=Math.min(6,waited+1);render()});
+  $('reset').addEventListener('click',function(){
+    waited=0; document.querySelectorAll('input[type=checkbox]').forEach(function(c){c.checked=false});
+    document.querySelector('input[name=pat][value=std]').checked=true; render();
+  });
+  render();
+})();
+</script>
