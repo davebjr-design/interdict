@@ -1,0 +1,654 @@
+{
+ "stances": [
+  "caution",
+  "speed",
+  "money",
+  "conscience",
+  "secrecy",
+  "loyalty"
+ ],
+ "officers": {
+  "Pike": {
+   "temperament": "bold",
+   "spread": 2.6,
+   "likes": [
+    "money",
+    "speed"
+   ],
+   "dislikes": [
+    "conscience"
+   ],
+   "ratings": {
+    "engineering": 4,
+    "weapons": 2,
+    "sensors": 1,
+    "ai": 1
+   }
+  },
+  "Quill": {
+   "temperament": "careful",
+   "spread": 1.5,
+   "likes": [
+    "conscience",
+    "caution"
+   ],
+   "dislikes": [
+    "money"
+   ],
+   "ratings": {
+    "engineering": 2,
+    "weapons": 4,
+    "sensors": 3,
+    "ai": 1
+   }
+  },
+  "Castellan": {
+   "temperament": "exact",
+   "spread": 1.8,
+   "likes": [
+    "caution",
+    "loyalty"
+   ],
+   "dislikes": [
+    "speed"
+   ],
+   "ratings": {
+    "engineering": 2,
+    "weapons": 1,
+    "sensors": 5,
+    "ai": 2
+   }
+  },
+  "Abara": {
+   "temperament": "steady",
+   "spread": 2.0,
+   "likes": [
+    "secrecy",
+    "conscience"
+   ],
+   "dislikes": [
+    "loyalty"
+   ],
+   "ratings": {
+    "engineering": 3,
+    "weapons": 2,
+    "sensors": 3,
+    "ai": 1
+   }
+  },
+  "Dace": {
+   "temperament": "anxious",
+   "spread": 2.3,
+   "likes": [
+    "caution",
+    "secrecy"
+   ],
+   "dislikes": [
+    "speed"
+   ],
+   "ratings": {
+    "engineering": 2,
+    "weapons": 1,
+    "sensors": 3,
+    "ai": 4
+   }
+  },
+  "Captain": {
+   "temperament": "steady",
+   "spread": 1.5,
+   "likes": [],
+   "dislikes": [],
+   "ratings": {
+    "engineering": 3,
+    "weapons": 3,
+    "sensors": 3,
+    "ai": 3
+   }
+  }
+ },
+ "cards": {
+  "card8_heat_crisis": {
+   "slots": 2,
+   "weights": {
+    "heat": -1,
+    "crew_loss": -6,
+    "ai": 4,
+    "time": -2,
+    "exposure": -5
+   },
+   "levers": [
+    {
+     "id": "pike_fix",
+     "label": "Repair and vent in sequence",
+     "channel": "sink",
+     "proposer": "Pike",
+     "executor": "Pike",
+     "slots": 1,
+     "stances": [
+      "speed"
+     ],
+     "field": "engineering",
+     "difficulty": 5.5,
+     "bands": {
+      "great": {
+       "heat": -20,
+       "exposure": 1
+      },
+      "fixed": {
+       "heat": -15,
+       "exposure": 1
+      },
+      "unchanged": {
+       "heat": 0
+      },
+      "worse": {
+       "crew_loss": 2
+      }
+     }
+    },
+    {
+     "id": "shed_load",
+     "label": "Shed load, drop a setting",
+     "channel": "ai",
+     "proposer": "Dace",
+     "executor": "Dace",
+     "slots": 1,
+     "stances": [
+      "caution"
+     ],
+     "field": "ai",
+     "difficulty": 4.0,
+     "bands": {
+      "great": {
+       "heat": -10,
+       "ai": -1
+      },
+      "fixed": {
+       "heat": -8,
+       "ai": -1
+      },
+      "unchanged": {
+       "heat": -3,
+       "ai": -1
+      },
+      "worse": {
+       "heat": -3,
+       "ai": -2
+      }
+     }
+    },
+    {
+     "id": "crew_forward",
+     "label": "Move the crew forward",
+     "channel": "crew",
+     "proposer": "Abara",
+     "executor": "Abara",
+     "slots": 1,
+     "stances": [
+      "conscience"
+     ],
+     "field": "engineering",
+     "difficulty": 3.0,
+     "bands": {
+      "great": {
+       "shield": 0.75
+      },
+      "fixed": {
+       "shield": 0.5
+      },
+      "unchanged": {},
+      "worse": {}
+     },
+     "synergy": [
+      {
+       "with": "pike_fix",
+       "deltas": {
+        "heat": 4
+       }
+      }
+     ]
+    },
+    {
+     "id": "go_yourself",
+     "label": "Go in person (both slots)",
+     "channel": "captain",
+     "proposer": "Quill",
+     "executor": "Captain",
+     "slots": 2,
+     "stances": [
+      "caution"
+     ],
+     "field": "engineering",
+     "difficulty": 5.5,
+     "bands": {
+      "great": {
+       "heat": -20,
+       "time": 2
+      },
+      "fixed": {
+       "heat": -17,
+       "time": 2
+      },
+      "unchanged": {
+       "heat": -5,
+       "time": 2
+      },
+      "worse": {
+       "heat": -5,
+       "time": 2
+      }
+     }
+    }
+   ],
+   "objections": [
+    {
+     "by": "Quill",
+     "lever": "pike_fix",
+     "line": "He will tell you it's fine."
+    },
+    {
+     "by": "Pike",
+     "lever": "go_yourself",
+     "line": "I don't need a babysitter."
+    },
+    {
+     "by": "Castellan",
+     "lever": "shed_load",
+     "line": "Shedding load blinds the arrays for a while."
+    }
+   ],
+   "base": {
+    "crew_loss": 1
+   }
+  },
+  "card6_firing_solution": {
+   "slots": 2,
+   "weights": {
+    "kill": 20,
+    "exposure": -2,
+    "heat": -0.3,
+    "ai": -1,
+    "relay_risk": -10
+   },
+   "levers": [
+    {
+     "id": "fire",
+     "label": "Fire",
+     "channel": "weapon",
+     "proposer": "Pike",
+     "executor": "Quill",
+     "slots": 1,
+     "stances": [
+      "speed",
+      "money"
+     ],
+     "field": "weapons",
+     "difficulty": 5.0,
+     "bands": {
+      "great": {
+       "kill": 0.7,
+       "exposure": 1,
+       "heat": 5,
+       "relay_risk": 0.105
+      },
+      "fixed": {
+       "kill": 0.55,
+       "exposure": 1,
+       "heat": 5,
+       "relay_risk": 0.1575
+      },
+      "unchanged": {
+       "kill": 0.38,
+       "exposure": 1,
+       "heat": 5,
+       "relay_risk": 0.217
+      },
+      "worse": {
+       "kill": 0.22,
+       "exposure": 1,
+       "heat": 5,
+       "relay_risk": 0.273
+      }
+     },
+     "synergy": [
+      {
+       "with": "ping",
+       "deltas": {
+        "kill": 0.15,
+        "exposure": -1.5,
+        "relay_risk": -0.0525
+       }
+      },
+      {
+       "with": "raise_ai",
+       "deltas": {
+        "kill": 0.04,
+        "relay_risk": -0.014
+       }
+      }
+     ]
+    },
+    {
+     "id": "hold",
+     "label": "Hold and recalculate",
+     "channel": "weapon",
+     "proposer": "Quill",
+     "executor": "Quill",
+     "slots": 1,
+     "stances": [
+      "caution"
+     ],
+     "field": "weapons",
+     "difficulty": 4.0,
+     "bands": {
+      "great": {
+       "kill": 0.6,
+       "heat": 6,
+       "relay_risk": 0.14
+      },
+      "fixed": {
+       "kill": 0.53,
+       "heat": 6,
+       "relay_risk": 0.1645
+      },
+      "unchanged": {
+       "kill": 0.4,
+       "heat": 6,
+       "relay_risk": 0.21
+      },
+      "worse": {
+       "kill": 0.25,
+       "heat": 6,
+       "relay_risk": 0.2625
+      }
+     },
+     "synergy": [
+      {
+       "with": "ping",
+       "deltas": {
+        "kill": 0.1,
+        "relay_risk": -0.035
+       }
+      }
+     ]
+    },
+    {
+     "id": "break_off",
+     "label": "Break off",
+     "channel": "weapon",
+     "proposer": "Quill",
+     "executor": "Captain",
+     "slots": 1,
+     "stances": [
+      "conscience",
+      "caution"
+     ],
+     "field": "weapons",
+     "difficulty": 0.0,
+     "bands": {
+      "great": {
+       "relay_risk": 0.35
+      },
+      "fixed": {
+       "relay_risk": 0.35
+      },
+      "unchanged": {
+       "relay_risk": 0.35
+      },
+      "worse": {
+       "relay_risk": 0.35
+      }
+     }
+    },
+    {
+     "id": "ping",
+     "label": "One short active ping",
+     "channel": "sensor",
+     "proposer": "Castellan",
+     "executor": "Castellan",
+     "slots": 1,
+     "stances": [
+      "speed"
+     ],
+     "field": "sensors",
+     "difficulty": 4.0,
+     "bands": {
+      "great": {
+       "exposure": 2
+      },
+      "fixed": {
+       "exposure": 2
+      },
+      "unchanged": {
+       "exposure": 2
+      },
+      "worse": {
+       "exposure": 2
+      }
+     }
+    },
+    {
+     "id": "raise_ai",
+     "label": "Raise Pell's setting first",
+     "channel": "ai",
+     "proposer": "Pell",
+     "executor": "Dace",
+     "slots": 1,
+     "stances": [
+      "speed"
+     ],
+     "field": "ai",
+     "difficulty": 3.0,
+     "bands": {
+      "great": {
+       "ai": 1,
+       "heat": 3
+      },
+      "fixed": {
+       "ai": 1,
+       "heat": 3
+      },
+      "unchanged": {
+       "ai": 1,
+       "heat": 3
+      },
+      "worse": {
+       "ai": 1,
+       "heat": 3
+      }
+     },
+     "trap": true
+    }
+   ],
+   "objections": [
+    {
+     "by": "Quill",
+     "lever": "fire",
+     "line": "If that second signature is civilian, I won't fire."
+    },
+    {
+     "by": "Pike",
+     "lever": "hold",
+     "line": "Every minute we wait is heat we don't have."
+    },
+    {
+     "by": "Castellan",
+     "lever": "fire",
+     "line": "Without a ping the band is too wide."
+    },
+    {
+     "by": "Dace",
+     "lever": "raise_ai",
+     "line": "I don't like what Pell wants with it."
+    }
+   ]
+  },
+  "card10_core": {
+   "slots": 2,
+   "weights": {},
+   "levers": [
+    {
+     "id": "take",
+     "label": "Take it for the patron",
+     "channel": "core",
+     "proposer": "Pike",
+     "executor": "Pike",
+     "slots": 1,
+     "stances": [
+      "money"
+     ],
+     "field": "engineering",
+     "difficulty": 5.0,
+     "bands": {
+      "great": {
+       "cradle_heat": 2
+      },
+      "fixed": {
+       "cradle_heat": 4
+      },
+      "unchanged": {
+       "cradle_heat": 6
+      },
+      "worse": {
+       "cradle_heat": 9
+      }
+     }
+    },
+    {
+     "id": "keep",
+     "label": "Keep it aboard, tell no one",
+     "channel": "core",
+     "proposer": "Abara",
+     "executor": "Dace",
+     "slots": 1,
+     "stances": [
+      "secrecy"
+     ],
+     "field": "ai",
+     "difficulty": 4.5,
+     "bands": {
+      "great": {
+       "exposure": 1
+      },
+      "fixed": {
+       "exposure": 2
+      },
+      "unchanged": {
+       "exposure": 3
+      },
+      "worse": {
+       "exposure": 4
+      }
+     }
+    },
+    {
+     "id": "wake",
+     "label": "Wake it",
+     "channel": "core",
+     "proposer": "Pell",
+     "executor": "Dace",
+     "slots": 1,
+     "stances": [
+      "conscience"
+     ],
+     "field": "ai",
+     "difficulty": 5.5,
+     "bands": {
+      "great": {
+       "exposure": 2
+      },
+      "fixed": {
+       "exposure": 3
+      },
+      "unchanged": {
+       "exposure": 3
+      },
+      "worse": {
+       "exposure": 5
+      }
+     }
+    },
+    {
+     "id": "leave",
+     "label": "Leave it",
+     "channel": "core",
+     "proposer": "Quill",
+     "executor": "Captain",
+     "slots": 1,
+     "stances": [
+      "conscience",
+      "caution"
+     ],
+     "field": "engineering",
+     "difficulty": 0.0,
+     "bands": {
+      "great": {
+       "patron_trust": -1
+      },
+      "fixed": {
+       "patron_trust": -1
+      },
+      "unchanged": {
+       "patron_trust": -1
+      },
+      "worse": {
+       "patron_trust": -1
+      }
+     }
+    },
+    {
+     "id": "log_tag",
+     "label": "Log and photograph the tag",
+     "channel": "record",
+     "proposer": "Castellan",
+     "executor": "Castellan",
+     "slots": 1,
+     "stances": [
+      "caution",
+      "loyalty"
+     ],
+     "field": "sensors",
+     "difficulty": 3.0,
+     "bands": {
+      "great": {
+       "clue": 1,
+       "heat": 1
+      },
+      "fixed": {
+       "clue": 1,
+       "heat": 1
+      },
+      "unchanged": {
+       "heat": 1
+      },
+      "worse": {
+       "heat": 1
+      }
+     }
+    }
+   ],
+   "objections": [
+    {
+     "by": "Quill",
+     "lever": "take",
+     "line": "We are being used. It has the patron's own tag."
+    },
+    {
+     "by": "Dace",
+     "lever": "wake",
+     "line": "Pell asked me to stay well back from it."
+    },
+    {
+     "by": "Pike",
+     "lever": "leave",
+     "line": "That's two years of pay on the floor."
+    },
+    {
+     "by": "Castellan",
+     "lever": "keep",
+     "line": "A second core aboard changes our signature."
+    }
+   ]
+  }
+ }
+}
