@@ -337,7 +337,7 @@
     },
     {
      "id": "hold",
-     "label": "Hold and recalculate",
+     "label": "Hold quiet and wait for the moment",
      "channel": "weapon",
      "proposer": "Quill",
      "executor": "Quill",
@@ -465,6 +465,53 @@
       }
      },
      "trap": true
+    },
+    {
+     "id": "close_in",
+     "label": "Close the range",
+     "channel": "position",
+     "proposer": "Abara",
+     "executor": "Abara",
+     "slots": 1,
+     "stances": [
+      "speed"
+     ],
+     "field": "sensors",
+     "difficulty": 3.0,
+     "bands": {
+      "great": {
+       "kill": 0.26,
+       "exposure": 1.5,
+       "heat": 2.5,
+       "relay_risk": 0.02
+      },
+      "fixed": {
+       "kill": 0.2,
+       "exposure": 2,
+       "heat": 2.5,
+       "relay_risk": 0.03
+      },
+      "unchanged": {
+       "kill": 0.1,
+       "exposure": 2,
+       "heat": 3,
+       "relay_risk": 0.03
+      },
+      "worse": {
+       "kill": 0.03,
+       "exposure": 4,
+       "heat": 4,
+       "relay_risk": 0.06
+      }
+     },
+     "synergy": [
+      {
+       "with": "fire",
+       "deltas": {
+        "kill": 0.08
+       }
+      }
+     ]
     }
    ],
    "objections": [
@@ -487,6 +534,16 @@
      "by": "Dace",
      "lever": "raise_ai",
      "line": "I don't like what Pell wants with it."
+    },
+    {
+     "by": "Castellan",
+     "lever": "close_in",
+     "line": "Closing is how you get noticed."
+    },
+    {
+     "by": "Dace",
+     "lever": "close_in",
+     "line": "Every kilometer is more heat for Pell to carry."
     }
    ],
    "tone": "pressure",

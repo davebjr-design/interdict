@@ -34,11 +34,11 @@ p{margin:0} .dim{color:var(--dim)}
 .why{display:grid;gap:6px;font:500 14px var(--mono)}
 .why div{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--line);padding-bottom:4px}
 .p{color:var(--good)} .n{color:var(--bad)}
-.costs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.costs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .cost{border:1px solid var(--line);background:var(--panel2);padding:8px 10px}
 .cost b{display:block;font:700 12px var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
 .cost span{font:600 20px var(--mono)}
-.acts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.acts{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
 .act{border:1px solid var(--line);padding:10px 12px;display:grid;gap:2px;background:var(--panel2)}
 .act b{font:700 20px var(--display);letter-spacing:.1em}
 .act span{font:400 12px var(--mono);color:var(--dim)}
@@ -65,7 +65,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 
   <div class="grid">
     <div class="screen" id="screen">
-      <header><span>Firing solution <b>· Cutter Meridian-4</b></span><span>Range 41 km · Missile ready</span></header>
+      <header><span>Firing solution <b>· Cutter Meridian-4</b></span><span id="hdr">Range 41 km · Missile ready</span></header>
       <div>
         <div class="big"><span class="lab">Kill chance</span><span class="num" id="num">68<small>%</small></span><span class="rng" id="rng"></span></div>
         <div class="scale" aria-hidden="true">
@@ -84,11 +84,13 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
           <div class="cost"><b>Exposure</b><span id="c-exp"></span></div>
           <div class="cost"><b>Heat</b><span id="c-heat"></span></div>
           <div class="cost"><b>Relay warned</b><span id="c-relay"></span></div>
+          <div class="cost"><b>Noticed first</b><span id="c-note"></span></div>
         </div>
       </div>
       <div class="acts">
         <div class="act fire"><b>Fire</b><span id="a-fire"></span></div>
         <div class="act"><b>Hold</b><span id="a-hold"></span></div>
+        <div class="act"><b>Close in</b><span id="a-close"></span></div>
         <div class="act"><b>Break off</b><span>Safe now · cutter may be warned</span></div>
       </div>
     </div>
@@ -113,7 +115,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
       <div class="group">
         <h2>Sensors and time</h2>
         <label class="row"><input type="checkbox" id="ping"><span><b>Active ping</b><small>Fresh track, narrower band · target becomes aware · +15 exposure</small></span></label>
-        <div class="bar"><button id="wait" class="ghost">Wait 1 minute</button><button id="reset" class="ghost">Reset</button><span class="dim" id="waited"></span></div>
+        <div class="bar"><button id="wait" class="ghost">Hold 1 min</button><button id="close" class="ghost">Close in 8 km</button><button id="reset" class="ghost">Reset</button></div>
+        <p class="dim" id="waited"></p>
+        <p class="dim" style="font-size:13px">Hold stays quiet and lets the situation develop, but data ages and heat creeps. Close in sharpens the shot, but each step is louder and brings you nearer to being noticed.</p>
       </div>
     </div>
   </div>
@@ -122,16 +126,16 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 <script>
 (function(){
   var $=function(i){return document.getElementById(i)};
-  var waited=0;
+  var waited=0, closed=0;
   function sign(v){return (v>=0?'+':'−')+Math.abs(v)}
   function render(){
     var pat=document.querySelector('input[name=pat]:checked').value;
     var ping=$('ping').checked, mk2=$('mk2').checked, baffle=$('baffle').checked, jam=$('jam').checked, over=$('over').checked;
     var decoyMin=pat==='decoy'?1:0;
-    var age=ping?0:3+waited+decoyMin;
+    var age=ping?0:3+waited+closed+decoyMin;
     var track=14+(ping?6:0);
     var unaware=ping?0:8+(pat==='lurk'?4:0);
-    var range=-9;
+    var range=-9+3*closed;
     var aging=-age;
     var gear=(pat==='decoy'?6:0)+(mk2?4:0);
     var kill=Math.max(2,Math.min(98,58+track+unaware+range+aging+gear));
@@ -141,22 +145,25 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
     $('rng').textContent='likely '+lo+' to '+hi;
     $('bandbar').style.left=lo+'%'; $('bandbar').style.width=(hi-lo)+'%'; $('ptbar').style.left=kill+'%';
     $('age').textContent='Track data '+(age===0?'fresh':age+' min old')+' · range '+(age===0?'will':'widens')+(age===0?' widen':' about 3 points a minute')+(jam||over?'':'');
-    var rows=[['Track quality',track],['Target awareness',unaware],['Long range',range],['Data age',aging],['Skills and gear',gear]];
+    var rows=[['Track quality',track],['Target awareness',unaware],[closed?'Range '+(41-8*closed)+' km':'Long range',range],['Data age',aging],['Skills and gear',gear]];
     $('why').innerHTML=rows.map(function(r){var c=r[1]>0?'p':r[1]<0?'n':'';return '<div><span>'+r[0]+'</span><span class="'+c+'">'+(r[1]===0?'0':sign(r[1]))+'</span></div>'}).join('');
-    var exp=20+(ping?15:0)+(pat==='decoy'?6:0)-(baffle?8:0);
-    var heat=47+Math.round(waited*1.5)+5+(jam?4:0)-(over?10:0);
+    var exp=20+(ping?15:0)+(pat==='decoy'?6:0)-(baffle?8:0)+3*closed;
+    var heat=47+Math.round(waited*1.5+closed*2.5)+5+(jam?4:0)-(over?10:0);
     var relay=Math.max(0,Math.round(16-(jam?10:0)+(ping?4:0)));
+    var note=Math.min(95,Math.round(waited*4+closed*12+(ping?25:0)+(jam?3:0))); $('c-note').textContent=note+'%'; $('c-note').className=note>=20?'n':''; $('hdr').textContent='Range '+(41-8*closed)+' km · Missile ready';
     $('c-exp').textContent=exp+' gm'; $('c-heat').textContent=heat+'%'; $('c-relay').textContent=relay+'%';
     $('c-heat').className=heat>=40?'n':''; $('c-relay').className=relay>=15?'n':'p';
     $('a-fire').textContent='Reveals us · '+exp+' exposure · heat '+heat+'%';
-    $('a-hold').textContent='Heat '+(47+Math.round(waited*1.5))+'% · odds slip as data ages';
-    $('waited').textContent=waited?('Waited '+waited+' min'):'';
+    $('a-hold').textContent='Stay quiet · heat '+(47+Math.round(waited*1.5+closed*2.5))+'% · odds slip as data ages · wait for an event';
+    $('a-close').textContent=closed>=3?'At minimum range':'To '+(33-8*closed)+' km · +3 kill · +3 exposure · +12% noticed';
+    $('waited').textContent=(waited?'Held '+waited+' min. ':'')+(closed?'Closed '+closed+' step'+(closed>1?'s':'')+'.':'');
     var lurk=$('r-lurk'); lurk.classList.toggle('off',ping);
   }
   document.querySelectorAll('input').forEach(function(i){i.addEventListener('change',render)});
   $('wait').addEventListener('click',function(){waited=Math.min(6,waited+1);render()});
+  $('close').addEventListener('click',function(){closed=Math.min(3,closed+1);$('close').disabled=closed>=3;render()});
   $('reset').addEventListener('click',function(){
-    waited=0; document.querySelectorAll('input[type=checkbox]').forEach(function(c){c.checked=false});
+    waited=0; closed=0; $('close').disabled=false; document.querySelectorAll('input[type=checkbox]').forEach(function(c){c.checked=false});
     document.querySelector('input[name=pat][value=std]').checked=true; render();
   });
   render();
