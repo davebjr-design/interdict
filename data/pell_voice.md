@@ -31,3 +31,7 @@
 - Its objections are the funniest and the most honest lines on the card.
 - Trust with Pell is a normal officer trust state, so the player can befriend, rattle or deceive the AI like any other crew member.
 - The hidden agenda surfaces through its tells (rule 5), never through exposition.
+
+## Anchor line (Dave's favorite)
+"Contact. Probably hostile. Definitely rude, arriving unannounced."
+Why it works, so new lines can copy the shape: a plain fact first (contact), an honest uncertainty (probably hostile), then a petty complaint that turns the threat into an etiquette problem. Aim new lines at the same three-beat rhythm.
