@@ -106,11 +106,19 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
         <h2>Always-on gear <span class="tag">passive</span></h2>
         <label class="row"><input type="checkbox" id="mk2"><span><b>Seeker Mk II</b><small>+4 kill chance · band 3 narrower</small></span></label>
         <label class="row"><input type="checkbox" id="baffle"><span><b>Baffled tubes</b><small>Firing exposure −8</small></span></label>
+        <label class="row"><input type="checkbox" id="coil"><span><b>Efficient drive coil</b><small>Engine efficiency +0.2</small></span></label>
+        <label class="row"><input type="checkbox" id="pipes"><span><b>Heat pipes</b><small>Heat management +0.2</small></span></label>
       </div>
       <div class="group">
         <h2>Activate <span class="tag">active · limited</span></h2>
         <label class="row" id="r-jam"><input type="checkbox" id="jam"><span><b>Jammer pulse</b><small>Relay warned −10 pts · +4 heat · one use</small></span></label>
         <label class="row" id="r-over"><input type="checkbox" id="over"><span><b>Sink overclock</b><small>Heat −10 on firing · crew strain · one use</small></span></label>
+      </div>
+      <div class="group">
+        <h2>Ship and crew <span class="tag">base rates</span></h2>
+        <label class="row" style="display:grid;gap:4px"><span><b>Engine efficiency</b> <span id="v-eng" class="dim"></span><small>Less waste heat and noise per burn. Refits and gear raise it.</small></span><input type="range" id="eng" min="60" max="140" value="100"></label>
+        <label class="row" style="display:grid;gap:4px"><span><b>Heat management</b> <span id="v-hm" class="dim"></span><small>How much of the heat the sink absorbs. Refits and gear raise it.</small></span><input type="range" id="hm" min="60" max="140" value="100"></label>
+        <label class="row" style="display:grid;gap:4px"><span><b>Navigator skill</b> <span id="v-nav" class="dim"></span><small>Quieter, smoother approach. Abara is 3.</small></span><input type="range" id="nav" min="1" max="5" value="3"></label>
       </div>
       <div class="group">
         <h2>Sensors and time</h2>
@@ -132,6 +140,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
     var pat=document.querySelector('input[name=pat]:checked').value;
     var ping=$('ping').checked, mk2=$('mk2').checked, baffle=$('baffle').checked, jam=$('jam').checked, over=$('over').checked;
     var decoyMin=pat==='decoy'?1:0;
+    var eng=$('eng').value/100+($('coil').checked?0.2:0), hm=$('hm').value/100+($('pipes').checked?0.2:0), nav=+$('nav').value;
+    $('v-eng').textContent=eng.toFixed(2); $('v-hm').textContent=hm.toFixed(2); $('v-nav').textContent=nav;
+    var stepHeat=2.5/eng/hm, stepExp=3/eng, stepNote=12*(1.3-0.1*nav), holdHeat=1.5/hm;
     var age=ping?0:3+waited+closed+decoyMin;
     var track=14+(ping?6:0);
     var unaware=ping?0:8+(pat==='lurk'?4:0);
@@ -147,23 +158,23 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
     $('age').textContent='Track data '+(age===0?'fresh':age+' min old')+' · range '+(age===0?'will':'widens')+(age===0?' widen':' about 3 points a minute')+(jam||over?'':'');
     var rows=[['Track quality',track],['Target awareness',unaware],[closed?'Range '+(41-8*closed)+' km':'Long range',range],['Data age',aging],['Skills and gear',gear]];
     $('why').innerHTML=rows.map(function(r){var c=r[1]>0?'p':r[1]<0?'n':'';return '<div><span>'+r[0]+'</span><span class="'+c+'">'+(r[1]===0?'0':sign(r[1]))+'</span></div>'}).join('');
-    var exp=20+(ping?15:0)+(pat==='decoy'?6:0)-(baffle?8:0)+3*closed;
-    var heat=47+Math.round(waited*1.5+closed*2.5)+5+(jam?4:0)-(over?10:0);
+    var exp=Math.round(20+(ping?15:0)+(pat==='decoy'?6:0)-(baffle?8:0)+stepExp*closed);
+    var heat=Math.round(47+waited*holdHeat+closed*stepHeat+5/hm+(jam?4:0)-(over?10:0));
     var relay=Math.max(0,Math.round(16-(jam?10:0)+(ping?4:0)));
-    var note=Math.min(95,Math.round(waited*4+closed*12+(ping?25:0)+(jam?3:0))); $('c-note').textContent=note+'%'; $('c-note').className=note>=20?'n':''; $('hdr').textContent='Range '+(41-8*closed)+' km · Missile ready';
+    var note=Math.min(95,Math.round(waited*4/hm+closed*stepNote+(ping?25:0)+(jam?3:0))); $('c-note').textContent=note+'%'; $('c-note').className=note>=20?'n':''; $('hdr').textContent='Range '+(41-8*closed)+' km · Missile ready';
     $('c-exp').textContent=exp+' gm'; $('c-heat').textContent=heat+'%'; $('c-relay').textContent=relay+'%';
     $('c-heat').className=heat>=40?'n':''; $('c-relay').className=relay>=15?'n':'p';
     $('a-fire').textContent='Reveals us · '+exp+' exposure · heat '+heat+'%';
-    $('a-hold').textContent='Stay quiet · heat '+(47+Math.round(waited*1.5+closed*2.5))+'% · odds slip as data ages · wait for an event';
-    $('a-close').textContent=closed>=3?'At minimum range':'To '+(33-8*closed)+' km · +3 kill · +3 exposure · +12% noticed';
+    $('a-hold').textContent='Stay quiet · heat '+Math.round(47+waited*holdHeat+closed*stepHeat)+'% · odds slip as data ages · wait for an event';
+    $('a-close').textContent=closed>=3?'At minimum range':'To '+(33-8*closed)+' km · +3 kill · +'+stepExp.toFixed(1)+' exposure · +'+stepHeat.toFixed(1)+'% heat · +'+Math.round(stepNote)+'% noticed';
     $('waited').textContent=(waited?'Held '+waited+' min. ':'')+(closed?'Closed '+closed+' step'+(closed>1?'s':'')+'.':'');
     var lurk=$('r-lurk'); lurk.classList.toggle('off',ping);
   }
-  document.querySelectorAll('input').forEach(function(i){i.addEventListener('change',render)});
+  document.querySelectorAll('input').forEach(function(i){i.addEventListener('input',render)});
   $('wait').addEventListener('click',function(){waited=Math.min(6,waited+1);render()});
   $('close').addEventListener('click',function(){closed=Math.min(3,closed+1);$('close').disabled=closed>=3;render()});
   $('reset').addEventListener('click',function(){
-    waited=0; closed=0; $('close').disabled=false; document.querySelectorAll('input[type=checkbox]').forEach(function(c){c.checked=false});
+    waited=0; closed=0; $('close').disabled=false; $('eng').value=100; $('hm').value=100; $('nav').value=3; document.querySelectorAll('input[type=checkbox]').forEach(function(c){c.checked=false});
     document.querySelector('input[name=pat][value=std]').checked=true; render();
   });
   render();

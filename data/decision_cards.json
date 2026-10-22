@@ -511,7 +511,19 @@
         "kill": 0.08
        }
       }
-     ]
+     ],
+     "scale": {
+      "heat": [
+       "engine_eff",
+       "heat_mgmt"
+      ],
+      "exposure": [
+       "engine_eff"
+      ],
+      "relay_risk": [
+       "nav_skill_inv"
+      ]
+     }
     }
    ],
    "objections": [
@@ -1753,5 +1765,11 @@
   "card10_core",
   "card11_confrontation",
   "card12_patron_call"
- ]
+ ],
+ "ship": {
+  "engine_eff": 1.0,
+  "heat_mgmt": 1.0,
+  "nav_skill": 3,
+  "note": "Base rates. Refits, gear and crew competence modify these; levers with a 'scale' entry divide those deltas by the named stats."
+ }
 }

@@ -7,6 +7,7 @@ import json, random, itertools, sys, os, collections
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = json.load(open(os.path.join(HERE, '..', 'data', 'decision_cards.json')))
 OFF = DATA['officers']
+SHIP = dict(DATA.get('ship', {})); SHIP.pop('note', None)
 def band(m): return 'great' if m >= 3 else 'fixed' if m >= 0 else 'unchanged' if m >= -5 else 'worse'
 def check(lever, rng):
     if lever['difficulty'] <= 0: return 'fixed'
@@ -26,7 +27,9 @@ def resolve(plan, rng, card):
     st = collections.Counter(card.get('base', {})); bands = {}
     for l in plan:
         b = check(l, rng); bands[l['id']] = b
-        for k, v in l['bands'][b].items(): st[k] += v
+        for k, v in l['bands'][b].items():
+            for stat in l.get('scale', {}).get(k, []): v = v / (SHIP[stat] if stat in SHIP else 1.0)
+            st[k] += v
     ids = {l['id'] for l in plan}
     for l in plan:
         for s in l.get('synergy', []):
@@ -57,6 +60,15 @@ def card_trust(rx, names):
 def sym(r):
     t, b, o = r; return t + ('+' if b else '') + ('!' if o else '')
 
+def ship_sensitivity(N):
+    card = DATA['cards']['card6_firing_solution']; print('\n#### SHIP SENSITIVITY (card 6): does engine and heat management change the best plan? ####')
+    for eff in (0.7, 1.0, 1.3):
+        SHIP['engine_eff'] = eff; SHIP['heat_mgmt'] = eff; rng = random.Random(9); rows = []
+        for p in legal_plans(card):
+            rows.append((sum(score(card, resolve(p, rng, card)[0]) for _ in range(N)) / N, ' + '.join(l['id'] for l in p)))
+        rows.sort(reverse=True); cl = [r for r in rows if r[1] == 'fire + close_in'][0]
+        print('  engine/heat mgmt %.1f: best %-22s %5.1f | fire + close_in %5.1f | rank %d of %d' % (eff, rows[0][1], rows[0][0], cl[0], rows.index(cl) + 1, len(rows)))
+    SHIP['engine_eff'] = DATA['ship']['engine_eff']; SHIP['heat_mgmt'] = DATA['ship']['heat_mgmt']
 def fun_report(DATA, N):
     """Fun checks: no-win cards, pacing, and whether pleasing officers (min/max) beats playing the situation."""
     names = [n for n in OFF if n != 'Captain']
@@ -152,5 +164,6 @@ if __name__ == '__main__':
                         dom += 1; break
             print('  dominated plans (another plan is no worse on outcome and harms no more officers): %d of %d' % (dom, len(plans)))
     fun_report(DATA, N)
+    ship_sensitivity(1500)
     print('\n==== all cards combined: %d plans; officer is aligned / opposed / backed / overruled ====' % allplans)
     for n, c in allcover.items(): print('    %-10s %3d %3d %3d %3d' % ((n,) + tuple(c)))
