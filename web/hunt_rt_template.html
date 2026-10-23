@@ -94,6 +94,7 @@ button:hover{border-color:var(--amber)}button:focus-visible{outline:2px solid va
 <div class="help"><b>Deciding.</b> Lock a contact when you believe it is real; a wrong lock costs five minutes and may be bait. Dismiss rules it out; dismissing a real ship costs you the ship. Nothing forces you to decide quickly except the hunter.</div>
 <div class="help"><b>Firing.</b> Once locked, a wedge fans out from the last scan along the ship's estimated path. Aim ahead along it, since missiles take time. Keep an analyst tracking to narrow it. A narrow cone concentrates fire; a wide one covers more but hits softer.</div>
 <div class="help"><b>Being found.</b> The Our ship panel shows what makes you easy to find. A warning counts down before each hunter step; Go quiet can make a sweep pass. Three steps and the hunter has you. Break contact is the calm way out.</div>
+<div class="help"><b>Close quarters.</b> Missiles scatter around the aim point. If that point is near your own ship, they can land on you and damage the hull; the volley planner warns you. Detonations and weapons fire near you also raise your heat, as does a locked warship within 8 km. Inside 6 km the coilgun fires instantly, ignores scatter grids and does not use a salvo, but the flash is loud and it needs a good track.</div>
 <div class="help"><b>Friend or foe.</b> An ally that enters the system with you shows <b style="color:var(--green)">green</b> from the start, and your weapons will not fire on it. A ship that actively pings you is flagged <b style="color:var(--red)">red, hostile, 100%</b> at once, even if you had ruled it out. Everything else is only as certain as the odds on the radar say.</div>
 <div class="help"><b>Pell.</b> Always honest. He helps, and the more he helps the more integrated he becomes. That carries between hunts.</div>
 <div class="row"><button class="go" id="manclose">Close</button></div></div></div>
@@ -151,7 +152,7 @@ function uiUpdate(force) {
     if (a.state === 'open') st = rdy ? 'Readings agree. Lock it or dismiss it.' : nread < 1 ? 'Nothing yet. Sweeps will reach it, or study it.' : 'Thin or mixed. Study it, or wait for sweeps.';
     if (a.state === 'locked' && a.anchor) { const age = S.t - a.anchor.t; st = 'Scan is ' + age.toFixed(1) + ' min old' + (age > 3 ? ' and going stale: the wedge is widening' : '') + '. Tracked ' + a.track.toFixed(1) + ' min; heading good to about ' + Math.round(a.anchor.hs * 57.3) + ' degrees. ' + (on.length ? '' : 'Put an analyst on it to tighten the wedge, or Engage.'); }
     if (a.state === 'chasing') st = 'We committed to this one. It resolves in a few minutes.';
-    if (a.state === 'out') st = 'Set aside.'; if (a.state === 'disabled') st = 'Dead in space.';
+    if (a.state === 'out') st = 'Set aside.'; if (a.state === 'disabled') st = a.kind === 'friend' ? 'Crippled by our fire.' : 'Drive dead, no heat signature, reactor line gone. Drifting.';
     if (isH && a.state === 'open') { chip = 'HOSTILE 100%'; st = 'It pinged us, so it is confirmed hostile. Lock it and go after it.'; }
     if (isH && a.state === 'locked') chip = 'LOCKED HOSTILE';
     if (isF) { chip = 'FRIENDLY'; st = 'Arrived with us. Weapons safe.'; }
@@ -165,8 +166,8 @@ function uiUpdate(force) {
   const gauge = (l, v, col, txt) => `<div class="eg"><span>${l}</span><div class="bar"><i style="width:${Math.round(Math.max(0, Math.min(1, v)) * 100)}%;background:${col}"></i></div><span>${txt}</span></div>`;
   { const fN = S.analysts.filter(w => w.task != null).length, rl = S.tubes.filter(x => S.t < x).length, q = S.t < S.quietUntil;
     $('pw').innerHTML = gauge('Sensors', q ? 0.04 : 0.25 + 0.25 * fN, '#6fc3d0', q ? 'dark' : fN ? fN + ' focused' : 'sweeping') + gauge('Drive', { still: 0.2, evade: 0.6, close: 0.9 }[S.posture], '#ff8a4c', S.posture) + gauge('Weapons', rl / P.tubes, '#ffb454', rl ? rl + ' reloading' : 'idle') + gauge('Compute', S.pell && !q ? 0.3 + S.integration / 200 : 0.1, '#b79cff', S.pell ? 'Pell on' : 'idle');
-    $('hl').innerHTML = gauge('Hull', 1, '#8fd694', '100%') + '<div class="help">Sensors OK / Drive OK / Weapons OK / Breach drive ready</div>';
-    $('tubes').innerHTML = S.tubes.map((x, i) => { const rdy = S.t >= x, p = rdy ? 1 : 1 - (x - S.t) / P.reload; return `<div class="tube ${rdy ? 'rdy' : ''}"><span class="nm">Salvo ${i + 1}</span><div class="bar"><i style="width:${p * 100}%;background:${rdy ? '#8fd694' : '#ffb454'}"></i><span>${rdy ? 'READY' : 'RELOADING ' + (x - S.t).toFixed(1) + ' min'}</span></div></div>`; }).join('') + S.volleys.map(v => `<div class="help">In flight at contact ${v.id + 1}: impact in ${Math.max(0, v.at - S.t).toFixed(1)} min</div>`).join('');
+    $('hl').innerHTML = gauge('Hull', S.hull / 100, S.hull < 40 ? '#ff6b5a' : S.hull < 70 ? '#ffb454' : '#8fd694', Math.round(S.hull) + '%') + '<div class="help">' + (S.hull < 60 ? 'Sensors degraded by hull damage. ' : 'Sensors OK. ') + 'Drive OK / Weapons OK / Breach drive ready</div>';
+    $('tubes').innerHTML = S.tubes.map((x, i) => { const rdy = S.t >= x, p = rdy ? 1 : 1 - (x - S.t) / P.reload; return `<div class="tube ${rdy ? 'rdy' : ''}"><span class="nm">Salvo ${i + 1}</span><div class="bar"><i style="width:${p * 100}%;background:${rdy ? '#8fd694' : '#ffb454'}"></i><span>${rdy ? 'READY' : 'RELOADING ' + (x - S.t).toFixed(1) + ' min'}</span></div></div>`; }).join('') + (() => { const rdy = S.t >= S.cwCd, p = rdy ? 1 : 1 - (S.cwCd - S.t) / P.closeCd; return `<div class="tube ${rdy ? 'rdy' : ''}"><span class="nm">Coilgun</span><div class="bar"><i style="width:${p * 100}%;background:${rdy ? '#8fd694' : '#ffb454'}"></i><span>${rdy ? 'READY, under ' + P.closeRange + ' km' : 'COOLING ' + (S.cwCd - S.t).toFixed(1) + ' min'}</span></div></div>`; })() + S.volleys.map(v => `<div class="help">In flight at contact ${v.id + 1}: impact in ${Math.max(0, v.at - S.t).toFixed(1)} min</div>`).join('');
     $('wpntxt').textContent = S.tubes.every(x => S.t >= x) ? 'All salvos ready. Lock a ship, then press Engage on its slip.' : 'Each salvo takes ' + P.reload + ' min to reload after firing.';
     document.querySelector('.bottom').classList.toggle('eng', engageId != null); }
   $('hunttxt').textContent = ['has not found us yet', 'has our bearing and is closing', 'is inside sprint range', 'has a solution on us'][S.stage];
@@ -189,17 +190,22 @@ function buildEngage() {
   en.innerHTML = `<h2>Volley on contact ${a.id + 1}</h2><div class="help">Missiles take time to arrive, so aim <b>ahead</b> along the path. The ship may not be where the wedge says. A wide cone covers more but each missile is less likely to be close; against a heavy scatter grid you need a tight wedge first. Abara suggests a leading point, but he tends to under-lead.</div>
   <div id="eninfo"></div><div class="row"><span>Aim along the path: <b id="aiml"></b></span><label class="lbl"><input type="checkbox" id="auto" ${aimL == null ? 'checked' : ''}> follow suggestion</label></div><div class="slider"><span class="ghost" id="gh">Abara's suggestion (under-leads)</span><input type="range" id="aim" min="0" max="40" step="0.5" value="10"></div>
   <div>Cone width: <b id="conev">${cone} km</b> </div><div class="slider"><input type="range" id="cone" min="0" max="8" step="0.5" value="${cone}"></div>
-  <div>Estimated hit chance: <b id="hp">...</b></div><div class="row"><button class="go" id="fire">Fire volley</button><button id="cancel">Cancel</button></div>`;
+  <div>Estimated hit chance: <b id="hp">...</b></div><div id="selfwarn" class="help"></div><div class="row"><button class="go" id="fire">Fire volley</button><button id="cwb" title="Point-blank kinetic round. Instant, ignores scatter grids, but only works inside 6 km, and the flash is loud.">Coilgun</button><button id="cancel">Cancel</button></div>`;
   $('aim').oninput = e => { aimL = +e.target.value; $('auto').checked = false; engUpdate(true); };
   $('auto').onchange = e => { if (e.target.checked) { aimL = null; engUpdate(true); } };
   $('cone').oninput = e => { cone = +e.target.value; $('conev').textContent = cone + ' km'; engUpdate(true); };
-  $('fire').onclick = () => { if (E.fire(S, a.id, aimL, cone)) { engageId = null; buildEngage(); } }; $('cancel').onclick = () => { engageId = null; buildEngage(); };
+  $('fire').onclick = () => { if (E.fire(S, a.id, aimL, cone)) { engageId = null; buildEngage(); } }; $('cancel').onclick = () => { engageId = null; buildEngage(); }; $('cwb').onclick = () => { if (E.fireClose(S, a.id)) { engageId = null; buildEngage(); } };
   engUpdate(true);
 }
+let selfCache = { p: 0, dist: 99 }, selfRiskV = 0, hpNow = false;
 function engUpdate(hp) {
+  hpNow = hp;
   const a = engageId != null ? S.an[engageId] : null; if (!a || a.state !== 'locked') { if (engageId != null) buildEngage(); return; }
   const f = E.fanInfo(S, a, aimL); $('aiml').textContent = f.L.toFixed(1) + ' km'; if (aimL == null) $('aim').value = Math.min(40, f.L);
   $('eninfo').textContent = `Arrival in about ${(P.engage + f.tf).toFixed(1)} min; the ship is moving about ${a.anchor.spd.toFixed(1)} km per minute along the path. At the aim point the path is uncertain by about ${f.cross.toFixed(1)} km across and ${f.along.toFixed(1)} km along. Grid read: ${a.flutter || 'none yet'}.`;
+  { const sr = hpNow ? E.selfRisk(S, a, aimL, cone, 300) : selfCache; selfCache = sr; selfRiskV = sr.p; const ci = E.closeInfo(S, a), inR = ci.d <= P.closeRange, cwr = S.t >= S.cwCd;
+    $('selfwarn').innerHTML = (sr.p >= 0.03 ? `<span style="color:var(--red)">DANGER CLOSE: aim point is ${sr.dist.toFixed(1)} km from us. About ${Math.round(sr.p * 100)}% chance our own missiles land on us (hull damage).</span> ` : sr.dist < 8 ? `Aim point is ${sr.dist.toFixed(1)} km from us. Detonations this close will light us up. ` : '') + (inR ? `Target is about ${ci.d.toFixed(1)} km away: the coilgun can reach it.` : `Coilgun range is ${P.closeRange} km; target is about ${ci.d.toFixed(1)} km away.`);
+    $('cwb').disabled = !inR || !cwr; $('cwb').textContent = cwr ? 'Coilgun' : 'Coilgun ' + (S.cwCd - S.t).toFixed(1) + ' min'; }
   { const rd = S.tubes.filter(x => S.t >= x).length; $('fire').disabled = !rd; $('fire').textContent = rd ? 'Fire volley' : 'Reloading ' + Math.min(...S.tubes.map(x => x - S.t)).toFixed(1) + ' min'; }
   if (hp) $('hp').textContent = Math.round(100 * E.hitProb(S, a, aimL, cone, 500)) + '%';
 }
@@ -246,7 +252,7 @@ function draw() {
       cx.strokeStyle = `rgba(255,180,84,${0.5 * fade})`; cx.beginPath(); cx.moveTo(px(q.x), px(q.y)); const far = E.estAt(a, 12); cx.lineTo(px(far.x), px(far.y)); cx.stroke();
       for (let m = 1; m <= 12; m++) { const t = E.estAt(a, m); cx.fillStyle = 'rgba(255,180,84,.5)'; cx.fillRect(px(t.x) - 1.5, px(t.y) - 1.5, 4, 4); }
       cx.fillStyle = '#ffb454'; cx.beginPath(); cx.arc(px(q.x), px(q.y), 4, 0, 7); cx.fill(); cx.strokeStyle = '#ffd9a0'; cx.beginPath(); cx.arc(px(cur.x), px(cur.y), 7, 0, 7); cx.stroke();
-      if (engageId === a.id) { const f = E.fanInfo(S, a, aimL), ax = px(f.aim.x), ay = px(f.aim.y); cx.strokeStyle = '#6fc3d0'; cx.setLineDash([4, 4]); cx.beginPath(); cx.moveTo(W / 2, W / 2); cx.lineTo(ax, ay); cx.stroke(); cx.setLineDash([]); cx.save(); cx.translate(ax, ay); cx.rotate(f.dir); cx.beginPath(); cx.ellipse(0, 0, cone * P.alongStretch * k * 1.6 + 2, cone * k * 1.6 + 2, 0, 0, 7); cx.stroke(); cx.restore(); cx.fillStyle = '#6fc3d0'; cx.fillRect(ax - 3, ay - 3, 6, 6); }
+      if (engageId === a.id) { const f = E.fanInfo(S, a, aimL), ax = px(f.aim.x), ay = px(f.aim.y); cx.strokeStyle = selfRiskV >= 0.03 ? '#ff6b5a' : '#6fc3d0'; cx.setLineDash([4, 4]); cx.beginPath(); cx.moveTo(W / 2, W / 2); cx.lineTo(ax, ay); cx.stroke(); cx.setLineDash([]); cx.save(); cx.translate(ax, ay); cx.rotate(f.dir); cx.beginPath(); cx.ellipse(0, 0, cone * P.alongStretch * k * 1.6 + 2, cone * k * 1.6 + 2, 0, 0, 7); cx.stroke(); cx.restore(); cx.fillStyle = '#6fc3d0'; cx.fillRect(ax - 3, ay - 3, 6, 6); }
       cx.fillStyle = '#ffd9a0'; cx.font = '24px IBM Plex Mono, monospace'; cx.fillStyle = a.idStatus === 'hostile' ? '#ff6b5a' : '#ffd9a0'; cx.fillText(i + 1 + (a.idStatus === 'hostile' ? ' HOSTILE' : ' WARSHIP'), px(q.x) + 8, px(q.y) - 8); return;
     }
     if (a.state === 'disabled') { cx.fillStyle = 'rgba(143,214,148,.8)'; cx.fillRect(tp.x * k - 3, tp.y * k - 3, 6, 6); return; }

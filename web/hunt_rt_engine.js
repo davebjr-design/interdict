@@ -1,7 +1,7 @@
 // Interdict hunt engine v4: REAL TIME with analyst reports. Time unit = game minutes (UI maps real seconds to game minutes).
 // Three analysts (thermal / reactor / occlusion) read contacts on their own schedule; the player directs attention, interprets, locks, tracks, fires.
 const HuntRT = (() => {
-  const P = { N: 8, nreal: 2, nlure: 3, arena: 40, base: 0.04, glowFocus: 0.015, glowTrack: 0.06, stages: 3, chase: 5, chasemult: 2.5, bait: 0.75, rescan: 5, engage: 1, missileSpeed: 8, alongStretch: 1.5, squeezeAfter: 8, squeezeRamp: 0.12, autoPeriod: 0.4, focusPeriod: 0.2, glowPell: 0.012, integrationPerMin: 0.8, sub: 0.05, secPerMin: 16, halfLife: 3, telegraph: 0.8, quietDur: 2.5, quietCd: 10, quietHaz: 0.2, quietCancel: 0.6, suggestShort: 0.72, tubes: 3, reload: 3, beamGlow: 0.08, beamDur: 1, beamCd: 2, beamBump: 0.35, driftMin: 6, driftMax: 12, shareReads: 2, pellFriction: 0.08 };
+  const P = { N: 8, nreal: 2, nlure: 3, arena: 40, base: 0.04, glowFocus: 0.015, glowTrack: 0.06, stages: 3, chase: 5, chasemult: 2.5, bait: 0.75, rescan: 5, engage: 1, missileSpeed: 8, alongStretch: 1.5, squeezeAfter: 8, squeezeRamp: 0.12, autoPeriod: 0.4, focusPeriod: 0.2, glowPell: 0.012, integrationPerMin: 0.8, sub: 0.05, secPerMin: 16, halfLife: 3, telegraph: 0.8, quietDur: 2.5, quietCd: 10, quietHaz: 0.2, quietCancel: 0.6, suggestShort: 0.72, tubes: 3, reload: 3, selfRadius: 2, selfDmg: 25, closeRange: 6, closeCd: 2, closeKill: 2.5, closeAcc: 0.85, closeGlow: 0.12, closeDur: 2, blastGlow: 0.08, blastDur: 1.5, nearGlow: 0.025, nearRange: 8, closeBump: 0.5, beamGlow: 0.08, beamDur: 1, beamCd: 2, beamBump: 0.35, driftMin: 6, driftMax: 12, shareReads: 2, pellFriction: 0.08 };
   const POSTURE = { still: { haz: 0.8, rate: 1.0, label: 'Stay still', tip: 'Hunter finds you at 0.8x speed. Analysts work at normal speed.' }, evade: { haz: 0.5, rate: 0.9, label: 'Evasion pattern', tip: 'Hunter finds you at 0.5x speed, but analysts work 10% slower.' }, close: { haz: 1.5, rate: 1.4, label: 'Close on a point', tip: 'Hunter finds you at 1.5x speed, but analysts work 40% faster.' } };
   const ANALYSTS = [{ id: 'dace', name: 'Dace', ch: 'thermal', role: 'Heat' }, { id: 'castellan', name: 'Castellan', ch: 'reactor', role: 'Reactor' }, { id: 'quill', name: 'Quill', ch: 'occlusion', role: 'Eclipse' }];
   function rng(seed) { let a = seed >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -18,7 +18,7 @@ const HuntRT = (() => {
       if (k === 'friend') { const sg = r() < 0.5 ? -1 : 1; y0 = 20 + sg * (8 + r() * 10); x0 = 1; v = 1.0 + 0.4 * r(); hd = 0; idStatus = opts.friendly === 'unlisted' ? 'unknown' : 'plan'; }
       return { drift, idStatus, id: i, kind: k, x0, y0, hd, v, vx: v * Math.cos(hd), vy: v * Math.sin(hd), state: 'open', track: 0, grid: grids[Math.floor(r() * 3)], flutter: null, anchor: null, star: r() < (opts.star ?? 0.78), read: {}, lastRead: 0 };
     });
-    return { friendly: !!opts.friendly, beamCd: 0, beamUntil: 0, fratricide: 0, r, seed, t: 0, stage: 0, an, tempo, posture: 'still', pell: false, integration: opts.integration ?? 0, thresholdsHit: {}, pellAct: false, analysts: ANALYSTS.map((a, i) => ({ ...a, task: null, next: 0.15 + 0.12 * i })), pellNext: 0.5, chase: null, pending: null, quietUntil: 0, quietCd: 0, volleys: [], tubes: Array(P.tubes).fill(0), rescanAt: null, log: [], beats: 0, over: null, disabled: 0, player: { x: 20, y: 20 }, shots: 0, wrong: 0 };
+    return { hull: 100, blastUntil: 0, blastV: 0, cwCd: 0, hullWarned: false, friendly: !!opts.friendly, beamCd: 0, beamUntil: 0, fratricide: 0, r, seed, t: 0, stage: 0, an, tempo, posture: 'still', pell: false, integration: opts.integration ?? 0, thresholdsHit: {}, pellAct: false, analysts: ANALYSTS.map((a, i) => ({ ...a, task: null, next: 0.15 + 0.12 * i })), pellNext: 0.5, chase: null, pending: null, quietUntil: 0, quietCd: 0, volleys: [], tubes: Array(P.tubes).fill(0), rescanAt: null, log: [], beats: 0, over: null, disabled: 0, player: { x: 20, y: 20 }, shots: 0, wrong: 0 };
   }
   function report(s, who, text, kind = 'info', urgent = false) { s.beats++; s.log.push({ t: s.t, who, text, kind, urgent }); }
   function truePos(a, t) { const d = a.drift; if (d && t > d.t) { const b = { x: a.x0 + a.vx * d.t, y: a.y0 + a.vy * d.t }; return { x: b.x + d.vx * (t - d.t), y: b.y + d.vy * (t - d.t) }; } return { x: a.x0 + a.vx * t, y: a.y0 + a.vy * t }; }
@@ -60,6 +60,12 @@ const HuntRT = (() => {
   }
   const GRID = { none: [0, 0.6], light: [1, 0.6], heavy: [3, 0.7] };
   function intercept(a, cone) { const [ch, pk] = GRID[a.grid], win = 1 + Math.min(1, cone / 4); return Math.min(0.9, ch * win * pk / 4); }
+  function volleyFx(aim, cone, tx, ty, a, r, dir, pl) {   // 4 missiles: do any reach the target, and do any land on us
+    const cd = Math.cos(dir), sd = Math.sin(dir), pi = intercept(a, cone); let hit = false, self = 0;
+    for (let k = 0; k < 4; k++) { const al = gauss(r) * cone * P.alongStretch, cr = gauss(r) * cone, ax = aim.x + al * cd - cr * sd, ay = aim.y + al * sd + cr * cd; if (Math.hypot(ax - tx, ay - ty) < 3 && r() >= pi) hit = true; if (pl && Math.hypot(ax - pl.x, ay - pl.y) < P.selfRadius) self++; }
+    return { hit, self };
+  }
+  function selfRisk(s, a, L, cone, M = 400, r = Math.random) { const f = fanInfo(s, a, L); let any = 0, tot = 0; for (let i = 0; i < M; i++) { const fx = volleyFx(f.aim, cone, 1e9, 1e9, a, r, f.dir, s.player); if (fx.self) any++; tot += fx.self; } return { p: any / M, exp: tot / M, dist: Math.hypot(f.aim.x - s.player.x, f.aim.y - s.player.y) }; }
   function volleyHits(aim, cone, tx, ty, a, r, dir) {
     const cd = Math.cos(dir), sd = Math.sin(dir), pi = intercept(a, cone);
     for (let k = 0; k < 4; k++) { const al = gauss(r) * cone * P.alongStretch, cr = gauss(r) * cone, ax = aim.x + al * cd - cr * sd, ay = aim.y + al * sd + cr * cd; if (Math.hypot(ax - tx, ay - ty) < 3 && r() >= pi) return true; }
@@ -86,6 +92,18 @@ const HuntRT = (() => {
     let h = cur; if (cur === 'cold' && x >= up.cold) h = 'warm'; if ((cur === 'cold' || cur === 'warm') && x >= up.warm) h = 'hot'; if (cur === 'hot' && x < down.hot) h = x >= up.cold ? 'warm' : 'cold'; if (cur === 'warm' && x < down.warm) h = 'cold';
     return h;
   }
+  function cripple(s, a) {   // returns true when the hunt just ended
+    a.state = 'disabled'; for (const w of s.analysts) if (w.task === a.id) w.task = null;
+    if (a.kind === 'friend') { s.fratricide++; report(s, 'Abara', `Contact ${a.id + 1} was OURS. We just crippled an ally. Nobody dies, but this will be remembered.`, 'danger', true); return false; }
+    s.disabled++; report(s, 'Abara', `Contact ${a.id + 1} is hit. Drive flare gone, thermal bloom collapsing, neutrino line cut. It is drifting and no longer maneuvering. Nobody died.`, 'good', true);
+    if (s.disabled >= P.nreal) { s.over = 'win'; return true; } return false;
+  }
+  function hullHit(s, n) {
+    s.hull = Math.max(0, s.hull - P.selfDmg * n); report(s, 'Abara', `${n > 1 ? n + ' of our missiles' : 'One of our missiles'} detonated on top of us. Hull at ${Math.round(s.hull)} percent.`, 'danger', true);
+    if (s.hull <= 0) { s.over = s.disabled ? 'breach' : 'breach0'; report(s, 'Abara', 'Hull is gone. Emergency breach, drive on whatever power is left.', 'danger', true); }
+    else if (s.hull < 60 && !s.hullWarned) { s.hullWarned = true; report(s, 'Dace', 'Hull damage is fouling the sensor mounts. Everything reads slower now.', 'bad'); }
+  }
+  function nearHeat(s) { const pl = s.player; let n = 0; for (const a of s.an) if (a.state === 'locked' && a.kind !== 'friend') { const p = truePos(a, s.t); if (Math.hypot(p.x - pl.x, p.y - pl.y) < P.nearRange) n++; } return n * P.nearGlow * (s.t < s.quietUntil ? 0 : 1); }
   function pingBy(s) {   // an active ping exposes the pinger: nearest live hostile is flagged, and brought back if we had ruled it out
     const pl = s.player, c = s.an.filter(a => a.kind === 'real' && a.state !== 'disabled' && a.state !== 'chasing').sort((x, y) => { const px = truePos(x, s.t), py = truePos(y, s.t); return Math.hypot(px.x - pl.x, px.y - pl.y) - Math.hypot(py.x - pl.x, py.y - pl.y); })[0]; if (!c) return;
     const again = c.idStatus === 'hostile'; c.idStatus = 'hostile'; if (c.state === 'out') c.state = 'open';
@@ -98,9 +116,9 @@ const HuntRT = (() => {
     if (s.chase) mult *= P.chasemult; if (s.rescanAt) mult *= 0.5;
     const focusN = s.analysts.filter(x => x.task != null).length, trackN = s.analysts.filter(x => x.task != null && s.an[x.task].state === 'locked').length;
     const quiet = s.t < s.quietUntil; if (quiet) mult *= P.quietHaz;
-    if (!s.pending && s.r() < (P.base * s.tempo * mult + (s.t < s.beamUntil ? P.beamGlow : 0) + P.glowFocus * focusN * (quiet ? 0 : 1) + P.glowTrack * trackN * (quiet ? 0 : 1) + (s.pell ? P.glowPell : 0)) * h) { s.pending = { at: s.t + P.telegraph }; report(s, 'Dace', 'Hunter radar swept across our bearing. Something is coming. Go quiet if you want it to pass.', 'danger', true); pingBy(s); }
+    if (!s.pending && s.r() < (P.base * s.tempo * mult + (s.t < s.beamUntil ? P.beamGlow : 0) + (s.t < s.blastUntil ? s.blastV : 0) + nearHeat(s) + P.glowFocus * focusN * (quiet ? 0 : 1) + P.glowTrack * trackN * (quiet ? 0 : 1) + (s.pell ? P.glowPell : 0)) * h) { s.pending = { at: s.t + P.telegraph }; report(s, 'Dace', 'Hunter radar swept across our bearing. Something is coming. Go quiet if you want it to pass.', 'danger', true); pingBy(s); }
     if (s.pending && s.t >= s.pending.at) { s.pending = null; if (s.t < s.quietUntil && s.r() < P.quietCancel) report(s, 'Dace', 'They swept past us. Quiet paid off.', 'good'); else { bump(s); if (s.over) return; } }
-    const friction = 1 - P.pellFriction * Math.max(0, Math.floor(s.integration / 25) - 1), rate = POSTURE[s.posture].rate * friction;
+    const friction = 1 - P.pellFriction * Math.max(0, Math.floor(s.integration / 25) - 1), rate = POSTURE[s.posture].rate * friction * (s.hull < 60 ? 0.85 : 1);
     for (const w of s.analysts) {
       if (s.t < w.next) continue;
       if (quiet) { w.next = s.quietUntil; continue; }
@@ -120,9 +138,11 @@ const HuntRT = (() => {
     }
     if (s.chase && s.t >= s.chase.until) { const a = s.an[s.chase.id]; s.chase = null; a.state = 'out'; report(s, 'Abara', `Contact ${a.id + 1} was ${a.kind === 'lure' ? 'a lure' : 'static'}. Four minutes of fuel and nerve, gone.`, 'bad'); if (a.kind === 'lure' && s.r() < P.bait) { bump(s, 'It was bait. The hunter moved up.'); if (s.over) return; } }
     for (const v of s.volleys.filter(v => s.t >= v.at)) {
-      s.volleys.splice(s.volleys.indexOf(v), 1); const a = s.an[v.id], tp = truePos(a, v.at), hit = volleyHits(v.aim, v.cone, tp.x, tp.y, a, s.r, v.dir);
-      if (hit && a.kind === 'friend') { a.state = 'disabled'; s.fratricide++; for (const w of s.analysts) if (w.task === a.id) w.task = null; report(s, 'Abara', `Contact ${a.id + 1} was OURS. We just crippled an ally. Nobody dies, but this will be remembered.`, 'danger', true); }
-      else if (hit) { a.state = 'disabled'; s.disabled++; for (const w of s.analysts) if (w.task === a.id) w.task = null; report(s, 'Abara', `Contact ${a.id + 1} is crippled. Nobody dies; the reactor just remembers it has feelings.`, 'good', true); if (s.disabled >= P.nreal) { s.over = 'win'; return; } }
+      s.volleys.splice(s.volleys.indexOf(v), 1); const a = s.an[v.id], tp = truePos(a, v.at), fx = volleyFx(v.aim, v.cone, tp.x, tp.y, a, s.r, v.dir, s.player);
+      if (Math.hypot(v.aim.x - s.player.x, v.aim.y - s.player.y) < P.nearRange) { s.blastUntil = Math.max(s.blastUntil, s.t + P.blastDur); s.blastV = P.blastGlow; }
+      if (fx.self) { hullHit(s, fx.self); if (s.over) return; }
+      if (a.state === 'disabled') { report(s, 'Abara', `Contact ${a.id + 1} was already dead when the volley arrived. Wasted missiles.`, 'bad'); continue; }
+      if (fx.hit) { if (cripple(s, a)) return; }
       else if (s.r() < 0.6) { bump(s, 'The volley missed, and the launch lit us up. The hunter noticed.'); if (s.over) return; }
       else report(s, 'Abara', 'The volley missed. Quiet launch; the hunter did not notice.', 'bad');
     }
@@ -150,7 +170,7 @@ const HuntRT = (() => {
     const sq = s.t > P.squeezeAfter ? 1 + P.squeezeRamp * (s.t - P.squeezeAfter) : 1, quiet = s.t < s.quietUntil; let m = POSTURE[s.posture].haz * sq;
     if (s.chase) m *= P.chasemult; if (s.rescanAt) m *= 0.5; if (quiet) m *= P.quietHaz;
     const fN = s.analysts.filter(x => x.task != null).length, tN = s.analysts.filter(x => x.task != null && s.an[x.task].state === 'locked').length, z = quiet ? 0 : 1;
-    const parts = [{ k: 'drift', label: 'Hull heat and drive, ' + POSTURE[s.posture].label.toLowerCase() + (sq > 1.05 ? ', hunter closing in' : '') + (s.chase ? ', chasing a false lock' : ''), v: P.base * s.tempo * m }, { k: 'focus', label: 'Active sensor work (' + fN + ' on a contact)', v: P.glowFocus * fN * z }, { k: 'track', label: 'Tracking a locked ship (' + tN + ')', v: P.glowTrack * tN * z }, { k: 'pell', label: 'Pell running the ship hot', v: s.pell && !quiet ? P.glowPell : 0 }, { k: 'beam', label: 'Tight-beam challenge leaking', v: s.t < s.beamUntil ? P.beamGlow : 0 }].filter(x => x.v > 0.0005);
+    const parts = [{ k: 'drift', label: 'Hull heat and drive, ' + POSTURE[s.posture].label.toLowerCase() + (sq > 1.05 ? ', hunter closing in' : '') + (s.chase ? ', chasing a false lock' : ''), v: P.base * s.tempo * m }, { k: 'focus', label: 'Active sensor work (' + fN + ' on a contact)', v: P.glowFocus * fN * z }, { k: 'track', label: 'Tracking a locked ship (' + tN + ')', v: P.glowTrack * tN * z }, { k: 'pell', label: 'Pell running the ship hot', v: s.pell && !quiet ? P.glowPell : 0 }, { k: 'beam', label: 'Tight-beam challenge leaking', v: s.t < s.beamUntil ? P.beamGlow : 0 }, { k: 'blast', label: 'Weapons fire and detonations close by', v: s.t < s.blastUntil ? s.blastV : 0 }, { k: 'near', label: 'A warship close enough to see our hull', v: nearHeat(s) }].filter(x => x.v > 0.0005);
     return { total: parts.reduce((q, x) => q + x.v, 0), parts, quiet };
   }
   function tick(s, dt) { let left = dt; while (left > 1e-9 && !s.over) { const h = Math.min(P.sub, left); sub(s, h); left -= h; } }
@@ -163,9 +183,19 @@ const HuntRT = (() => {
   }
   function dismissContact(s, id) { const a = s.an[id]; if (s.over || a.state !== 'open' || a.idStatus === 'plan') return; a.state = 'out'; if (a.kind === 'real') s.wrong++; for (const w of s.analysts) if (w.task === id) w.task = null; report(s, 'Abara', `Contact ${id + 1} ruled out.`, 'info'); }
   function fire(s, id, L, cone) {
-    const a = s.an[id]; if (s.over || a.state !== 'locked' || s.volleys.some(v => v.id === id) || (a.kind === 'friend' && (a.idStatus === 'plan' || a.idStatus === 'confirmed'))) return false;
+    const a = s.an[id]; if (s.over || a.state !== 'locked' || (a.kind === 'friend' && (a.idStatus === 'plan' || a.idStatus === 'confirmed'))) return false;
     const tb = s.tubes.findIndex(x => s.t >= x); if (tb < 0) return false; s.tubes[tb] = s.t + P.reload;
     const f = fanInfo(s, a, L); s.shots++; s.volleys.push({ id, at: s.t + P.engage + f.tf, aim: f.aim, dir: f.dir, cone }); report(s, 'Abara', `Volley away on contact ${id + 1}. Impact in ${(P.engage + f.tf).toFixed(1)} minutes.`, 'info'); return true;
+  }
+  function closeInfo(s, a) { const tau = (s.t - a.anchor.t) + 0.1, est = estAt(a, tau); return { est, d: Math.hypot(est.x - s.player.x, est.y - s.player.y) }; }
+  function fireClose(s, id) {   // coilgun: instant, ignores scatter grids, short range, loud
+    const a = s.an[id]; if (s.over || !a || a.state !== 'locked' || !a.anchor || s.t < s.cwCd) return false;
+    const ci = closeInfo(s, a); if (ci.d > P.closeRange) return false;
+    s.cwCd = s.t + P.closeCd; s.blastUntil = Math.max(s.blastUntil, s.t + P.closeDur); s.blastV = P.closeGlow; s.shots++;
+    const tp = truePos(a, s.t + 0.1), hit = Math.hypot(ci.est.x - tp.x, ci.est.y - tp.y) < P.closeKill && s.r() < P.closeAcc;
+    if (hit) { report(s, 'Abara', `Coilgun slug on contact ${id + 1}, point blank.`, 'info'); if (cripple(s, a)) return true; } else report(s, 'Abara', `Coilgun slug on contact ${id + 1} went wide.`, 'bad');
+    if (!s.over && s.r() < P.closeBump) bump(s, 'The coilgun flash lit us up. The hunter noticed.');
+    return true;
   }
   function challenge(s, id) {   // directional low-power laser with an encrypted challenge. A friend answers; a hostile hears it
     const a = s.an[id]; if (s.over || !s.friendly || !a || !['open', 'locked'].includes(a.state) || s.t < s.beamCd || s.t < s.quietUntil || ['confirmed', 'nofriend', 'plan', 'hostile'].includes(a.idStatus)) return false;
@@ -183,6 +213,6 @@ const HuntRT = (() => {
   function goQuiet(s) { if (s.over || s.t < s.quietCd) return false; s.quietUntil = s.t + P.quietDur; s.quietCd = s.t + P.quietCd; report(s, 'Abara', 'Going quiet. Sensors dark, nobody touches anything for three minutes.', 'info'); return true; }
   function retreat(s) { if (s.over) return; s.over = s.disabled ? 'breach' : 'breach0'; report(s, 'Abara', 'Breaking contact. Breach drive spinning up.', 'bad'); }
   function setPellAct(s, on) { s.pellAct = !!on && s.integration >= 75; }
-  return { P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, hitProb, estAt, spreadAt, truePos, planPos, cat, exposure, classify, stealthState, challenge };
+  return { P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, hitProb, estAt, spreadAt, truePos, planPos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge };
 })();
 if (typeof module !== 'undefined') module.exports = HuntRT;
