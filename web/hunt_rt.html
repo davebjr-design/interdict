@@ -30,7 +30,16 @@ canvas{width:100%;max-width:100%;aspect-ratio:1/1;background:#050807;border:1px 
 .cr .id{font:700 15px var(--display);color:var(--amber)}
 .bars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
 .bar{position:relative;height:13px;background:#0b1210;border:1px solid var(--line);overflow:hidden}.bar i{position:absolute;left:0;top:0;bottom:0}.bar span{position:absolute;left:3px;top:-1px;font-size:10px;color:var(--ink);mix-blend-mode:difference}
-.st{grid-column:2/4;color:var(--dim);font-size:11px}
+.st{grid-column:1/-1;color:var(--dim);font-size:11px}
+.cr{grid-template-columns:1.6em minmax(0,1fr)!important}.cr .top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.chip{font:500 10px var(--mono);letter-spacing:.08em;padding:1px 6px;border:1px solid var(--line);color:var(--dim)}.cr.ready .chip{color:var(--bg);background:var(--cyan);border-color:var(--cyan)}.cr.locked .chip{color:var(--bg);background:var(--amber);border-color:var(--amber)}.cr.chasing .chip{color:var(--bg);background:var(--red);border-color:var(--red)}.cr.disabled .chip{color:var(--bg);background:var(--green);border-color:var(--green)}
+.bar{height:16px}.bar span{font-size:11px;top:0}
+.look{display:flex;gap:4px;flex-wrap:wrap;align-items:center}.look .lbl{margin-right:2px}
+.key{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.key div{border:1px solid var(--line);padding:6px;font-size:12px}.key b{display:block;font:700 13px var(--display);letter-spacing:.06em}
+details>summary{cursor:pointer;color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.14em}
+.xp{position:relative;height:14px;background:#0b1210;border:1px solid var(--line)}.xp i{position:absolute;left:0;top:0;bottom:0;background:var(--amber);transition:width .3s}.xp.hot i{background:var(--red)}.xp.dark i{background:var(--cyan)}
+.xl{display:flex;flex-direction:column;gap:2px;font-size:12px;color:var(--dim)}.xl span b{color:var(--ink);font-weight:500}
+
 button{font:500 11px var(--mono);background:#16221e;color:var(--ink);border:1px solid var(--line);padding:4px 7px;cursor:pointer}
 button:hover{border-color:var(--amber)}button:focus-visible{outline:2px solid var(--cyan)}button.on{background:var(--amber);color:var(--bg);border-color:var(--amber)}button.go{background:var(--amber);color:var(--bg);padding:8px 12px;font-size:12px}button[disabled]{opacity:.4;cursor:default}
 .btns{display:flex;gap:4px;flex-wrap:wrap}
@@ -48,16 +57,22 @@ button:hover{border-color:var(--amber)}button:focus-visible{outline:2px solid va
 <header><h1>Interdict // Bridge</h1><div class="hdr"><span id="clk">0:00</span><span title="Each pip is a closing step by the hunter. The third is contact.">hunter</span><div class="pips" id="pips" title="Each pip is a closing step by the hunter. The third is contact."><div class="pip"></div><div class="pip"></div><div class="pip"></div></div><span id="warn" style="color:var(--red)"></span><button id="quiet" title="Sensors dark for 2.5 minutes: nobody works, hazard drops, and a sweep that arrives during it has a 60% chance to pass. Cooldown 10 minutes.">Go quiet</button><button id="pause">Pause</button><label><input type="checkbox" id="slow"> slow time</label><button id="brk" title="Calm option: Breach out now with whatever you have crippled.">Break contact</button><button id="newh">New hunt</button></div></header>
 <p class="help">Real time. Your analysts report on their own schedule; you decide where their attention goes, what to believe, and when to commit. Two real ships are out there among lures and static. Lock them, keep a tracker on them until the wedge narrows, aim ahead along the path and fire. Pausing blanks the displays. <b>Esc</b> pauses.</p>
 <div class="main">
-<div class="col"><section class="panel"><h2>Passive picture // placeholder radar</h2><canvas id="cv" width="640" height="640" aria-label="Radar display"></canvas><div class="help">Smears are unresolved contacts. For a locked ship the wedge starts at the last scan and fans out along its estimated path; brighter shading means more likely to be there right now (ring = best guess), and it dims as the scan ages.</div></section>
+<div class="col"><section class="panel"><h2>Passive picture // placeholder radar</h2><canvas id="cv" width="640" height="640" aria-label="Radar display"></canvas><div class="help">You are the cyan triangle at the center; the red ring around you swells as you get easier to find. Rings are 5 km apart. Smears are unresolved contacts (orange = running hot). For a locked ship the wedge starts at the last scan and fans out along its estimated path; brighter shading means more likely to be there right now (ring = best guess), and it dims as the scan ages.</div></section>
 <section class="panel"><h2>Reports</h2><div class="feed" id="feed"></div></section></div>
 <div class="col">
+<section class="panel"><h2>Our ship // how easy we are to find</h2>
+<div class="row"><span class="lbl">Posture</span><div class="seg" id="seg-post"></div></div><div class="help" id="posthelp"></div>
+<div class="row"><span class="lbl">Hunter</span><div class="pips" id="pips2"><div class="pip"></div><div class="pip"></div><div class="pip"></div></div><span id="hunttxt" class="help"></span></div>
+<div class="xp" id="xp"><i></i></div><div class="xl" id="xl"></div><div class="help" id="shiptxt"></div></section>
+<section class="panel"><details open><summary>How to read this screen</summary><div class="help" style="margin:6px 0">Each analyst watches one kind of signal. A bar fills the more a contact looks like a real warship on that signal. Real ships glow on all three. Decoys fake Heat and Reactor, but only partly, and cannot fake Eclipse. Static (ghosts) is weak everywhere. You are the one who decides when a contact is real: <b>Lock</b> it or <b>Dismiss</b> it.</div>
+<div class="key"><div><b style="color:#ff8a4c">HEAT (Dace)</b>Hot hull and drive. A decoy can burn hot. Weak: static.</div><div><b style="color:#6fc3d0">REACTOR (Castellan)</b>Neutrino line from a running reactor. Fades with distance. Decoys give a flutter.</div><div><b style="color:#b79cff">ECLIPSE (Quill)</b>A dark mass blocking starlight. Cannot be faked, but only works where a star or ring sits behind the contact. Otherwise it says <i>blind</i> (no star behind it).</div></div></details></section>
 <section class="panel"><h2>Analysts</h2><div class="analysts" id="analysts"></div>
-<div class="row"><span class="lbl">Posture</span><div class="seg" id="seg-post"></div></div><div class="help" id="posthelp"></div></section>
+</section>
 <section class="panel"><h2>Pell // ship's AI</h2><div class="row"><label><input type="checkbox" id="pell"> Pell assists (extra sweeper, honest reads, runs the ship's compute hot)</label></div>
 <div class="meter" id="integ"><i></i><s style="left:25%"></s><s style="left:50%"></s><s style="left:75%"></s></div><div class="help" id="integtxt"></div>
 <div class="row" id="actrow" hidden><label><input type="checkbox" id="pellact"> Let Pell act on contacts without asking</label></div></section>
 <section class="engage" id="engage" hidden></section>
-<section class="panel"><h2>Contacts <span class="lbl" id="legend">thermal / reactor / occlusion; D C Q point Dace, Castellan or Quill at a contact</span></h2><div class="ct" id="ct"></div></section>
+<section class="panel"><h2>Contacts <span class="lbl" id="legend">numbers match the radar. Point an analyst at a contact to sharpen its bars.</span></h2><div class="ct" id="ct"></div></section>
 </div></div></div>
 <div class="over" id="pausebox" hidden><div class="box"><h3>Paused</h3><div class="help">The displays are blanked. Time is stopped. Press Esc or Resume.</div><div class="row"><button class="go" id="resume">Resume</button></div></div></div>
 <div class="over" id="over" hidden><div class="box" id="obox"></div></div>
@@ -67,7 +82,7 @@ button:hover{border-color:var(--amber)}button:focus-visible{outline:2px solid va
 const HuntRT = (() => {
   const P = { N: 8, nreal: 2, nlure: 3, arena: 40, base: 0.04, glowFocus: 0.015, glowTrack: 0.06, stages: 3, chase: 5, chasemult: 2.5, bait: 0.75, rescan: 5, engage: 1, missileSpeed: 8, alongStretch: 1.5, squeezeAfter: 8, squeezeRamp: 0.12, autoPeriod: 0.4, focusPeriod: 0.2, glowPell: 0.012, integrationPerMin: 0.8, sub: 0.05, secPerMin: 16, halfLife: 3, telegraph: 0.8, quietDur: 2.5, quietCd: 10, quietHaz: 0.2, quietCancel: 0.6, suggestShort: 0.72, pellFriction: 0.08 };
   const POSTURE = { still: { haz: 0.8, rate: 1.0, label: 'Stay still', tip: 'Hunter finds you at 0.8x speed. Analysts work at normal speed.' }, evade: { haz: 0.5, rate: 0.9, label: 'Evasion pattern', tip: 'Hunter finds you at 0.5x speed, but analysts work 10% slower.' }, close: { haz: 1.5, rate: 1.4, label: 'Close on a point', tip: 'Hunter finds you at 1.5x speed, but analysts work 40% faster.' } };
-  const ANALYSTS = [{ id: 'dace', name: 'Dace', ch: 'thermal', role: 'Thermal' }, { id: 'castellan', name: 'Castellan', ch: 'reactor', role: 'Reactor' }, { id: 'quill', name: 'Quill', ch: 'occlusion', role: 'Occlusion' }];
+  const ANALYSTS = [{ id: 'dace', name: 'Dace', ch: 'thermal', role: 'Heat' }, { id: 'castellan', name: 'Castellan', ch: 'reactor', role: 'Reactor' }, { id: 'quill', name: 'Quill', ch: 'occlusion', role: 'Eclipse' }];
   function rng(seed) { let a = seed >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
   function gauss(r) { let u = 0, v = 0; while (!u) u = r(); while (!v) v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
   function newHunt(seed, opts = {}) {
@@ -178,6 +193,13 @@ const HuntRT = (() => {
     if (!live && s.disabled < P.nreal && !s.rescanAt) { s.rescanAt = s.t + P.rescan; report(s, 'Abara', 'Everything is ruled out and the ships are still out there. Rescanning takes five minutes.', 'bad'); }
     if (s.rescanAt && s.t >= s.rescanAt) { s.rescanAt = null; s.an.forEach(a => { if (a.state === 'out') { a.state = 'open'; a.read = {}; } }); report(s, 'Abara', 'Rescan complete. Everything is open again.', 'info'); }
   }
+  function exposure(s) {   // what is making us easy to find, per game minute (display only; sub() uses the same terms)
+    const sq = s.t > P.squeezeAfter ? 1 + P.squeezeRamp * (s.t - P.squeezeAfter) : 1, quiet = s.t < s.quietUntil; let m = POSTURE[s.posture].haz * sq;
+    if (s.chase) m *= P.chasemult; if (s.rescanAt) m *= 0.5; if (quiet) m *= P.quietHaz;
+    const fN = s.analysts.filter(x => x.task != null).length, tN = s.analysts.filter(x => x.task != null && s.an[x.task].state === 'locked').length, z = quiet ? 0 : 1;
+    const parts = [{ k: 'drift', label: 'Hull heat and drive, ' + POSTURE[s.posture].label.toLowerCase() + (sq > 1.05 ? ', hunter closing in' : '') + (s.chase ? ', chasing a false lock' : ''), v: P.base * s.tempo * m }, { k: 'focus', label: 'Active sensor work (' + fN + ' on a contact)', v: P.glowFocus * fN * z }, { k: 'track', label: 'Tracking a locked ship (' + tN + ')', v: P.glowTrack * tN * z }, { k: 'pell', label: 'Pell running the ship hot', v: s.pell && !quiet ? P.glowPell : 0 }].filter(x => x.v > 0.0005);
+    return { total: parts.reduce((q, x) => q + x.v, 0), parts, quiet };
+  }
   function tick(s, dt) { let left = dt; while (left > 1e-9 && !s.over) { const h = Math.min(P.sub, left); sub(s, h); left -= h; } }
   function assign(s, analystId, contact) { const w = s.analysts.find(x => x.id === analystId); if (!w || s.over) return; w.task = (contact == null || w.task === contact) ? null : contact; w.next = Math.min(w.next, s.t + 0.05); }
   function lockContact(s, id) {
@@ -193,7 +215,7 @@ const HuntRT = (() => {
   function goQuiet(s) { if (s.over || s.t < s.quietCd) return false; s.quietUntil = s.t + P.quietDur; s.quietCd = s.t + P.quietCd; report(s, 'Abara', 'Going quiet. Sensors dark, nobody touches anything for three minutes.', 'info'); return true; }
   function retreat(s) { if (s.over) return; s.over = s.disabled ? 'breach' : 'breach0'; report(s, 'Abara', 'Breaking contact. Breach drive spinning up.', 'bad'); }
   function setPellAct(s, on) { s.pellAct = !!on && s.integration >= 75; }
-  return { P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, hitProb, estAt, spreadAt, truePos, cat };
+  return { P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, hitProb, estAt, spreadAt, truePos, cat, exposure };
 })();
 if (typeof module !== 'undefined') module.exports = HuntRT;
 
@@ -203,13 +225,14 @@ try { savedInteg = +localStorage.getItem('interdict_integration') || 0; } catch 
 function save() { try { localStorage.setItem('interdict_integration', String(Math.round(S.integration))); } catch (e) {} }
 function start() { S = E.newHunt(Math.floor(Math.random() * 1e9), { integration: savedInteg }); T0 = savedInteg; engageId = null; aimL = null; feedN = 0; $('feed').innerHTML = ''; $('over').hidden = true; $('pell').checked = false; build(); uiUpdate(true); }
 function seg(host, items, cur, on) { host.innerHTML = ''; items.forEach(([v, text, tip]) => { const l = document.createElement('label'); const i = document.createElement('input'); i.type = 'radio'; i.name = host.id; i.checked = v === cur; i.onchange = () => on(v); const sp = document.createElement('span'); sp.textContent = text; l.title = tip || ''; l.append(i, sp); host.append(l); }); }
+const CH = { thermal: { n: 'Heat', col: '#ff8a4c', tip: 'Heat: how hot the contact runs (Dace)' }, reactor: { n: 'Reactor', col: '#6fc3d0', tip: 'Reactor: neutrino line (Castellan)' }, occlusion: { n: 'Eclipse', col: '#b79cff', tip: 'Eclipse: dark mass blocking starlight (Quill)' } };
 function build() {
   seg($('seg-post'), Object.entries(E.POSTURE).map(([k, v]) => [k, v.label, v.tip]), S.posture, v => { S.posture = v; $('posthelp').textContent = E.POSTURE[v].tip; }); $('posthelp').textContent = E.POSTURE[S.posture].tip;
   $('analysts').innerHTML = E.ANALYSTS.map(a => `<div class="ac"><b>${a.name}</b><span class="lbl">${a.role}</span><span class="t" id="at-${a.id}"></span></div>`).join('');
   const ct = $('ct'); ct.innerHTML = '';
   S.an.forEach(a => {
     const d = document.createElement('div'); d.className = 'cr'; d.id = 'cr' + a.id;
-    d.innerHTML = `<div class="id">${a.id + 1}</div><div class="bars">${['thermal', 'reactor', 'occlusion'].map(c => `<div class="bar" title="${c}"><i id="b-${a.id}-${c}"></i><span id="bt-${a.id}-${c}"></span></div>`).join('')}</div><div class="btns" id="bn${a.id}"></div><div class="st" id="st${a.id}"></div>`;
+    d.innerHTML = `<div class="id">${a.id + 1}</div><div style="display:flex;flex-direction:column;gap:4px;min-width:0"><div class="top"><span class="chip" id="chip${a.id}"></span><span class="st" id="who${a.id}" style="grid-column:auto"></span></div><div class="bars">${['thermal', 'reactor', 'occlusion'].map(c => `<div class="bar" title="${CH[c].tip}"><i id="b-${a.id}-${c}"></i><span id="bt-${a.id}-${c}"></span></div>`).join('')}</div><div class="btns" id="bn${a.id}"></div></div><div class="st" id="st${a.id}"></div>`;
     ct.append(d);
   });
   built = true;
@@ -219,8 +242,8 @@ function btnsFor(a) {
   if (h.dataset.key !== key) {
     h.dataset.key = key; h.innerHTML = '';
     const mk = (t, title, fn, cls) => { const b = document.createElement('button'); b.textContent = t; b.title = title; if (cls) b.className = cls; b.onclick = fn; h.append(b); return b; };
-    if (a.state === 'open' || a.state === 'locked') E.ANALYSTS.forEach(w => { const b = mk(w.name[0], (a.state === 'locked' ? 'Track with ' : 'Focus ') + w.name, () => E.assign(S, w.id, a.id)); b.dataset.w = w.id; });
-    if (a.state === 'open') { mk('Lock', 'Rule it in as a real ship and go after it. A wrong call costs four minutes.', () => E.lockContact(S, a.id)); mk('Dismiss', 'Rule it out.', () => E.dismissContact(S, a.id)); }
+    if (a.state === 'open' || a.state === 'locked') { const lb = document.createElement('span'); lb.className = 'lbl'; lb.textContent = a.state === 'locked' ? 'Track:' : 'Look closer:'; h.append(lb); E.ANALYSTS.forEach(w => { const b = mk(w.name, (a.state === 'locked' ? 'Have ' + w.name + ' track it' : 'Have ' + w.name + ' study it') + ' (' + w.role + '). Click again to release.', () => E.assign(S, w.id, a.id)); b.dataset.w = w.id; b.style.borderBottom = '2px solid ' + CH[w.ch].col; }); }
+    if (a.state === 'open') { mk('Lock as ship', 'Rule it in as a real ship and go after it. A wrong call costs five minutes and may be bait.', () => E.lockContact(S, a.id), 'lk'); mk('Dismiss', 'Rule it out as decoy or static.', () => E.dismissContact(S, a.id)); }
     if (a.state === 'locked') mk('Engage', 'Plan a volley', () => { engageId = a.id; aimL = null; buildEngage(); });
   }
   h.querySelectorAll('button[data-w]').forEach(b => b.classList.toggle('on', S.analysts.find(w => w.id === b.dataset.w).task === a.id));
@@ -233,16 +256,28 @@ function uiUpdate(force) {
   S.an.forEach(a => {
     const row = $('cr' + a.id); row.className = 'cr ' + a.state;
     ['thermal', 'reactor', 'occlusion'].forEach(c => {
-      const q = a.read[c], i = $(`b-${a.id}-${c}`), t = $(`bt-${a.id}-${c}`);
-      if (q && q.blind) { i.style.width = '0'; t.textContent = c === 'occlusion' ? 'blind' : ''; }
-      else if (q && q.den > 0) { const v = Math.max(0, q.num / q.den); i.style.width = Math.max(2, Math.min(100, v * 100)) + '%'; i.style.opacity = 0.3 + 0.7 * ago(q); i.style.background = c === 'thermal' ? '#ff8a4c' : c === 'reactor' ? '#6fc3d0' : '#b79cff'; t.textContent = c[0].toUpperCase() + ' ' + v.toFixed(2); }
-      else { i.style.width = '0'; t.textContent = c[0].toUpperCase() + ' ?'; }
+      const q = a.read[c], i = $(`b-${a.id}-${c}`), t = $(`bt-${a.id}-${c}`), nm = CH[c].n;
+      if (q && q.blind) { i.style.width = '0'; t.textContent = nm + ': blind'; }
+      else if (q && q.den > 0) { const v = Math.max(0, q.num / q.den), w = E.cat(v); i.style.width = Math.max(2, Math.min(100, v * 100)) + '%'; i.style.opacity = 0.3 + 0.7 * ago(q); i.style.background = CH[c].col; t.textContent = nm + ': ' + (w === 'none' ? 'nothing' : w); }
+      else { i.style.width = '0'; t.textContent = nm + ': not read yet'; }
     });
-    const rdy = a.state === 'open' && E.advice(S, a).call !== 'unsure'; row.classList.toggle('ready', rdy); let st = { open: 'unresolved', out: 'ruled out', chasing: 'chasing it...', disabled: 'crippled' }[a.state];
-    if (a.state === 'locked' && a.anchor) st = 'LOCKED: heading good to ' + Math.round(a.anchor.hs * 57.3) + ' deg, scan ' + (S.t - a.anchor.t).toFixed(1) + ' min old, tracked ' + a.track.toFixed(1) + ' min';
-    if (a.state === 'open' && S.integration >= 50) { const ad = E.advice(S, a); if (ad.call !== 'unsure') st += ' | Pell: ' + { junk: 'junk', ship: 'a ship', maybe: 'probably a ship (no occlusion)' }[ad.call]; }
-    if (rdy) st = 'DECIDE: ' + st; if (a.flutter) st += ' | grid read: ' + a.flutter; $('st' + a.id).textContent = st; btnsFor(a);
+    const rdy = a.state === 'open' && E.advice(S, a).call !== 'unsure'; row.classList.toggle('ready', rdy);
+    const on = S.analysts.filter(w => w.task === a.id).map(w => w.name), onTxt = on.length ? on.join(' and ') + (on.length > 1 ? ' are' : ' is') + ' on it. ' : '';
+    const nread = ['thermal', 'reactor', 'occlusion'].reduce((m, c) => m + (a.read[c]?.den || 0), 0);
+    let chip = { open: rdy ? 'READY TO CALL' : nread < 1 ? 'NOT READ YET' : 'UNRESOLVED', out: 'RULED OUT', chasing: 'CHASING', disabled: 'CRIPPLED', locked: 'LOCKED' }[a.state], st = '';
+    if (a.state === 'open') st = rdy ? 'The readings agree enough to decide. Lock it or dismiss it.' : nread < 1 ? 'Nothing yet. Analysts sweep it on their own schedule, or point one at it.' : 'Mixed or thin readings. Point an analyst at it for sharper bars, or wait for more sweeps.';
+    if (a.state === 'locked' && a.anchor) { const age = S.t - a.anchor.t; st = 'Scan is ' + age.toFixed(1) + ' min old' + (age > 3 ? ' and going stale: the wedge is widening' : '') + '. Tracked ' + a.track.toFixed(1) + ' min; heading good to about ' + Math.round(a.anchor.hs * 57.3) + ' degrees. ' + (on.length ? '' : 'Put an analyst on it to tighten the wedge, or Engage.'); }
+    if (a.state === 'chasing') st = 'We committed to this one. It resolves in a few minutes.';
+    if (a.state === 'out') st = 'Set aside.'; if (a.state === 'disabled') st = 'Dead in space.';
+    if (a.state === 'open' && S.integration >= 50) { const ad = E.advice(S, a); if (ad.call !== 'unsure') st += ' Pell: ' + { junk: 'this is junk.', ship: 'this is a ship.', maybe: 'probably a ship (no eclipse reading).' }[ad.call]; }
+    if (a.flutter) st += ' Grid read: ' + a.flutter + '.';
+    $('chip' + a.id).textContent = chip; $('who' + a.id).textContent = onTxt; $('st' + a.id).textContent = st; btnsFor(a);
   });
+  const xp = E.exposure(S), sc = Math.min(100, xp.total / 0.2 * 100); $('xp').firstChild.style.width = Math.max(3, sc) + '%'; $('xp').className = 'xp' + (xp.quiet ? ' dark' : sc > 60 ? ' hot' : '');
+  $('xl').innerHTML = xp.quiet ? '<span><b>Running dark.</b> Nobody is working, so nothing is leaking.</span>' : xp.parts.map(p => `<span><b>${(p.v * 100).toFixed(0)}%</b> per min: ${p.label}</span>`).join('');
+  $('hunttxt').textContent = ['has not found us yet', 'has our bearing and is closing', 'is inside sprint range', 'has a solution on us'][S.stage];
+  [...$('pips2').children].forEach((p, i) => p.classList.toggle('on', i < S.stage));
+  $('shiptxt').textContent = S.t < S.quietUntil ? 'Quiet: dark for ' + (S.quietUntil - S.t).toFixed(1) + ' more min.' : S.pending ? 'A sweep is about to reach us.' : S.t > P.squeezeAfter ? 'The longer this runs, the closer the hunter gets.' : 'Every bit of active sensor work adds to the bar above. Staying passive is cheap but slow.';
   $('integ').firstChild.style.width = S.integration + '%';
   const stage = S.integration >= 100 ? 'Pell wants a seat at the table.' : S.integration >= 75 ? 'Pell can act on standing orders.' : S.integration >= 50 ? 'Pell recommends a call on every contact.' : S.integration >= 25 ? 'Pell volunteers observations.' : 'Pell stays in his lane.';
   $('integtxt').textContent = 'Integration ' + Math.round(S.integration) + '% (rises while Pell assists, and stays). ' + stage;
@@ -314,7 +349,11 @@ function draw() {
     const th = a.read.thermal && a.read.thermal.num / a.read.thermal.den, col = th > 0.65 ? '255,180,84' : '111,195,208', lit = Math.abs(((Math.atan2(y - W / 2, x - W / 2) - ang) % 6.283 + 6.283) % 6.283) < 0.25;
     cx.fillStyle = `rgba(${col},${lit ? .35 : .09})`; cx.beginPath(); cx.arc(x, y, unc, 0, 7); cx.fill(); cx.fillStyle = `rgba(${col},${lit ? 1 : .55})`; cx.fillRect(x - 2, y - 2, 4, 4); cx.fillStyle = '#9fb7ac'; cx.font = '14px IBM Plex Mono, monospace'; cx.fillText(String(i + 1), x + 6, y - 6);
   });
-  cx.fillStyle = '#6fc3d0'; cx.fillRect(W / 2 - 3, W / 2 - 3, 6, 6);
+  const xp = E.exposure(S), pulse = 0.5 + 0.5 * Math.sin(performance.now() / 400), rr = 16 + Math.min(1, xp.total / 0.2) * 60 + pulse * 4;
+  cx.fillStyle = '#4a6a60'; cx.font = '11px IBM Plex Mono, monospace'; for (let r = 80; r < 460; r += 80) cx.fillText((r / k).toFixed(0) + ' km', W / 2 + r + 3, W / 2 - 3); cx.fillText('N', W / 2 + 4, 12);
+  cx.strokeStyle = xp.quiet ? 'rgba(111,195,208,.5)' : `rgba(255,107,90,${0.35 + 0.4 * Math.min(1, xp.total / 0.2)})`; cx.lineWidth = 2; cx.beginPath(); cx.arc(W / 2, W / 2, xp.quiet ? 12 : rr, 0, 7); cx.stroke(); cx.lineWidth = 1;
+  cx.fillStyle = '#6fc3d0'; cx.beginPath(); cx.moveTo(W / 2, W / 2 - 9); cx.lineTo(W / 2 + 7, W / 2 + 7); cx.lineTo(W / 2 - 7, W / 2 + 7); cx.closePath(); cx.fill();
+  cx.fillStyle = '#9fe0ea'; cx.font = '13px IBM Plex Mono, monospace'; cx.fillText('YOU // ' + E.POSTURE[S.posture].label.toLowerCase(), W / 2 + 12, W / 2 + 22);
 }
 start(); requestAnimationFrame(frame);
 </script>
