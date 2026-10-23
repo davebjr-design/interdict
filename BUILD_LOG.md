@@ -135,3 +135,8 @@ Read this first each session. Keep it to one page.
 - Clock length barely matters: with clocks of 8-30 min, P(shot) is 0.65-0.75 and the hunt averages only 1.8-3.4 beats (about one beat every 3 minutes). Longest quiet run 2.4-3.1 min.
 - Diagnosis: the problem is beat density, not duration. A hunt resolves in a few events, so there is no arc. Target (to playtest): first beat by minute 3, no quiet run over 3 min, 8-15 beats, 12-20 minutes.
 - Fixes to try: make each ladder rung a beat (anomaly, classify, track, solve); first hit disables rather than ends the fight; decoys, vents and escort stages as scheduled beats; patron snap mid-hunt.
+
+## Stage 1: anomaly investigation (sim/anomalies.py) + art pipeline draft
+- Pool of 6 anomalies, slots 1-3, confidence dial T 1-5, assist (speed / extra slot with a lying Pell), enemy tempo 0.7/1.0/1.5.
+- First result: T=1 wins in every configuration (confidence dial is not a real choice); beats per hunt 0.5-3.5 (target 8-15). Sent to the critic. Do not tune until the critic returns.
+- `docs/art_pipeline.md` drafted: manifest of named slots, placeholders first, radar as a shader, controls as components, style bible before final assets.
