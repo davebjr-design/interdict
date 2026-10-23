@@ -77,8 +77,14 @@ const HuntRT = (() => {
     if (!oc && th && re && th.v > 0.7 && re.v > 0.7 && n > 8) return { call: 'maybe' };
     return { call: 'unsure' };
   }
+  function stealthState(s) {   // Cold / Warm / Hot with hysteresis so it does not flicker
+    const x = exposure(s).total, cur = s.heat || 'cold', up = { cold: 0.06, warm: 0.12 }, down = { warm: 0.045, hot: 0.09 };
+    let h = cur; if (cur === 'cold' && x >= up.cold) h = 'warm'; if ((cur === 'cold' || cur === 'warm') && x >= up.warm) h = 'hot'; if (cur === 'hot' && x < down.hot) h = x >= up.cold ? 'warm' : 'cold'; if (cur === 'warm' && x < down.warm) h = 'cold';
+    return h;
+  }
   function sub(s, h) {
     s.t += h;
+    { const hs = stealthState(s); if (hs !== (s.heat || 'cold')) { const was = s.heat || 'cold'; s.heat = hs; if (hs === 'hot') report(s, 'Dace', 'We are running hot. Anything listening can hear us. Ease off the sensors or go quiet.', 'danger'); else if (was === 'hot') report(s, 'Dace', 'Heat is coming down. We are not shouting any more.', 'good'); } }
     const sq = s.t > P.squeezeAfter ? 1 + P.squeezeRamp * (s.t - P.squeezeAfter) : 1; let mult = POSTURE[s.posture].haz * sq;
     if (s.chase) mult *= P.chasemult; if (s.rescanAt) mult *= 0.5;
     const focusN = s.analysts.filter(x => x.task != null).length, trackN = s.analysts.filter(x => x.task != null && s.an[x.task].state === 'locked').length;
@@ -114,6 +120,22 @@ const HuntRT = (() => {
     if (!live && s.disabled < P.nreal && !s.rescanAt) { s.rescanAt = s.t + P.rescan; report(s, 'Abara', 'Everything is ruled out and the ships are still out there. Rescanning takes five minutes.', 'bad'); }
     if (s.rescanAt && s.t >= s.rescanAt) { s.rescanAt = null; s.an.forEach(a => { if (a.state === 'out') { a.state = 'open'; a.read = {}; } }); report(s, 'Abara', 'Rescan complete. Everything is open again.', 'info'); }
   }
+  // What the player's own readings say. Uses only a.read plus rough range (the smear's distance), never the hidden kind.
+  const KMEAN = { thermal: { real: 1.0, lure: 0.78, ghost: 0.3 }, reactor: { real: 1.0, lure: 0.68, ghost: 0.15 }, occlusion: { real: 0.9, lure: 0.05, ghost: 0.05 } };
+  function classify(s, a) {
+    const pl = s.player, p = truePos(a, s.t), d = Math.hypot(p.x - pl.x, p.y - pl.y), rf = Math.min(1, 1.3 / (1 + (d / 30) ** 2)), kinds = ['real', 'lure', 'ghost'];
+    const lp = { real: Math.log(P.nreal), lure: Math.log(P.nlure), ghost: Math.log(P.N - P.nreal - P.nlure) }, st = {}; let n = 0;
+    for (const ch of ['thermal', 'reactor', 'occlusion']) {
+      const q = a.read[ch]; if (!q) { st[ch] = 'none'; continue; }
+      if (q.blind) { st[ch] = 'blind'; n++; continue; }
+      if (!(q.den > 0)) { st[ch] = 'none'; continue; }
+      const v = q.num / q.den, sd = 0.45 / Math.sqrt(Math.max(q.den, 0.5)) + 0.06; if (q.den >= 1) { st[ch] = 'set'; n++; } else st[ch] = 'thin';
+      for (const k of kinds) { const mu = KMEAN[ch][k] * (ch === 'reactor' ? rf : 1), z = (v - mu) / sd; lp[k] += -0.5 * z * z - Math.log(sd); }
+    }
+    const m = Math.max(...kinds.map(k => lp[k])), w = kinds.map(k => Math.exp(lp[k] - m)), sum = w.reduce((x, y) => x + y, 0), post = {}; kinds.forEach((k, i) => post[k] = w[i] / sum);
+    const best = kinds.reduce((b, k) => post[k] > post[b] ? k : b, 'real');
+    return { n, st, post, best, p: post[best] };
+  }
   function exposure(s) {   // what is making us easy to find, per game minute (display only; sub() uses the same terms)
     const sq = s.t > P.squeezeAfter ? 1 + P.squeezeRamp * (s.t - P.squeezeAfter) : 1, quiet = s.t < s.quietUntil; let m = POSTURE[s.posture].haz * sq;
     if (s.chase) m *= P.chasemult; if (s.rescanAt) m *= 0.5; if (quiet) m *= P.quietHaz;
@@ -137,6 +159,6 @@ const HuntRT = (() => {
   function goQuiet(s) { if (s.over || s.t < s.quietCd) return false; s.quietUntil = s.t + P.quietDur; s.quietCd = s.t + P.quietCd; report(s, 'Abara', 'Going quiet. Sensors dark, nobody touches anything for three minutes.', 'info'); return true; }
   function retreat(s) { if (s.over) return; s.over = s.disabled ? 'breach' : 'breach0'; report(s, 'Abara', 'Breaking contact. Breach drive spinning up.', 'bad'); }
   function setPellAct(s, on) { s.pellAct = !!on && s.integration >= 75; }
-  return { P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, hitProb, estAt, spreadAt, truePos, cat, exposure };
+  return { P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, hitProb, estAt, spreadAt, truePos, cat, exposure, classify, stealthState };
 })();
 if (typeof module !== 'undefined') module.exports = HuntRT;

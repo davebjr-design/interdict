@@ -32,12 +32,13 @@ canvas{width:100%;max-width:100%;aspect-ratio:1/1;background:#050807;border:1px 
 .bar{position:relative;height:13px;background:#0b1210;border:1px solid var(--line);overflow:hidden}.bar i{position:absolute;left:0;top:0;bottom:0}.bar span{position:absolute;left:3px;top:-1px;font-size:10px;color:var(--ink);mix-blend-mode:difference}
 .st{grid-column:1/-1;color:var(--dim);font-size:11px}
 .cr{grid-template-columns:1.6em minmax(0,1fr)!important}.cr .top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.stl{display:flex;align-items:center;gap:6px;border:1px solid var(--line);padding:2px 8px}.stl b{font:700 13px var(--display);letter-spacing:.1em;min-width:4em}.sg{width:70px;height:9px;background:#0b1210;border:1px solid var(--line);position:relative}.sg i{position:absolute;left:0;top:0;bottom:0;background:var(--cyan)}.stl.warm b{color:var(--amber)}.stl.warm .sg i{background:var(--amber)}.stl.hot{border-color:var(--red);background:rgba(255,107,90,.12)}.stl.hot b{color:var(--red)}.stl.hot .sg i{background:var(--red)}.stl.hot{animation:blink 1s steps(2) infinite}@keyframes blink{50%{background:rgba(255,107,90,.3)}}
 .chip{font:500 10px var(--mono);letter-spacing:.08em;padding:1px 6px;border:1px solid var(--line);color:var(--dim)}.cr.ready .chip{color:var(--bg);background:var(--cyan);border-color:var(--cyan)}.cr.locked .chip{color:var(--bg);background:var(--amber);border-color:var(--amber)}.cr.chasing .chip{color:var(--bg);background:var(--red);border-color:var(--red)}.cr.disabled .chip{color:var(--bg);background:var(--green);border-color:var(--green)}
 .bar{height:16px}.bar span{font-size:11px;top:0}
 .look{display:flex;gap:4px;flex-wrap:wrap;align-items:center}.look .lbl{margin-right:2px}
 .key{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.key div{border:1px solid var(--line);padding:6px;font-size:12px}.key b{display:block;font:700 13px var(--display);letter-spacing:.06em}
 details>summary{cursor:pointer;color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.14em}
-.xp{position:relative;height:14px;background:#0b1210;border:1px solid var(--line)}.xp i{position:absolute;left:0;top:0;bottom:0;background:var(--amber);transition:width .3s}.xp.hot i{background:var(--red)}.xp.dark i{background:var(--cyan)}
+.xp{position:relative;height:14px;background:#0b1210;border:1px solid var(--line)}.xp s{position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--dim)}.xp i{position:absolute;left:0;top:0;bottom:0;background:var(--amber);transition:width .3s}.xp.hot i{background:var(--red)}.xp.dark i{background:var(--cyan)}
 .xl{display:flex;flex-direction:column;gap:2px;font-size:12px;color:var(--dim)}.xl span b{color:var(--ink);font-weight:500}
 
 button{font:500 11px var(--mono);background:#16221e;color:var(--ink);border:1px solid var(--line);padding:4px 7px;cursor:pointer}
@@ -64,7 +65,7 @@ button:hover{border-color:var(--amber)}button:focus-visible{outline:2px solid va
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 <div class="wrap" id="wrap">
-<header><h1>Interdict // Bridge</h1><div class="hdr"><span id="clk">0:00</span><span title="Each pip is a closing step by the hunter. The third is contact.">hunter</span><div class="pips" id="pips" title="Each pip is a closing step by the hunter. The third is contact."><div class="pip"></div><div class="pip"></div><div class="pip"></div></div><span id="warn" style="color:var(--red)"></span><button id="quiet" title="Sensors dark for 2.5 minutes: nobody works, hazard drops, and a sweep that arrives during it has a 60% chance to pass. Cooldown 10 minutes.">Go quiet</button><button id="pause">Pause</button><label><input type="checkbox" id="slow"> slow time</label><button id="brk" title="Calm option: Breach out now with whatever you have crippled.">Break contact</button><button id="manbtn">Field manual</button><button id="newh">New hunt</button></div></header>
+<header><h1>Interdict // Bridge</h1><div class="hdr"><span id="clk">0:00</span><span class="stl" id="stl" title="How easy we are to hear. Cold: hard to find. Hot: anything listening can hear us. Active sensor work, tracking, Pell and an aggressive drive all add heat; Go quiet dumps it."><span class="lbl">Stealth</span><span class="sg"><i id="stli"></i></span><b id="stlt">COLD</b></span><span title="Each pip is a closing step by the hunter. The third is contact.">hunter</span><div class="pips" id="pips" title="Each pip is a closing step by the hunter. The third is contact."><div class="pip"></div><div class="pip"></div><div class="pip"></div></div><span id="warn" style="color:var(--red)"></span><button id="quiet" title="Sensors dark for 2.5 minutes: nobody works, hazard drops, and a sweep that arrives during it has a 60% chance to pass. Cooldown 10 minutes.">Go quiet</button><button id="pause">Pause</button><label><input type="checkbox" id="slow"> slow time</label><button id="brk" title="Calm option: Breach out now with whatever you have crippled.">Break contact</button><button id="manbtn">Field manual</button><button id="newh">New hunt</button></div></header>
 <div class="top">
 <section class="panel radar"><h2>Radar <span class="lbl" id="rmode">passive</span></h2><canvas id="cv" width="640" height="640" aria-label="Radar display"></canvas><div class="help">You: cyan triangle. Red ring: how easy we are to find. Rings: 5 km.</div></section>
 <section class="panel"><h2>Contacts <span class="lbl">numbers match the radar</span></h2><div class="ct" id="ct"></div></section>
@@ -73,7 +74,7 @@ button:hover{border-color:var(--amber)}button:focus-visible{outline:2px solid va
 <section class="panel"><h2>Ship status</h2>
 <div class="row"><span class="lbl">Posture</span><div class="seg" id="seg-post"></div></div><div class="help" id="posthelp"></div>
 <div class="row"><span class="lbl">Hunter</span><div class="pips" id="pips2"><div class="pip"></div><div class="pip"></div><div class="pip"></div></div><span id="hunttxt" class="help"></span></div>
-<div class="sub"><span class="lbl">Heat signature</span><div class="xp" id="xp"><i></i></div><div class="xl" id="xl"></div></div>
+<div class="sub"><span class="lbl">Heat signature</span><div class="xp" id="xp"><s style="left:30%"></s><s style="left:60%"></s><i></i></div><div class="xl" id="xl"></div></div>
 <div class="sub"><span class="lbl">Power draw</span><div id="pw"></div></div>
 <div class="sub"><span class="lbl">Hull and systems</span><div id="hl"></div></div>
 <div class="help" id="shiptxt"></div></section>
@@ -149,10 +150,11 @@ function uiUpdate(force) {
     if (a.state === 'chasing') st = 'We committed to this one. It resolves in a few minutes.';
     if (a.state === 'out') st = 'Set aside.'; if (a.state === 'disabled') st = 'Dead in space.';
     if (a.state === 'open' && S.integration >= 50) { const ad = E.advice(S, a); if (ad.call !== 'unsure') st += ' Pell: ' + { junk: 'this is junk.', ship: 'this is a ship.', maybe: 'probably a ship (no eclipse reading).' }[ad.call]; }
+    if (a.state === 'open') { const c = E.classify(S, a); if (c.n >= 2) st = (c.p >= 0.5 ? 'Reads as ' + { real: 'a warship', lure: 'a decoy', ghost: 'static' }[c.best] + ' (' + Math.min(99, Math.round(c.p * 100)) + '%). ' : 'Unsure. ') + st; }
     if (a.flutter) st += ' Grid read: ' + a.flutter + '.';
     $('chip' + a.id).textContent = chip; $('who' + a.id).textContent = onTxt; $('st' + a.id).textContent = st; btnsFor(a);
   });
-  const xp = E.exposure(S), sc = Math.min(100, xp.total / 0.2 * 100); $('xp').firstChild.style.width = Math.max(3, sc) + '%'; $('xp').className = 'xp' + (xp.quiet ? ' dark' : sc > 60 ? ' hot' : '');
+  const xp = E.exposure(S), sc = Math.min(100, xp.total / 0.2 * 100), hs = E.stealthState(S); $('stl').className = 'stl ' + hs; $('stli').style.width = Math.max(4, sc) + '%'; $('stlt').textContent = xp.quiet ? 'DARK' : hs.toUpperCase(); $('xp').firstChild.style.width = Math.max(3, sc) + '%'; $('xp').className = 'xp' + (xp.quiet ? ' dark' : sc > 60 ? ' hot' : '');
   $('xl').innerHTML = xp.quiet ? '<span><b>Running dark.</b> Nobody is working, so nothing is leaking.</span>' : xp.parts.map(p => `<span><b>${(p.v * 100).toFixed(0)}%</b> per min: ${p.label}</span>`).join('');
   const gauge = (l, v, col, txt) => `<div class="eg"><span>${l}</span><div class="bar"><i style="width:${Math.round(Math.max(0, Math.min(1, v)) * 100)}%;background:${col}"></i></div><span>${txt}</span></div>`;
   { const fN = S.analysts.filter(w => w.task != null).length, rl = S.tubes.filter(x => S.t < x).length, q = S.t < S.quietUntil;
@@ -214,6 +216,13 @@ function frame(now) {
   if (now - lastUi > 150) { lastUi = now; uiUpdate(); if (engageId != null) { const hp = now - lastHp > 900; if (hp) lastHp = now; engUpdate(hp); } }
   if (!paused) draw(); requestAnimationFrame(frame);
 }
+const KN = { real: ['WARSHIP', '#ffb454'], lure: ['DECOY', '#6fc3d0'], ghost: ['STATIC', '#8aa196'] }, CHC = { thermal: '#ff8a4c', reactor: '#6fc3d0', occlusion: '#b79cff' };
+function contactLabel(a, x, y, i) {   // starts as a bare number; each established channel adds a pip; the type guess and its odds come once two channels are in
+  const c = E.classify(S, a); let tx = x + 8; const ty = y - 8; let label = String(i + 1), col = '#9fb7ac';
+  if (c.n >= 2) { if (c.p >= 0.5) { label += ' ' + KN[c.best][0] + ' (' + Math.min(99, Math.round(c.p * 100)) + '%)'; col = KN[c.best][1]; } else { label += ' ?'; col = '#cfe3da'; } }
+  cx.font = '24px IBM Plex Mono, monospace'; if (tx + cx.measureText(label).width > cv.width - 6) tx = cv.width - 6 - cx.measureText(label).width; cx.fillStyle = col; cx.fillText(label, tx, ty);
+  Object.keys(CHC).forEach((ch, j) => { const st = c.st[ch], px0 = tx + j * 14; cx.strokeStyle = '#3a4f47'; cx.strokeRect(px0, ty + 6, 10, 10); if (st === 'set' || st === 'thin') { cx.fillStyle = CHC[ch]; cx.globalAlpha = st === 'set' ? 1 : 0.4; cx.fillRect(px0, ty + 6, 10, 10); cx.globalAlpha = 1; } else if (st === 'blind') { cx.fillStyle = '#4a5a54'; cx.fillRect(px0 + 3, ty + 9, 4, 4); } });
+}
 function draw() {
   const W = cv.width, k = W / P.arena; cx.fillStyle = 'rgba(5,8,7,0.12)'; cx.fillRect(0, 0, W, W);
   cx.strokeStyle = '#17302a'; cx.lineWidth = 1; for (let r = 80; r < 460; r += 80) { cx.beginPath(); cx.arc(W / 2, W / 2, r, 0, 7); cx.stroke(); }
@@ -230,18 +239,18 @@ function draw() {
       for (let m = 1; m <= 12; m++) { const t = E.estAt(a, m); cx.fillStyle = 'rgba(255,180,84,.5)'; cx.fillRect(px(t.x) - 1.5, px(t.y) - 1.5, 4, 4); }
       cx.fillStyle = '#ffb454'; cx.beginPath(); cx.arc(px(q.x), px(q.y), 4, 0, 7); cx.fill(); cx.strokeStyle = '#ffd9a0'; cx.beginPath(); cx.arc(px(cur.x), px(cur.y), 7, 0, 7); cx.stroke();
       if (engageId === a.id) { const f = E.fanInfo(S, a, aimL), ax = px(f.aim.x), ay = px(f.aim.y); cx.strokeStyle = '#6fc3d0'; cx.setLineDash([4, 4]); cx.beginPath(); cx.moveTo(W / 2, W / 2); cx.lineTo(ax, ay); cx.stroke(); cx.setLineDash([]); cx.save(); cx.translate(ax, ay); cx.rotate(f.dir); cx.beginPath(); cx.ellipse(0, 0, cone * P.alongStretch * k * 1.6 + 2, cone * k * 1.6 + 2, 0, 0, 7); cx.stroke(); cx.restore(); cx.fillStyle = '#6fc3d0'; cx.fillRect(ax - 3, ay - 3, 6, 6); }
-      cx.fillStyle = '#ffd9a0'; cx.font = '24px IBM Plex Mono, monospace'; cx.fillText(String(i + 1), px(q.x) + 8, px(q.y) - 8); return;
+      cx.fillStyle = '#ffd9a0'; cx.font = '24px IBM Plex Mono, monospace'; cx.fillText(i + 1 + ' WARSHIP', px(q.x) + 8, px(q.y) - 8); return;
     }
     if (a.state === 'disabled') { cx.fillStyle = 'rgba(143,214,148,.8)'; cx.fillRect(tp.x * k - 3, tp.y * k - 3, 6, 6); return; }
     const jx = Math.sin(a.id * 7.1) * 24, jy = Math.cos(a.id * 3.7) * 24, x = tp.x * k + jx, y = tp.y * k + jy, den = ['thermal', 'reactor', 'occlusion'].reduce((m, c) => m + (a.read[c]?.den || 0), 0), unc = Math.max(9, 56 - 6 * Math.min(7, den));
     const th = a.read.thermal && a.read.thermal.num / a.read.thermal.den, col = th > 0.65 ? '255,180,84' : '111,195,208', lit = Math.abs(((Math.atan2(y - W / 2, x - W / 2) - ang) % 6.283 + 6.283) % 6.283) < 0.25;
-    cx.fillStyle = `rgba(${col},${lit ? .35 : .09})`; cx.beginPath(); cx.arc(x, y, unc, 0, 7); cx.fill(); cx.fillStyle = `rgba(${col},${lit ? 1 : .55})`; cx.fillRect(x - 2, y - 2, 4, 4); cx.fillStyle = '#9fb7ac'; cx.font = '24px IBM Plex Mono, monospace'; cx.fillText(String(i + 1), x + 6, y - 6);
+    cx.fillStyle = `rgba(${col},${lit ? .35 : .09})`; cx.beginPath(); cx.arc(x, y, unc, 0, 7); cx.fill(); cx.fillStyle = `rgba(${col},${lit ? 1 : .55})`; cx.fillRect(x - 2, y - 2, 4, 4); contactLabel(a, x, y, i);
   });
   const xp = E.exposure(S), pulse = 0.5 + 0.5 * Math.sin(performance.now() / 400), rr = 16 + Math.min(1, xp.total / 0.2) * 60 + pulse * 4;
   cx.fillStyle = '#4a6a60'; cx.font = '18px IBM Plex Mono, monospace'; for (let r = 80; r < 460; r += 80) cx.fillText((r / k).toFixed(0) + ' km', W / 2 + r + 3, W / 2 - 3); cx.fillText('N', W / 2 + 4, 12);
   cx.strokeStyle = xp.quiet ? 'rgba(111,195,208,.5)' : `rgba(255,107,90,${0.35 + 0.4 * Math.min(1, xp.total / 0.2)})`; cx.lineWidth = 2; cx.beginPath(); cx.arc(W / 2, W / 2, xp.quiet ? 12 : rr, 0, 7); cx.stroke(); cx.lineWidth = 1;
   cx.fillStyle = '#6fc3d0'; cx.beginPath(); cx.moveTo(W / 2, W / 2 - 9); cx.lineTo(W / 2 + 7, W / 2 + 7); cx.lineTo(W / 2 - 7, W / 2 + 7); cx.closePath(); cx.fill();
-  cx.fillStyle = '#9fe0ea'; cx.font = '21px IBM Plex Mono, monospace'; cx.fillText('YOU', W / 2 + 14, W / 2 + 26);
+  cx.fillStyle = '#9fe0ea'; cx.font = '21px IBM Plex Mono, monospace'; cx.fillText('YOU', W / 2 + 14, W / 2 + 26); { const hs = E.stealthState(S); cx.font = '20px IBM Plex Mono, monospace'; cx.fillStyle = xp.quiet ? '#6fc3d0' : hs === 'hot' ? '#ff6b5a' : hs === 'warm' ? '#ffb454' : '#8fd694'; cx.fillText('STEALTH: ' + (xp.quiet ? 'DARK' : hs.toUpperCase()), 10, W - 12); }
 }
 start(); requestAnimationFrame(frame);
 </script>
