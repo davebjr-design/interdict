@@ -379,8 +379,8 @@ const HuntRT = (() => {
     if (!s.pending && s.r() < (P.base * s.tempo * mult + (s.t < s.beamUntil ? P.beamGlow : 0) + (s.t < s.blastUntil ? s.blastV : 0) + (s.t < s.pingUntil ? P.pingGlow : 0) + engineHeat(s) * (s.t < s.quietUntil ? 0 : 1) + nearHeat(s) + P.glowFocus * focusN * (quiet ? 0 : 1) + P.glowTrack * trackN * (quiet ? 0 : 1) + (s.pell ? P.glowPell : 0)) * h) { s.pending = { at: s.t + P.telegraph }; report(s, 'Dace', 'Hunter radar swept across our bearing. Something is coming. Go quiet if you want it to pass.', 'danger', true); pingBy(s); }
     if (s.pending && s.t >= s.pending.at) { s.pending = null; if (s.t < s.quietUntil && s.r() < P.quietCancel) report(s, 'Dace', 'They swept past us. Quiet paid off.', 'good'); else { bump(s); if (s.over) return; } }
     const friction = 1 - P.pellFriction * Math.max(0, Math.floor(s.integration / 25) - 1), rate = POSTURE[s.posture].rate * (s.entry === 'dark' && s.t < P.darkWarm ? 0.8 : 1) * (moving(s) || s.posture === 'evade' ? P.moveRate : 1) * (moving(s) ? SPEED[s.speed].rate : 1) * friction * (s.hull < 60 ? 0.85 : 1);
-    for (const a of s.an) if (a.state === 'locked' && (a.solve || 0) >= 1 && a.anchor && s.t - a.anchor.t > P.solveStale) { a.solve = 0; report(s, 'Abara', `The solution on contact ${a.id + 1} has gone stale. Re-working it; point an analyst at it to keep the track fresh.`, 'bad'); }
-    if (!quiet) for (const a of s.an) if (a.state === 'locked' && (a.solve || 0) < 1) { a.solve = Math.min(1, (a.solve || 0) + h / solveInfo(s, a).T); if (a.solve >= 1) { a.track = Math.max(a.track, 3); scan(s, a); report(s, 'Abara', `Firing solution on contact ${a.id + 1}. The track is tight. Ready when you are.`, 'good'); } }
+    for (const a of s.an) if (a.state === 'locked' && (a.solve || 0) >= 1 && a.anchor && s.t - a.anchor.t > P.solveStale) { a.solve = 0; a.stale = true; report(s, 'Abara', `The solution on contact ${a.id + 1} has gone stale. Refresh it when you want a new one; an analyst on the contact keeps the track fresh.`, 'bad'); }
+    if (!quiet) for (const a of s.an) if (a.state === 'locked' && !a.stale && (a.solve || 0) < 1) { a.solve = Math.min(1, (a.solve || 0) + h / solveInfo(s, a).T); if (a.solve >= 1) { a.track = Math.max(a.track, 3); scan(s, a); report(s, 'Abara', `Firing solution on contact ${a.id + 1}. The track is tight. Ready when you are.`, 'good'); } }
     for (const w of s.analysts) {
       if (s.t < w.next) continue;
       if (quiet) { w.next = s.quietUntil; continue; }
@@ -438,7 +438,7 @@ const HuntRT = (() => {
   }
   function tick(s, dt) { let left = dt; while (left > 1e-9 && !s.over) { const h = Math.min(P.sub, left); sub(s, h); left -= h; } }
   function assign(s, analystId, contact) { const w = s.analysts.find(x => x.id === analystId); if (!w || s.over || (contact != null && s.an[contact].idStatus === 'plan')) return; w.task = (contact == null || w.task === contact) ? null : contact; w.next = Math.min(w.next, s.t + 0.05); }
-  function refreshSolution(s, id) { const a = s.an[id]; if (s.over || !a || a.state !== 'locked') return false; a.solve = 0; report(s, 'Abara', `Re-working the firing solution on contact ${id + 1}.`, 'info'); return true; }
+  function refreshSolution(s, id) { const a = s.an[id]; if (s.over || !a || a.state !== 'locked') return false; a.solve = 0; a.stale = false; report(s, 'Abara', `Re-working the firing solution on contact ${id + 1}.`, 'info'); return true; }
   function resolution(a) { let sum = 0; for (const ch of ['thermal', 'reactor', 'occlusion']) { const q = a.read[ch]; sum += q ? (q.blind ? 0.6 : Math.min(1, q.den / P.solveDen)) : 0; } return sum / 3; }
   function solveInfo(s, a) {
     const res = resolution(a), age = a.anchor ? s.t - a.anchor.t : 3, why = [];
@@ -451,7 +451,7 @@ const HuntRT = (() => {
     if (s.hull < 60) { T *= 1.15; why.push('hull damage'); }
     if (s.pellAct && s.integration >= 50) T *= 0.85;
     const dark = s.t < s.quietUntil, prog = a.solve || 0;
-    return { prog, T, remain: dark ? Infinity : (1 - prog) * T, res, why, paused: dark, ready: prog >= 1 };
+    return { prog, T, remain: dark ? Infinity : (1 - prog) * T, res, why, paused: dark, ready: prog >= 1, stale: !!a.stale };
   }
   function lockContact(s, id) {
     const a = s.an[id]; if (s.over || a.state !== 'open') return;
@@ -553,7 +553,7 @@ function btnsFor(a) {
   }
 }
 function fmtMin(m) { const t = Math.round(m * 60); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); }
-function solTxt(a) { const si = E.solveInfo(S, a); if (si.ready) return 'Firing solution ready. Press Target to plan the volley.'; return 'Solving ' + Math.round(si.prog * 100) + '%' + (si.paused ? ', paused while sensors are dark' : ', about ' + fmtMin(si.remain) + ' left') + (si.why.length ? ' (' + si.why.join(', ') + ')' : '') + '.'; }
+function solTxt(a) { const si = E.solveInfo(S, a); if (si.stale) return 'Solution stale. Press Refresh in the Target view, or put an analyst on it.'; if (si.ready) return 'Firing solution ready. Press Target to plan the volley.'; return 'Solving ' + Math.round(si.prog * 100) + '%' + (si.paused ? ', paused while sensors are dark' : ', about ' + fmtMin(si.remain) + ' left') + (si.why.length ? ' (' + si.why.join(', ') + ')' : '') + '.'; }
 const KN0 = { real: 'WARSHIP', lure: 'DECOY', ghost: 'STATIC' };
 function clsLabel(a) { if (a.idStatus === 'plan') return 'ALLY'; if (a.idStatus === 'hostile') return 'HOSTILE'; if (a.state === 'disabled') return 'CRIPPLED'; if (a.state === 'out') return 'RULED OUT'; const c = E.classify(S, a); if (c.n >= 2 && c.p >= 0.5) return KN0[c.best] + ' ' + Math.min(99, Math.round(c.p * 100)) + '%'; return c.n >= 1 ? '?' : '-'; }
 function setTime(v) { tscale = v; document.querySelectorAll('#tsp button').forEach(b => b.classList.toggle('on', +b.dataset.s === v)); }
@@ -729,8 +729,8 @@ function engUpdate(hp) {
   $('kaim').innerHTML = dial({ label: 'AIM LEAD', unit: 'km along path', min: 0, max: 40, val: f.L, mark: sug, major: 8, num: v => v % 10 ? '' : v, amber: true, sub: 'cyan tick = Abara suggests' });
   $('kcone').innerHTML = dial({ label: 'CONE WIDTH', unit: 'km spread', min: 0, max: 8, val: cone, major: 8, num: v => v, amber: true, sub: 'tight = dense and punishing, wide = more coverage' });
   const si = E.solveInfo(S, a), rd = S.tubes.filter(x => S.t >= x).length;
-  $('solbar').innerHTML = `<div class="sol"><b style="color:${si.ready ? 'var(--green)' : 'var(--amber)'}">${si.ready ? 'FIRING SOLUTION READY' : si.paused ? 'SOLUTION PAUSED (SENSORS DARK)' : 'SOLVING'}</b><div class="bar"><i style="width:${si.prog * 100}%;background:${si.ready ? '#8fd694' : '#ffb454'}"></i><span>${si.ready ? '' : fmtMin(si.remain) + ' left'}</span></div><span class="help">${si.why.join(', ')}</span><button id="refresh" title="Throw out this solution and work a fresh one. Pointing analysts at the contact keeps the track fresh without this.">Refresh</button></div><div class="help">Scan is ${fmtMin(S.t - q.t)} old${S.t - q.t > P.solveStale * 0.66 ? ': going stale, the solution will reset' : ''}. Tracking analysts keep it fresh.</div>`;
-  const f2 = $('fire'); f2.disabled = !si.ready || !rd; f2.textContent = !si.ready ? 'SOLVING ' + (si.paused ? '' : fmtMin(si.remain)) : !rd ? 'RELOADING ' + fmtMin(Math.min(...S.tubes.map(x => x - S.t))) : 'FIRE SALVO';
+  $('solbar').innerHTML = `<div class="sol"><b style="color:${si.ready ? 'var(--green)' : 'var(--amber)'}">${si.ready ? 'FIRING SOLUTION READY' : si.stale ? 'SOLUTION STALE: PRESS REFRESH' : si.paused ? 'SOLUTION PAUSED (SENSORS DARK)' : 'SOLVING'}</b><div class="bar"><i style="width:${si.prog * 100}%;background:${si.ready ? '#8fd694' : '#ffb454'}"></i><span>${si.ready || si.stale ? '' : fmtMin(si.remain) + ' left'}</span></div><span class="help">${si.why.join(', ')}</span><button id="refresh" title="Throw out this solution and work a fresh one. Pointing analysts at the contact keeps the track fresh without this.">Refresh</button></div><div class="help">Scan is ${fmtMin(S.t - q.t)} old${S.t - q.t > P.solveStale * 0.66 ? ': going stale, the solution will reset' : ''}. Tracking analysts keep it fresh.</div>`;
+  const f2 = $('fire'); f2.disabled = !si.ready || !rd; f2.textContent = !si.ready ? (si.stale ? 'STALE' : 'SOLVING ' + (si.paused ? '' : fmtMin(si.remain))) : !rd ? 'RELOADING ' + fmtMin(Math.min(...S.tubes.map(x => x - S.t))) : 'FIRE SALVO';
   $('eninfo').textContent = `Arrival in about ${(P.engage + f.tf).toFixed(1)} min. At the aim point the path is uncertain by about ${f.cross.toFixed(1)} km across and ${f.along.toFixed(1)} km along. Grid read: ${a.flutter || 'none yet'}.`;
   { const sr = hpNow ? E.selfRisk(S, a, aimL, cone, 300) : selfCache; selfCache = sr; selfRiskV = sr.p; const ci = E.closeInfo(S, a), inR = ci.d <= P.closeRange, cwr = S.t >= S.cwCd, dang = sr.p >= 0.03;
     $('dcled').className = 'led ' + (dang ? 'r' : 'g');
