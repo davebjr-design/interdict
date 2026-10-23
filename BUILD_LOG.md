@@ -68,3 +68,9 @@ Read this first each session. Keep it to one page.
 - Dave's equipment idea: everything is salvaged; same-maker parts get set bonuses; parts from recon ships / battleships / stations / freighters have distinct profiles (recon light and weak, battleship strong but heat- and power-hungry); mixing causes friction and parasitic heat.
 - data/ship_parts.json + sim/ship_model.py: 16 parts in 4 slots (drive, sink, sensor, weapon), 3 makers (Orrin recon, Vask battleship, Halden station/freighter). Set bonus 5/10/15% for 2/3/4 same-maker parts; friction 0.05 per extra maker + 0.03 per extra origin cuts engine efficiency and adds parasitic heat; power draw above 10 adds overload heat.
 - First run (v0 metric): battleship fire director + lance dominate, recon parts never in the top 25, friction nearly irrelevant, closing never chosen. Likely a bad metric (ignores stealth) plus real tuning gaps. Sent to a game-theory critic agent before retuning.
+
+## Oct 22 (night) - weapons without rock-paper-scissors (first pass)
+- Dave: iterate on balance, find interesting mechanics, base weapons on the Star Wolf books (kinetic field, missiles, point defense, armor), avoid rock-paper-scissors.
+- Could not find the books' weapon details online (only the premise: Liberty ship LS-1187, Morthan Solidarity). Need Dave's terms.
+- sim/weapons_model.py: three families (kinetic slug, guided missile, lance) tested against SITUATIONS (unaware, aware, point defense up, screened, cold hulk, ambush, closed on aware foe), not against each other. Each wins somewhere: kinetic 3, missile 3, lance 1 of 7. Defenses are states of the target (aware, PD up, screened), not type counters.
+- Principles: weapons differ on resource shape (time of flight, signature, heat/power, ammo, damage to salvage); defenses are tempo windows; shared counterplay verbs (hide, decoy, close, break line).
