@@ -108,3 +108,8 @@ Read this first each session. Keep it to one page.
 - Differentiation: hook = hunted ship commanded through officers and a lying AI reading the same minutes-old picture. Protect: cone volleys, lever-grammar cards with the peace cost, Pell + patron as a comms/signature problem. Samey: set bonuses and friction, rating+noise checks, trust bars, hold/close/fire loop, relay % bar. Comparables recalled from memory only (research returned little): FTL, Silent Hunter, Duskers, Highfleet, Darkest Dungeon, Reigns, Papers Please, Sunless Sea.
 - Biggest risk: simulation before game. Eleven sim rounds, nothing playable; ~33 h of card content plus UI.
 - Core Mechanics: Sequences doc created (Docs): scanning, movement, combat, being targeted, Hyperstate, comms, return. First-slice scope and deferrals in it.
+
+## Oct 22 (night) - decisions: keep kits, invent terms
+- Dave: do NOT defer the salvage set bonuses / friction / parasitic heat; they are how the class system works for ships and will drive gameplay variety. Invent new terms but stay true to the mechanics so there is one operating rule set.
+- docs/glossary.md and the Core Mechanics: Sequences doc now carry the glossary and the ship classes (Needle, Hammer, Anchor, Hauler, Patchwork). Slice scope in the doc updated: the full kit system ships with the slice.
+- Critic 2's recommendation to cut parts to 2 makers / 8 parts was overruled by Dave. Mitigation: keep the 16-part, 3-maker table but build the kit rules once, data-driven.
