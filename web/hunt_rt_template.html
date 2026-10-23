@@ -26,7 +26,7 @@ canvas{width:100%;max-width:100%;aspect-ratio:1/1;background:#050807;border:1px 
 .ac{border:1px solid var(--line);padding:6px;display:flex;flex-direction:column;gap:2px}.ac b{font:700 14px var(--display);color:var(--amber)}.ac .t{color:var(--dim);font-size:11px;min-height:1.4em}
 .ct{display:flex;flex-direction:column;gap:5px}
 .cr{display:grid;grid-template-columns:1.6em minmax(0,1fr) auto;gap:4px 8px;align-items:center;border:1px solid var(--line);padding:5px}
-.cr.locked{border-color:var(--amber)}.cr.out{opacity:.4}.cr.disabled{border-color:var(--green)}.cr.chasing{border-color:var(--red)}
+.cr.ready{border-color:var(--cyan)}.cr.locked{border-color:var(--amber)}.cr.out{opacity:.4}.cr.disabled{border-color:var(--green)}.cr.chasing{border-color:var(--red)}
 .cr .id{font:700 15px var(--display);color:var(--amber)}
 .bars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
 .bar{position:relative;height:13px;background:#0b1210;border:1px solid var(--line);overflow:hidden}.bar i{position:absolute;left:0;top:0;bottom:0}.bar span{position:absolute;left:3px;top:-1px;font-size:10px;color:var(--ink);mix-blend-mode:difference}
@@ -37,7 +37,7 @@ button:hover{border-color:var(--amber)}button:focus-visible{outline:2px solid va
 .feed{max-height:330px;overflow:auto;display:flex;flex-direction:column;gap:3px}.feed div{padding-left:8px;border-left:2px solid var(--line)}
 .feed .good{border-color:var(--green)}.feed .bad{border-color:var(--amber)}.feed .danger{border-color:var(--red);background:rgba(255,107,90,.08)}.feed .integration{border-color:var(--violet);color:#d8ccff}.feed b{color:var(--amber);font-weight:500}
 .meter{position:relative;height:12px;background:#0b1210;border:1px solid var(--line)}.meter i{position:absolute;left:0;top:0;bottom:0;background:var(--violet)}.meter s{position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--dim)}
-.engage{border:1px solid var(--amber);padding:9px;display:flex;flex-direction:column;gap:7px}.slider input{width:100%;accent-color:var(--amber)}
+.engage{position:sticky;top:8px;z-index:5;background:var(--panel);border:1px solid var(--amber);padding:9px;display:flex;flex-direction:column;gap:7px}.slider input{width:100%;accent-color:var(--amber)}
 .ghost{color:var(--cyan);font-size:10px}
 .over{position:fixed;inset:0;background:rgba(5,8,7,.94);display:flex;align-items:center;justify-content:center;padding:20px;z-index:20}
 .box{background:var(--panel);border:1px solid var(--amber);max-width:560px;width:100%;padding:18px;display:flex;flex-direction:column;gap:10px}.box h3{margin:0;font:700 24px var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--amber)}
@@ -45,7 +45,7 @@ button:hover{border-color:var(--amber)}button:focus-visible{outline:2px solid va
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 <div class="wrap" id="wrap">
-<header><h1>Interdict // Bridge</h1><div class="hdr"><span id="clk">0:00</span><span>hunter</span><div class="pips" id="pips"><div class="pip"></div><div class="pip"></div><div class="pip"></div></div><button id="pause">Pause</button><label><input type="checkbox" id="slow"> slow time</label><button id="brk" title="Calm option: Breach out now with whatever you have crippled.">Break contact</button><button id="newh">New hunt</button></div></header>
+<header><h1>Interdict // Bridge</h1><div class="hdr"><span id="clk">0:00</span><span title="Each pip is a closing step by the hunter. The third is contact.">hunter</span><div class="pips" id="pips" title="Each pip is a closing step by the hunter. The third is contact."><div class="pip"></div><div class="pip"></div><div class="pip"></div></div><span id="warn" style="color:var(--red)"></span><button id="quiet" title="Sensors dark for 2.5 minutes: nobody works, hazard drops, and a sweep that arrives during it has a 60% chance to pass. Cooldown 10 minutes.">Go quiet</button><button id="pause">Pause</button><label><input type="checkbox" id="slow"> slow time</label><button id="brk" title="Calm option: Breach out now with whatever you have crippled.">Break contact</button><button id="newh">New hunt</button></div></header>
 <p class="help">Real time. Your analysts report on their own schedule; you decide where their attention goes, what to believe, and when to commit. Two real ships are out there among lures and static. Lock them, keep a tracker on them until the wedge narrows, aim ahead along the path and fire. Pausing blanks the displays. <b>Esc</b> pauses.</p>
 <div class="main">
 <div class="col"><section class="panel"><h2>Passive picture // placeholder radar</h2><canvas id="cv" width="640" height="640" aria-label="Radar display"></canvas><div class="help">Smears are unresolved contacts. For a locked ship the wedge starts at the last scan and fans out along its estimated path; brighter shading means more likely to be there right now (ring = best guess), and it dims as the scan ages.</div></section>
@@ -101,13 +101,13 @@ function uiUpdate(force) {
     ['thermal', 'reactor', 'occlusion'].forEach(c => {
       const q = a.read[c], i = $(`b-${a.id}-${c}`), t = $(`bt-${a.id}-${c}`);
       if (q && q.blind) { i.style.width = '0'; t.textContent = c === 'occlusion' ? 'blind' : ''; }
-      else if (q && q.den > 0) { const v = q.num / q.den; i.style.width = Math.max(2, Math.min(100, v * 100)) + '%'; i.style.opacity = 0.3 + 0.7 * ago(q); i.style.background = c === 'thermal' ? '#ff8a4c' : c === 'reactor' ? '#6fc3d0' : '#b79cff'; t.textContent = c[0].toUpperCase() + ' ' + v.toFixed(2); }
+      else if (q && q.den > 0) { const v = Math.max(0, q.num / q.den); i.style.width = Math.max(2, Math.min(100, v * 100)) + '%'; i.style.opacity = 0.3 + 0.7 * ago(q); i.style.background = c === 'thermal' ? '#ff8a4c' : c === 'reactor' ? '#6fc3d0' : '#b79cff'; t.textContent = c[0].toUpperCase() + ' ' + v.toFixed(2); }
       else { i.style.width = '0'; t.textContent = c[0].toUpperCase() + ' ?'; }
     });
-    let st = { open: 'unresolved', out: 'ruled out', chasing: 'chasing it...', disabled: 'crippled' }[a.state];
+    const rdy = a.state === 'open' && E.advice(S, a).call !== 'unsure'; row.classList.toggle('ready', rdy); let st = { open: 'unresolved', out: 'ruled out', chasing: 'chasing it...', disabled: 'crippled' }[a.state];
     if (a.state === 'locked' && a.anchor) st = 'LOCKED: heading good to ' + Math.round(a.anchor.hs * 57.3) + ' deg, scan ' + (S.t - a.anchor.t).toFixed(1) + ' min old, tracked ' + a.track.toFixed(1) + ' min';
     if (a.state === 'open' && S.integration >= 50) { const ad = E.advice(S, a); if (ad.call !== 'unsure') st += ' | Pell: ' + { junk: 'junk', ship: 'a ship', maybe: 'probably a ship (no occlusion)' }[ad.call]; }
-    if (a.flutter) st += ' | grid read: ' + a.flutter; $('st' + a.id).textContent = st; btnsFor(a);
+    if (rdy) st = 'DECIDE: ' + st; if (a.flutter) st += ' | grid read: ' + a.flutter; $('st' + a.id).textContent = st; btnsFor(a);
   });
   $('integ').firstChild.style.width = S.integration + '%';
   const stage = S.integration >= 100 ? 'Pell wants a seat at the table.' : S.integration >= 75 ? 'Pell can act on standing orders.' : S.integration >= 50 ? 'Pell recommends a call on every contact.' : S.integration >= 25 ? 'Pell volunteers observations.' : 'Pell stays in his lane.';
@@ -115,6 +115,7 @@ function uiUpdate(force) {
   $('actrow').hidden = S.integration < 75; if (S.integration < 75) { $('pellact').checked = false; E.setPellAct(S, false); }
   while (feedN < S.log.length) { const l = S.log[feedN++]; const d = document.createElement('div'); d.className = l.kind; d.dataset.t = l.t; d.innerHTML = `<b>${l.who}</b> `; d.append(document.createTextNode(l.text)); $('feed').prepend(d); if (l.kind === 'integration') save(); }
   [...$('feed').children].forEach(d => { d.style.opacity = Math.max(0.4, 1 - (S.t - d.dataset.t) * 0.06); });
+  const qa = S.t < S.quietUntil, cd = Math.max(0, S.quietCd - S.t); $('quiet').textContent = qa ? 'Quiet ' + (S.quietUntil - S.t).toFixed(1) : cd > 0 ? 'Quiet in ' + cd.toFixed(0) : 'Go quiet'; $('quiet').disabled = !!S.over || cd > 0; $('warn').textContent = S.pending ? 'SWEEP INCOMING ' + Math.max(0, (S.pending.at - S.t) * P.secPerMin).toFixed(0) + 's' : '';
   $('brk').disabled = !!S.over;
   if (S.over) endScreen();
 }
@@ -122,9 +123,9 @@ function buildEngage() {
   const en = $('engage'), a = engageId != null ? S.an[engageId] : null;
   if (!a || a.state !== 'locked' || S.over) { en.hidden = true; en.innerHTML = ''; engageId = null; return; }
   en.hidden = false;
-  en.innerHTML = `<h2>Volley on contact ${a.id + 1}</h2><div class="help">Missiles take time to arrive, so aim <b>ahead</b> along the path. The ship may not be where the wedge says. A wide cone covers more but each missile is less likely to be close; against a heavy scatter grid you need a tight wedge first.</div>
-  <div id="eninfo"></div><div class="row"><span>Aim along the path: <b id="aiml"></b></span><label class="lbl"><input type="checkbox" id="auto" ${aimL == null ? 'checked' : ''}> follow suggestion</label></div><div class="slider"><span class="ghost" id="gh">Abara suggests the leading point</span><input type="range" id="aim" min="0" max="40" step="0.5" value="10"></div>
-  <div>Cone width: <b id="conev">${cone} km</b> <span class="ghost">about half the wedge width at the aim works well</span></div><div class="slider"><input type="range" id="cone" min="0" max="8" step="0.5" value="${cone}"></div>
+  en.innerHTML = `<h2>Volley on contact ${a.id + 1}</h2><div class="help">Missiles take time to arrive, so aim <b>ahead</b> along the path. The ship may not be where the wedge says. A wide cone covers more but each missile is less likely to be close; against a heavy scatter grid you need a tight wedge first. Abara suggests a leading point, but he tends to under-lead.</div>
+  <div id="eninfo"></div><div class="row"><span>Aim along the path: <b id="aiml"></b></span><label class="lbl"><input type="checkbox" id="auto" ${aimL == null ? 'checked' : ''}> follow suggestion</label></div><div class="slider"><span class="ghost" id="gh">Abara's suggestion (under-leads)</span><input type="range" id="aim" min="0" max="40" step="0.5" value="10"></div>
+  <div>Cone width: <b id="conev">${cone} km</b> </div><div class="slider"><input type="range" id="cone" min="0" max="8" step="0.5" value="${cone}"></div>
   <div>Estimated hit chance: <b id="hp">...</b></div><div class="row"><button class="go" id="fire">Fire volley</button><button id="cancel">Cancel</button></div>`;
   $('aim').oninput = e => { aimL = +e.target.value; $('auto').checked = false; engUpdate(true); };
   $('auto').onchange = e => { if (e.target.checked) { aimL = null; engUpdate(true); } };
@@ -135,7 +136,7 @@ function buildEngage() {
 function engUpdate(hp) {
   const a = engageId != null ? S.an[engageId] : null; if (!a || a.state !== 'locked') { if (engageId != null) buildEngage(); return; }
   const f = E.fanInfo(S, a, aimL); $('aiml').textContent = f.L.toFixed(1) + ' km'; if (aimL == null) $('aim').value = Math.min(40, f.L);
-  $('eninfo').textContent = `Arrival in about ${(P.engage + f.tf).toFixed(1)} min. At the aim point the path is uncertain by about ${f.cross.toFixed(1)} km across and ${f.along.toFixed(1)} km along. Grid read: ${a.flutter || 'none yet'}.`;
+  $('eninfo').textContent = `Arrival in about ${(P.engage + f.tf).toFixed(1)} min; the ship is moving about ${a.anchor.spd.toFixed(1)} km per minute along the path. At the aim point the path is uncertain by about ${f.cross.toFixed(1)} km across and ${f.along.toFixed(1)} km along. Grid read: ${a.flutter || 'none yet'}.`;
   if (hp) $('hp').textContent = Math.round(100 * E.hitProb(S, a, aimL, cone, 500)) + '%';
 }
 function endScreen() {
@@ -145,7 +146,7 @@ function endScreen() {
 }
 $('pell').onchange = e => { S.pell = e.target.checked; };
 $('pellact').onchange = e => E.setPellAct(S, e.target.checked);
-$('pause').onclick = togglePause; $('resume').onclick = togglePause; $('brk').onclick = () => E.retreat(S); $('newh').onclick = start;
+$('quiet').onclick = () => E.goQuiet(S); $('pause').onclick = togglePause; $('resume').onclick = togglePause; $('brk').onclick = () => E.retreat(S); $('newh').onclick = start;
 function togglePause() { paused = !paused; $('pausebox').hidden = !paused; $('wrap').style.visibility = paused ? 'hidden' : 'visible'; last = performance.now(); }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') togglePause(); });
 // radar and main loop
