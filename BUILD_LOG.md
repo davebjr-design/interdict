@@ -155,3 +155,9 @@ Read this first each session. Keep it to one page.
 - Arrival: baseline postures flat (0.21-0.25) but 53% draws and a median 4-minute resolution. The escort squeeze (drift 1 km/min to center after minute 8, shot threshold relaxes 0.3 km/min) plus close buff cuts draws to 35%; CHOSEN variant (sim/hunt2d_squeeze.py): still 0.33 / evade 0.38 / close 0.27. Baseline sim/hunt2d.py kept. Note: my own first squeeze edit was wrong (and peeked at enemy position); replaced by the critic's.
 - Probe radius (sim/probe_radius.py): best radius ~1.2 x Fan; probing pays only when Fan >= 5; small-then-large escalation loses on exposure (good trap). Fix applied: probe never degrades the fix.
 - Playability asks: show ghost marks for recommended cone (0.6 x Fan) and probe radius (1.2 x Fan); expected-hit bar; give 'close' a purpose (faster re-fix after probe); forced beats (patron snap, vent warnings, probe-detected alert); minutes 1-4 of waiting while still is the boredom risk.
+
+## Stage 3: playable 2D hunt (web/hunt_engine.js, hunt_template.html, hunt.html)
+- Engine mirrors sim/anomalies_v2 + cone_density. New in the playable: tracking a locked target tightens the Fan (sigma = max(1, 9.5 - 2 x track minutes)); tracking glows (+0.07 hazard per tracked slot); misses light up the launch 50% of the time; squeeze after minute 8 (hazard +4%/min).
+- Bot results (naive fixed plan, T=2): win 32-66% by context, 9-14 beats, interior optimum at ~4 tracking minutes. Confidence setting barely matters (flat), consistent with the critic. Humans have posture, probes and adaptation, so expect higher.
+- Not yet in the playable: probe radius (probe is a fixed loud boost), arrival card, Pell's contradicted-lie reveal, 2D movement of the player.
+- Build: ./web/build_hunt.sh inlines the engine into web/hunt.html (the published page). Placeholder UI; art per docs/art_pipeline.md.

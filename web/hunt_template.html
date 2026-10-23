@@ -1,0 +1,146 @@
+<title>Interdict Hunt</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oxanium:wght@500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one console. Radar left, controls right, ship's log below. Single dark look by choice (bridge console). */
+:root{--bg:#0a0e0d;--panel:#111917;--line:#22322d;--ink:#cfe3da;--dim:#7b958a;--amber:#ffb454;--cyan:#6fc3d0;--red:#ff6b5a;--green:#8fd694;
+--display:'Oxanium','Arial Narrow',sans-serif;--mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;color-scheme:dark}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html,body{height:auto}
+body{background:var(--bg);color:var(--ink);font:13px/1.45 var(--mono);padding-block:14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 20px;border-bottom:1px solid var(--line);padding-bottom:10px}
+h1{font:700 22px var(--display);letter-spacing:.14em;text-transform:uppercase;margin:0;color:var(--amber)}
+.clock{display:flex;align-items:center;gap:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;font-size:11px}
+.pips{display:flex;gap:5px}.pip{width:26px;height:10px;border:1px solid var(--line);background:#0c1311}.pip.on{background:var(--red);border-color:var(--red);box-shadow:0 0 8px var(--red)}
+.main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:14px}
+@media(max-width:820px){.main{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);padding:12px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.panel h2{font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:0}
+canvas{width:100%;max-width:100%;aspect-ratio:1/1;background:#050807;border:1px solid var(--line);display:block}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+.seg{display:flex;border:1px solid var(--line)}
+.seg label{padding:5px 10px;cursor:pointer;color:var(--dim)}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg input:checked+span{color:var(--bg);background:var(--amber);margin:-5px -10px;padding:5px 10px;display:block}
+.seg label:focus-within{outline:1px solid var(--cyan)}
+.lbl{color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.08em;align-self:center}
+.anoms{display:flex;flex-direction:column;gap:6px}
+.an{display:grid;grid-template-columns:2.2em 1fr auto;gap:4px 8px;align-items:center;padding:6px;border:1px solid var(--line)}
+.an.locked{border-color:var(--amber)}.an.out{opacity:.45}.an.disabled{border-color:var(--green)}
+.an .id{font:700 15px var(--display);color:var(--amber)}
+.meter{position:relative;height:8px;background:#0b1210;border:1px solid var(--line)}
+.meter i{position:absolute;top:0;bottom:0}
+.meter b{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink)}
+.meter s{position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--dim)}
+.tag{font-size:11px;color:var(--dim)}
+button{font:500 12px var(--mono);background:#16221e;color:var(--ink);border:1px solid var(--line);padding:5px 9px;cursor:pointer}
+button:hover{border-color:var(--amber)}button:focus-visible{outline:2px solid var(--cyan)}
+button.on{background:var(--amber);color:var(--bg);border-color:var(--amber)}
+button.go{background:var(--amber);color:var(--bg);font-weight:500;padding:9px 14px;letter-spacing:.06em}
+button[disabled]{opacity:.4;cursor:default}
+.log{max-height:240px;overflow:auto;display:flex;flex-direction:column;gap:3px}
+.log div{padding-left:8px;border-left:2px solid var(--line)}
+.log .good{border-color:var(--green)}.log .bad{border-color:var(--amber)}.log .danger{border-color:var(--red)}.log .quiet{color:var(--dim)}
+.log time{color:var(--dim);margin-right:6px}
+.engage{border:1px solid var(--amber);padding:10px;display:flex;flex-direction:column;gap:8px}
+.slider{position:relative;padding-top:12px}
+.slider input{width:100%;accent-color:var(--amber)}
+.ghost{position:absolute;top:0;font-size:10px;color:var(--cyan);transform:translateX(-50%)}
+.over{position:fixed;inset:0;background:rgba(5,8,7,.88);display:flex;align-items:center;justify-content:center;padding:20px;z-index:20}
+.over .box{background:var(--panel);border:1px solid var(--amber);max-width:560px;width:100%;padding:18px;display:flex;flex-direction:column;gap:10px}
+.over h3{margin:0;font:700 24px var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--amber)}
+.reveal{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.reveal span{border:1px solid var(--line);padding:4px;text-align:center}
+.help{color:var(--dim);font-size:12px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+<div class="wrap">
+<header><h1>Interdict // Hunt</h1><div class="clock"><span id="clk">minute 0</span><span>hunter</span><div class="pips" id="pips"><div class="pip"></div><div class="pip"></div><div class="pip"></div></div></div></header>
+<p class="help" id="intro">You are hunted while you hunt. Eight anomalies are out there: two real ships, some lures, some static. Study them, rule the real ones in, track them until the Fan is tight, then fire. Each pip is the hunter closing in; the third means contact. <b>Space</b> or <b>Enter</b> advances one minute.</p>
+<div class="main">
+<section class="panel"><h2>Passive picture // placeholder radar</h2><canvas id="cv" width="640" height="640" aria-label="Radar display"></canvas>
+<div class="help">Smears are where contacts might be; wedges are the Fan of a locked ship and widen as the picture ages.</div></section>
+<section class="panel">
+<h2>Orders</h2>
+<div class="row"><span class="lbl">Posture</span><div class="seg" id="seg-post"></div></div>
+<div class="row"><span class="lbl">Confidence</span><div class="seg" id="seg-T"></div></div>
+<div class="row"><label class="lbl"><input type="checkbox" id="pell"> Let Pell help (+1 slot, he is not always honest)</label></div>
+<h2>Anomalies // <span id="slots"></span></h2>
+<div class="anoms" id="anoms"></div>
+<div class="row"><button class="go" id="adv">Advance one minute</button><button id="newh">New hunt</button></div>
+<div class="engage" id="engage" hidden></div>
+</section></div>
+<section class="panel"><h2>Ship's log // <span id="beats">0</span> beats</h2><div class="log" id="log"></div></section>
+</div>
+<div class="over" id="over" hidden><div class="box" id="obox"></div></div>
+<script>
+/*ENGINE*/
+const E = HuntEngine; const $ = id => document.getElementById(id);
+let S, sel, T = 2, posture = 'still', pellOn = false, engageId = null, cone = 3, ghostOn = true, logN = 0, jit;
+function start(seed) { S = E.newHunt(seed || Math.floor(Math.random() * 1e9)); sel = { study: new Set(), probe: null }; engageId = null; logN = 0; $('log').innerHTML = ''; jit = S.an.map(() => ({ dx: (Math.random() - .5), dy: (Math.random() - .5) })); $('over').hidden = true; render(); }
+function seg(host, items, cur, on) { host.innerHTML = ''; items.forEach(([v, text]) => { const l = document.createElement('label'); const i = document.createElement('input'); i.type = 'radio'; i.name = host.id; i.checked = String(v) === String(cur); i.onchange = () => on(v); const sp = document.createElement('span'); sp.textContent = text; l.append(i, sp); host.append(l); }); }
+function slotsMax() { return 2 + (pellOn ? 1 : 0); }
+function render() {
+  $('clk').textContent = 'minute ' + S.t; $('beats').textContent = S.beats;
+  [...$('pips').children].forEach((p, i) => p.classList.toggle('on', i < S.stage));
+  seg($('seg-post'), Object.entries(E.POSTURE).map(([k, v]) => [k, v.label]), posture, v => { posture = v; });
+  seg($('seg-T'), Object.entries(E.SETTINGS), T, v => { T = +v; render(); });
+  $('slots').textContent = `${Math.min(sel.study.size, slotsMax())}/${slotsMax()} slots`;
+  const host = $('anoms'); host.innerHTML = '';
+  S.an.forEach(a => {
+    const d = document.createElement('div'); d.className = 'an ' + a.state; const Tm = 3;
+    const pct = v => 50 + 50 * Math.max(-1, Math.min(1, v / Tm)); const w = Math.abs(pct(a.ev) - 50);
+    const lean = a.ev > 0.6 ? 'leans ship' : a.ev < -0.6 ? 'leans junk' : 'unclear';
+    const fl = a.flutter ? ` | grid read: ${a.flutter}?` : '';
+    d.innerHTML = `<div class="id">${a.id + 1}</div><div><div class="meter"><i style="left:${a.ev >= 0 ? 50 : 50 - w}%;width:${w}%;background:${a.ev >= 0 ? 'var(--amber)' : 'var(--cyan)'}"></i><s style="left:${pct(-T)}%"></s><s style="left:${pct(T)}%"></s><b style="left:${pct(a.ev)}%"></b></div><div class="tag">${({open:lean,out:'ruled out',locked:'LOCKED, Fan ' + E.sigmaFor(a).toFixed(1) + ' km, tracked ' + a.track + ' min',disabled:'crippled'})[a.state]}${fl}</div></div><div class="row"></div>`;
+    const r = d.lastChild;
+    if (a.state === 'open' || a.state === 'locked') {
+      const b = document.createElement('button'); b.textContent = a.state === 'locked' ? 'Track' : 'Study'; b.className = sel.study.has(a.id) ? 'on' : ''; b.onclick = () => { sel.study.has(a.id) ? sel.study.delete(a.id) : sel.study.size < slotsMax() && sel.study.add(a.id); render(); }; r.append(b);
+      if (a.state === 'open') { const p = document.createElement('button'); p.textContent = 'Probe'; p.title = 'Fast, but loud'; p.className = sel.probe === a.id ? 'on' : ''; p.onclick = () => { sel.probe = sel.probe === a.id ? null : a.id; render(); }; r.append(p); }
+      if (a.state === 'locked') { const g = document.createElement('button'); g.textContent = 'Engage'; g.onclick = () => { engageId = a.id; render(); }; r.append(g); }
+    }
+    host.append(d);
+  });
+  const en = $('engage'); const a = engageId != null ? S.an[engageId] : null;
+  if (a && a.state === 'locked' && !S.over) {
+    const sg = E.sigmaFor(a); en.hidden = false;
+    en.innerHTML = `<h2>Volley on contact ${a.id + 1}</h2><div>Fan about <b>${sg.toFixed(1)} km</b>. Grid read: <b>${a.flutter || 'no read yet'}</b>${a.flutter ? ' (about three times in four right)' : ''}. A wide cone covers more of the Fan but each missile is less likely to be near; a tight cone concentrates and risks a total miss. Tight volleys also saturate a scatter grid.</div><div class="slider"><span class="ghost" id="gh" style="left:${Math.min(5, .6 * sg) / 8 * 100}%" ${ghostOn ? '' : 'hidden'}>Abara suggests</span><input type="range" id="cone" min="0" max="8" step="0.5" value="${cone}"></div><div class="row"><span id="conev">cone ${cone} km</span><label class="lbl"><input type="checkbox" id="gon" ${ghostOn ? 'checked' : ''}> show suggestion</label><button class="go" id="fire">Fire volley (2 min)</button></div>`;
+    $('cone').oninput = e => { cone = +e.target.value; $('conev').textContent = 'cone ' + cone + ' km'; };
+    $('gon').onchange = e => { ghostOn = e.target.checked; $('gh').hidden = !ghostOn; };
+    $('fire').onclick = () => { E.fire(S, a.id, cone); afterTurn(); };
+  } else { en.hidden = true; en.innerHTML = ''; }
+  $('pell').checked = pellOn; $('adv').disabled = !!S.over;
+  while (logN < S.log.length) { const l = S.log[logN++]; const d = document.createElement('div'); d.className = l.kind; d.innerHTML = `<time>m${l.t}</time>`; d.append(document.createTextNode(l.text)); $('log').prepend(d); }
+  if (S.over) endScreen();
+}
+function afterTurn() { if (engageId != null && S.an[engageId].state !== 'locked') engageId = null; sel.study = new Set([...sel.study].filter(i => ['open', 'locked'].includes(S.an[i].state))); if (sel.probe != null && S.an[sel.probe].state !== 'open') sel.probe = null; render(); }
+function advance() { if (S.over) return; E.step(S, { study: [...sel.study], T, posture, probe: sel.probe, pell: pellOn }); sel.probe = null; afterTurn(); }
+function endScreen() {
+  const win = S.over === 'win'; $('over').hidden = false;
+  $('obox').innerHTML = `<h3>${win ? 'Both ships crippled' : 'Contact: the hunter has us'}</h3><div>${win ? 'Nobody died, the salvage is yours, and Pell is insufferable about it.' : `Breach drive spins up. You get away with ${S.disabled} of 2 ships crippled and a very bad feeling.`} ${S.t} minutes, ${S.beats} beats.</div><div class="help">What was really out there:</div><div class="reveal">${S.an.map(a => `<span>${a.id + 1}: ${a.kind}${a.kind === 'real' ? '' : ''}<br>grid ${a.grid}</span>`).join('')}</div><div class="row"><button class="go" id="again">Hunt again</button><button id="close">Look at the log</button></div>`;
+  $('again').onclick = () => start(); $('close').onclick = () => { $('over').hidden = true; };
+}
+$('adv').onclick = advance; $('newh').onclick = () => start(); $('pell').onchange = e => { pellOn = e.target.checked; while (sel.study.size > slotsMax()) sel.study.delete([...sel.study].pop()); render(); };
+document.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && !['INPUT', 'BUTTON'].includes(document.activeElement.tagName)) { e.preventDefault(); advance(); } });
+// radar
+const cv = $('cv'), cx = cv.getContext('2d'); let ang = 0;
+function frame() {
+  const W = cv.width, k = W / E.P.arena; cx.fillStyle = 'rgba(5,8,7,0.12)'; cx.fillRect(0, 0, W, W);
+  cx.strokeStyle = '#17302a'; cx.lineWidth = 1; for (let r = 80; r < 460; r += 80) { cx.beginPath(); cx.arc(W / 2, W / 2, r, 0, 7); cx.stroke(); }
+  cx.beginPath(); cx.moveTo(W / 2, 0); cx.lineTo(W / 2, W); cx.moveTo(0, W / 2); cx.lineTo(W, W / 2); cx.stroke();
+  ang += 0.03; cx.strokeStyle = 'rgba(255,180,84,.55)'; cx.beginPath(); cx.moveTo(W / 2, W / 2); cx.lineTo(W / 2 + Math.cos(ang) * W, W / 2 + Math.sin(ang) * W); cx.stroke();
+  S.an.forEach((a, i) => {
+    if (a.state === 'out') return; const px = a.x * k + jit[i].dx * 30, py = a.y * k + jit[i].dy * 30;
+    const unc = Math.max(8, (a.state === 'locked' ? E.sigmaFor(a) * 3 + a.age * 3 : 60 - 14 * Math.min(3, Math.abs(a.ev))) * 0.9);
+    const hit = Math.abs(((Math.atan2(py - W / 2, px - W / 2) - ang) % 6.283 + 6.283) % 6.283) < 0.25;
+    const col = a.state === 'disabled' ? '143,214,148' : a.state === 'locked' ? '255,180,84' : (a.ev > 0.6 ? '255,180,84' : '111,195,208');
+    cx.fillStyle = `rgba(${col},${hit ? .35 : .08})`; cx.beginPath(); cx.arc(px, py, unc, 0, 7); cx.fill();
+    cx.fillStyle = `rgba(${col},${hit ? 1 : .55})`; cx.fillRect(px - 2, py - 2, 4, 4);
+    if (a.state === 'locked') { cx.strokeStyle = `rgba(${col},${Math.max(.15, .8 - a.age * .08)})`; const dir = Math.atan2(py - W / 2, px - W / 2), wd = Math.max(.04, unc / Math.hypot(px - W / 2, py - W / 2)); cx.beginPath(); cx.moveTo(W / 2, W / 2); cx.lineTo(W / 2 + Math.cos(dir - wd) * 2000, W / 2 + Math.sin(dir - wd) * 2000); cx.moveTo(W / 2, W / 2); cx.lineTo(W / 2 + Math.cos(dir + wd) * 2000, W / 2 + Math.sin(dir + wd) * 2000); cx.stroke(); }
+    cx.fillStyle = '#9fb7ac'; cx.font = '14px IBM Plex Mono, monospace'; cx.fillText(String(i + 1), px + 6, py - 6);
+  });
+  cx.fillStyle = '#6fc3d0'; cx.fillRect(W / 2 - 3, W / 2 - 3, 6, 6);
+  requestAnimationFrame(frame);
+}
+start(); frame();
+</script>
