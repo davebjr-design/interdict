@@ -222,3 +222,10 @@ Revised (Dave): evade should speed analysis modestly at a modest stealth cost, b
 - Found-rate readout ("a sweep finds us about N% per game minute") and COLD/WARM/HOT zones on the heat bar; analyst bar tooltips state their heat cost.
 - Briefing: "Pace of the hunt" renamed "Game clock speed" with a real explanation.
 - Bot win rates after the tuning: about 36-40% (was 58%); reflects the slower scanning, to be judged by human playtest.
+
+## Playtest round 2
+- Removed the clock-speed toggle from the briefing (fixed 16 s per game minute). In-game speed buttons 1/2x, 1x, 2x (keys [ and ]).
+- Firing solutions go stale after 3 min without a fresh scan (they reset and re-solve); Refresh button in the Target view; target maneuvering slows solutions.
+- Contacts now maneuver (legs): patrol turns for everything except static, harder turns once aware, and they steer away from the edges (fold kept as a safety net). Aware warships (pinged us, felt our ping, or a volley landed within 8 km) fire back every ~4 min at where they predict we will be; incoming red missiles on scope/map with a countdown in the strip; 8% hull per missile hit; going quiet pauses their fire. Dodge by moving.
+- Scope zoom/pan (wheel, drag, +/-, Fit, Follow).
+- Bots after changes: about 57-62% (they do not dodge; hull loss mild).
