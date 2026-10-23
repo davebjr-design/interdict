@@ -91,7 +91,7 @@ const HuntEngine = (() => {
     const tempo = opts.tempo ?? (0.7 + 0.8 * r());              // enemy tempo 0.7..1.5
     const grids = ['none', 'light', 'heavy'];
     const an = kinds.map((k, i) => {
-      const x0 = 8 + r() * 24, y0 = 8 + r() * 24, hd = Math.atan2(20 - y0, 20 - x0) + (r() - 0.5) * 2.0;
+      let x0, y0; do { x0 = 6 + r() * 28; y0 = 6 + r() * 28; } while (Math.hypot(x0 - 20, y0 - 20) < 9); const hd = Math.atan2(20 - y0, 20 - x0) + (r() - 0.5) * 2.0;
       const v = k === 'ghost' ? 0.3 + 0.4 * r() : 1.0 + 1.2 * r();
       return { id: i, kind: k, x0, y0, hd, v, vx: v * Math.cos(hd), vy: v * Math.sin(hd), ev: 0, state: 'open', lock: 0, track: 0, grid: grids[Math.floor(r() * 3)], flutter: null, age: 0, anchor: null };
     });
