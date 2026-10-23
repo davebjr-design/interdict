@@ -269,3 +269,5 @@ Steps 1-3 can be done and shipped without touching the engine. Steps 7-9 need on
 5. Flight path is editable in play. Initial planned path plus relative maneuvers. EVE-style: pick a pattern (orbit/circle, close directly, escape) and give a magnitude. Magnitude units are not kilometers at this scale; unit TBD.
 6. Resolution: no stated target. Use rem scaling, 1440x900 as design floor, check 1366x768.
 7. Open, defaults used: calm option as in the risk table; sweep warning lead unchanged (0.8 min); Esc = back, pause = P.
+
+Tuning (2026-10-23): solution time 0.8 to 3.0 game min. Focused on all three channels: about 0.85 min (14 real s at default pace). Auto sweep only: about 2.5 to 3 min.
