@@ -1,7 +1,7 @@
 // Interdict hunt engine (pure logic, no DOM). Turn = 1 minute. Rules mirror sim/anomalies_v2.py + sim/cone_density.py.
 const HuntEngine = (() => {
-  const P = { N: 8, nreal: 2, nlure: 3, D: 0.7, base: 0.06, draw: 0.02, stages: 3, chase: 4, chasemult: 2.5, bait: 0.5, rescan: 5, engage: 2, squeezeAfter: 8, squeezeRamp: 0.04, probeHazard: 0.12, trackGlow: 0.07, arena: 40 };
-  const POSTURE = { still: { haz: 0.8, rate: 1.0, label: 'Stay still' }, evade: { haz: 1.0, rate: 0.9, label: 'Evasion pattern' }, close: { haz: 1.3, rate: 1.25, label: 'Close on a point' } };
+  const P = { N: 8, nreal: 2, nlure: 3, D: 0.7, base: 0.045, draw: 0.02, stages: 3, chase: 4, chasemult: 2.5, bait: 0.5, rescan: 5, engage: 2, squeezeAfter: 8, squeezeRamp: 0.04, probeHazard: 0.12, trackGlow: 0.10, arena: 40 };
+  const POSTURE = { still: { haz: 0.8, rate: 1.0, label: 'Stay still', tip: 'Hunter finds you at 0.8x speed. Reads at normal speed.' }, evade: { haz: 0.5, rate: 0.8, label: 'Evasion pattern', tip: 'Hunter finds you at 0.5x speed, but your reads are 20% slower.' }, close: { haz: 1.5, rate: 1.4, label: 'Close on a point', tip: 'Hunter finds you at 1.5x speed, but your reads are 40% faster.' } };
   const SETTINGS = { 1: 'Quick', 2: 'Standard', 3: 'Thorough' };
   function rng(seed) { let a = seed >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
   function gauss(r) { let u = 0, v = 0; while (!u) u = r(); while (!v) v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
@@ -59,13 +59,13 @@ const HuntEngine = (() => {
     const open = s.an.filter(a => a.state === 'open').length, locked = s.an.filter(a => a.state === 'locked').length;
     if (!open && !locked && s.disabled < P.nreal) { s.t += P.rescan; beat(s, 'Everything is ruled out and the ships are still out there. Rescanning costs five minutes.', 'bad'); s.an.forEach(a => { if (a.state === 'out') { a.state = 'open'; a.ev = 0; a.flutter = null; } }); for (let i = 0; i < P.rescan; i++) { if (s.over) break; hazardRoll(s, 0.5, posture, 0); } }
   }
-  function sigmaFor(a) { return Math.max(1.0, 9.5 - 2.0 * a.track); }  // sharper lock, tighter Fan (T1 ~7.5, T2 ~5, T3 ~2.5)
-  const GRID = { none: [0, 0.6], light: [1, 0.6], heavy: [3, 0.8] };
+  function sigmaFor(a) { return Math.max(1.0, 9.5 - 2.0 * a.track) + 0.35 * (a.age || 0); }  // sharper lock, tighter Fan (T1 ~7.5, T2 ~5, T3 ~2.5)
+  const GRID = { none: [0, 0.6], light: [1, 0.6], heavy: [3, 0.7] };
   function hitProb(a, cone, M = 4000, r = Math.random) {
     const sg = sigmaFor(a), [ch, pk] = GRID[a.grid], win = 1 + Math.min(1, cone / 4); let any = 0;
     for (let m = 0; m < M; m++) {
       const tx = gauss(r) * sg, ty = gauss(r) * sg; let hit = false;
-      for (let k = 0; k < 6 && !hit; k++) { const ax = gauss(r) * cone, ay = gauss(r) * cone; if (Math.hypot(ax - tx, ay - ty) < 3 && r() >= Math.min(0.9, ch * win * pk / 6)) hit = true; }
+      for (let k = 0; k < 4 && !hit; k++) { const ax = gauss(r) * cone, ay = gauss(r) * cone; if (Math.hypot(ax - tx, ay - ty) < 3 && r() >= Math.min(0.9, ch * win * pk / 4)) hit = true; }
       if (hit) any++;
     } return any / M;
   }
@@ -76,9 +76,10 @@ const HuntEngine = (() => {
     if (s.over) return;
     const hit = s.r() < hitProb(a, cone, 1500, s.r);
     if (hit) { a.state = 'disabled'; s.disabled++; beat(s, `Contact ${id + 1} is crippled. Nobody dies; the reactor just remembers it has feelings.`, 'good'); if (s.disabled >= P.nreal) s.over = 'win'; }
-    else if (s.r() < 0.5) { s.stage++; beat(s, 'The volley missed, and the launch lit us up. The hunter noticed.', 'danger'); if (s.stage >= P.stages) s.over = 'found'; }
+    else if (s.r() < 0.6) { s.stage++; beat(s, 'The volley missed, and the launch lit us up. The hunter noticed.', 'danger'); if (s.stage >= P.stages) s.over = 'found'; }
     else beat(s, 'The volley missed. Quiet launch; the hunter did not notice. Refit the cone and try again.', 'bad');
   }
-  return { P, POSTURE, SETTINGS, newHunt, step, fire, hitProb, sigmaFor };
+  function retreat(s) { if (s.over) return; s.over = s.disabled ? 'breach' : 'breach0'; beat(s, 'You break contact and Breach out while you still can.', 'bad'); }
+  return { P, POSTURE, SETTINGS, newHunt, step, fire, hitProb, sigmaFor, retreat };
 })();
 if (typeof module !== 'undefined') module.exports = HuntEngine;

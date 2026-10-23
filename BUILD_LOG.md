@@ -161,3 +161,9 @@ Read this first each session. Keep it to one page.
 - Bot results (naive fixed plan, T=2): win 32-66% by context, 9-14 beats, interior optimum at ~4 tracking minutes. Confidence setting barely matters (flat), consistent with the critic. Humans have posture, probes and adaptation, so expect higher.
 - Not yet in the playable: probe radius (probe is a fixed loud boost), arrival card, Pell's contradicted-lie reveal, 2D movement of the player.
 - Build: ./web/build_hunt.sh inlines the engine into web/hunt.html (the published page). Placeholder UI; art per docs/art_pipeline.md.
+
+## Stage 3 critic result -> playable v2
+- Critic found: Evade strictly dead (worse on both axes); grid read cosmetic; Fan never decayed; tracking glow too weak; costs hidden in the UI; no calm exit; 0-ship breach harsh (22%).
+- Fixes: postures now trade (still 0.8x hazard/1.0 rate, evade 0.5x/0.8, close 1.5x/1.4); Fan grows 0.35 km per idle minute; 4 missiles with channel-limited grid intercepts (heavy 3 channels @0.7) so heavy grids need a tighter Fan (win 22-29% vs 40%+ vs none/light at track 4-5); trackGlow 0.10; misses pip 60%; base hazard 0.045. Added Break contact (calm exit) and softer 0-ship ending. UI: tooltips for posture, probe cost, Pell's 10% lie rate, hit-chance readout beside the cone, meters scaled to the chosen setting.
+- Naive bot now 29-44% (never reads the grid, never adapts). Posture 33/32/30, tracking optimum 4-5 min, cone tight best (flat 0-2), beats 12-14, 17-18 min.
+- Open: cone is still mostly "do not go wide"; no hunter-activity line per minute; probe radius dial and arrival card not in the playable; Pell lie reveal rare.

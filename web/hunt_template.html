@@ -63,11 +63,13 @@ button[disabled]{opacity:.4;cursor:default}
 <section class="panel">
 <h2>Orders</h2>
 <div class="row"><span class="lbl">Posture</span><div class="seg" id="seg-post"></div></div>
+<div class="help" id="posthelp"></div>
 <div class="row"><span class="lbl">Confidence</span><div class="seg" id="seg-T"></div></div>
-<div class="row"><label class="lbl"><input type="checkbox" id="pell"> Let Pell help (+1 slot, he is not always honest)</label></div>
+<div class="help" id="confhelp"></div>
+<div class="row"><label class="lbl"><input type="checkbox" id="pell"> Let Pell help: +1 study slot, but 1 reading in 10 from him is inverted</label></div>
 <h2>Anomalies // <span id="slots"></span></h2>
 <div class="anoms" id="anoms"></div>
-<div class="row"><button class="go" id="adv">Advance one minute</button><button id="newh">New hunt</button></div>
+<div class="row"><button class="go" id="adv">Advance one minute</button><button id="brk" title="Calm option: Breach out now with whatever you have crippled so far.">Break contact</button><button id="newh">New hunt</button></div>
 <div class="engage" id="engage" hidden></div>
 </section></div>
 <section class="panel"><h2>Ship's log // <span id="beats">0</span> beats</h2><div class="log" id="log"></div></section>
@@ -78,17 +80,19 @@ button[disabled]{opacity:.4;cursor:default}
 const E = HuntEngine; const $ = id => document.getElementById(id);
 let S, sel, T = 2, posture = 'still', pellOn = false, engageId = null, cone = 3, ghostOn = true, logN = 0, jit;
 function start(seed) { S = E.newHunt(seed || Math.floor(Math.random() * 1e9)); sel = { study: new Set(), probe: null }; engageId = null; logN = 0; $('log').innerHTML = ''; jit = S.an.map(() => ({ dx: (Math.random() - .5), dy: (Math.random() - .5) })); $('over').hidden = true; render(); }
-function seg(host, items, cur, on) { host.innerHTML = ''; items.forEach(([v, text]) => { const l = document.createElement('label'); const i = document.createElement('input'); i.type = 'radio'; i.name = host.id; i.checked = String(v) === String(cur); i.onchange = () => on(v); const sp = document.createElement('span'); sp.textContent = text; l.append(i, sp); host.append(l); }); }
+function seg(host, items, cur, on, tips) { host.innerHTML = ''; items.forEach(([v, text]) => { const l = document.createElement('label'); const i = document.createElement('input'); i.type = 'radio'; i.name = host.id; i.checked = String(v) === String(cur); i.onchange = () => on(v); const sp = document.createElement('span'); sp.textContent = text; l.append(i, sp); if (tips && tips[v]) l.title = tips[v]; host.append(l); }); }
 function slotsMax() { return 2 + (pellOn ? 1 : 0); }
 function render() {
   $('clk').textContent = 'minute ' + S.t; $('beats').textContent = S.beats;
   [...$('pips').children].forEach((p, i) => p.classList.toggle('on', i < S.stage));
-  seg($('seg-post'), Object.entries(E.POSTURE).map(([k, v]) => [k, v.label]), posture, v => { posture = v; });
+  seg($('seg-post'), Object.entries(E.POSTURE).map(([k, v]) => [k, v.label]), posture, v => { posture = v; render(); }, Object.fromEntries(Object.entries(E.POSTURE).map(([k, v]) => [k, v.tip])));
+  $('posthelp').textContent = E.POSTURE[posture].tip;
   seg($('seg-T'), Object.entries(E.SETTINGS), T, v => { T = +v; render(); });
+  $('confhelp').textContent = `Rule a contact in or out at ±${T} evidence. Lower is faster but chasing a lure costs 4 minutes and may be bait; higher is slower.`;
   $('slots').textContent = `${Math.min(sel.study.size, slotsMax())}/${slotsMax()} slots`;
   const host = $('anoms'); host.innerHTML = '';
   S.an.forEach(a => {
-    const d = document.createElement('div'); d.className = 'an ' + a.state; const Tm = 3;
+    const d = document.createElement('div'); d.className = 'an ' + a.state; const Tm = T + 1;
     const pct = v => 50 + 50 * Math.max(-1, Math.min(1, v / Tm)); const w = Math.abs(pct(a.ev) - 50);
     const lean = a.ev > 0.6 ? 'leans ship' : a.ev < -0.6 ? 'leans junk' : 'unclear';
     const fl = a.flutter ? ` | grid read: ${a.flutter}?` : '';
@@ -96,7 +100,7 @@ function render() {
     const r = d.lastChild;
     if (a.state === 'open' || a.state === 'locked') {
       const b = document.createElement('button'); b.textContent = a.state === 'locked' ? 'Track' : 'Study'; b.className = sel.study.has(a.id) ? 'on' : ''; b.onclick = () => { sel.study.has(a.id) ? sel.study.delete(a.id) : sel.study.size < slotsMax() && sel.study.add(a.id); render(); }; r.append(b);
-      if (a.state === 'open') { const p = document.createElement('button'); p.textContent = 'Probe'; p.title = 'Fast, but loud'; p.className = sel.probe === a.id ? 'on' : ''; p.onclick = () => { sel.probe = sel.probe === a.id ? null : a.id; render(); }; r.append(p); }
+      if (a.state === 'open') { const p = document.createElement('button'); p.title = 'Big evidence boost this minute, but adds 12% to the hunter\'s chance of closing in.'; p.textContent = 'Probe (loud)'; p.className = sel.probe === a.id ? 'on' : ''; p.onclick = () => { sel.probe = sel.probe === a.id ? null : a.id; render(); }; r.append(p); }
       if (a.state === 'locked') { const g = document.createElement('button'); g.textContent = 'Engage'; g.onclick = () => { engageId = a.id; render(); }; r.append(g); }
     }
     host.append(d);
@@ -104,23 +108,24 @@ function render() {
   const en = $('engage'); const a = engageId != null ? S.an[engageId] : null;
   if (a && a.state === 'locked' && !S.over) {
     const sg = E.sigmaFor(a); en.hidden = false;
-    en.innerHTML = `<h2>Volley on contact ${a.id + 1}</h2><div>Fan about <b>${sg.toFixed(1)} km</b>. Grid read: <b>${a.flutter || 'no read yet'}</b>${a.flutter ? ' (about three times in four right)' : ''}. A wide cone covers more of the Fan but each missile is less likely to be near; a tight cone concentrates and risks a total miss. Tight volleys also saturate a scatter grid.</div><div class="slider"><span class="ghost" id="gh" style="left:${Math.min(5, .6 * sg) / 8 * 100}%" ${ghostOn ? '' : 'hidden'}>Abara suggests</span><input type="range" id="cone" min="0" max="8" step="0.5" value="${cone}"></div><div class="row"><span id="conev">cone ${cone} km</span><label class="lbl"><input type="checkbox" id="gon" ${ghostOn ? 'checked' : ''}> show suggestion</label><button class="go" id="fire">Fire volley (2 min)</button></div>`;
-    $('cone').oninput = e => { cone = +e.target.value; $('conev').textContent = 'cone ' + cone + ' km'; };
+    en.innerHTML = `<h2>Volley on contact ${a.id + 1}</h2><div>Fan about <b>${sg.toFixed(1)} km</b>. Grid read: <b>${a.flutter || 'no read yet'}</b>${a.flutter ? ' (about three times in four right)' : ''}. A wide cone covers more of the Fan but each missile is less likely to be near; a tight cone concentrates and risks a total miss. A heavy scatter grid shreds volleys fastest, so against one you need a tighter Fan before you fire.</div><div>Estimated hit chance at this cone: <b id="hp">...</b></div><div class="slider"><span class="ghost" id="gh" style="left:${Math.min(5, .6 * sg) / 8 * 100}%" ${ghostOn ? '' : 'hidden'}>Abara suggests</span><input type="range" id="cone" min="0" max="8" step="0.5" value="${cone}"></div><div class="row"><span id="conev">cone ${cone} km</span><label class="lbl"><input type="checkbox" id="gon" ${ghostOn ? 'checked' : ''}> show suggestion</label><button class="go" id="fire">Fire volley (2 min)</button></div>`;
+    const upd = () => { $('hp').textContent = Math.round(100 * E.hitProb(a, cone, 600)) + '% (assuming your grid read is right)'; }; upd();
+    $('cone').oninput = e => { cone = +e.target.value; $('conev').textContent = 'cone ' + cone + ' km'; upd(); };
     $('gon').onchange = e => { ghostOn = e.target.checked; $('gh').hidden = !ghostOn; };
     $('fire').onclick = () => { E.fire(S, a.id, cone); afterTurn(); };
   } else { en.hidden = true; en.innerHTML = ''; }
-  $('pell').checked = pellOn; $('adv').disabled = !!S.over;
+  $('pell').checked = pellOn; $('adv').disabled = !!S.over; $('brk').disabled = !!S.over;
   while (logN < S.log.length) { const l = S.log[logN++]; const d = document.createElement('div'); d.className = l.kind; d.innerHTML = `<time>m${l.t}</time>`; d.append(document.createTextNode(l.text)); $('log').prepend(d); }
   if (S.over) endScreen();
 }
 function afterTurn() { if (engageId != null && S.an[engageId].state !== 'locked') engageId = null; sel.study = new Set([...sel.study].filter(i => ['open', 'locked'].includes(S.an[i].state))); if (sel.probe != null && S.an[sel.probe].state !== 'open') sel.probe = null; render(); }
 function advance() { if (S.over) return; E.step(S, { study: [...sel.study], T, posture, probe: sel.probe, pell: pellOn }); sel.probe = null; afterTurn(); }
 function endScreen() {
-  const win = S.over === 'win'; $('over').hidden = false;
-  $('obox').innerHTML = `<h3>${win ? 'Both ships crippled' : 'Contact: the hunter has us'}</h3><div>${win ? 'Nobody died, the salvage is yours, and Pell is insufferable about it.' : `Breach drive spins up. You get away with ${S.disabled} of 2 ships crippled and a very bad feeling.`} ${S.t} minutes, ${S.beats} beats.</div><div class="help">What was really out there:</div><div class="reveal">${S.an.map(a => `<span>${a.id + 1}: ${a.kind}${a.kind === 'real' ? '' : ''}<br>grid ${a.grid}</span>`).join('')}</div><div class="row"><button class="go" id="again">Hunt again</button><button id="close">Look at the log</button></div>`;
+  const win = S.over === 'win', brk = S.over !== 'found' && !win; $('over').hidden = false;
+  $('obox').innerHTML = `<h3>${win ? 'Both ships crippled' : brk ? 'Contact broken' : 'Contact: the hunter has us'}</h3><div>${win ? 'Nobody died, the salvage is yours, and Pell is insufferable about it.' : (S.disabled ? `Breach drive spins up. You get away with ${S.disabled} of 2 ships crippled and the salvage you can carry.` : 'Breach drive spins up. You come home without a ship, but with a sensor log Pell swears is worth something.')} ${S.t} minutes, ${S.beats} beats.</div><div class="help">What was really out there:</div><div class="reveal">${S.an.map(a => `<span>${a.id + 1}: ${a.kind}${a.kind === 'real' ? '' : ''}<br>grid ${a.grid}</span>`).join('')}</div><div class="row"><button class="go" id="again">Hunt again</button><button id="close">Look at the log</button></div>`;
   $('again').onclick = () => start(); $('close').onclick = () => { $('over').hidden = true; };
 }
-$('adv').onclick = advance; $('newh').onclick = () => start(); $('pell').onchange = e => { pellOn = e.target.checked; while (sel.study.size > slotsMax()) sel.study.delete([...sel.study].pop()); render(); };
+$('adv').onclick = advance; $('brk').onclick = () => { E.retreat(S); afterTurn(); }; $('newh').onclick = () => start(); $('pell').onchange = e => { pellOn = e.target.checked; while (sel.study.size > slotsMax()) sel.study.delete([...sel.study].pop()); render(); };
 document.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && !['INPUT', 'BUTTON'].includes(document.activeElement.tagName)) { e.preventDefault(); advance(); } });
 // radar
 const cv = $('cv'), cx = cv.getContext('2d'); let ang = 0;
