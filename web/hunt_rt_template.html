@@ -1,0 +1,185 @@
+<title>Interdict Bridge</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oxanium:wght@500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: radar + report feed left; analysts, contacts, orders right. Single dark look by choice (bridge console). */
+:root{--bg:#0a0e0d;--panel:#111917;--line:#22322d;--ink:#cfe3da;--dim:#7b958a;--amber:#ffb454;--cyan:#6fc3d0;--red:#ff6b5a;--green:#8fd694;--violet:#b79cff;
+--display:'Oxanium','Arial Narrow',sans-serif;--mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;color-scheme:dark}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font:13px/1.45 var(--mono);padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:12px;position:relative}
+header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 18px;border-bottom:1px solid var(--line);padding-bottom:8px}
+h1{font:700 21px var(--display);letter-spacing:.14em;text-transform:uppercase;margin:0;color:var(--amber)}
+.hdr{display:flex;align-items:center;gap:12px;flex-wrap:wrap;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;font-size:11px}
+.pips{display:flex;gap:5px}.pip{width:26px;height:10px;border:1px solid var(--line);background:#0c1311}.pip.on{background:var(--red);border-color:var(--red);box-shadow:0 0 8px var(--red)}
+.main{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.25fr);gap:12px;align-items:start}
+@media(max-width:900px){.main{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.panel h2{font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:0}
+canvas{width:100%;max-width:100%;aspect-ratio:1/1;background:#050807;border:1px solid var(--line);display:block}
+.seg{display:flex;border:1px solid var(--line);flex-wrap:wrap}.seg label{padding:4px 9px;cursor:pointer;color:var(--dim)}.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg input:checked+span{color:var(--bg);background:var(--amber);margin:-4px -9px;padding:4px 9px;display:block}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.lbl{color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+.help{color:var(--dim);font-size:12px}
+.analysts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.ac{border:1px solid var(--line);padding:6px;display:flex;flex-direction:column;gap:2px}.ac b{font:700 14px var(--display);color:var(--amber)}.ac .t{color:var(--dim);font-size:11px;min-height:1.4em}
+.ct{display:flex;flex-direction:column;gap:5px}
+.cr{display:grid;grid-template-columns:1.6em minmax(0,1fr) auto;gap:4px 8px;align-items:center;border:1px solid var(--line);padding:5px}
+.cr.locked{border-color:var(--amber)}.cr.out{opacity:.4}.cr.disabled{border-color:var(--green)}.cr.chasing{border-color:var(--red)}
+.cr .id{font:700 15px var(--display);color:var(--amber)}
+.bars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+.bar{position:relative;height:13px;background:#0b1210;border:1px solid var(--line);overflow:hidden}.bar i{position:absolute;left:0;top:0;bottom:0}.bar span{position:absolute;left:3px;top:-1px;font-size:10px;color:var(--ink);mix-blend-mode:difference}
+.st{grid-column:2/4;color:var(--dim);font-size:11px}
+button{font:500 11px var(--mono);background:#16221e;color:var(--ink);border:1px solid var(--line);padding:4px 7px;cursor:pointer}
+button:hover{border-color:var(--amber)}button:focus-visible{outline:2px solid var(--cyan)}button.on{background:var(--amber);color:var(--bg);border-color:var(--amber)}button.go{background:var(--amber);color:var(--bg);padding:8px 12px;font-size:12px}button[disabled]{opacity:.4;cursor:default}
+.btns{display:flex;gap:4px;flex-wrap:wrap}
+.feed{max-height:330px;overflow:auto;display:flex;flex-direction:column;gap:3px}.feed div{padding-left:8px;border-left:2px solid var(--line)}
+.feed .good{border-color:var(--green)}.feed .bad{border-color:var(--amber)}.feed .danger{border-color:var(--red);background:rgba(255,107,90,.08)}.feed .integration{border-color:var(--violet);color:#d8ccff}.feed b{color:var(--amber);font-weight:500}
+.meter{position:relative;height:12px;background:#0b1210;border:1px solid var(--line)}.meter i{position:absolute;left:0;top:0;bottom:0;background:var(--violet)}.meter s{position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--dim)}
+.engage{border:1px solid var(--amber);padding:9px;display:flex;flex-direction:column;gap:7px}.slider input{width:100%;accent-color:var(--amber)}
+.ghost{color:var(--cyan);font-size:10px}
+.over{position:fixed;inset:0;background:rgba(5,8,7,.94);display:flex;align-items:center;justify-content:center;padding:20px;z-index:20}
+.box{background:var(--panel);border:1px solid var(--amber);max-width:560px;width:100%;padding:18px;display:flex;flex-direction:column;gap:10px}.box h3{margin:0;font:700 24px var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--amber)}
+.reveal{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.reveal span{border:1px solid var(--line);padding:4px;text-align:center}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+<div class="wrap" id="wrap">
+<header><h1>Interdict // Bridge</h1><div class="hdr"><span id="clk">0:00</span><span>hunter</span><div class="pips" id="pips"><div class="pip"></div><div class="pip"></div><div class="pip"></div></div><button id="pause">Pause</button><label><input type="checkbox" id="slow"> slow time</label><button id="brk" title="Calm option: Breach out now with whatever you have crippled.">Break contact</button><button id="newh">New hunt</button></div></header>
+<p class="help">Real time. Your analysts report on their own schedule; you decide where their attention goes, what to believe, and when to commit. Two real ships are out there among lures and static. Lock them, keep a tracker on them until the wedge narrows, aim ahead along the path and fire. Pausing blanks the displays. <b>Esc</b> pauses.</p>
+<div class="main">
+<div class="col"><section class="panel"><h2>Passive picture // placeholder radar</h2><canvas id="cv" width="640" height="640" aria-label="Radar display"></canvas><div class="help">Smears are unresolved contacts. For a locked ship the wedge starts at the last scan and fans out along its estimated path; brighter shading means more likely to be there right now (ring = best guess), and it dims as the scan ages.</div></section>
+<section class="panel"><h2>Reports</h2><div class="feed" id="feed"></div></section></div>
+<div class="col">
+<section class="panel"><h2>Analysts</h2><div class="analysts" id="analysts"></div>
+<div class="row"><span class="lbl">Posture</span><div class="seg" id="seg-post"></div></div><div class="help" id="posthelp"></div></section>
+<section class="panel"><h2>Pell // ship's AI</h2><div class="row"><label><input type="checkbox" id="pell"> Pell assists (extra sweeper, honest reads, runs the ship's compute hot)</label></div>
+<div class="meter" id="integ"><i></i><s style="left:25%"></s><s style="left:50%"></s><s style="left:75%"></s></div><div class="help" id="integtxt"></div>
+<div class="row" id="actrow" hidden><label><input type="checkbox" id="pellact"> Let Pell act on contacts without asking</label></div></section>
+<section class="engage" id="engage" hidden></section>
+<section class="panel"><h2>Contacts <span class="lbl" id="legend">thermal / reactor / occlusion; D C Q point Dace, Castellan or Quill at a contact</span></h2><div class="ct" id="ct"></div></section>
+</div></div></div>
+<div class="over" id="pausebox" hidden><div class="box"><h3>Paused</h3><div class="help">The displays are blanked. Time is stopped. Press Esc or Resume.</div><div class="row"><button class="go" id="resume">Resume</button></div></div></div>
+<div class="over" id="over" hidden><div class="box" id="obox"></div></div>
+<script>
+/*ENGINE*/
+const E = HuntRT, P = E.P, $ = id => document.getElementById(id);
+let S, paused = false, engageId = null, cone = 2, aimL = null, built = false, feedN = 0, lastUi = 0, lastHp = 0, savedInteg = 0, T0 = 0;
+try { savedInteg = +localStorage.getItem('interdict_integration') || 0; } catch (e) {}
+function save() { try { localStorage.setItem('interdict_integration', String(Math.round(S.integration))); } catch (e) {} }
+function start() { S = E.newHunt(Math.floor(Math.random() * 1e9), { integration: savedInteg }); T0 = savedInteg; engageId = null; aimL = null; feedN = 0; $('feed').innerHTML = ''; $('over').hidden = true; $('pell').checked = false; build(); uiUpdate(true); }
+function seg(host, items, cur, on) { host.innerHTML = ''; items.forEach(([v, text, tip]) => { const l = document.createElement('label'); const i = document.createElement('input'); i.type = 'radio'; i.name = host.id; i.checked = v === cur; i.onchange = () => on(v); const sp = document.createElement('span'); sp.textContent = text; l.title = tip || ''; l.append(i, sp); host.append(l); }); }
+function build() {
+  seg($('seg-post'), Object.entries(E.POSTURE).map(([k, v]) => [k, v.label, v.tip]), S.posture, v => { S.posture = v; $('posthelp').textContent = E.POSTURE[v].tip; }); $('posthelp').textContent = E.POSTURE[S.posture].tip;
+  $('analysts').innerHTML = E.ANALYSTS.map(a => `<div class="ac"><b>${a.name}</b><span class="lbl">${a.role}</span><span class="t" id="at-${a.id}"></span></div>`).join('');
+  const ct = $('ct'); ct.innerHTML = '';
+  S.an.forEach(a => {
+    const d = document.createElement('div'); d.className = 'cr'; d.id = 'cr' + a.id;
+    d.innerHTML = `<div class="id">${a.id + 1}</div><div class="bars">${['thermal', 'reactor', 'occlusion'].map(c => `<div class="bar" title="${c}"><i id="b-${a.id}-${c}"></i><span id="bt-${a.id}-${c}"></span></div>`).join('')}</div><div class="btns" id="bn${a.id}"></div><div class="st" id="st${a.id}"></div>`;
+    ct.append(d);
+  });
+  built = true;
+}
+function btnsFor(a) {
+  const h = $('bn' + a.id), key = a.state + (S.integration >= 50 ? 'p' : '');
+  if (h.dataset.key !== key) {
+    h.dataset.key = key; h.innerHTML = '';
+    const mk = (t, title, fn, cls) => { const b = document.createElement('button'); b.textContent = t; b.title = title; if (cls) b.className = cls; b.onclick = fn; h.append(b); return b; };
+    if (a.state === 'open' || a.state === 'locked') E.ANALYSTS.forEach(w => { const b = mk(w.name[0], (a.state === 'locked' ? 'Track with ' : 'Focus ') + w.name, () => E.assign(S, w.id, a.id)); b.dataset.w = w.id; });
+    if (a.state === 'open') { mk('Lock', 'Rule it in as a real ship and go after it. A wrong call costs four minutes.', () => E.lockContact(S, a.id)); mk('Dismiss', 'Rule it out.', () => E.dismissContact(S, a.id)); }
+    if (a.state === 'locked') mk('Engage', 'Plan a volley', () => { engageId = a.id; aimL = null; buildEngage(); });
+  }
+  h.querySelectorAll('button[data-w]').forEach(b => b.classList.toggle('on', S.analysts.find(w => w.id === b.dataset.w).task === a.id));
+}
+function ago(q) { return Math.exp(-(S.t - q.t) * Math.LN2 / P.halfLife); }
+function uiUpdate(force) {
+  $('clk').textContent = Math.floor(S.t) + ':' + String(Math.floor((S.t % 1) * 60)).padStart(2, '0') + ' game';
+  [...$('pips').children].forEach((p, i) => p.classList.toggle('on', i < S.stage));
+  E.ANALYSTS.forEach(a => { const w = S.analysts.find(x => x.id === a.id); $('at-' + a.id).textContent = w.task == null ? 'auto sweep' : (S.an[w.task].state === 'locked' ? 'tracking ' : 'focused on ') + 'contact ' + (w.task + 1); });
+  S.an.forEach(a => {
+    const row = $('cr' + a.id); row.className = 'cr ' + a.state;
+    ['thermal', 'reactor', 'occlusion'].forEach(c => {
+      const q = a.read[c], i = $(`b-${a.id}-${c}`), t = $(`bt-${a.id}-${c}`);
+      if (q && q.blind) { i.style.width = '0'; t.textContent = c === 'occlusion' ? 'blind' : ''; }
+      else if (q && q.den > 0) { const v = q.num / q.den; i.style.width = Math.max(2, Math.min(100, v * 100)) + '%'; i.style.opacity = 0.3 + 0.7 * ago(q); i.style.background = c === 'thermal' ? '#ff8a4c' : c === 'reactor' ? '#6fc3d0' : '#b79cff'; t.textContent = c[0].toUpperCase() + ' ' + v.toFixed(2); }
+      else { i.style.width = '0'; t.textContent = c[0].toUpperCase() + ' ?'; }
+    });
+    let st = { open: 'unresolved', out: 'ruled out', chasing: 'chasing it...', disabled: 'crippled' }[a.state];
+    if (a.state === 'locked' && a.anchor) st = 'LOCKED: heading good to ' + Math.round(a.anchor.hs * 57.3) + ' deg, scan ' + (S.t - a.anchor.t).toFixed(1) + ' min old, tracked ' + a.track.toFixed(1) + ' min';
+    if (a.state === 'open' && S.integration >= 50) { const ad = E.advice(S, a); if (ad.call !== 'unsure') st += ' | Pell: ' + { junk: 'junk', ship: 'a ship', maybe: 'probably a ship (no occlusion)' }[ad.call]; }
+    if (a.flutter) st += ' | grid read: ' + a.flutter; $('st' + a.id).textContent = st; btnsFor(a);
+  });
+  $('integ').firstChild.style.width = S.integration + '%';
+  const stage = S.integration >= 100 ? 'Pell wants a seat at the table.' : S.integration >= 75 ? 'Pell can act on standing orders.' : S.integration >= 50 ? 'Pell recommends a call on every contact.' : S.integration >= 25 ? 'Pell volunteers observations.' : 'Pell stays in his lane.';
+  $('integtxt').textContent = 'Integration ' + Math.round(S.integration) + '% (rises while Pell assists, and stays). ' + stage;
+  $('actrow').hidden = S.integration < 75; if (S.integration < 75) { $('pellact').checked = false; E.setPellAct(S, false); }
+  while (feedN < S.log.length) { const l = S.log[feedN++]; const d = document.createElement('div'); d.className = l.kind; d.dataset.t = l.t; d.innerHTML = `<b>${l.who}</b> `; d.append(document.createTextNode(l.text)); $('feed').prepend(d); if (l.kind === 'integration') save(); }
+  [...$('feed').children].forEach(d => { d.style.opacity = Math.max(0.4, 1 - (S.t - d.dataset.t) * 0.06); });
+  $('brk').disabled = !!S.over;
+  if (S.over) endScreen();
+}
+function buildEngage() {
+  const en = $('engage'), a = engageId != null ? S.an[engageId] : null;
+  if (!a || a.state !== 'locked' || S.over) { en.hidden = true; en.innerHTML = ''; engageId = null; return; }
+  en.hidden = false;
+  en.innerHTML = `<h2>Volley on contact ${a.id + 1}</h2><div class="help">Missiles take time to arrive, so aim <b>ahead</b> along the path. The ship may not be where the wedge says. A wide cone covers more but each missile is less likely to be close; against a heavy scatter grid you need a tight wedge first.</div>
+  <div id="eninfo"></div><div class="row"><span>Aim along the path: <b id="aiml"></b></span><label class="lbl"><input type="checkbox" id="auto" ${aimL == null ? 'checked' : ''}> follow suggestion</label></div><div class="slider"><span class="ghost" id="gh">Abara suggests the leading point</span><input type="range" id="aim" min="0" max="40" step="0.5" value="10"></div>
+  <div>Cone width: <b id="conev">${cone} km</b> <span class="ghost">about half the wedge width at the aim works well</span></div><div class="slider"><input type="range" id="cone" min="0" max="8" step="0.5" value="${cone}"></div>
+  <div>Estimated hit chance: <b id="hp">...</b></div><div class="row"><button class="go" id="fire">Fire volley</button><button id="cancel">Cancel</button></div>`;
+  $('aim').oninput = e => { aimL = +e.target.value; $('auto').checked = false; engUpdate(true); };
+  $('auto').onchange = e => { if (e.target.checked) { aimL = null; engUpdate(true); } };
+  $('cone').oninput = e => { cone = +e.target.value; $('conev').textContent = cone + ' km'; engUpdate(true); };
+  $('fire').onclick = () => { E.fire(S, a.id, aimL, cone); engageId = null; buildEngage(); }; $('cancel').onclick = () => { engageId = null; buildEngage(); };
+  engUpdate(true);
+}
+function engUpdate(hp) {
+  const a = engageId != null ? S.an[engageId] : null; if (!a || a.state !== 'locked') { if (engageId != null) buildEngage(); return; }
+  const f = E.fanInfo(S, a, aimL); $('aiml').textContent = f.L.toFixed(1) + ' km'; if (aimL == null) $('aim').value = Math.min(40, f.L);
+  $('eninfo').textContent = `Arrival in about ${(P.engage + f.tf).toFixed(1)} min. At the aim point the path is uncertain by about ${f.cross.toFixed(1)} km across and ${f.along.toFixed(1)} km along. Grid read: ${a.flutter || 'none yet'}.`;
+  if (hp) $('hp').textContent = Math.round(100 * E.hitProb(S, a, aimL, cone, 500)) + '%';
+}
+function endScreen() {
+  if ($('over').hidden === false) return; const win = S.over === 'win', brk = S.over !== 'found' && !win; $('over').hidden = false; save(); try { savedInteg = S.integration; } catch (e) {}
+  $('obox').innerHTML = `<h3>${win ? 'Both ships crippled' : brk ? 'Contact broken' : 'Contact: the hunter has us'}</h3><div>${win ? 'Nobody died, the salvage is yours.' : (S.disabled ? 'Breach drive spins up. You get away with ' + S.disabled + ' of 2 ships crippled and the salvage you can carry.' : 'Breach drive spins up. You come home without a ship, but with a sensor log worth something.')} ${S.t.toFixed(1)} game minutes, ${S.beats} reports.</div><div class="help">Pell integration: ${Math.round(T0)}% to ${Math.round(S.integration)}%. It carries over to your next hunt.</div><div class="help">What was really out there:</div><div class="reveal">${S.an.map(a => `<span>${a.id + 1}: ${a.kind}<br>grid ${a.grid}</span>`).join('')}</div><div class="row"><button class="go" id="again">Hunt again</button><button id="close">Look at the screen</button></div>`;
+  $('again').onclick = () => start(); $('close').onclick = () => { $('over').hidden = true; };
+}
+$('pell').onchange = e => { S.pell = e.target.checked; };
+$('pellact').onchange = e => E.setPellAct(S, e.target.checked);
+$('pause').onclick = togglePause; $('resume').onclick = togglePause; $('brk').onclick = () => E.retreat(S); $('newh').onclick = start;
+function togglePause() { paused = !paused; $('pausebox').hidden = !paused; $('wrap').style.visibility = paused ? 'hidden' : 'visible'; last = performance.now(); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') togglePause(); });
+// radar and main loop
+const cv = $('cv'), cx = cv.getContext('2d'); let ang = 0, last = performance.now();
+function frame(now) {
+  const dtReal = Math.min(0.25, (now - last) / 1000); last = now;
+  if (!paused && !S.over) E.tick(S, dtReal / P.secPerMin * ($('slow').checked ? 0.5 : 1));
+  if (now - lastUi > 150) { lastUi = now; uiUpdate(); if (engageId != null) { const hp = now - lastHp > 900; if (hp) lastHp = now; engUpdate(hp); } }
+  if (!paused) draw(); requestAnimationFrame(frame);
+}
+function draw() {
+  const W = cv.width, k = W / P.arena; cx.fillStyle = 'rgba(5,8,7,0.12)'; cx.fillRect(0, 0, W, W);
+  cx.strokeStyle = '#17302a'; cx.lineWidth = 1; for (let r = 80; r < 460; r += 80) { cx.beginPath(); cx.arc(W / 2, W / 2, r, 0, 7); cx.stroke(); }
+  cx.beginPath(); cx.moveTo(W / 2, 0); cx.lineTo(W / 2, W); cx.moveTo(0, W / 2); cx.lineTo(W, W / 2); cx.stroke();
+  ang += 0.03; cx.strokeStyle = 'rgba(255,180,84,.55)'; cx.beginPath(); cx.moveTo(W / 2, W / 2); cx.lineTo(W / 2 + Math.cos(ang) * W, W / 2 + Math.sin(ang) * W); cx.stroke();
+  S.an.forEach((a, i) => {
+    if (a.state === 'out') return; const tp = E.truePos(a, S.t), px = x => x * k;
+    if (a.state === 'locked' && a.anchor) {
+      const q = a.anchor, dir = q.hdg, ca = Math.cos(dir), sa = Math.sin(dir), tauNow = S.t - q.t, fade = Math.max(0.25, 1 - 0.07 * tauNow);
+      const cur = E.estAt(a, tauNow), sig = Math.max(0.6, E.spreadAt(a, Math.max(tauNow, 0.01)).along / q.spd);
+      for (let tau = 0; tau < 12; tau += 0.25) { const e1 = E.estAt(a, tau), e2 = E.estAt(a, tau + 0.25), w1 = E.spreadAt(a, tau).cross, w2 = E.spreadAt(a, tau + 0.25).cross, prog = Math.exp(-0.5 * Math.pow((tau + 0.125 - tauNow) / sig, 2));
+        cx.fillStyle = `rgba(255,180,84,${(0.05 + 0.5 * prog) * fade})`; cx.beginPath(); cx.moveTo(px(e1.x - sa * w1), px(e1.y + ca * w1)); cx.lineTo(px(e2.x - sa * w2), px(e2.y + ca * w2)); cx.lineTo(px(e2.x + sa * w2), px(e2.y - ca * w2)); cx.lineTo(px(e1.x + sa * w1), px(e1.y - ca * w1)); cx.closePath(); cx.fill(); }
+      cx.strokeStyle = `rgba(255,180,84,${0.5 * fade})`; cx.beginPath(); cx.moveTo(px(q.x), px(q.y)); const far = E.estAt(a, 12); cx.lineTo(px(far.x), px(far.y)); cx.stroke();
+      for (let m = 1; m <= 12; m++) { const t = E.estAt(a, m); cx.fillStyle = 'rgba(255,180,84,.5)'; cx.fillRect(px(t.x) - 1, px(t.y) - 1, 3, 3); }
+      cx.fillStyle = '#ffb454'; cx.beginPath(); cx.arc(px(q.x), px(q.y), 4, 0, 7); cx.fill(); cx.strokeStyle = '#ffd9a0'; cx.beginPath(); cx.arc(px(cur.x), px(cur.y), 7, 0, 7); cx.stroke();
+      if (engageId === a.id) { const f = E.fanInfo(S, a, aimL), ax = px(f.aim.x), ay = px(f.aim.y); cx.strokeStyle = '#6fc3d0'; cx.setLineDash([4, 4]); cx.beginPath(); cx.moveTo(W / 2, W / 2); cx.lineTo(ax, ay); cx.stroke(); cx.setLineDash([]); cx.save(); cx.translate(ax, ay); cx.rotate(f.dir); cx.beginPath(); cx.ellipse(0, 0, cone * P.alongStretch * k * 1.6 + 2, cone * k * 1.6 + 2, 0, 0, 7); cx.stroke(); cx.restore(); cx.fillStyle = '#6fc3d0'; cx.fillRect(ax - 3, ay - 3, 6, 6); }
+      cx.fillStyle = '#ffd9a0'; cx.font = '14px IBM Plex Mono, monospace'; cx.fillText(String(i + 1), px(q.x) + 8, px(q.y) - 8); return;
+    }
+    if (a.state === 'disabled') { cx.fillStyle = 'rgba(143,214,148,.8)'; cx.fillRect(tp.x * k - 3, tp.y * k - 3, 6, 6); return; }
+    const jx = Math.sin(a.id * 7.1) * 24, jy = Math.cos(a.id * 3.7) * 24, x = tp.x * k + jx, y = tp.y * k + jy, den = ['thermal', 'reactor', 'occlusion'].reduce((m, c) => m + (a.read[c]?.den || 0), 0), unc = Math.max(9, 56 - 6 * Math.min(7, den));
+    const th = a.read.thermal && a.read.thermal.num / a.read.thermal.den, col = th > 0.65 ? '255,180,84' : '111,195,208', lit = Math.abs(((Math.atan2(y - W / 2, x - W / 2) - ang) % 6.283 + 6.283) % 6.283) < 0.25;
+    cx.fillStyle = `rgba(${col},${lit ? .35 : .09})`; cx.beginPath(); cx.arc(x, y, unc, 0, 7); cx.fill(); cx.fillStyle = `rgba(${col},${lit ? 1 : .55})`; cx.fillRect(x - 2, y - 2, 4, 4); cx.fillStyle = '#9fb7ac'; cx.font = '14px IBM Plex Mono, monospace'; cx.fillText(String(i + 1), x + 6, y - 6);
+  });
+  cx.fillStyle = '#6fc3d0'; cx.fillRect(W / 2 - 3, W / 2 - 3, 6, 6);
+}
+start(); requestAnimationFrame(frame);
+</script>
