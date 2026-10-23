@@ -130,3 +130,8 @@ Read this first each session. Keep it to one page.
 - Postures still/evade/close x probe habit never/blind/often, round robin, 40-minute cap. Win rates sit in a flat band (0.20-0.28) for eight of nine policies: no dominant posture. Pinging constantly while sitting still is clearly worst (0.12), as intended.
 - 53% of matches time out with no shot: hunts are too slow or too quiet. Tune: raise emission baseline, shrink the arena, or add a pressure clock (patron/escort arrives).
 - Next: arrival-choice card (stay still / evasion pattern / close on a point), cone density and probe radius as the dials, then the playable 2D text hunt.
+
+## Hunt pacing (sim/hunt_pacing.py)
+- Clock length barely matters: with clocks of 8-30 min, P(shot) is 0.65-0.75 and the hunt averages only 1.8-3.4 beats (about one beat every 3 minutes). Longest quiet run 2.4-3.1 min.
+- Diagnosis: the problem is beat density, not duration. A hunt resolves in a few events, so there is no arc. Target (to playtest): first beat by minute 3, no quiet run over 3 min, 8-15 beats, 12-20 minutes.
+- Fixes to try: make each ladder rung a beat (anomaly, classify, track, solve); first hit disables rather than ends the fight; decoys, vents and escort stages as scheduled beats; patron snap mid-hunt.
