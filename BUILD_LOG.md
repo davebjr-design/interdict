@@ -140,3 +140,12 @@ Read this first each session. Keep it to one page.
 - Pool of 6 anomalies, slots 1-3, confidence dial T 1-5, assist (speed / extra slot with a lying Pell), enemy tempo 0.7/1.0/1.5.
 - First result: T=1 wins in every configuration (confidence dial is not a real choice); beats per hunt 0.5-3.5 (target 8-15). Sent to the critic. Do not tune until the critic returns.
 - `docs/art_pipeline.md` drafted: manifest of named slots, placeholders first, radar as a shader, controls as components, style bible before final assets.
+
+## Stage 1 critic result -> anomalies_v2.py
+- Critic (subagent) diagnosed T=1 dominance: false rule-in was nearly free (chase skipped hazard), memoryless hazard, weak lures. v2: 3-stage visible approach clock, chase at 2.5x hazard with 50% bait, 8 anomalies / 2 real, 2-minute engagement beat, lure strength per hunt, sharpening beat.
+- Result: beats 8-11 per hunt, 12-20 minutes, first beat ~1.5 min, longest quiet ~3 min, T1 never wins, T4-5 never win; T2 best in most contexts (T3 for strong lure + slow enemy). Curves flat (T2 vs T3 gap 3-8 points) so collapse the dial to Quick/Standard/Thorough and show lure-likeness and enemy tempo in the UI.
+- Still open: more slots never worse (steepen sensor draw to ~0.05/slot); Pell's lies must be detectable later; add chase-or-ignore decision.
+
+## Stage 2a: cone density (sim/cone_density.py)
+- Best cone width tracks the Fan width (sigma 1: s 0-1; sigma 2.5: s 2; sigma 5: s 3; sigma 9: s 5). Heavy grid forces a tight cone (s<=1) at every Fan size. Light grid shifts the optimum only slightly.
+- Weakness: heavy grid is a cliff (spread volleys score 0.00). Soften with windows = 1 + min(1, s/4).
