@@ -119,3 +119,9 @@ Read this first each session. Keep it to one page.
 - Checked: Fan model reproduces the critic's single-missile curve (0.72/0.50/0.34/0.24 at 1/3/6/10 min).
 - Volley spacing flip needed a mechanism: spread volleys arrive staggered, giving the scatter grid up to two windows; stacked volleys arrive together. Result (n=4, age 3): no grid 0.49 stacked / 0.85 medium / 0.99 spread; 2 ch @0.8: 0.50/0.58/0.20; 3 ch @0.8: 0.51/0.31/0.03. A spectrum with a real flip. A stacked volley is immune to grid strength as long as n exceeds the grid's kills.
 - Open: how the player infers the target's grid from passive clues; whether the knell can be dampened; ammo counts and reloading.
+
+## Listening Board prototypes (passive detection)
+- `sim/listening_model.py`: 16 bearing bins, three passive channels (infrared, reactor, occlusion). Combining channels beats any single one (cold target, 2 min: IR 0.59, IR+reactor 0.90, all three 0.98). Lures fool infrared and reactor but not occlusion (cold + lure, 4 min: IR+reactor 0.63, all three 0.95). Occlusion needs a star or ring behind the target, so position matters.
+- `sim/grid_clues.py`: a powered scatter grid adds flutter to the reactor channel. Class read accuracy at 4 min is 0.76; decoys and a quietly run grid cap it near 0.5.
+- FINDING: with a binary stack/spread choice, always-spread (0.58) beats acting on the read (0.55), because misreading a heavy grid as light is catastrophic (spread kill 0.03). Fix candidates: a hedge spacing that is never terrible, a displayed confidence band so the player hedges when unsure, and a heavy-grid read that is clearer (it radiates the most).
+- Open: choose the scanning mini game (see message to Dave); update Operating Rules doc once picked.
