@@ -387,7 +387,7 @@ const HuntRT = (() => {
   }
   function stopVent(s) { if (!s.vent.on || s.vent.forced) return false; s.vent.on = false; report(s, 'Abara', `Fins retracted. ${Math.round(s.sink.h * 100)} percent heat still stored.`, 'info'); return true; }
   function sinkStep(s, h) {
-    const ex = exposure(s).total, k = s.sink; k.h = clamp(k.h + (P.sinkK * ex / s.me.sink - (s.vent.on ? 1 / P.ventFull : 0)) * h, 0, 1);
+    const ex = exposure(s).parts.reduce((q, x) => q + (x.k === 'vent' ? 0 : x.v), 0), k = s.sink; k.h = clamp(k.h + (P.sinkK * ex / s.me.sink - (s.vent.on ? 1 / P.ventFull : 0)) * h, 0, 1);
     if (s.vent.on) { s.vent.total += h; if (k.h <= 0.02 || (s.vent.forced && k.h <= P.forcedStop)) { s.vent.on = false; s.sinkWarn = k.h > 0.6 ? 1 : 0; report(s, 'Abara', k.h <= 0.02 ? 'Sinks are empty. Fins retracted.' : 'Fins retracting. The sinks are down to a safe level.', 'good'); } }
     else { const lv = [[0.6, 'Heat sinks at 60 percent. Venting is how we shed it, and it shows us to everyone. Quiet only slows the fill.'], [0.8, 'Heat sinks at 80 percent. We will have to vent soon.'], [0.95, 'Heat sinks nearly full. Vent now, or the fins will open by themselves.']];
       for (let i = s.sinkWarn; i < 3; i++) if (k.h >= lv[i][0]) { s.sinkWarn = i + 1; report(s, 'Abara', lv[i][1], i ? 'danger' : 'bad', i > 0); }
