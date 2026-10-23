@@ -1,8 +1,8 @@
 // Interdict hunt engine v4: REAL TIME with analyst reports. Time unit = game minutes (UI maps real seconds to game minutes).
 // Three analysts (thermal / reactor / occlusion) read contacts on their own schedule; the player directs attention, interprets, locks, tracks, fires.
 const HuntRT = (() => {
-  const P = { N: 8, nreal: 2, nlure: 3, arena: 40, base: 0.04, glowFocus: 0.015, glowTrack: 0.06, stages: 3, chase: 5, chasemult: 2.5, bait: 0.75, rescan: 5, engage: 1, missileSpeed: 8, alongStretch: 1.5, squeezeAfter: 8, squeezeRamp: 0.12, autoPeriod: 0.4, focusPeriod: 0.2, glowPell: 0.012, integrationPerMin: 0.8, sub: 0.05, secPerMin: 16, halfLife: 3, telegraph: 0.8, quietDur: 2.5, quietCd: 10, quietHaz: 0.2, quietCancel: 0.6, suggestShort: 0.72, tubes: 3, reload: 3, darkWindow: 6, darkHaz: 0.5, darkWarm: 4, wakeDur: 3, wakeGlow: 0.10, wpReach: 0.6, moveRate: 1.1, shipSpeed: 1.0, holdOff: 1.5, pingCd: 4, pingDur: 1.5, pingGlow: 0.14, pingBump: 0.45, pingBumpOther: 0.15, selfRadius: 2, selfDmg: 25, closeRange: 6, closeCd: 2, closeKill: 2.5, closeAcc: 0.85, closeGlow: 0.12, closeDur: 2, blastGlow: 0.08, blastDur: 1.5, nearGlow: 0.025, nearRange: 8, closeBump: 0.5, beamGlow: 0.08, beamDur: 1, beamCd: 2, beamBump: 0.35, driftMin: 6, driftMax: 12, shareReads: 2, pellFriction: 0.08 };
-  const POSTURE = { still: { haz: 0.8, rate: 1.0, label: 'Stay still', tip: 'Hunter finds you at 0.8x speed. Analysts work at normal speed.' }, evade: { haz: 0.95, rate: 1.0, label: 'Evasive', tip: 'Weaving gives the analysts new angles to triangulate from, so they read about 10% faster, but the drive makes you about 20% louder than holding still.' }, route: { haz: 1.0, rate: 1.0, label: 'Flight plan', tip: 'The navigator is flying the plan you drew.' }, close: { haz: 1.0, rate: 1.0, label: 'Close on a contact', tip: 'Moving toward a contact: engine heat depends on your speed; the change of angle helps the analysts, and they read stronger as range drops.' }, separate: { haz: 1.0, rate: 1.0, label: 'Open distance', tip: 'Moving away from a contact: engine heat depends on your speed; the change of angle helps the analysts, but signals weaken with range.' } };
+  const P = { solveMin: 0.35, solveMax: 2.0, solveDen: 12, clutterR: 6, N: 8, nreal: 2, nlure: 3, arena: 40, base: 0.04, glowFocus: 0.015, glowTrack: 0.06, stages: 3, chase: 5, chasemult: 2.5, bait: 0.75, rescan: 5, engage: 1, missileSpeed: 8, alongStretch: 1.5, squeezeAfter: 8, squeezeRamp: 0.12, autoPeriod: 0.4, focusPeriod: 0.2, glowPell: 0.012, integrationPerMin: 0.8, sub: 0.05, secPerMin: 16, halfLife: 3, telegraph: 0.8, quietDur: 2.5, quietCd: 10, quietHaz: 0.2, quietCancel: 0.6, suggestShort: 0.72, tubes: 3, reload: 3, darkWindow: 6, darkHaz: 0.5, darkWarm: 4, wakeDur: 3, wakeGlow: 0.10, wpReach: 0.6, moveRate: 1.1, shipSpeed: 1.0, holdOff: 1.5, pingCd: 4, pingDur: 1.5, pingGlow: 0.14, pingBump: 0.45, pingBumpOther: 0.15, selfRadius: 2, selfDmg: 25, closeRange: 6, closeCd: 2, closeKill: 2.5, closeAcc: 0.85, closeGlow: 0.12, closeDur: 2, blastGlow: 0.08, blastDur: 1.5, nearGlow: 0.025, nearRange: 8, closeBump: 0.5, beamGlow: 0.08, beamDur: 1, beamCd: 2, beamBump: 0.35, driftMin: 6, driftMax: 12, shareReads: 2, pellFriction: 0.08 };
+  const POSTURE = { still: { haz: 0.8, rate: 1.0, label: 'Stay still', tip: 'Hunter finds you at 0.8x speed. Analysts work at normal speed.' }, evade: { haz: 0.95, rate: 1.0, label: 'Evasive', tip: 'Weaving gives the analysts new angles to triangulate from, so they read about 10% faster, but the drive makes you about 20% louder than holding still.' }, orbit: { haz: 1.0, rate: 1.0, label: 'Circle', tip: 'Circle the contact at the current range. Angles change constantly, so the analysts triangulate faster, the drive makes noise.' }, route: { haz: 1.0, rate: 1.0, label: 'Flight plan', tip: 'The navigator is flying the plan you drew.' }, close: { haz: 1.0, rate: 1.0, label: 'Close on a contact', tip: 'Moving toward a contact: engine heat depends on your speed; the change of angle helps the analysts, and they read stronger as range drops.' }, separate: { haz: 1.0, rate: 1.0, label: 'Open distance', tip: 'Moving away from a contact: engine heat depends on your speed; the change of angle helps the analysts, but signals weaken with range.' } };
   const START = { dark: 3, standard: 5, fast: 11 };
   const SPEED = { creep: { label: 'Creep', v: 0.4, heat: 0.0, rate: 1.0, tip: 'Cold drive, 0.4 km per minute. Almost no engine heat.' }, cruise: { label: 'Cruise', v: 1.0, heat: 0.03, rate: 1.0, tip: '1 km per minute. Some engine heat.' }, burn: { label: 'Burn', v: 2.0, heat: 0.11, rate: 0.8, tip: '2 km per minute. Lots of engine heat and noisy sensors. The hunter can see a burn from a long way.' } };
   const ANALYSTS = [{ id: 'dace', name: 'Dace', ch: 'thermal', role: 'Heat' }, { id: 'castellan', name: 'Castellan', ch: 'reactor', role: 'Reactor' }, { id: 'quill', name: 'Quill', ch: 'occlusion', role: 'Eclipse' }];
@@ -108,19 +108,23 @@ const HuntRT = (() => {
     else if (s.hull < 60 && !s.hullWarned) { s.hullWarned = true; report(s, 'Dace', 'Hull damage is fouling the sensor mounts. Everything reads slower now.', 'bad'); }
   }
   function displayPos(s, a) { if (a.state === 'locked' && a.anchor) return estAt(a, s.t - a.anchor.t); const p = truePos(a, s.t); return { x: p.x + a.jit.x, y: p.y + a.jit.y }; }
-  function moving(s) { return (s.orderId != null && ['close', 'separate', 'evade'].includes(s.posture)) || (s.posture === 'route' && s.routeI < s.route.length); }
+  function moving(s) { return (s.orderId != null && ['close', 'separate', 'evade', 'orbit'].includes(s.posture)) || (s.posture === 'route' && s.routeI < s.route.length); }
   function engineHeat(s) { return (moving(s) ? SPEED[s.speed].heat : 0) + (s.entry === 'fast' && s.t < P.wakeDur ? P.wakeGlow : 0); }
+  function setRoute(s, pts) { if (s.over) return false; s.route = pts.map(q => ({ x: Math.max(2, Math.min(38, q.x)), y: Math.max(2, Math.min(38, q.y)) })); s.routeI = 0; if (s.route.length) { s.posture = 'route'; s.orderId = null; s.orderUntil = null; report(s, 'Abara', `New flight plan, ${s.route.length} waypoint${s.route.length > 1 ? 's' : ''}.`, 'info'); } else { s.posture = 'still'; report(s, 'Abara', 'Flight plan cleared. Holding position.', 'info'); } return true; }
+  function relBearing(s, pt) { const b = Math.atan2(pt.x - s.player.x, -(pt.y - s.player.y)) * 180 / Math.PI, h = Math.atan2(Math.cos(s.hdg || 0) * 0 + (Math.cos(s.hdg || 0)), -(Math.sin(s.hdg || 0))) * 180 / Math.PI; return ((b - h + 540) % 360) - 180; }
   function setSpeed(s, k) { if (s.over || !SPEED[k]) return false; s.speed = k; return true; }
-  function setOrder(s, mode, id) {
+  function setOrder(s, mode, id, mins) {
     if (s.over || !POSTURE[mode]) return false;
     if (mode === 'route') { if (s.routeI >= s.route.length) return false; s.posture = 'route'; s.orderId = null; report(s, 'Abara', `Resuming the flight plan, waypoint ${s.routeI + 1} of ${s.route.length}.`, 'info'); return true; } const a = id != null ? s.an[id] : null;
-    if ((mode === 'close' || mode === 'separate') && (!a || ['out', 'disabled'].includes(a.state))) return false;
-    s.posture = mode; s.orderId = (mode === 'still' || id == null) ? null : id; s.holdSaid = false;
-    report(s, 'Abara', { still: 'Holding position.', evade: a ? `Evasive pattern, keeping contact ${id + 1} off our flank.` : 'Evasive pattern.', close: `Closing on contact ${id != null ? id + 1 : ''}.`, separate: `Opening distance from contact ${id != null ? id + 1 : ''}.` }[mode], 'info');
+    if ((mode === 'close' || mode === 'separate' || mode === 'orbit') && (!a || ['out', 'disabled'].includes(a.state))) return false;
+    s.posture = mode; s.orderId = (mode === 'still' || id == null) ? null : id; s.holdSaid = false; s.orderUntil = mins ? s.t + mins : null; if (mode === 'orbit') s.orbitDir = s.r() < 0.5 ? 1 : -1;
+    report(s, 'Abara', { still: 'Holding position.', evade: a ? `Evasive pattern, keeping contact ${id + 1} off our flank.` : 'Evasive pattern.', close: `Closing on contact ${id != null ? id + 1 : ''}.`, separate: `Opening distance from contact ${id != null ? id + 1 : ''}.`, orbit: `Circling contact ${id != null ? id + 1 : ''}${mins ? ' for ' + mins + ' minutes' : ''}.` }[mode], 'info');
     return true;
   }
-  function moveShip(s, h) {
+  function moveShip(s, h) { const ox = s.player.x, oy = s.player.y; moveShip0(s, h); const dx = s.player.x - ox, dy = s.player.y - oy; if (dx * dx + dy * dy > 1e-8) s.hdg = Math.atan2(dy, dx); if (s.hdg == null) s.hdg = 0; }
+  function moveShip0(s, h) {
     const m = s.posture;
+    if (s.orderUntil != null && s.t >= s.orderUntil && m !== 'route' && m !== 'still') { s.posture = 'still'; s.orderId = null; s.orderUntil = null; report(s, 'Abara', 'Maneuver complete. Holding position.', 'info'); return; }
     if (m === 'route') {
       const wp = s.route[s.routeI]; if (!wp) { s.posture = 'still'; return; }
       const pl = s.player, dx = wp.x - pl.x, dy = wp.y - pl.y, d = Math.hypot(dx, dy), sp = P.shipSpeed * SPEED[s.speed].v * h;
@@ -132,6 +136,7 @@ const HuntRT = (() => {
     const t = displayPos(s, a), pl = s.player, dx = t.x - pl.x, dy = t.y - pl.y, d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d, sp = P.shipSpeed * SPEED[s.speed].v * h;
     if (m === 'close') { if (d <= P.holdOff) { if (!s.holdSaid) { s.holdSaid = true; report(s, 'Abara', `Holding ${P.holdOff} km off contact ${a.id + 1}. Closer and we would be inside our own blast.`, 'info'); } return; } pl.x += ux * Math.min(sp, d - P.holdOff); pl.y += uy * Math.min(sp, d - P.holdOff); }
     else if (m === 'separate') { pl.x -= ux * sp; pl.y -= uy * sp; }
+    else if (m === 'orbit') { const dir = s.orbitDir || 1, ang = Math.atan2(-dy, -dx) + dir * sp / d; const nx = t.x + Math.cos(ang) * d, ny = t.y + Math.sin(ang) * d; pl.x = nx; pl.y = ny; }
     else if (m === 'evade') { const sg = Math.floor(s.t / 2) % 2 ? 1 : -1; pl.x += -uy * sg * sp * 0.5; pl.y += ux * sg * sp * 0.5; }
     pl.x = Math.max(2, Math.min(38, pl.x)); pl.y = Math.max(2, Math.min(38, pl.y));
   }
@@ -159,6 +164,7 @@ const HuntRT = (() => {
     if (!s.pending && s.r() < (P.base * s.tempo * mult + (s.t < s.beamUntil ? P.beamGlow : 0) + (s.t < s.blastUntil ? s.blastV : 0) + (s.t < s.pingUntil ? P.pingGlow : 0) + engineHeat(s) * (s.t < s.quietUntil ? 0 : 1) + nearHeat(s) + P.glowFocus * focusN * (quiet ? 0 : 1) + P.glowTrack * trackN * (quiet ? 0 : 1) + (s.pell ? P.glowPell : 0)) * h) { s.pending = { at: s.t + P.telegraph }; report(s, 'Dace', 'Hunter radar swept across our bearing. Something is coming. Go quiet if you want it to pass.', 'danger', true); pingBy(s); }
     if (s.pending && s.t >= s.pending.at) { s.pending = null; if (s.t < s.quietUntil && s.r() < P.quietCancel) report(s, 'Dace', 'They swept past us. Quiet paid off.', 'good'); else { bump(s); if (s.over) return; } }
     const friction = 1 - P.pellFriction * Math.max(0, Math.floor(s.integration / 25) - 1), rate = POSTURE[s.posture].rate * (s.entry === 'dark' && s.t < P.darkWarm ? 0.8 : 1) * (moving(s) || s.posture === 'evade' ? P.moveRate : 1) * (moving(s) ? SPEED[s.speed].rate : 1) * friction * (s.hull < 60 ? 0.85 : 1);
+    if (!quiet) for (const a of s.an) if (a.state === 'locked' && (a.solve || 0) < 1) { a.solve = Math.min(1, (a.solve || 0) + h / solveInfo(s, a).T); if (a.solve >= 1) report(s, 'Abara', `Firing solution on contact ${a.id + 1}. Ready when you are.`, 'good'); }
     for (const w of s.analysts) {
       if (s.t < w.next) continue;
       if (quiet) { w.next = s.quietUntil; continue; }
@@ -215,15 +221,28 @@ const HuntRT = (() => {
   }
   function tick(s, dt) { let left = dt; while (left > 1e-9 && !s.over) { const h = Math.min(P.sub, left); sub(s, h); left -= h; } }
   function assign(s, analystId, contact) { const w = s.analysts.find(x => x.id === analystId); if (!w || s.over || (contact != null && s.an[contact].idStatus === 'plan')) return; w.task = (contact == null || w.task === contact) ? null : contact; w.next = Math.min(w.next, s.t + 0.05); }
+  function resolution(a) { let sum = 0; for (const ch of ['thermal', 'reactor', 'occlusion']) { const q = a.read[ch]; sum += q ? (q.blind ? 0.6 : Math.min(1, q.den / P.solveDen)) : 0; } return sum / 3; }
+  function solveInfo(s, a) {
+    const res = resolution(a), age = a.anchor ? s.t - a.anchor.t : 3, why = [];
+    let T = P.solveMin + (P.solveMax - P.solveMin) * (1 - res) ** 1.3;
+    if (res < 0.6) why.push('readings still thin');
+    if (age > 2) { T *= 1.25; why.push('stale track'); } else if (age < 0.5) T *= 0.9;
+    const tp = truePos(a, s.t); let cl = 0; for (const b of s.an) if (b !== a && b.state !== 'out' && b.state !== 'disabled') { const q = truePos(b, s.t); if (Math.hypot(q.x - tp.x, q.y - tp.y) < P.clutterR) cl++; }
+    if (cl) { T *= 1 + Math.min(0.3, 0.1 * cl); why.push('clutter nearby'); }
+    if (s.hull < 60) { T *= 1.15; why.push('hull damage'); }
+    if (s.pellAct && s.integration >= 50) T *= 0.85;
+    const dark = s.t < s.quietUntil, prog = a.solve || 0;
+    return { prog, T, remain: dark ? Infinity : (1 - prog) * T, res, why, paused: dark, ready: prog >= 1 };
+  }
   function lockContact(s, id) {
     const a = s.an[id]; if (s.over || a.state !== 'open') return;
     if (a.kind === 'friend' && (a.idStatus === 'plan' || a.idStatus === 'confirmed')) { report(s, 'Abara', `Contact ${id + 1} is our ally. Weapons safe.`, 'info'); return; }
-    if (a.kind === 'real' || a.kind === 'friend') { a.state = 'locked'; a.track = 0; scan(s, a); report(s, 'Abara', `Contact ${id + 1} locked. Give me a firing plan.`, 'good'); }
+    if (a.kind === 'real' || a.kind === 'friend') { a.state = 'locked'; a.track = 0; a.solve = 0; scan(s, a); report(s, 'Abara', `Contact ${id + 1} locked. Working a firing solution.`, 'good'); }
     else { a.state = 'chasing'; s.wrong++; s.chase = { id, until: s.t + P.chase }; report(s, 'Abara', `Contact ${id + 1} ruled in; we are chasing it. Hope it is a ship.`, 'info'); for (const w of s.analysts) if (w.task === id) w.task = null; }
   }
   function dismissContact(s, id) { const a = s.an[id]; if (s.over || a.state !== 'open' || a.idStatus === 'plan') return; a.state = 'out'; if (a.kind === 'real') s.wrong++; for (const w of s.analysts) if (w.task === id) w.task = null; report(s, 'Abara', `Contact ${id + 1} ruled out.`, 'info'); }
   function fire(s, id, L, cone) {
-    const a = s.an[id]; if (s.over || a.state !== 'locked' || (a.kind === 'friend' && (a.idStatus === 'plan' || a.idStatus === 'confirmed'))) return false;
+    const a = s.an[id]; if (s.over || a.state !== 'locked' || (a.solve || 0) < 1 || (a.kind === 'friend' && (a.idStatus === 'plan' || a.idStatus === 'confirmed'))) return false;
     const tb = s.tubes.findIndex(x => s.t >= x); if (tb < 0) return false; s.tubes[tb] = s.t + P.reload;
     const f = fanInfo(s, a, L); s.shots++; s.volleys.push({ id, at: s.t + P.engage + f.tf, aim: f.aim, dir: f.dir, cone }); report(s, 'Abara', `Volley away on contact ${id + 1}. Impact in ${(P.engage + f.tf).toFixed(1)} minutes.`, 'info'); return true;
   }
@@ -253,6 +272,6 @@ const HuntRT = (() => {
   function goQuiet(s) { if (s.over || s.t < s.quietCd) return false; s.quietUntil = s.t + P.quietDur; s.quietCd = s.t + P.quietCd; report(s, 'Abara', 'Going quiet. Sensors dark, nobody touches anything for three minutes.', 'info'); return true; }
   function retreat(s) { if (s.over) return; s.over = s.disabled ? 'breach' : 'breach0'; report(s, 'Abara', 'Breaking contact. Breach drive spinning up.', 'bad'); }
   function setPellAct(s, on) { s.pellAct = !!on && s.integration >= 75; }
-  return { P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, hitProb, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, planPos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge };
+  return { setRoute, relBearing, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, hitProb, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, planPos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge };
 })();
 if (typeof module !== 'undefined') module.exports = HuntRT;
