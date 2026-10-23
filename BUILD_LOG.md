@@ -98,3 +98,13 @@ Read this first each session. Keep it to one page.
 ## Oct 22 (night) - sensors/stealth/comms rundown; reference doc
 - All rundowns (weapons, defenses, propulsion, sensors, stealth, comms/EMCON, culture) are now in docs/star_wolf_rundowns.md as design reference (unverified vs the novels).
 - Second critic launched with all rundowns to stress-test mechanics against these specifics and to differentiate the game from comparable titles.
+
+## Oct 22 (night) - critic 2 report (differentiation + mechanics vs rundowns)
+- Heat is the whole game: 21 of 46 levers touch heat, weighted in 7 of 11 cards; exposure derives from heat. Split pressure into heat, signature, ammo, comms burst budget, crew strain, relay stages.
+- Information is perfectly known on the odds screen (every term of 58+... printed); the data-age penalty (~1 pt/min) is 3-5x gentler than a cone model (single-missile hit 0.72/0.51/0.34/0.24 at 1/3/6/10 min).
+- Best mechanic found: cone volleys. Spread vs stack flips on whether the target has point defense (no PD, n=4, age 3: spaced 0.99 vs stacked 0.51; vs 2-channel PD: stacked 0.59 vs spread 0.36). Only fun if PD is inferred from passive clues and the UI never shows the optimal spacing.
+- Relay exposure as a hidden number is unlearnable and exploitable (ignore it and burn urgent sorties: 1102-1176 vs 625 cautious). Needs 3-5 VISIBLE stages with real consequences. Triangulation deferred.
+- Dominants still open: card 6 fire+ping (now fixed in data: ping priced +15 exposure, +4% relay; calm plan hold now costs only 1%, retune pending); close_in dead outside the slice screen; stakeout always picks hold 12; offense exercised by 1 of 11 cards.
+- Differentiation: hook = hunted ship commanded through officers and a lying AI reading the same minutes-old picture. Protect: cone volleys, lever-grammar cards with the peace cost, Pell + patron as a comms/signature problem. Samey: set bonuses and friction, rating+noise checks, trust bars, hold/close/fire loop, relay % bar. Comparables recalled from memory only (research returned little): FTL, Silent Hunter, Duskers, Highfleet, Darkest Dungeon, Reigns, Papers Please, Sunless Sea.
+- Biggest risk: simulation before game. Eleven sim rounds, nothing playable; ~33 h of card content plus UI.
+- Core Mechanics: Sequences doc created (Docs): scanning, movement, combat, being targeted, Hyperstate, comms, return. First-slice scope and deferrals in it.

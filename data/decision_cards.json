@@ -421,16 +421,20 @@
      "difficulty": 4.0,
      "bands": {
       "great": {
-       "exposure": 2
+       "exposure": 15,
+       "relay_risk": 0.04
       },
       "fixed": {
-       "exposure": 2
+       "exposure": 15,
+       "relay_risk": 0.04
       },
       "unchanged": {
-       "exposure": 2
+       "exposure": 15,
+       "relay_risk": 0.04
       },
       "worse": {
-       "exposure": 2
+       "exposure": 15,
+       "relay_risk": 0.04
       }
      }
     },
