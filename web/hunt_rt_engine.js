@@ -1,7 +1,7 @@
 // Interdict hunt engine v4: REAL TIME with analyst reports. Time unit = game minutes (UI maps real seconds to game minutes).
 // Three analysts (thermal / reactor / occlusion) read contacts on their own schedule; the player directs attention, interprets, locks, tracks, fires.
 const HuntRT = (() => {
-  const P = { solveMin: 0.8, solveMax: 3.0, solveDen: 14, clutterR: 6, N: 8, nreal: 2, nlure: 3, arena: 40, base: 0.04, glowFocus: 0.015, glowTrack: 0.06, stages: 3, chase: 5, chasemult: 2.5, bait: 0.75, rescan: 5, engage: 1, missileSpeed: 8, alongStretch: 1.5, squeezeAfter: 8, squeezeRamp: 0.12, autoPeriod: 0.4, focusPeriod: 0.2, glowPell: 0.012, integrationPerMin: 0.8, sub: 0.05, secPerMin: 16, halfLife: 3, telegraph: 0.8, quietDur: 2.5, quietCd: 10, quietHaz: 0.2, quietCancel: 0.6, suggestShort: 0.72, tubes: 3, reload: 3, darkWindow: 6, darkHaz: 0.5, darkWarm: 4, wakeDur: 3, wakeGlow: 0.10, wpReach: 0.6, moveRate: 1.1, shipSpeed: 1.0, holdOff: 1.5, pingCd: 4, pingDur: 1.5, pingGlow: 0.14, pingBump: 0.45, pingBumpOther: 0.15, selfRadius: 2, selfDmg: 25, closeRange: 6, closeCd: 2, closeKill: 2.5, closeAcc: 0.85, closeGlow: 0.12, closeDur: 2, blastGlow: 0.08, blastDur: 1.5, nearGlow: 0.025, nearRange: 8, closeBump: 0.5, beamGlow: 0.08, beamDur: 1, beamCd: 2, beamBump: 0.35, driftMin: 6, driftMax: 12, shareReads: 2, pellFriction: 0.08 };
+  const P = { uncDen: 20, uncMin: 0.6, uncMax: 5, solveMin: 0.8, solveMax: 3.0, solveDen: 8, clutterR: 6, N: 8, nreal: 2, nlure: 3, arena: 40, base: 0.02, glowFocus: 0.010, glowTrack: 0.03, stages: 3, chase: 5, chasemult: 2.5, bait: 0.75, rescan: 5, engage: 1, missileSpeed: 8, alongStretch: 1.5, squeezeAfter: 14, squeezeRamp: 0.12, autoPeriod: 0.8, focusPeriod: 0.45, killR: 3.5, glowPell: 0.012, integrationPerMin: 0.8, sub: 0.05, secPerMin: 16, halfLife: 3, telegraph: 0.8, quietDur: 2.5, quietCd: 10, quietHaz: 0.2, quietCancel: 0.6, suggestShort: 0.72, tubes: 3, reload: 3, darkWindow: 6, darkHaz: 0.5, darkWarm: 4, wakeDur: 3, wakeGlow: 0.10, wpReach: 0.6, moveRate: 1.1, shipSpeed: 1.0, holdOff: 1.5, pingCd: 4, pingDur: 1.5, pingGlow: 0.14, pingBump: 0.45, pingBumpOther: 0.15, selfRadius: 2, selfDmg: 25, closeRange: 6, closeCd: 2, closeKill: 2.5, closeAcc: 0.85, closeGlow: 0.12, closeDur: 2, blastGlow: 0.08, blastDur: 1.5, nearGlow: 0.025, nearRange: 8, closeBump: 0.5, beamGlow: 0.08, beamDur: 1, beamCd: 2, beamBump: 0.35, driftMin: 6, driftMax: 12, shareReads: 2, pellFriction: 0.08 };
   const POSTURE = { still: { haz: 0.8, rate: 1.0, label: 'Stay still', tip: 'Hunter finds you at 0.8x speed. Analysts work at normal speed.' }, evade: { haz: 0.95, rate: 1.0, label: 'Evasive', tip: 'Weaving gives the analysts new angles to triangulate from, so they read about 10% faster, but the drive makes you about 20% louder than holding still.' }, orbit: { haz: 1.0, rate: 1.0, label: 'Circle', tip: 'Circle the contact at the current range. Angles change constantly, so the analysts triangulate faster, the drive makes noise.' }, route: { haz: 1.0, rate: 1.0, label: 'Flight plan', tip: 'The navigator is flying the plan you drew.' }, close: { haz: 1.0, rate: 1.0, label: 'Close on a contact', tip: 'Moving toward a contact: engine heat depends on your speed; the change of angle helps the analysts, and they read stronger as range drops.' }, separate: { haz: 1.0, rate: 1.0, label: 'Open distance', tip: 'Moving away from a contact: engine heat depends on your speed; the change of angle helps the analysts, but signals weaken with range.' } };
   const START = { dark: 3, standard: 5, fast: 11 };
   const SPEED = { creep: { label: 'Creep', v: 0.4, heat: 0.0, rate: 1.0, tip: 'Cold drive, 0.4 km per minute. Almost no engine heat.' }, cruise: { label: 'Cruise', v: 1.0, heat: 0.03, rate: 1.0, tip: '1 km per minute. Some engine heat.' }, burn: { label: 'Burn', v: 2.0, heat: 0.11, rate: 0.8, tip: '2 km per minute. Lots of engine heat and noisy sensors. The hunter can see a burn from a long way.' } };
@@ -25,7 +25,9 @@ const HuntRT = (() => {
     return { entry, route: (opts.route || []).map(p => ({ x: p.x, y: p.y })), routeI: 0, speed: opts.speed || 'cruise', orderId: null, pingCd: 0, pingUntil: 0, pingFx: [], hull: 100, blastUntil: 0, blastV: 0, cwCd: 0, hullWarned: false, friendly: !!opts.friendly, beamCd: 0, beamUntil: 0, fratricide: 0, r, seed, t: 0, stage: 0, an, tempo, posture: (opts.route && opts.route.length) ? 'route' : 'still', pell: false, integration: opts.integration ?? 0, thresholdsHit: {}, pellAct: false, analysts: ANALYSTS.map((a, i) => ({ ...a, task: null, next: 0.15 + 0.12 * i })), pellNext: 0.5, chase: null, pending: null, quietUntil: 0, quietCd: 0, volleys: [], tubes: Array(P.tubes).fill(0), rescanAt: null, log: [], beats: 0, over: null, disabled: 0, player: { x: start.x, y: start.y }, shots: 0, wrong: 0 };
   }
   function report(s, who, text, kind = 'info', urgent = false) { s.beats++; s.log.push({ t: s.t, who, text, kind, urgent }); }
-  function truePos(a, t) { const d = a.drift; if (d && t > d.t) { const b = { x: a.x0 + a.vx * d.t, y: a.y0 + a.vy * d.t }; return { x: b.x + d.vx * (t - d.t), y: b.y + d.vy * (t - d.t) }; } return { x: a.x0 + a.vx * t, y: a.y0 + a.vy * t }; }
+  const fold = v => { const lo = 1.5, hi = P.arena - 1.5, w = hi - lo; let u = (v - lo) % (2 * w); if (u < 0) u += 2 * w; return lo + (u > w ? 2 * w - u : u); };
+  function truePos(a, t) { const q = truePos0(a, t); return { x: fold(q.x), y: fold(q.y) }; }
+  function truePos0(a, t) { const d = a.drift; if (d && t > d.t) { const b = { x: a.x0 + a.vx * d.t, y: a.y0 + a.vy * d.t }; return { x: b.x + d.vx * (t - d.t), y: b.y + d.vy * (t - d.t) }; } return { x: a.x0 + a.vx * t, y: a.y0 + a.vy * t }; }
   function planPos(a, t) { return { x: a.x0 + a.vx * t, y: a.y0 + a.vy * t }; }
   function signal(s, a, ch) {
     const p = truePos(a, s.t), d = Math.hypot(p.x - s.player.x, p.y - s.player.y), rf = Math.min(1, 1.3 / (1 + (d / 30) ** 2));
@@ -64,15 +66,15 @@ const HuntRT = (() => {
   }
   const GRID = { none: [0, 0.6], light: [1, 0.6], heavy: [3, 0.7] };
   function intercept(a, cone) { const [ch, pk] = GRID[a.grid], win = 1 + Math.min(1, cone / 4); return Math.min(0.9, ch * win * pk / 4); }
-  function volleyFx(aim, cone, tx, ty, a, r, dir, pl) {   // 4 missiles: do any reach the target, and do any land on us
+  function volleyFx(aim, cone, tx, ty, a, r, dir, pl, offs) {   // 4 missiles: do any reach the target, and do any land on us
     const cd = Math.cos(dir), sd = Math.sin(dir), pi = intercept(a, cone); let hit = false, self = 0;
-    for (let k = 0; k < 4; k++) { const al = gauss(r) * cone * P.alongStretch, cr = gauss(r) * cone, ax = aim.x + al * cd - cr * sd, ay = aim.y + al * sd + cr * cd; if (Math.hypot(ax - tx, ay - ty) < 3 && r() >= pi) hit = true; if (pl && Math.hypot(ax - pl.x, ay - pl.y) < P.selfRadius) self++; }
+    for (let k = 0; k < 4; k++) { const o = offs ? offs[k] : [gauss(r), gauss(r)], al = o[0] * cone * P.alongStretch, cr = o[1] * cone, ax = aim.x + al * cd - cr * sd, ay = aim.y + al * sd + cr * cd; if (Math.hypot(ax - tx, ay - ty) < P.killR && r() >= pi) hit = true; if (pl && Math.hypot(ax - pl.x, ay - pl.y) < P.selfRadius) self++; }
     return { hit, self };
   }
   function selfRisk(s, a, L, cone, M = 400, r = Math.random) { const f = fanInfo(s, a, L); let any = 0, tot = 0; for (let i = 0; i < M; i++) { const fx = volleyFx(f.aim, cone, 1e9, 1e9, a, r, f.dir, s.player); if (fx.self) any++; tot += fx.self; } return { p: any / M, exp: tot / M, dist: Math.hypot(f.aim.x - s.player.x, f.aim.y - s.player.y) }; }
   function volleyHits(aim, cone, tx, ty, a, r, dir) {
     const cd = Math.cos(dir), sd = Math.sin(dir), pi = intercept(a, cone);
-    for (let k = 0; k < 4; k++) { const al = gauss(r) * cone * P.alongStretch, cr = gauss(r) * cone, ax = aim.x + al * cd - cr * sd, ay = aim.y + al * sd + cr * cd; if (Math.hypot(ax - tx, ay - ty) < 3 && r() >= pi) return true; }
+    for (let k = 0; k < 4; k++) { const al = gauss(r) * cone * P.alongStretch, cr = gauss(r) * cone, ax = aim.x + al * cd - cr * sd, ay = aim.y + al * sd + cr * cd; if (Math.hypot(ax - tx, ay - ty) < P.killR && r() >= pi) return true; }
     return false;
   }
   function hitProb(s, a, L, cone, M = 600, r = Math.random) {
@@ -107,7 +109,13 @@ const HuntRT = (() => {
     if (s.hull <= 0) { s.over = s.disabled ? 'breach' : 'breach0'; report(s, 'Abara', 'Hull is gone. Emergency breach, drive on whatever power is left.', 'danger', true); }
     else if (s.hull < 60 && !s.hullWarned) { s.hullWarned = true; report(s, 'Dace', 'Hull damage is fouling the sensor mounts. Everything reads slower now.', 'bad'); }
   }
-  function displayPos(s, a) { if (a.state === 'locked' && a.anchor) return estAt(a, s.t - a.anchor.t); const p = truePos(a, s.t); return { x: p.x + a.jit.x, y: p.y + a.jit.y }; }
+  function uncertainty(s, a) {   // how well we know where it is: grows as readings go stale, shrinks as evidence piles up
+    if (a.state === 'locked' && a.anchor) { const sp = spreadAt(a, Math.max(0.01, s.t - a.anchor.t)); const r = Math.max(P.uncMin, Math.min(P.uncMax, Math.max(sp.cross, sp.along * 0.6))); return { conf: 1 - (r - P.uncMin) / (P.uncMax - P.uncMin), r }; }
+    let c = 0; for (const ch of ['thermal', 'reactor', 'occlusion']) { const q = a.read[ch]; if (q && !q.blind && q.den > 0) c += q.den * Math.exp(-(s.t - q.t) * Math.LN2 / P.halfLife); }
+    const conf = Math.min(1, c / P.uncDen); return { conf, r: P.uncMin + (P.uncMax - P.uncMin) * Math.pow(1 - conf, 1.2) };
+  }
+  function displayPos(s, a) { if (a.state === 'locked' && a.anchor) return estAt(a, s.t - a.anchor.t); const p = truePos(a, s.t), u = uncertainty(s, a), m = Math.hypot(a.jit.x, a.jit.y) || 1; return { x: p.x + a.jit.x / m * 0.55 * u.r, y: p.y + a.jit.y / m * 0.55 * u.r }; }
+  function missilePos(s, v) { const f = Math.max(0, Math.min(1, (s.t - v.t0) / Math.max(0.01, v.at - v.t0))), cd = Math.cos(v.dir), sd = Math.sin(v.dir); return v.off.map(([ga, gc]) => { const al = ga * v.cone * P.alongStretch, cr = gc * v.cone, ex = v.aim.x + al * cd - cr * sd, ey = v.aim.y + al * sd + cr * cd; return { x: v.from.x + (ex - v.from.x) * f, y: v.from.y + (ey - v.from.y) * f }; }); }
   function moving(s) { return (s.orderId != null && ['close', 'separate', 'evade', 'orbit'].includes(s.posture)) || (s.posture === 'route' && s.routeI < s.route.length); }
   function engineHeat(s) { return (moving(s) ? SPEED[s.speed].heat : 0) + (s.entry === 'fast' && s.t < P.wakeDur ? P.wakeGlow : 0); }
   function setRoute(s, pts) { if (s.over) return false; s.route = pts.map(q => ({ x: Math.max(2, Math.min(38, q.x)), y: Math.max(2, Math.min(38, q.y)) })); s.routeI = 0; if (s.route.length) { s.posture = 'route'; s.orderId = null; s.orderUntil = null; report(s, 'Abara', `New flight plan, ${s.route.length} waypoint${s.route.length > 1 ? 's' : ''}.`, 'info'); } else { s.posture = 'still'; report(s, 'Abara', 'Flight plan cleared. Holding position.', 'info'); } return true; }
@@ -164,7 +172,7 @@ const HuntRT = (() => {
     if (!s.pending && s.r() < (P.base * s.tempo * mult + (s.t < s.beamUntil ? P.beamGlow : 0) + (s.t < s.blastUntil ? s.blastV : 0) + (s.t < s.pingUntil ? P.pingGlow : 0) + engineHeat(s) * (s.t < s.quietUntil ? 0 : 1) + nearHeat(s) + P.glowFocus * focusN * (quiet ? 0 : 1) + P.glowTrack * trackN * (quiet ? 0 : 1) + (s.pell ? P.glowPell : 0)) * h) { s.pending = { at: s.t + P.telegraph }; report(s, 'Dace', 'Hunter radar swept across our bearing. Something is coming. Go quiet if you want it to pass.', 'danger', true); pingBy(s); }
     if (s.pending && s.t >= s.pending.at) { s.pending = null; if (s.t < s.quietUntil && s.r() < P.quietCancel) report(s, 'Dace', 'They swept past us. Quiet paid off.', 'good'); else { bump(s); if (s.over) return; } }
     const friction = 1 - P.pellFriction * Math.max(0, Math.floor(s.integration / 25) - 1), rate = POSTURE[s.posture].rate * (s.entry === 'dark' && s.t < P.darkWarm ? 0.8 : 1) * (moving(s) || s.posture === 'evade' ? P.moveRate : 1) * (moving(s) ? SPEED[s.speed].rate : 1) * friction * (s.hull < 60 ? 0.85 : 1);
-    if (!quiet) for (const a of s.an) if (a.state === 'locked' && (a.solve || 0) < 1) { a.solve = Math.min(1, (a.solve || 0) + h / solveInfo(s, a).T); if (a.solve >= 1) report(s, 'Abara', `Firing solution on contact ${a.id + 1}. Ready when you are.`, 'good'); }
+    if (!quiet) for (const a of s.an) if (a.state === 'locked' && (a.solve || 0) < 1) { a.solve = Math.min(1, (a.solve || 0) + h / solveInfo(s, a).T); if (a.solve >= 1) { a.track = Math.max(a.track, 3); scan(s, a); report(s, 'Abara', `Firing solution on contact ${a.id + 1}. The track is tight. Ready when you are.`, 'good'); } }
     for (const w of s.analysts) {
       if (s.t < w.next) continue;
       if (quiet) { w.next = s.quietUntil; continue; }
@@ -184,7 +192,7 @@ const HuntRT = (() => {
     }
     if (s.chase && s.t >= s.chase.until) { const a = s.an[s.chase.id]; s.chase = null; a.state = 'out'; report(s, 'Abara', `Contact ${a.id + 1} was ${a.kind === 'lure' ? 'a lure' : 'static'}. Four minutes of fuel and nerve, gone.`, 'bad'); if (a.kind === 'lure' && s.r() < P.bait) { bump(s, 'It was bait. The hunter moved up.'); if (s.over) return; } }
     for (const v of s.volleys.filter(v => s.t >= v.at)) {
-      s.volleys.splice(s.volleys.indexOf(v), 1); const a = s.an[v.id], tp = truePos(a, v.at), fx = volleyFx(v.aim, v.cone, tp.x, tp.y, a, s.r, v.dir, s.player);
+      s.volleys.splice(s.volleys.indexOf(v), 1); const a = s.an[v.id], tp = truePos(a, v.at), fx = volleyFx(v.aim, v.cone, tp.x, tp.y, a, s.r, v.dir, s.player, v.off);
       if (Math.hypot(v.aim.x - s.player.x, v.aim.y - s.player.y) < P.nearRange) { s.blastUntil = Math.max(s.blastUntil, s.t + P.blastDur); s.blastV = P.blastGlow; }
       if (fx.self) { hullHit(s, fx.self); if (s.over) return; }
       if (a.state === 'disabled') { report(s, 'Abara', `Contact ${a.id + 1} was already dead when the volley arrived. Wasted missiles.`, 'bad'); continue; }
@@ -244,7 +252,7 @@ const HuntRT = (() => {
   function fire(s, id, L, cone) {
     const a = s.an[id]; if (s.over || a.state !== 'locked' || (a.solve || 0) < 1 || (a.kind === 'friend' && (a.idStatus === 'plan' || a.idStatus === 'confirmed'))) return false;
     const tb = s.tubes.findIndex(x => s.t >= x); if (tb < 0) return false; s.tubes[tb] = s.t + P.reload;
-    const f = fanInfo(s, a, L); s.shots++; s.volleys.push({ id, at: s.t + P.engage + f.tf, aim: f.aim, dir: f.dir, cone }); report(s, 'Abara', `Volley away on contact ${id + 1}. Impact in ${(P.engage + f.tf).toFixed(1)} minutes.`, 'info'); return true;
+    const f = fanInfo(s, a, L); s.shots++; s.volleys.push({ id, at: s.t + P.engage + f.tf, t0: s.t, from: { x: s.player.x, y: s.player.y }, off: [0, 1, 2, 3].map(() => [gauss(s.r), gauss(s.r)]), aim: f.aim, dir: f.dir, cone }); report(s, 'Abara', `Volley away on contact ${id + 1}. Impact in ${(P.engage + f.tf).toFixed(1)} minutes.`, 'info'); return true;
   }
   function closeInfo(s, a) { const tau = (s.t - a.anchor.t) + 0.1, est = estAt(a, tau); return { est, d: Math.hypot(est.x - s.player.x, est.y - s.player.y) }; }
   function fireClose(s, id) {   // coilgun: instant, ignores scatter grids, short range, loud
@@ -272,6 +280,6 @@ const HuntRT = (() => {
   function goQuiet(s) { if (s.over || s.t < s.quietCd) return false; s.quietUntil = s.t + P.quietDur; s.quietCd = s.t + P.quietCd; report(s, 'Abara', 'Going quiet. Sensors dark, nobody touches anything for three minutes.', 'info'); return true; }
   function retreat(s) { if (s.over) return; s.over = s.disabled ? 'breach' : 'breach0'; report(s, 'Abara', 'Breaking contact. Breach drive spinning up.', 'bad'); }
   function setPellAct(s, on) { s.pellAct = !!on && s.integration >= 75; }
-  return { setRoute, relBearing, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, hitProb, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, planPos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge };
+  return { uncertainty, missilePos, setRoute, relBearing, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, hitProb, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, planPos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge };
 })();
 if (typeof module !== 'undefined') module.exports = HuntRT;

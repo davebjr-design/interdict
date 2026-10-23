@@ -39,7 +39,7 @@ canvas{width:100%;max-width:100%;aspect-ratio:1/1;background:#050807;border:1px 
 .look{display:flex;gap:4px;flex-wrap:wrap;align-items:center}.look .lbl{margin-right:2px}
 .key{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.key div{border:1px solid var(--line);padding:6px;font-size:12px}.key b{display:block;font:700 13px var(--display);letter-spacing:.06em}
 details>summary{cursor:pointer;color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.14em}
-.xp{position:relative;height:14px;background:#0b1210;border:1px solid var(--line)}.xp s{position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--dim)}.xp i{position:absolute;left:0;top:0;bottom:0;background:var(--amber);transition:width .3s}.xp.hot i{background:var(--red)}.xp.dark i{background:var(--cyan)}
+.found{font-size:12px}.found b{color:var(--amber);font-size:15px}.xzone{display:grid;grid-template-columns:30% 30% 40%;font-size:9px;color:var(--dim);letter-spacing:.1em}.xp{background:linear-gradient(90deg,rgba(111,195,208,.18) 30%,rgba(255,180,84,.18) 30% 60%,rgba(255,107,90,.18) 60%)!important;position:relative;height:14px;background:#0b1210;border:1px solid var(--line)}.xp s{position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--dim)}.xp i{position:absolute;left:0;top:0;bottom:0;background:var(--amber);transition:width .3s}.xp.hot i{background:var(--red)}.xp.dark i{background:var(--cyan)}
 .xl{display:flex;flex-direction:column;gap:2px;font-size:12px;color:var(--dim)}.xl span b{color:var(--ink);font-weight:500}
 
 button{font:500 11px var(--mono);background:#16221e;color:var(--ink);border:1px solid var(--line);padding:4px 7px;cursor:pointer}
@@ -129,7 +129,7 @@ button.fire{background:var(--red);color:#fff;border-color:var(--red);padding:12p
 <div class="rail"><section class="panel"><h2>Ship status</h2>
 <div class="row"><span class="lbl">Stance</span><div class="seg" id="seg-post"></div></div><div class="help" id="posthelp" hidden></div>
 <div class="row"><span class="lbl">Speed</span><div class="seg" id="seg-spd"></div></div><div class="help" id="spdhelp" hidden></div><div class="help" id="ordtxt"></div>
-<div class="sub"><span class="lbl">Heat signature</span><div class="xp" id="xp"><s style="left:30%"></s><s style="left:60%"></s><i></i></div><div class="xl" id="xl"></div></div>
+<div class="sub"><span class="lbl">Heat signature</span><div id="found" class="found"></div><div class="xp" id="xp"><s style="left:30%"></s><s style="left:60%"></s><i></i></div><div class="xzone"><span>COLD</span><span>WARM</span><span>HOT</span></div><div class="xl" id="xl"></div></div>
 <div class="sub"><span class="lbl">Power draw</span><div id="pw"></div></div>
 <div class="sub"><span class="lbl">Hull and systems</span><div id="hl"></div></div>
 <div class="help" id="shiptxt"></div></section>
@@ -150,7 +150,7 @@ button.fire{background:var(--red);color:#fff;border-color:var(--red);padding:12p
 <div class="bgrid"><div class="bleft">
 <div class="sub"><span class="lbl">How do we arrive?</span><div id="b-entry" class="opts"></div></div>
 <div class="sub"><span class="lbl">Plan speed</span><div class="seg" id="b-speed"></div><div class="help" id="b-spdh"></div></div>
-<div class="sub"><span class="lbl">Pace of the hunt</span><div class="seg" id="b-pace"></div><div class="help">How many real seconds each game minute lasts.</div></div>
+<div class="sub"><span class="lbl">Game clock speed</span><div class="seg" id="b-pace"></div><div class="help">How fast game time runs. Relaxed gives you 24 real seconds per game minute: more time to read and think. Normal is 16. Brisk is 11. Everything scales with it.</div></div>
 <div class="sub"><label><input type="checkbox" id="b-ally" checked> An ally enters the system with us (flagged green, weapons safe)</label></div>
 </div><div class="bright"><span class="lbl">Flight plan: click the map to add waypoints, click a waypoint to remove it</span><canvas id="bmap" width="480" height="480"></canvas><div class="row"><button id="bundo">Undo</button><button id="bclear">Clear</button><span id="binfo" class="help"></span></div></div></div>
 <div class="row"><button class="go" id="begin">Begin hunt</button><span class="help">No plan means we hold still and you give orders from the contact menu.</span></div></div></div>
@@ -215,7 +215,7 @@ function build() {
   const ct = $('ct'); ct.innerHTML = '';
   S.an.forEach(a => {
     const d = document.createElement('div'); d.className = 'cr'; d.id = 'cr' + a.id;
-    d.innerHTML = `<div class="id">${a.id + 1}</div><div style="display:flex;flex-direction:column;gap:4px;min-width:0"><div class="top"><span class="chip" id="chip${a.id}"></span><span class="st" id="who${a.id}" style="grid-column:auto"></span></div><div class="bars">${['thermal', 'reactor', 'occlusion'].map(c => `<div class="bar" data-ch="${c}" title="${CH[c].tip}. Click to point ${E.ANALYSTS.find(w => w.ch === c).name} at this contact."><i id="b-${a.id}-${c}"></i><span id="bt-${a.id}-${c}"></span></div>`).join('')}</div><div class="btns" id="bn${a.id}"></div></div><div class="st" id="st${a.id}"></div>`;
+    d.innerHTML = `<div class="id">${a.id + 1}</div><div style="display:flex;flex-direction:column;gap:4px;min-width:0"><div class="top"><span class="chip" id="chip${a.id}"></span><span class="st" id="who${a.id}" style="grid-column:auto"></span></div><div class="bars">${['thermal', 'reactor', 'occlusion'].map(c => `<div class="bar" data-ch="${c}" title="${CH[c].tip}. Click to point ${E.ANALYSTS.find(w => w.ch === c).name} at this contact: faster, cleaner reads, but it adds about ${Math.round(P.glowFocus * 100)}% per minute to our found rate."><i id="b-${a.id}-${c}"></i><span id="bt-${a.id}-${c}"></span></div>`).join('')}</div><div class="btns" id="bn${a.id}"></div></div><div class="st" id="st${a.id}"></div>`;
     ct.append(d);
   });
   built = true;
@@ -265,6 +265,7 @@ function uiUpdate(force) {
     $('chip' + a.id).textContent = chip; $('who' + a.id).textContent = onTxt; $('st' + a.id).textContent = st; btnsFor(a);
   });
   const xp = E.exposure(S), sc = Math.min(100, xp.total / 0.2 * 100), hs = E.stealthState(S); $('stl').className = 'stl ' + hs; $('stli').style.width = Math.max(4, sc) + '%'; $('stlt').textContent = xp.quiet ? 'DARK' : hs.toUpperCase(); $('xp').querySelector('i').style.width = Math.max(3, sc) + '%'; $('xp').className = 'xp' + (xp.quiet ? ' dark' : sc > 60 ? ' hot' : '');
+  $('found').innerHTML = xp.quiet ? 'Sensors dark: <b>hardly findable</b>' : 'A hunter sweep finds us about <b>' + (xp.total * 100).toFixed(0) + '%</b> per game minute (' + hs + ')';
   $('xl').innerHTML = xp.quiet ? '<span><b>Running dark.</b> Nobody is working, so nothing is leaking.</span>' : xp.parts.map(p => `<span><b>${(p.v * 100).toFixed(0)}%</b> per min: ${p.label}</span>`).join('');
   const gauge = (l, v, col, txt) => `<div class="eg"><span>${l}</span><div class="bar"><i style="width:${Math.round(Math.max(0, Math.min(1, v)) * 100)}%;background:${col}"></i></div><span>${txt}</span></div>`;
   { const fN = S.analysts.filter(w => w.task != null).length, rl = S.tubes.filter(x => S.t < x).length, q = S.t < S.quietUntil;
@@ -341,9 +342,10 @@ function drawMap() {
   S.an.forEach((a, i) => {
     if (a.state === 'out') return; const fr = a.idStatus === 'plan', hs = a.idStatus === 'hostile', lk = a.state === 'locked' && a.anchor; let pos = fr ? E.truePos(a, S.t) : E.displayPos(S, a); const col = fr ? '#8fd694' : hs ? '#ff6b5a' : lk ? '#ffb454' : a.state === 'disabled' ? '#8fd694' : '#6fc3d0';
     if (lk) { const q = a.anchor; g.beginPath(); const L = [], R = []; for (let t = 0; t <= 8; t += 0.5) { const e = E.estAt(a, t), sp = E.spreadAt(a, t).cross; L.push([e.x - Math.sin(q.hdg) * sp, e.y + Math.cos(q.hdg) * sp]); R.push([e.x + Math.sin(q.hdg) * sp, e.y - Math.cos(q.hdg) * sp]); } L.concat(R.reverse()).forEach((q2, k) => k ? g.lineTo(px(q2[0]), py(q2[1])) : g.moveTo(px(q2[0]), py(q2[1]))); g.closePath(); g.fillStyle = 'rgba(255,180,84,.14)'; g.fill(); g.strokeStyle = 'rgba(255,180,84,.5)'; g.lineWidth = 1; g.stroke(); }
-    const den = ['thermal', 'reactor', 'occlusion'].reduce((m, ch) => m + (a.read[ch]?.den || 0), 0), blob = fr || lk ? 5 : Math.max(5, 20 - 2 * Math.min(7, den));
+    const den = ['thermal', 'reactor', 'occlusion'].reduce((m, ch) => m + (a.read[ch]?.den || 0), 0), blob = fr ? 5 : Math.max(5, E.uncertainty(S, a).r * K);
     g.fillStyle = col + '33'; g.beginPath(); g.arc(px(pos.x), py(pos.y), blob, 0, 7); g.fill(); g.strokeStyle = col; g.lineWidth = 1.5; g.beginPath(); g.arc(px(pos.x), py(pos.y), 5, 0, 7); g.stroke(); g.fillStyle = col; g.font = '700 12px IBM Plex Mono, monospace'; g.fillText((i + 1) + ' ' + (fr ? 'ALLY' : clsLabel(a) === '-' ? '' : clsLabel(a)), px(pos.x) + 9, py(pos.y) - 7);
   });
+  S.volleys.forEach(v => { E.missilePos(S, v).forEach(q => { g.fillStyle = '#ffe6b8'; g.beginPath(); g.arc(px(q.x), py(q.y), 3, 0, 7); g.fill(); }); g.strokeStyle = 'rgba(255,180,84,.5)'; g.setLineDash([3, 4]); g.save(); g.translate(px(v.aim.x), py(v.aim.y)); g.rotate(v.dir); g.beginPath(); g.ellipse(0, 0, v.cone * P.alongStretch * K * 1.6 + 2, v.cone * K * 1.6 + 2, 0, 0, 7); g.stroke(); g.restore(); g.setLineDash([]); });
   rotShip(g, px(S.player.x), py(S.player.y), S.hdg, '#6fc3d0', 1); g.fillStyle = '#cfe3da'; g.font = '11px IBM Plex Mono, monospace'; g.fillText('YOU', px(S.player.x) + 10, py(S.player.y) + 4);
   g.fillStyle = '#4a6a60'; g.fillText('breach exit: any edge', ox + sz - 140, oy + sz - 6);
   $('planedit').className = planEdit ? 'on' : ''; $('planedit').textContent = planEdit ? 'Done editing' : 'Edit flight plan'; $('strhelp').textContent = planEdit ? 'Click the map to add a waypoint. Click a waypoint to remove it.' : 'Dashed line is the flight plan. Contact positions are our best estimate, not the truth.';
@@ -429,6 +431,7 @@ function drawPlot(a, f) {
   g.strokeStyle = 'rgba(111,195,208,.9)'; g.beginPath(); g.arc(px(sg.aim.x), py(sg.aim.y), 6, 0, 7); g.stroke(); g.fillStyle = 'rgba(111,195,208,.9)'; g.font = '10px IBM Plex Mono, monospace'; g.fillText('Abara', px(sg.aim.x) + 9, py(sg.aim.y) + 4);
   g.save(); g.translate(px(f.aim.x), py(f.aim.y)); g.rotate(f.dir); [[1, .28], [2, .1]].forEach(([k, al], i) => { g.beginPath(); g.ellipse(0, 0, cone * P.alongStretch * k * K + 0.1, cone * k * K + 0.1, 0, 0, 7); g.fillStyle = `rgba(255,180,84,${al})`; g.fill(); g.strokeStyle = i ? 'rgba(255,180,84,.45)' : 'rgba(255,180,84,.9)'; g.setLineDash(i ? [4, 4] : []); g.stroke(); }); g.restore(); g.setLineDash([]);
   g.strokeStyle = '#ffb454'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(px(f.aim.x) - 7, py(f.aim.y)); g.lineTo(px(f.aim.x) + 7, py(f.aim.y)); g.moveTo(px(f.aim.x), py(f.aim.y) - 7); g.lineTo(px(f.aim.x), py(f.aim.y) + 7); g.stroke(); g.lineWidth = 1;
+  S.volleys.filter(v => v.id === a.id).forEach(v => { E.missilePos(S, v).forEach(q => { g.fillStyle = '#ffe6b8'; g.beginPath(); g.arc(px(q.x), py(q.y), 3, 0, 7); g.fill(); }); });
   rotShip(g, px(pl.x), py(pl.y), S.hdg, '#6fc3d0', 1); g.fillStyle = '#cfe3da'; g.fillText('YOU', px(pl.x) + 10, py(pl.y) + 22);
   g.strokeStyle = '#26302c'; g.lineWidth = 8; g.strokeRect(4, 4, w - 8, h - 8); $('scale').textContent = 'grid 2 km. One minute of target travel is ' + q.spd.toFixed(1) + ' km. Aim point ' + Math.hypot(f.aim.x - pl.x, f.aim.y - pl.y).toFixed(1) + ' km from us.';
 }
@@ -504,10 +507,11 @@ function draw() {
       cx.fillStyle = '#ffd9a0'; cx.font = '24px IBM Plex Mono, monospace'; cx.fillStyle = a.idStatus === 'hostile' ? '#ff6b5a' : '#ffd9a0'; { const lbT = i + 1 + (a.idStatus === 'hostile' ? ' HOSTILE' : ' WARSHIP'); cx.fillText(lbT, Math.min(px(q.x) + 8, cv.width - 6 - cx.measureText(lbT).width), px(q.y) - 8); } return;
     }
     if (a.state === 'disabled') { cx.fillStyle = 'rgba(143,214,148,.8)'; cx.fillRect(tp.x * k - 3, tp.y * k - 3, 6, 6); return; }
-    const jx = Math.sin(a.id * 7.1) * 24, jy = Math.cos(a.id * 3.7) * 24, x = tp.x * k + jx, y = tp.y * k + jy, den = ['thermal', 'reactor', 'occlusion'].reduce((m, c) => m + (a.read[c]?.den || 0), 0), unc = Math.max(9, 56 - 6 * Math.min(7, den));
+    const dp = E.displayPos(S, a), un = E.uncertainty(S, a), x = dp.x * k, y = dp.y * k, unc = Math.max(6, un.r * k);
     const th = a.read.thermal && a.read.thermal.num / a.read.thermal.den, col = a.idStatus === 'hostile' ? '255,107,90' : th > 0.65 ? '255,180,84' : '111,195,208', lit = Math.abs(((Math.atan2(y - PY, x - PX) - ang) % 6.283 + 6.283) % 6.283) < 0.25;
     cx.fillStyle = `rgba(${col},${lit ? .35 : .09})`; cx.beginPath(); cx.arc(x, y, unc, 0, 7); cx.fill(); cx.fillStyle = `rgba(${col},${lit ? 1 : .55})`; cx.fillRect(x - 2, y - 2, 4, 4); contactLabel(a, x, y, i);
   });
+  S.volleys.forEach(v => { const ms = E.missilePos(S, v); cx.strokeStyle = 'rgba(255,217,160,.3)'; cx.lineWidth = 1; ms.forEach(q => { cx.beginPath(); cx.moveTo(v.from.x * k, v.from.y * k); cx.lineTo(q.x * k, q.y * k); cx.stroke(); }); cx.fillStyle = '#ffe6b8'; ms.forEach(q => { cx.beginPath(); cx.arc(q.x * k, q.y * k, 4, 0, 7); cx.fill(); }); cx.strokeStyle = 'rgba(255,180,84,.5)'; cx.setLineDash([3, 4]); cx.save(); cx.translate(v.aim.x * k, v.aim.y * k); cx.rotate(v.dir); cx.beginPath(); cx.ellipse(0, 0, v.cone * P.alongStretch * k * 1.6 + 2, v.cone * k * 1.6 + 2, 0, 0, 7); cx.stroke(); cx.restore(); cx.setLineDash([]); });
   const xp = E.exposure(S), pulse = 0.5 + 0.5 * Math.sin(performance.now() / 400), rr = 16 + Math.min(1, xp.total / 0.2) * 60 + pulse * 4;
   cx.fillStyle = '#4a6a60'; cx.font = '18px IBM Plex Mono, monospace'; for (let r = 80; r < 460; r += 80) cx.fillText((r / k).toFixed(0) + ' km', PX + r + 3, PY - 3); cx.fillText('N', W / 2 + 4, 12);
   cx.strokeStyle = xp.quiet ? 'rgba(111,195,208,.5)' : `rgba(255,107,90,${0.35 + 0.4 * Math.min(1, xp.total / 0.2)})`; cx.lineWidth = 2; cx.beginPath(); cx.arc(PX, PY, xp.quiet ? 12 : rr, 0, 7); cx.stroke(); cx.lineWidth = 1;

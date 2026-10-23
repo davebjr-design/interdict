@@ -213,3 +213,12 @@ Revised (Dave): evade should speed analysis modestly at a modest stealth cost, b
 - Engine: locking starts a firing solution (`solveInfo`): time from 0.35 to 2.0 game min driven by sensor resolution (three channels), track age, clutter within 6 km, hull damage, Pell assist, paused while dark. Velocity and distance do not affect time. Fire refuses until ready. Target maneuvering is a planned factor (no maneuvering targets yet).
 - Ship heading (`S.hdg`) and `relBearing`; bearings in Target view are off our bow. `setRoute`, `orbit` order (2/4/8 min), orders can have a duration.
 - Design spec and Dave's decisions: docs/ui_layout.md.
+
+## Playtest round 1 fixes
+- Slower scanning (autoPeriod 0.8, focusPeriod 0.45), lower analyst/tracking heat (focus 0.010, track 0.030, base 0.02), solution tightens the track (hit chances were very low because the wedge was stale at solve time).
+- Contacts reflect off the arena edges (`fold`) instead of leaving.
+- Contact bubbles show uncertainty (`uncertainty`): grows as readings go stale, shrinks with evidence; displayed position jitter scales with it. Hot/cold contact behavior will hook into this later.
+- Missiles in flight are drawn on the scope, Strategic map and Target plot (`missilePos`, per-volley offsets so the drawn landing spots are the real ones).
+- Found-rate readout ("a sweep finds us about N% per game minute") and COLD/WARM/HOT zones on the heat bar; analyst bar tooltips state their heat cost.
+- Briefing: "Pace of the hunt" renamed "Game clock speed" with a real explanation.
+- Bot win rates after the tuning: about 36-40% (was 58%); reflects the slower scanning, to be judged by human playtest.
