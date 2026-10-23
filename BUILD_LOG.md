@@ -149,3 +149,9 @@ Read this first each session. Keep it to one page.
 ## Stage 2a: cone density (sim/cone_density.py)
 - Best cone width tracks the Fan width (sigma 1: s 0-1; sigma 2.5: s 2; sigma 5: s 3; sigma 9: s 5). Heavy grid forces a tight cone (s<=1) at every Fan size. Light grid shifts the optimum only slightly.
 - Weakness: heavy grid is a cliff (spread volleys score 0.00). Soften with windows = 1 + min(1, s/4).
+
+## Stage 2 critic result (cone, arrival, probe)
+- Cone: best width ~0.6 x Fan (cap 5 km). Heavy-grid cliff was a model artifact; softened (windows = 1 + min(1, s/4), intercept cap 0.9) in sim/cone_density.py so heavy grids slope instead of dropping to 0. Grid read is worth only ~1-2 points; to make it matter, make heavy grids bite tight volleys (channel-limited kills) - TODO.
+- Arrival: baseline postures flat (0.21-0.25) but 53% draws and a median 4-minute resolution. The escort squeeze (drift 1 km/min to center after minute 8, shot threshold relaxes 0.3 km/min) plus close buff cuts draws to 35%; CHOSEN variant (sim/hunt2d_squeeze.py): still 0.33 / evade 0.38 / close 0.27. Baseline sim/hunt2d.py kept. Note: my own first squeeze edit was wrong (and peeked at enemy position); replaced by the critic's.
+- Probe radius (sim/probe_radius.py): best radius ~1.2 x Fan; probing pays only when Fan >= 5; small-then-large escalation loses on exposure (good trap). Fix applied: probe never degrades the fix.
+- Playability asks: show ghost marks for recommended cone (0.6 x Fan) and probe radius (1.2 x Fan); expected-hit bar; give 'close' a purpose (faster re-fix after probe); forced beats (patron snap, vent warnings, probe-detected alert); minutes 1-4 of waiting while still is the boredom risk.
