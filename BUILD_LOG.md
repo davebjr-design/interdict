@@ -125,3 +125,8 @@ Read this first each session. Keep it to one page.
 - `sim/grid_clues.py`: a powered scatter grid adds flutter to the reactor channel. Class read accuracy at 4 min is 0.76; decoys and a quietly run grid cap it near 0.5.
 - FINDING: with a binary stack/spread choice, always-spread (0.58) beats acting on the read (0.55), because misreading a heavy grid as light is catastrophic (spread kill 0.03). Fix candidates: a hedge spacing that is never terrible, a displayed confidence band so the player hedges when unsure, and a heavy-grid read that is clearer (it radiates the most).
 - Open: choose the scanning mini game (see message to Dave); update Operating Rules doc once picked.
+
+## 2D two-sided hunt (sim/hunt2d.py)
+- Postures still/evade/close x probe habit never/blind/often, round robin, 40-minute cap. Win rates sit in a flat band (0.20-0.28) for eight of nine policies: no dominant posture. Pinging constantly while sitting still is clearly worst (0.12), as intended.
+- 53% of matches time out with no shot: hunts are too slow or too quiet. Tune: raise emission baseline, shrink the arena, or add a pressure clock (patron/escort arrives).
+- Next: arrival-choice card (stay still / evasion pattern / close on a point), cone density and probe radius as the dials, then the playable 2D text hunt.
