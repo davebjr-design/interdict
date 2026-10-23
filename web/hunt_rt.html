@@ -381,7 +381,7 @@ const HuntRT = (() => {
     return h;
   }
   function cripple(s, a) {   // returns true when the hunt just ended
-    a.state = 'disabled'; for (const w of s.analysts) if (w.task === a.id) w.task = null;
+    a.state = 'disabled'; a.vent = null; a.aware = false; for (const w of s.analysts) if (w.task === a.id) w.task = null;
     if (a.kind === 'friend') { s.fratricide++; report(s, 'Abara', `Contact ${a.id + 1} was OURS. We just crippled an ally. Nobody dies, but this will be remembered.`, 'danger', true); return false; }
     s.disabled++; report(s, 'Abara', `Contact ${a.id + 1} is hit. Drive flare gone, thermal bloom collapsing, neutrino line cut. It is drifting and no longer maneuvering. Nobody died.`, 'good', true);
     if (s.disabled >= P.nreal) { s.over = 'win'; return true; } return false;
@@ -866,7 +866,7 @@ function drawPlot(a, f) {
   g.strokeStyle = '#26302c'; g.lineWidth = 8; g.strokeRect(4, 4, w - 8, h - 8); $('scale').textContent = 'grid 4 km. One minute of target travel is ' + q.spd.toFixed(1) + ' km. Aim point ' + Math.hypot(f.aim.x - pl.x, f.aim.y - pl.y).toFixed(1) + ' km from us.';
 }
 function endScreen() {
-  if ($('over').hidden === false) return; const win = S.over === 'win', brk = S.over !== 'found' && !win; $('over').hidden = false; save(); try { savedInteg = S.integration; } catch (e) {}
+  if (S.endShown || briefing) return; S.endShown = true; const win = S.over === 'win', brk = S.over !== 'found' && !win; $('over').hidden = false; save(); try { savedInteg = S.integration; } catch (e) {}
   $('obox').innerHTML = `<h3>${win ? 'Both ships crippled' : brk ? 'Contact broken' : 'Contact lost'}</h3><div>${win ? 'Nobody died, the salvage is yours.' : (S.disabled ? 'Breach drive spins up. You get away with ' + S.disabled + ' of 2 ships crippled and the salvage you can carry.' : 'Breach drive spins up. You come home without a ship, but with a sensor log worth something.')} ${S.t.toFixed(1)} game minutes, ${S.beats} reports.</div><div class="help">Pell integration: ${Math.round(T0)}% to ${Math.round(S.integration)}%. It carries over to your next hunt.</div><div class="help">What was really out there:</div><div class="reveal">${S.an.map(a => `<span>${a.id + 1}: ${a.kind}${a.kind === 'real' ? '<br>' + a.load.name : ''}<br>grid ${a.grid}</span>`).join('')}</div><div class="row"><button class="go" id="again">Hunt again</button><button id="close">Look at the screen</button></div>`;
   $('again').onclick = () => start(); $('close').onclick = () => { $('over').hidden = true; };
 }

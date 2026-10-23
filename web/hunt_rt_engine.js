@@ -205,7 +205,7 @@ const HuntRT = (() => {
     return h;
   }
   function cripple(s, a) {   // returns true when the hunt just ended
-    a.state = 'disabled'; for (const w of s.analysts) if (w.task === a.id) w.task = null;
+    a.state = 'disabled'; a.vent = null; a.aware = false; for (const w of s.analysts) if (w.task === a.id) w.task = null;
     if (a.kind === 'friend') { s.fratricide++; report(s, 'Abara', `Contact ${a.id + 1} was OURS. We just crippled an ally. Nobody dies, but this will be remembered.`, 'danger', true); return false; }
     s.disabled++; report(s, 'Abara', `Contact ${a.id + 1} is hit. Drive flare gone, thermal bloom collapsing, neutrino line cut. It is drifting and no longer maneuvering. Nobody died.`, 'good', true);
     if (s.disabled >= P.nreal) { s.over = 'win'; return true; } return false;
