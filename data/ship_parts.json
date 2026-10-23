@@ -1,27 +1,166 @@
 {
- "base_power": 10,
+ "base_power": 14,
  "rules": {
-  "set_bonus": {"2": 0.05, "3": 0.10, "4": 0.15, "note": "parts sharing a maker (positive stats only)"},
-  "friction": {"per_extra_maker": 0.05, "per_extra_origin": 0.03, "note": "mismatched salvage: resistance cuts engine efficiency and adds parasitic heat"},
+  "set_bonus": {
+   "2": 0.1,
+   "3": 0.2,
+   "4": 0.3,
+   "note": "v2"
+  },
+  "friction": {
+   "per_extra_maker": 0.07,
+   "per_extra_origin": 0.04
+  },
   "overload_heat_per_power": 0.04,
-  "baseline_heat_per_friction": 25
+  "baseline_heat_per_friction": 60
  },
  "parts": {
-  "d_wisp":   {"slot": "drive",   "name": "Wisp drive",        "maker": "Orrin",  "origin": "recon",       "eff": 1.15, "thrust": 6,  "noise": 0.85, "draw": 2},
-  "d_maul":   {"slot": "drive",   "name": "Maul drive",        "maker": "Vask",   "origin": "battleship",  "eff": 0.90, "thrust": 11, "noise": 1.25, "draw": 6},
-  "d_plod":   {"slot": "drive",   "name": "Plod drive",        "maker": "Halden", "origin": "freighter",   "eff": 1.00, "thrust": 8,  "noise": 1.00, "draw": 3},
-  "d_anchor": {"slot": "drive",   "name": "Anchor thrusters",  "maker": "Halden", "origin": "station",     "eff": 0.80, "thrust": 4,  "noise": 0.70, "draw": 1},
-  "s_fin":    {"slot": "sink",    "name": "Fin radiator",      "maker": "Orrin",  "origin": "recon",       "cap": 0.85, "draw": 1},
-  "s_rad":    {"slot": "sink",    "name": "Bastion radiator",  "maker": "Vask",   "origin": "battleship",  "cap": 1.40, "draw": 4},
-  "s_coil":   {"slot": "sink",    "name": "Haul coil",         "maker": "Halden", "origin": "freighter",   "cap": 1.00, "draw": 2},
-  "s_res":    {"slot": "sink",    "name": "Reservoir",         "maker": "Halden", "origin": "station",     "cap": 1.55, "draw": 3},
-  "n_whisper":{"slot": "sensor",  "name": "Whisper array",     "maker": "Orrin",  "origin": "recon",       "track": 6, "draw": 1},
-  "n_fd":     {"slot": "sensor",  "name": "Fire director",     "maker": "Vask",   "origin": "battleship",  "track": 9, "draw": 4},
-  "n_plain":  {"slot": "sensor",  "name": "Cargo scanner",     "maker": "Halden", "origin": "freighter",   "track": 3, "draw": 1},
-  "n_array":  {"slot": "sensor",  "name": "Station array",     "maker": "Halden", "origin": "station",     "track": 8, "draw": 3},
-  "w_dart":   {"slot": "weapon",  "name": "Dart rack",         "maker": "Orrin",  "origin": "recon",       "kill": 0,  "exposure": -2, "draw": 1},
-  "w_lance":  {"slot": "weapon",  "name": "Lance battery",     "maker": "Vask",   "origin": "battleship",  "kill": 10, "exposure": 3,  "draw": 6},
-  "w_tube":   {"slot": "weapon",  "name": "Hauler tube",       "maker": "Halden", "origin": "freighter",   "kill": 4,  "exposure": 0,  "draw": 2},
-  "w_mount":  {"slot": "weapon",  "name": "Fixed station mount","maker": "Halden","origin": "station",     "kill": 7,  "exposure": 0,  "draw": 4}
+  "d_wisp": {
+   "slot": "drive",
+   "name": "Wisp drive",
+   "maker": "Orrin",
+   "origin": "recon",
+   "eff": 1.2,
+   "thrust": 7,
+   "noise": 0.75,
+   "draw": 2
+  },
+  "d_maul": {
+   "slot": "drive",
+   "name": "Maul drive",
+   "maker": "Vask",
+   "origin": "battleship",
+   "eff": 0.85,
+   "thrust": 12,
+   "noise": 1.4,
+   "draw": 7
+  },
+  "d_plod": {
+   "slot": "drive",
+   "name": "Plod drive",
+   "maker": "Halden",
+   "origin": "freighter",
+   "eff": 1.0,
+   "thrust": 8,
+   "noise": 1.0,
+   "draw": 3
+  },
+  "d_anchor": {
+   "slot": "drive",
+   "name": "Anchor thrusters",
+   "maker": "Halden",
+   "origin": "station",
+   "eff": 0.8,
+   "thrust": 4,
+   "noise": 0.5,
+   "draw": 1,
+   "creep": 0.5
+  },
+  "s_fin": {
+   "slot": "sink",
+   "name": "Fin radiator",
+   "maker": "Orrin",
+   "origin": "recon",
+   "cap": 0.85,
+   "draw": 1
+  },
+  "s_rad": {
+   "slot": "sink",
+   "name": "Bastion radiator",
+   "maker": "Vask",
+   "origin": "battleship",
+   "cap": 1.5,
+   "draw": 4
+  },
+  "s_coil": {
+   "slot": "sink",
+   "name": "Haul coil",
+   "maker": "Halden",
+   "origin": "freighter",
+   "cap": 1.0,
+   "draw": 2
+  },
+  "s_res": {
+   "slot": "sink",
+   "name": "Reservoir",
+   "maker": "Halden",
+   "origin": "station",
+   "cap": 1.55,
+   "draw": 3,
+   "coldplus": 14
+  },
+  "n_whisper": {
+   "slot": "sensor",
+   "name": "Whisper array",
+   "maker": "Orrin",
+   "origin": "recon",
+   "track": 6,
+   "draw": 1,
+   "warn": 0.95
+  },
+  "n_fd": {
+   "slot": "sensor",
+   "name": "Fire director",
+   "maker": "Vask",
+   "origin": "battleship",
+   "track": 11,
+   "draw": 5,
+   "warn": 0.35
+  },
+  "n_plain": {
+   "slot": "sensor",
+   "name": "Cargo scanner",
+   "maker": "Halden",
+   "origin": "freighter",
+   "track": 3,
+   "draw": 1,
+   "warn": 0.5
+  },
+  "n_array": {
+   "slot": "sensor",
+   "name": "Station array",
+   "maker": "Halden",
+   "origin": "station",
+   "track": 7,
+   "draw": 3,
+   "warn": 0.7
+  },
+  "w_dart": {
+   "slot": "weapon",
+   "name": "Dart rack",
+   "maker": "Orrin",
+   "origin": "recon",
+   "kill": -2,
+   "exposure": -6,
+   "draw": 1,
+   "unaware": 4
+  },
+  "w_lance": {
+   "slot": "weapon",
+   "name": "Lance battery",
+   "maker": "Vask",
+   "origin": "battleship",
+   "kill": 16,
+   "exposure": 5,
+   "draw": 7
+  },
+  "w_tube": {
+   "slot": "weapon",
+   "name": "Hauler tube",
+   "maker": "Halden",
+   "origin": "freighter",
+   "kill": 4,
+   "exposure": 0,
+   "draw": 2
+  },
+  "w_mount": {
+   "slot": "weapon",
+   "name": "Fixed station mount",
+   "maker": "Halden",
+   "origin": "station",
+   "kill": 6,
+   "exposure": 1,
+   "draw": 4
+  }
  }
 }
