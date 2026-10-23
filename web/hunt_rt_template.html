@@ -33,6 +33,7 @@ canvas{width:100%;max-width:100%;aspect-ratio:1/1;background:#050807;border:1px 
 .st{grid-column:1/-1;color:var(--dim);font-size:11px}
 .cr{grid-template-columns:1.6em minmax(0,1fr)!important}.cr .top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .stl{display:flex;align-items:center;gap:6px;border:1px solid var(--line);padding:2px 8px}.stl b{font:700 13px var(--display);letter-spacing:.1em;min-width:4em}.sg{width:70px;height:9px;background:#0b1210;border:1px solid var(--line);position:relative}.sg i{position:absolute;left:0;top:0;bottom:0;background:var(--cyan)}.stl.warm b{color:var(--amber)}.stl.warm .sg i{background:var(--amber)}.stl.hot{border-color:var(--red);background:rgba(255,107,90,.12)}.stl.hot b{color:var(--red)}.stl.hot .sg i{background:var(--red)}.stl.hot{animation:blink 1s steps(2) infinite}@keyframes blink{50%{background:rgba(255,107,90,.3)}}
+.cr.friend{border-color:var(--green)}.cr.friend .chip{color:var(--bg);background:var(--green);border-color:var(--green)}.cr.hostile{border-color:var(--red)}.cr.hostile .chip{color:var(--bg);background:var(--red);border-color:var(--red)}
 .chip{font:500 10px var(--mono);letter-spacing:.08em;padding:1px 6px;border:1px solid var(--line);color:var(--dim)}.cr.ready .chip{color:var(--bg);background:var(--cyan);border-color:var(--cyan)}.cr.locked .chip{color:var(--bg);background:var(--amber);border-color:var(--amber)}.cr.chasing .chip{color:var(--bg);background:var(--red);border-color:var(--red)}.cr.disabled .chip{color:var(--bg);background:var(--green);border-color:var(--green)}
 .bar{height:16px}.bar span{font-size:11px;top:0}
 .look{display:flex;gap:4px;flex-wrap:wrap;align-items:center}.look .lbl{margin-right:2px}
@@ -65,7 +66,7 @@ button:hover{border-color:var(--amber)}button:focus-visible{outline:2px solid va
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 <div class="wrap" id="wrap">
-<header><h1>Interdict // Bridge</h1><div class="hdr"><span id="clk">0:00</span><span class="stl" id="stl" title="How easy we are to hear. Cold: hard to find. Hot: anything listening can hear us. Active sensor work, tracking, Pell and an aggressive drive all add heat; Go quiet dumps it."><span class="lbl">Stealth</span><span class="sg"><i id="stli"></i></span><b id="stlt">COLD</b></span><span title="Each pip is a closing step by the hunter. The third is contact.">hunter</span><div class="pips" id="pips" title="Each pip is a closing step by the hunter. The third is contact."><div class="pip"></div><div class="pip"></div><div class="pip"></div></div><span id="warn" style="color:var(--red)"></span><button id="quiet" title="Sensors dark for 2.5 minutes: nobody works, hazard drops, and a sweep that arrives during it has a 60% chance to pass. Cooldown 10 minutes.">Go quiet</button><button id="pause">Pause</button><label><input type="checkbox" id="slow"> slow time</label><button id="brk" title="Calm option: Breach out now with whatever you have crippled.">Break contact</button><button id="manbtn">Field manual</button><button id="newh">New hunt</button></div></header>
+<header><h1>Interdict // Bridge</h1><div class="hdr"><span id="clk">0:00</span><span class="stl" id="stl" title="How easy we are to hear. Cold: hard to find. Hot: anything listening can hear us. Active sensor work, tracking, Pell and an aggressive drive all add heat; Go quiet dumps it."><span class="lbl">Stealth</span><span class="sg"><i id="stli"></i></span><b id="stlt">COLD</b></span><span title="Each pip is a closing step by the hunter. The third is contact.">hunter</span><div class="pips" id="pips" title="Each pip is a closing step by the hunter. The third is contact."><div class="pip"></div><div class="pip"></div><div class="pip"></div></div><span id="warn" style="color:var(--red)"></span><button id="quiet" title="Sensors dark for 2.5 minutes: nobody works, hazard drops, and a sweep that arrives during it has a 60% chance to pass. Cooldown 10 minutes.">Go quiet</button><button id="pause">Pause</button><label><input type="checkbox" id="slow"> slow time</label><button id="brk" title="Calm option: Breach out now with whatever you have crippled.">Break contact</button><button id="manbtn">Field manual</button><label title="An allied ship entered the system with us. It shows green from the start, weapons safe."><input type="checkbox" id="fr" checked> Ally</label><button id="newh">New hunt</button></div></header>
 <div class="top">
 <section class="panel radar"><h2>Radar <span class="lbl" id="rmode">passive</span></h2><canvas id="cv" width="640" height="640" aria-label="Radar display"></canvas><div class="help">You: cyan triangle. Red ring: how easy we are to find. Rings: 5 km.</div></section>
 <section class="panel"><h2>Contacts <span class="lbl">numbers match the radar</span></h2><div class="ct" id="ct"></div></section>
@@ -93,6 +94,7 @@ button:hover{border-color:var(--amber)}button:focus-visible{outline:2px solid va
 <div class="help"><b>Deciding.</b> Lock a contact when you believe it is real; a wrong lock costs five minutes and may be bait. Dismiss rules it out; dismissing a real ship costs you the ship. Nothing forces you to decide quickly except the hunter.</div>
 <div class="help"><b>Firing.</b> Once locked, a wedge fans out from the last scan along the ship's estimated path. Aim ahead along it, since missiles take time. Keep an analyst tracking to narrow it. A narrow cone concentrates fire; a wide one covers more but hits softer.</div>
 <div class="help"><b>Being found.</b> The Our ship panel shows what makes you easy to find. A warning counts down before each hunter step; Go quiet can make a sweep pass. Three steps and the hunter has you. Break contact is the calm way out.</div>
+<div class="help"><b>Friend or foe.</b> An ally that enters the system with you shows <b style="color:var(--green)">green</b> from the start, and your weapons will not fire on it. A ship that actively pings you is flagged <b style="color:var(--red)">red, hostile, 100%</b> at once, even if you had ruled it out. Everything else is only as certain as the odds on the radar say.</div>
 <div class="help"><b>Pell.</b> Always honest. He helps, and the more he helps the more integrated he becomes. That carries between hunts.</div>
 <div class="row"><button class="go" id="manclose">Close</button></div></div></div>
 <div class="over" id="pausebox" hidden><div class="box"><h3>Paused</h3><div class="help">The displays are blanked. Time is stopped. Press Esc or Resume.</div><div class="row"><button class="go" id="resume">Resume</button></div></div></div>
@@ -103,7 +105,7 @@ const E = HuntRT, P = E.P, $ = id => document.getElementById(id);
 let S, paused = false, engageId = null, cone = 2, aimL = null, built = false, feedN = 0, lastUi = 0, lastHp = 0, savedInteg = 0, T0 = 0;
 try { savedInteg = +localStorage.getItem('interdict_integration') || 0; } catch (e) {}
 function save() { try { localStorage.setItem('interdict_integration', String(Math.round(S.integration))); } catch (e) {} }
-function start() { S = E.newHunt(Math.floor(Math.random() * 1e9), { integration: savedInteg }); T0 = savedInteg; engageId = null; aimL = null; feedN = 0; $('feed').innerHTML = ''; $('over').hidden = true; $('pell').checked = false; build(); uiUpdate(true); }
+function start() { S = E.newHunt(Math.floor(Math.random() * 1e9), { integration: savedInteg, friendly: $('fr').checked }); T0 = savedInteg; engageId = null; aimL = null; feedN = 0; $('feed').innerHTML = ''; $('over').hidden = true; $('pell').checked = false; build(); uiUpdate(true); }
 function seg(host, items, cur, on) { host.innerHTML = ''; items.forEach(([v, text, tip]) => { const l = document.createElement('label'); const i = document.createElement('input'); i.type = 'radio'; i.name = host.id; i.checked = v === cur; i.onchange = () => on(v); const sp = document.createElement('span'); sp.textContent = text; l.title = tip || ''; l.append(i, sp); host.append(l); }); }
 const CH = { thermal: { n: 'Heat', col: '#ff8a4c', tip: 'Heat: how hot the contact runs (Dace)' }, reactor: { n: 'Reactor', col: '#6fc3d0', tip: 'Reactor: neutrino line (Castellan)' }, occlusion: { n: 'Eclipse', col: '#b79cff', tip: 'Eclipse: dark mass blocking starlight (Quill)' } };
 function build() {
@@ -118,10 +120,11 @@ function build() {
   built = true;
 }
 function btnsFor(a) {
-  const h = $('bn' + a.id), key = a.state + (S.integration >= 50 ? 'p' : '');
+  const h = $('bn' + a.id), key = a.state + (S.integration >= 50 ? 'p' : '') + (a.idStatus || '');
   if (h.dataset.key !== key) {
-    h.dataset.key = key; h.innerHTML = '';
+    h.dataset.key = key; h.innerHTML = ''; if (a.idStatus === 'plan') return;
     const mk = (t, title, fn, cls) => { const b = document.createElement('button'); b.textContent = t; b.title = title; if (cls) b.className = cls; b.onclick = fn; h.append(b); return b; };
+    if (a.idStatus === 'plan') return;
     if (a.state === 'open' || a.state === 'locked') { const lb = document.createElement('span'); lb.className = 'lbl'; lb.textContent = a.state === 'locked' ? 'Track:' : 'Study:'; h.append(lb); E.ANALYSTS.forEach(w => { const b = mk(w.name, (a.state === 'locked' ? 'Have ' + w.name + ' track it' : 'Have ' + w.name + ' study it') + ' (' + w.role + '). Click again to release.', () => E.assign(S, w.id, a.id)); b.dataset.w = w.id; b.style.borderBottom = '2px solid ' + CH[w.ch].col; }); }
     if (a.state === 'open') { mk('Lock', 'Rule it in as a real ship and go after it. A wrong call costs five minutes and may be bait.', () => E.lockContact(S, a.id), 'lk'); mk('Dismiss', 'Rule it out as decoy or static.', () => E.dismissContact(S, a.id)); }
     if (a.state === 'locked') mk('Engage', 'Plan a volley', () => { engageId = a.id; aimL = null; buildEngage(); });
@@ -141,7 +144,7 @@ function uiUpdate(force) {
       else if (q && q.den > 0) { const v = Math.max(0, q.num / q.den), w = E.cat(v); i.style.width = Math.max(2, Math.min(100, v * 100)) + '%'; i.style.opacity = 0.3 + 0.7 * ago(q); i.style.background = CH[c].col; t.textContent = nm + ' ' + (w === 'none' ? 'clear' : w); }
       else { i.style.width = '0'; t.textContent = nm + ' ?'; }
     });
-    const rdy = a.state === 'open' && E.advice(S, a).call !== 'unsure'; row.classList.toggle('ready', rdy);
+    const isF = a.idStatus === 'plan', isH = a.idStatus === 'hostile', rdy = !isF && !isH && a.state === 'open' && E.advice(S, a).call !== 'unsure'; row.classList.toggle('ready', rdy); row.classList.toggle('friend', isF); row.classList.toggle('hostile', isH); row.querySelector('.bars').style.display = isF ? 'none' : '';
     const on = S.analysts.filter(w => w.task === a.id).map(w => w.name), onTxt = on.length ? on.join(' and ') + (on.length > 1 ? ' are' : ' is') + ' on it. ' : '';
     const nread = ['thermal', 'reactor', 'occlusion'].reduce((m, c) => m + (a.read[c]?.den || 0), 0);
     let chip = { open: rdy ? 'READY TO CALL' : nread < 1 ? 'NOT READ YET' : 'UNRESOLVED', out: 'RULED OUT', chasing: 'CHASING', disabled: 'CRIPPLED', locked: 'LOCKED' }[a.state], st = '';
@@ -149,12 +152,15 @@ function uiUpdate(force) {
     if (a.state === 'locked' && a.anchor) { const age = S.t - a.anchor.t; st = 'Scan is ' + age.toFixed(1) + ' min old' + (age > 3 ? ' and going stale: the wedge is widening' : '') + '. Tracked ' + a.track.toFixed(1) + ' min; heading good to about ' + Math.round(a.anchor.hs * 57.3) + ' degrees. ' + (on.length ? '' : 'Put an analyst on it to tighten the wedge, or Engage.'); }
     if (a.state === 'chasing') st = 'We committed to this one. It resolves in a few minutes.';
     if (a.state === 'out') st = 'Set aside.'; if (a.state === 'disabled') st = 'Dead in space.';
-    if (a.state === 'open' && S.integration >= 50) { const ad = E.advice(S, a); if (ad.call !== 'unsure') st += ' Pell: ' + { junk: 'this is junk.', ship: 'this is a ship.', maybe: 'probably a ship (no eclipse reading).' }[ad.call]; }
-    if (a.state === 'open') { const c = E.classify(S, a); if (c.n >= 2) st = (c.p >= 0.5 ? 'Reads as ' + { real: 'a warship', lure: 'a decoy', ghost: 'static' }[c.best] + ' (' + Math.min(99, Math.round(c.p * 100)) + '%). ' : 'Unsure. ') + st; }
+    if (isH && a.state === 'open') { chip = 'HOSTILE 100%'; st = 'It pinged us, so it is confirmed hostile. Lock it and go after it.'; }
+    if (isH && a.state === 'locked') chip = 'LOCKED HOSTILE';
+    if (isF) { chip = 'FRIENDLY'; st = 'Arrived with us. Weapons safe.'; }
+    if (a.state === 'open' && !isF && !isH && S.integration >= 50) { const ad = E.advice(S, a); if (ad.call !== 'unsure') st += ' Pell: ' + { junk: 'this is junk.', ship: 'this is a ship.', maybe: 'probably a ship (no eclipse reading).' }[ad.call]; }
+    if (a.state === 'open' && !isF && !isH) { const c = E.classify(S, a); if (c.n >= 2) st = (c.p >= 0.5 ? 'Reads as ' + { real: 'a warship', lure: 'a decoy', ghost: 'static' }[c.best] + ' (' + Math.min(99, Math.round(c.p * 100)) + '%). ' : 'Unsure. ') + st; }
     if (a.flutter) st += ' Grid read: ' + a.flutter + '.';
     $('chip' + a.id).textContent = chip; $('who' + a.id).textContent = onTxt; $('st' + a.id).textContent = st; btnsFor(a);
   });
-  const xp = E.exposure(S), sc = Math.min(100, xp.total / 0.2 * 100), hs = E.stealthState(S); $('stl').className = 'stl ' + hs; $('stli').style.width = Math.max(4, sc) + '%'; $('stlt').textContent = xp.quiet ? 'DARK' : hs.toUpperCase(); $('xp').firstChild.style.width = Math.max(3, sc) + '%'; $('xp').className = 'xp' + (xp.quiet ? ' dark' : sc > 60 ? ' hot' : '');
+  const xp = E.exposure(S), sc = Math.min(100, xp.total / 0.2 * 100), hs = E.stealthState(S); $('stl').className = 'stl ' + hs; $('stli').style.width = Math.max(4, sc) + '%'; $('stlt').textContent = xp.quiet ? 'DARK' : hs.toUpperCase(); $('xp').querySelector('i').style.width = Math.max(3, sc) + '%'; $('xp').className = 'xp' + (xp.quiet ? ' dark' : sc > 60 ? ' hot' : '');
   $('xl').innerHTML = xp.quiet ? '<span><b>Running dark.</b> Nobody is working, so nothing is leaking.</span>' : xp.parts.map(p => `<span><b>${(p.v * 100).toFixed(0)}%</b> per min: ${p.label}</span>`).join('');
   const gauge = (l, v, col, txt) => `<div class="eg"><span>${l}</span><div class="bar"><i style="width:${Math.round(Math.max(0, Math.min(1, v)) * 100)}%;background:${col}"></i></div><span>${txt}</span></div>`;
   { const fN = S.analysts.filter(w => w.task != null).length, rl = S.tubes.filter(x => S.t < x).length, q = S.t < S.quietUntil;
@@ -219,6 +225,7 @@ function frame(now) {
 const KN = { real: ['WARSHIP', '#ffb454'], lure: ['DECOY', '#6fc3d0'], ghost: ['STATIC', '#8aa196'] }, CHC = { thermal: '#ff8a4c', reactor: '#6fc3d0', occlusion: '#b79cff' };
 function contactLabel(a, x, y, i) {   // starts as a bare number; each established channel adds a pip; the type guess and its odds come once two channels are in
   const c = E.classify(S, a); let tx = x + 8; const ty = y - 8; let label = String(i + 1), col = '#9fb7ac';
+  if (a.idStatus === 'hostile') { label += ' HOSTILE (100%)'; col = '#ff6b5a'; } else
   if (c.n >= 2) { if (c.p >= 0.5) { label += ' ' + KN[c.best][0] + ' (' + Math.min(99, Math.round(c.p * 100)) + '%)'; col = KN[c.best][1]; } else { label += ' ?'; col = '#cfe3da'; } }
   cx.font = '24px IBM Plex Mono, monospace'; if (tx + cx.measureText(label).width > cv.width - 6) tx = cv.width - 6 - cx.measureText(label).width; cx.fillStyle = col; cx.fillText(label, tx, ty);
   Object.keys(CHC).forEach((ch, j) => { const st = c.st[ch], px0 = tx + j * 14; cx.strokeStyle = '#3a4f47'; cx.strokeRect(px0, ty + 6, 10, 10); if (st === 'set' || st === 'thin') { cx.fillStyle = CHC[ch]; cx.globalAlpha = st === 'set' ? 1 : 0.4; cx.fillRect(px0, ty + 6, 10, 10); cx.globalAlpha = 1; } else if (st === 'blind') { cx.fillStyle = '#4a5a54'; cx.fillRect(px0 + 3, ty + 9, 4, 4); } });
@@ -229,6 +236,7 @@ function draw() {
   cx.beginPath(); cx.moveTo(W / 2, 0); cx.lineTo(W / 2, W); cx.moveTo(0, W / 2); cx.lineTo(W, W / 2); cx.stroke();
   ang += 0.03; cx.strokeStyle = 'rgba(255,180,84,.55)'; cx.beginPath(); cx.moveTo(W / 2, W / 2); cx.lineTo(W / 2 + Math.cos(ang) * W, W / 2 + Math.sin(ang) * W); cx.stroke();
   S.an.forEach((a, i) => {
+    if (a.idStatus === 'plan') { const tf = E.truePos(a, S.t), fx = tf.x * k, fy = tf.y * k, hd = Math.atan2(a.vy, a.vx); cx.strokeStyle = 'rgba(143,214,148,.5)'; cx.beginPath(); cx.moveTo(fx, fy); cx.lineTo(fx + Math.cos(hd) * 44, fy + Math.sin(hd) * 44); cx.stroke(); cx.fillStyle = '#8fd694'; cx.beginPath(); cx.moveTo(fx, fy - 9); cx.lineTo(fx + 9, fy); cx.lineTo(fx, fy + 9); cx.lineTo(fx - 9, fy); cx.closePath(); cx.fill(); cx.font = '24px IBM Plex Mono, monospace'; const lb = (i + 1) + ' FRIENDLY'; cx.fillText(lb, Math.min(fx + 12, cv.width - 6 - cx.measureText(lb).width), fy - 12); return; }
     if (a.state === 'out') return; const tp = E.truePos(a, S.t), px = x => x * k;
     if (a.state === 'locked' && a.anchor) {
       const q = a.anchor, dir = q.hdg, ca = Math.cos(dir), sa = Math.sin(dir), tauNow = S.t - q.t, fade = Math.max(0.25, 1 - 0.07 * tauNow);
@@ -239,11 +247,11 @@ function draw() {
       for (let m = 1; m <= 12; m++) { const t = E.estAt(a, m); cx.fillStyle = 'rgba(255,180,84,.5)'; cx.fillRect(px(t.x) - 1.5, px(t.y) - 1.5, 4, 4); }
       cx.fillStyle = '#ffb454'; cx.beginPath(); cx.arc(px(q.x), px(q.y), 4, 0, 7); cx.fill(); cx.strokeStyle = '#ffd9a0'; cx.beginPath(); cx.arc(px(cur.x), px(cur.y), 7, 0, 7); cx.stroke();
       if (engageId === a.id) { const f = E.fanInfo(S, a, aimL), ax = px(f.aim.x), ay = px(f.aim.y); cx.strokeStyle = '#6fc3d0'; cx.setLineDash([4, 4]); cx.beginPath(); cx.moveTo(W / 2, W / 2); cx.lineTo(ax, ay); cx.stroke(); cx.setLineDash([]); cx.save(); cx.translate(ax, ay); cx.rotate(f.dir); cx.beginPath(); cx.ellipse(0, 0, cone * P.alongStretch * k * 1.6 + 2, cone * k * 1.6 + 2, 0, 0, 7); cx.stroke(); cx.restore(); cx.fillStyle = '#6fc3d0'; cx.fillRect(ax - 3, ay - 3, 6, 6); }
-      cx.fillStyle = '#ffd9a0'; cx.font = '24px IBM Plex Mono, monospace'; cx.fillText(i + 1 + ' WARSHIP', px(q.x) + 8, px(q.y) - 8); return;
+      cx.fillStyle = '#ffd9a0'; cx.font = '24px IBM Plex Mono, monospace'; cx.fillStyle = a.idStatus === 'hostile' ? '#ff6b5a' : '#ffd9a0'; cx.fillText(i + 1 + (a.idStatus === 'hostile' ? ' HOSTILE' : ' WARSHIP'), px(q.x) + 8, px(q.y) - 8); return;
     }
     if (a.state === 'disabled') { cx.fillStyle = 'rgba(143,214,148,.8)'; cx.fillRect(tp.x * k - 3, tp.y * k - 3, 6, 6); return; }
     const jx = Math.sin(a.id * 7.1) * 24, jy = Math.cos(a.id * 3.7) * 24, x = tp.x * k + jx, y = tp.y * k + jy, den = ['thermal', 'reactor', 'occlusion'].reduce((m, c) => m + (a.read[c]?.den || 0), 0), unc = Math.max(9, 56 - 6 * Math.min(7, den));
-    const th = a.read.thermal && a.read.thermal.num / a.read.thermal.den, col = th > 0.65 ? '255,180,84' : '111,195,208', lit = Math.abs(((Math.atan2(y - W / 2, x - W / 2) - ang) % 6.283 + 6.283) % 6.283) < 0.25;
+    const th = a.read.thermal && a.read.thermal.num / a.read.thermal.den, col = a.idStatus === 'hostile' ? '255,107,90' : th > 0.65 ? '255,180,84' : '111,195,208', lit = Math.abs(((Math.atan2(y - W / 2, x - W / 2) - ang) % 6.283 + 6.283) % 6.283) < 0.25;
     cx.fillStyle = `rgba(${col},${lit ? .35 : .09})`; cx.beginPath(); cx.arc(x, y, unc, 0, 7); cx.fill(); cx.fillStyle = `rgba(${col},${lit ? 1 : .55})`; cx.fillRect(x - 2, y - 2, 4, 4); contactLabel(a, x, y, i);
   });
   const xp = E.exposure(S), pulse = 0.5 + 0.5 * Math.sin(performance.now() / 400), rr = 16 + Math.min(1, xp.total / 0.2) * 60 + pulse * 4;
