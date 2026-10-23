@@ -113,3 +113,9 @@ Read this first each session. Keep it to one page.
 - Dave: do NOT defer the salvage set bonuses / friction / parasitic heat; they are how the class system works for ships and will drive gameplay variety. Invent new terms but stay true to the mechanics so there is one operating rule set.
 - docs/glossary.md and the Core Mechanics: Sequences doc now carry the glossary and the ship classes (Needle, Hammer, Anchor, Hauler, Patchwork). Slice scope in the doc updated: the full kit system ships with the slice.
 - Critic 2's recommendation to cut parts to 2 makers / 8 parts was overruled by Dave. Mitigation: keep the 16-part, 3-maker table but build the kit rules once, data-driven.
+
+## Oct 22 (night) - Operating Rules v0.1
+- sim/rules.py: concrete numbers for afterlight/Fan, volleys, cold running/sump/bloom, movement (rotation time by mass), breach (plot time, error, knell, relay stages), comms (3 snaps per sortie). Doc: "Operating Rules v0.1".
+- Checked: Fan model reproduces the critic's single-missile curve (0.72/0.50/0.34/0.24 at 1/3/6/10 min).
+- Volley spacing flip needed a mechanism: spread volleys arrive staggered, giving the scatter grid up to two windows; stacked volleys arrive together. Result (n=4, age 3): no grid 0.49 stacked / 0.85 medium / 0.99 spread; 2 ch @0.8: 0.50/0.58/0.20; 3 ch @0.8: 0.51/0.31/0.03. A spectrum with a real flip. A stacked volley is immune to grid strength as long as n exceeds the grid's kills.
+- Open: how the player infers the target's grid from passive clues; whether the knell can be dampened; ammo counts and reloading.
