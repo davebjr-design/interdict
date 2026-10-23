@@ -229,3 +229,10 @@ Revised (Dave): evade should speed analysis modestly at a modest stealth cost, b
 - Contacts now maneuver (legs): patrol turns for everything except static, harder turns once aware, and they steer away from the edges (fold kept as a safety net). Aware warships (pinged us, felt our ping, or a volley landed within 8 km) fire back every ~4 min at where they predict we will be; incoming red missiles on scope/map with a countdown in the strip; 8% hull per missile hit; going quiet pauses their fire. Dodge by moving.
 - Scope zoom/pan (wheel, drag, +/-, Fit, Follow).
 - Bots after changes: about 57-62% (they do not dodge; hull loss mild).
+
+## Detection, heat sinks, bigger field (Oct 23)
+- Detection model built as proposed (docs/detection_model.md, "As built"): info-rate reads from signature x sensor x range, planets block, enemy knowledge of us with a three-step fix, aware ships hunt toward a believed position. Old hunter sweeps and the "found" loss are removed.
+- Heat sinks: stored heat only rises, vent (V) is the only way down and makes us 100 percent visible; forced vent at full. Same rules for enemies, who vent on their own schedule and light up when they do.
+- Six enemy loadouts, ours is the plain cutter. 80 km arena with two stars and one or two planets; speeds, ranges and weapon sizes scaled x2. Strategic map zoom/pan; dials rescaled.
+- Fixed: launch briefing markup (Begin button fell outside the box at 1366x768).
+- Bots (rtbot6, perfect identification, vent when safe): about 78 percent wins, mean hull 62 at the end, 0.9 vents per hunt. Humans will do worse; tune by feel.
