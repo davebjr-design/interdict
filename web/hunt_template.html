@@ -56,10 +56,10 @@ button[disabled]{opacity:.4;cursor:default}
 </style>
 <div class="wrap">
 <header><h1>Interdict // Hunt</h1><div class="clock"><span id="clk">minute 0</span><span>hunter</span><div class="pips" id="pips"><div class="pip"></div><div class="pip"></div><div class="pip"></div></div></div></header>
-<p class="help" id="intro">You are hunted while you hunt. Eight anomalies are out there: two real ships, some lures, some static. Study them, rule the real ones in, track them until the Fan is tight, then fire. Each pip is the hunter closing in; the third means contact. <b>Space</b> or <b>Enter</b> advances one minute.</p>
+<p class="help" id="intro">You are hunted while you hunt. Eight anomalies are out there: two real ships, some lures, some static. Study them, rule the real ones in, track them until the wedge is narrow, then aim your volley ahead of them along the path and fire. Each pip is the hunter closing in; the third means contact. <b>Space</b> or <b>Enter</b> advances one minute.</p>
 <div class="main">
 <section class="panel"><h2>Passive picture // placeholder radar</h2><canvas id="cv" width="640" height="640" aria-label="Radar display"></canvas>
-<div class="help">Smears are where contacts might be; wedges are the Fan of a locked ship and widen as the picture ages.</div></section>
+<div class="help">Smears are unresolved contacts. For a locked ship the wedge starts at the last scan and fans out along its estimated path; the brighter the shading, the more likely the ship is at that part of the path right now (ring = best guess). The dashed line and ellipse show your volley.</div></section>
 <section class="panel">
 <h2>Orders</h2>
 <div class="row"><span class="lbl">Posture</span><div class="seg" id="seg-post"></div></div>
@@ -78,7 +78,7 @@ button[disabled]{opacity:.4;cursor:default}
 <script>
 /*ENGINE*/
 const E = HuntEngine; const $ = id => document.getElementById(id);
-let S, sel, T = 2, posture = 'still', pellOn = false, engageId = null, cone = 3, ghostOn = true, logN = 0, jit;
+let S, sel, T = 2, posture = 'still', pellOn = false, engageId = null, cone = 2, aimL = null, ghostOn = true, logN = 0, jit;
 function start(seed) { S = E.newHunt(seed || Math.floor(Math.random() * 1e9)); sel = { study: new Set(), probe: null }; engageId = null; logN = 0; $('log').innerHTML = ''; jit = S.an.map(() => ({ dx: (Math.random() - .5), dy: (Math.random() - .5) })); $('over').hidden = true; render(); }
 function seg(host, items, cur, on, tips) { host.innerHTML = ''; items.forEach(([v, text]) => { const l = document.createElement('label'); const i = document.createElement('input'); i.type = 'radio'; i.name = host.id; i.checked = String(v) === String(cur); i.onchange = () => on(v); const sp = document.createElement('span'); sp.textContent = text; l.append(i, sp); if (tips && tips[v]) l.title = tips[v]; host.append(l); }); }
 function slotsMax() { return 2 + (pellOn ? 1 : 0); }
@@ -96,7 +96,7 @@ function render() {
     const pct = v => 50 + 50 * Math.max(-1, Math.min(1, v / Tm)); const w = Math.abs(pct(a.ev) - 50);
     const lean = a.ev > 0.6 ? 'leans ship' : a.ev < -0.6 ? 'leans junk' : 'unclear';
     const fl = a.flutter ? ` | grid read: ${a.flutter}?` : '';
-    d.innerHTML = `<div class="id">${a.id + 1}</div><div><div class="meter"><i style="left:${a.ev >= 0 ? 50 : 50 - w}%;width:${w}%;background:${a.ev >= 0 ? 'var(--amber)' : 'var(--cyan)'}"></i><s style="left:${pct(-T)}%"></s><s style="left:${pct(T)}%"></s><b style="left:${pct(a.ev)}%"></b></div><div class="tag">${({open:lean,out:'ruled out',locked:'LOCKED, Fan ' + E.sigmaFor(a).toFixed(1) + ' km, tracked ' + a.track + ' min',disabled:'crippled'})[a.state]}${fl}</div></div><div class="row"></div>`;
+    d.innerHTML = `<div class="id">${a.id + 1}</div><div><div class="meter"><i style="left:${a.ev >= 0 ? 50 : 50 - w}%;width:${w}%;background:${a.ev >= 0 ? 'var(--amber)' : 'var(--cyan)'}"></i><s style="left:${pct(-T)}%"></s><s style="left:${pct(T)}%"></s><b style="left:${pct(a.ev)}%"></b></div><div class="tag">${a.state === 'locked' ? 'LOCKED: heading good to ' + Math.round(a.anchor.hs * 57.3) + ' deg, scan ' + (S.t - a.anchor.t) + ' min old, tracked ' + a.track + ' min' : ({open:lean,out:'ruled out',disabled:'crippled'})[a.state]}${fl}</div></div><div class="row"></div>`;
     const r = d.lastChild;
     if (a.state === 'open' || a.state === 'locked') {
       const b = document.createElement('button'); b.textContent = a.state === 'locked' ? 'Track' : 'Study'; b.className = sel.study.has(a.id) ? 'on' : ''; b.onclick = () => { sel.study.has(a.id) ? sel.study.delete(a.id) : sel.study.size < slotsMax() && sel.study.add(a.id); render(); }; r.append(b);
@@ -107,12 +107,17 @@ function render() {
   });
   const en = $('engage'); const a = engageId != null ? S.an[engageId] : null;
   if (a && a.state === 'locked' && !S.over) {
-    const sg = E.sigmaFor(a); en.hidden = false;
-    en.innerHTML = `<h2>Volley on contact ${a.id + 1}</h2><div>Fan about <b>${sg.toFixed(1)} km</b>. Grid read: <b>${a.flutter || 'no read yet'}</b>${a.flutter ? ' (about three times in four right)' : ''}. A wide cone covers more of the Fan but each missile is less likely to be near; a tight cone concentrates and risks a total miss. A heavy scatter grid shreds volleys fastest, so against one you need a tighter Fan before you fire.</div><div>Estimated hit chance at this cone: <b id="hp">...</b></div><div class="slider"><span class="ghost" id="gh" style="left:${Math.min(5, .6 * sg) / 8 * 100}%" ${ghostOn ? '' : 'hidden'}>Abara suggests</span><input type="range" id="cone" min="0" max="8" step="0.5" value="${cone}"></div><div class="row"><span id="conev">cone ${cone} km</span><label class="lbl"><input type="checkbox" id="gon" ${ghostOn ? 'checked' : ''}> show suggestion</label><button class="go" id="fire">Fire volley (2 min)</button></div>`;
-    const upd = () => { $('hp').textContent = Math.round(100 * E.hitProb(a, cone, 600)) + '% (assuming your grid read is right)'; }; upd();
-    $('cone').oninput = e => { cone = +e.target.value; $('conev').textContent = 'cone ' + cone + ' km'; upd(); };
+    en.hidden = false; const f = E.fanInfo(S, a, aimL), best = E.fanInfo(S, a).bestL; if (aimL == null) f.L = best;
+    en.innerHTML = `<h2>Volley on contact ${a.id + 1}</h2><div>The wedge starts at the last scan and fans out along the estimated path: narrow where we saw it, wider the farther and later it goes. Missiles take about <b>${f.tf.toFixed(1)} min</b> to arrive, so aim <b>ahead</b> of where it is now. At the aim point the path is uncertain by about <b>${f.cross.toFixed(1)} km</b> across and <b>${f.along.toFixed(1)} km</b> along. Grid read: <b>${a.flutter || 'none yet'}</b>${a.flutter ? ' (about three times in four right)' : ''}. A heavy scatter grid shreds volleys, so against one you need a tight wedge before you fire.</div>
+    <div>Aim along the path: <b id="aiml">${f.L.toFixed(1)} km</b> from the last scan <label class="lbl"><input type="checkbox" id="auto" ${aimL == null ? 'checked' : ''}> follow suggestion</label></div><div class="slider"><span class="ghost" id="gh" style="left:${Math.min(40, best) / 40 * 100}%" ${ghostOn ? '' : 'hidden'}>Abara suggests</span><input type="range" id="aim" min="0" max="40" step="0.5" value="${f.L}"></div>
+    <div>Cone width (spread of the missiles): <b id="conev">${cone} km</b> <span class="tag">about half the wedge width works well</span></div><div class="slider"><input type="range" id="cone" min="0" max="8" step="0.5" value="${cone}"></div>
+    <div>Estimated hit chance: <b id="hp">...</b></div><div class="row"><label class="lbl"><input type="checkbox" id="gon" ${ghostOn ? 'checked' : ''}> show suggestion</label><button class="go" id="fire">Fire volley (2 min)</button></div>`;
+    const upd = () => { const cur = aimL == null ? null : aimL; $('hp').textContent = Math.round(100 * E.hitProb(S, a, cur, cone, 600)) + '% (if your grid read is right)'; $('aiml').textContent = E.fanInfo(S, a, cur).L.toFixed(1) + ' km'; }; upd();
+    $('aim').oninput = e => { aimL = +e.target.value; $('auto').checked = false; upd(); };
+    $('auto').onchange = e => { if (e.target.checked) { aimL = null; render(); } };
+    $('cone').oninput = e => { cone = +e.target.value; $('conev').textContent = cone + ' km'; upd(); };
     $('gon').onchange = e => { ghostOn = e.target.checked; $('gh').hidden = !ghostOn; };
-    $('fire').onclick = () => { E.fire(S, a.id, cone); afterTurn(); };
+    $('fire').onclick = () => { E.fire(S, a.id, aimL, cone); aimL = null; afterTurn(); };
   } else { en.hidden = true; en.innerHTML = ''; }
   $('pell').checked = pellOn; $('adv').disabled = !!S.over; $('brk').disabled = !!S.over;
   while (logN < S.log.length) { const l = S.log[logN++]; const d = document.createElement('div'); d.className = l.kind; d.innerHTML = `<time>m${l.t}</time>`; d.append(document.createTextNode(l.text)); $('log').prepend(d); }
@@ -135,14 +140,29 @@ function frame() {
   cx.beginPath(); cx.moveTo(W / 2, 0); cx.lineTo(W / 2, W); cx.moveTo(0, W / 2); cx.lineTo(W, W / 2); cx.stroke();
   ang += 0.03; cx.strokeStyle = 'rgba(255,180,84,.55)'; cx.beginPath(); cx.moveTo(W / 2, W / 2); cx.lineTo(W / 2 + Math.cos(ang) * W, W / 2 + Math.sin(ang) * W); cx.stroke();
   S.an.forEach((a, i) => {
-    if (a.state === 'out') return; const px = a.x * k + jit[i].dx * 30, py = a.y * k + jit[i].dy * 30;
-    const unc = Math.max(8, (a.state === 'locked' ? E.sigmaFor(a) * 3 + a.age * 3 : 60 - 14 * Math.min(3, Math.abs(a.ev))) * 0.9);
-    const hit = Math.abs(((Math.atan2(py - W / 2, px - W / 2) - ang) % 6.283 + 6.283) % 6.283) < 0.25;
-    const col = a.state === 'disabled' ? '143,214,148' : a.state === 'locked' ? '255,180,84' : (a.ev > 0.6 ? '255,180,84' : '111,195,208');
+    if (a.state === 'out') return; const tp = E.truePos(a, S.t);
+    if (a.state === 'locked' && a.anchor) {
+      const q = a.anchor, dir = q.hdg, ca = Math.cos(dir), sa = Math.sin(dir), tauNow = S.t - q.t, fade = Math.max(0.25, 1 - 0.07 * tauNow), px = x => x * k;
+      const cur = E.estAt(a, tauNow), spNow = E.spreadAt(a, Math.max(tauNow, 0.01)), sig = Math.max(0.6, spNow.along / q.spd);   // minutes of along-path uncertainty
+      for (let tau = 0; tau < 12; tau += 0.25) {   // the wedge, one slice per quarter minute, shaded by how likely the ship is to be at that stage of the path now
+        const e1 = E.estAt(a, tau), e2 = E.estAt(a, tau + 0.25), w1 = E.spreadAt(a, tau).cross, w2 = E.spreadAt(a, tau + 0.25).cross;
+        const prog = Math.exp(-0.5 * Math.pow((tau + 0.125 - tauNow) / sig, 2)), al = (0.05 + 0.5 * prog) * fade;
+        cx.fillStyle = `rgba(255,180,84,${al})`; cx.beginPath();
+        cx.moveTo(px(e1.x - sa * w1), px(e1.y + ca * w1)); cx.lineTo(px(e2.x - sa * w2), px(e2.y + ca * w2)); cx.lineTo(px(e2.x + sa * w2), px(e2.y - ca * w2)); cx.lineTo(px(e1.x + sa * w1), px(e1.y - ca * w1)); cx.closePath(); cx.fill();
+      }
+      cx.strokeStyle = `rgba(255,180,84,${0.5 * fade})`; cx.beginPath(); cx.moveTo(px(q.x), px(q.y)); const far = E.estAt(a, 12); cx.lineTo(px(far.x), px(far.y)); cx.stroke();
+      for (let m = 1; m <= 12; m++) { const t = E.estAt(a, m); cx.fillStyle = 'rgba(255,180,84,.5)'; cx.fillRect(px(t.x) - 1, px(t.y) - 1, 3, 3); }
+      cx.fillStyle = '#ffb454'; cx.beginPath(); cx.arc(px(q.x), px(q.y), 4, 0, 7); cx.fill();                                   // last scan
+      cx.strokeStyle = '#ffd9a0'; cx.beginPath(); cx.arc(px(cur.x), px(cur.y), 7, 0, 7); cx.stroke();                            // most likely position now
+      if (engageId === a.id) { const f = E.fanInfo(S, a, aimL), ax = px(f.aim.x), ay = px(f.aim.y); cx.strokeStyle = '#6fc3d0'; cx.setLineDash([4, 4]); cx.beginPath(); cx.moveTo(W / 2, W / 2); cx.lineTo(ax, ay); cx.stroke(); cx.setLineDash([]);
+        cx.save(); cx.translate(ax, ay); cx.rotate(f.dir); cx.beginPath(); cx.ellipse(0, 0, cone * E.P.alongStretch * k * 1.6 + 2, cone * k * 1.6 + 2, 0, 0, 7); cx.stroke(); cx.restore(); cx.fillStyle = '#6fc3d0'; cx.fillRect(ax - 3, ay - 3, 6, 6); }
+      cx.fillStyle = '#ffd9a0'; cx.font = '14px IBM Plex Mono, monospace'; cx.fillText(String(i + 1), px(q.x) + 8, px(q.y) - 8); return;
+    }
+    if (a.state === 'disabled') { cx.fillStyle = 'rgba(143,214,148,.8)'; cx.fillRect(tp.x * k - 3, tp.y * k - 3, 6, 6); return; }
+    const px = tp.x * k + jit[i].dx * 30, py = tp.y * k + jit[i].dy * 30, unc = Math.max(8, (60 - 14 * Math.min(3, Math.abs(a.ev))) * 0.9);
+    const hit = Math.abs(((Math.atan2(py - W / 2, px - W / 2) - ang) % 6.283 + 6.283) % 6.283) < 0.25, col = a.ev > 0.6 ? '255,180,84' : '111,195,208';
     cx.fillStyle = `rgba(${col},${hit ? .35 : .08})`; cx.beginPath(); cx.arc(px, py, unc, 0, 7); cx.fill();
-    cx.fillStyle = `rgba(${col},${hit ? 1 : .55})`; cx.fillRect(px - 2, py - 2, 4, 4);
-    if (a.state === 'locked') { cx.strokeStyle = `rgba(${col},${Math.max(.15, .8 - a.age * .08)})`; const dir = Math.atan2(py - W / 2, px - W / 2), wd = Math.max(.04, unc / Math.hypot(px - W / 2, py - W / 2)); cx.beginPath(); cx.moveTo(W / 2, W / 2); cx.lineTo(W / 2 + Math.cos(dir - wd) * 2000, W / 2 + Math.sin(dir - wd) * 2000); cx.moveTo(W / 2, W / 2); cx.lineTo(W / 2 + Math.cos(dir + wd) * 2000, W / 2 + Math.sin(dir + wd) * 2000); cx.stroke(); }
-    cx.fillStyle = '#9fb7ac'; cx.font = '14px IBM Plex Mono, monospace'; cx.fillText(String(i + 1), px + 6, py - 6);
+    cx.fillStyle = `rgba(${col},${hit ? 1 : .55})`; cx.fillRect(px - 2, py - 2, 4, 4); cx.fillStyle = '#9fb7ac'; cx.font = '14px IBM Plex Mono, monospace'; cx.fillText(String(i + 1), px + 6, py - 6);
   });
   cx.fillStyle = '#6fc3d0'; cx.fillRect(W / 2 - 3, W / 2 - 3, 6, 6);
   requestAnimationFrame(frame);
