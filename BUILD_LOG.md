@@ -237,3 +237,7 @@ Revised (Dave): evade should speed analysis modestly at a modest stealth cost, b
 - Fixed: launch briefing markup (Begin button fell outside the box at 1366x768).
 - Bots (rtbot6, perfect identification, vent when safe): about 78 percent wins, mean hull 62 at the end, 0.9 vents per hunt. Humans will do worse; tune by feel.
 - Bug check: engine fuzz (300 seeds, random actions, NaN/range/planet checks) and browser fuzz (3 window sizes, random keys, menus, map zoom/drag/plan edit) are clean. Fixed: end screen reappearing over the briefing and over "Look at the screen" (now shown once per hunt); crippled ships kept a venting blaze (now cleared). Concept doc rev 47 has a "Hunt prototype as built" section; sim/rules.py (Operating Rules v0.1) still describes the old Fan and is superseded by docs/detection_model.md.
+
+## Map symbols and derelicts (Oct 23)
+- Eight SVG symbols (tools/make_symbols.py): destroyer, cruiser, battleship, base, outpost, debris field, derelict, anomaly. Contacts earn a symbol at 80 percent odds, class once readings are thick; crippled ships become derelicts with a salvage value (looting rule is a proposal in docs/derelicts_and_symbols.md). Symbol key in the manual.
+- Fixed: venting was counted as heat fill, so the sink never drained; the sink panel now shows the net rate. Stray literal "\n" in the manual.
