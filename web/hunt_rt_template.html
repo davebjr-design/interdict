@@ -140,7 +140,7 @@ button.fire{background:var(--red);color:#fff;border-color:var(--red);padding:12p
 <section class="panel grow"><h2>Reports</h2><div class="feed" id="feed"></div></section></div>
 </section>
 <section class="view" id="v-str">
-<section class="panel"><h2>Arena <span class="lbl">your plan, your trail, what we think is where</span> <button id="planedit" title="Click the map to add waypoints; click a waypoint to remove it">Edit flight plan</button> <span class="zb"><button id="mzin" title="Zoom in">+</button><button id="mzout" title="Zoom out">-</button><button id="mzfit" title="Show the whole arena">Fit</button></span></h2><div class="mapbox" id="mapbox"><canvas id="map"></canvas></div></section>
+<section class="panel"><h2>Arena <span class="lbl">your plan, your trail, what we think is where</span> <button id="planedit" title="Click the map to add waypoints; right-click anywhere on the scope or map to go somewhere; click a waypoint to remove it">Edit flight plan</button> <span class="zb"><button id="mzin" title="Zoom in">+</button><button id="mzout" title="Zoom out">-</button><button id="mzfit" title="Show the whole arena">Fit</button></span></h2><div class="mapbox" id="mapbox"><canvas id="map"></canvas></div></section>
 <section class="panel"><h2>Contact ledger</h2><table id="ledger"></table><div class="help" id="strhelp"></div></section>
 <section class="panel tl"><h2>Timeline</h2><div class="mapbox" id="tlbox"><canvas id="tl"></canvas></div></section>
 </section>
@@ -496,6 +496,18 @@ function openMenu(id, mx, my) {
     if (k === 'close' || k === 'separate' || k === 'evade') E.setOrder(S, k, id); else if (k === 'orbit') E.setOrder(S, 'orbit', id, +b.dataset.m); else if (k === 'ping') E.pingContact(S, id);
     else if (k === 'target') { if (a.state === 'open') E.lockContact(S, id); else if (a.state === 'locked') openTarget(id); } };
 }
+function navMenu(wx, wy, mx, my) {
+  if (!S || S.over) return; const m = $('cmenu'), pl = S.player, d = Math.hypot(wx - pl.x, wy - pl.y), ok = wx >= 0 && wx <= P.arena && wy >= 0 && wy <= P.arena, hasPlan = S.posture === 'route' && S.routeI < S.route.length;
+  const eta = k => fmtMin(d / E.SPEED[k].v), pt = { x: wx, y: wy };
+  const sp = Object.entries(E.SPEED).map(([k, v]) => `<button data-k="go" data-s="${k}" ${ok ? '' : 'disabled'}>Go here: ${v.label}<small>${d.toFixed(0)} km, about ${eta(k)}. ${v.heat > 0 ? 'Engines leak heat the whole way.' : 'Cold drive.'}</small></button>`).join('');
+  m.innerHTML = `<h4>Navigation // ${wx.toFixed(0)}, ${wy.toFixed(0)} km</h4>` + sp + `<button data-k="wp" ${ok ? '' : 'disabled'}>Add waypoint<small>${hasPlan ? 'Append to the current flight plan.' : 'Start a flight plan here at the current speed.'}</small></button><button data-k="clear" ${S.route.length ? '' : 'disabled'}>Clear plan, hold still<small>Stop where we are.</small></button>`;
+  m.hidden = false; const r = m.getBoundingClientRect(); m.style.left = Math.max(8, Math.min(innerWidth - r.width - 8, mx + 8)) + 'px'; m.style.top = Math.max(8, Math.min(innerHeight - r.height - 8, my + 8)) + 'px';
+  m.onclick = e => { const b = e.target.closest('button'); if (!b || b.disabled) return; m.hidden = true; const k = b.dataset.k;
+    if (k === 'go') { E.setSpeed(S, b.dataset.s); E.setRoute(S, [pt]); $('spdhelp').textContent = E.SPEED[b.dataset.s].tip; } else if (k === 'wp') E.setRoute(S, (hasPlan ? S.route.slice(S.routeI) : []).concat(pt)); else if (k === 'clear') E.setRoute(S, []); if (view === 'str') drawMap(); uiUpdate(true); };
+}
+function nearestContact(wx, wy, tolKm) { let best = null, bd = tolKm; S.an.forEach(a => { if (a.state === 'out') return; const p = a.idStatus === 'plan' ? E.truePos(a, S.t) : E.displayPos(S, a), d = Math.hypot(p.x - wx, p.y - wy); if (d < bd) { bd = d; best = a.id; } }); return best; }
+$('cv').addEventListener('contextmenu', e => { const cv = $('cv'); e.preventDefault(); if (!S) return; const r = cv.getBoundingClientRect(), k = cv.width / P.arena, wx = ((e.clientX - r.left) * cv.width / r.width - VX) / VZ / k, wy = ((e.clientY - r.top) * cv.height / r.height - VY) / VZ / k, id = nearestContact(wx, wy, 44 * cv.width / r.width / VZ / k); if (id != null) openMenu(id, e.clientX, e.clientY); else navMenu(wx, wy, e.clientX, e.clientY); });
+$('map').addEventListener('contextmenu', e => { e.preventDefault(); if (!S || !mapG) return; const b = mapPt(e); navMenu(b.x, b.y, e.clientX, e.clientY); });
 document.addEventListener('click', e => { const m = $('cmenu'); if (!m.hidden && !m.contains(e.target)) m.hidden = true; }, true);
 document.addEventListener('keydown', e => { if (e.key === 'Escape') $('cmenu').hidden = true; });
 $('ct').addEventListener('click', e => { if (e.target.closest('button')) return; const bar = e.target.closest('.bar[data-ch]'); if (bar) { const row0 = bar.closest('.cr'), a0 = S.an[+row0.id.slice(2)]; if (['open', 'locked'].includes(a0.state) && a0.idStatus !== 'plan') E.assign(S, E.ANALYSTS.find(w => w.ch === bar.dataset.ch).id, a0.id); e.stopPropagation(); return; } const row = e.target.closest('.cr'); if (row) { e.stopPropagation(); openMenu(+row.id.slice(2), e.clientX, e.clientY); } });
