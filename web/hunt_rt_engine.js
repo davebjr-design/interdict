@@ -221,6 +221,30 @@ const HuntRT = (() => {
     const sens = b.load ? b.load.sensor : 1, rate = P.missRate * sens * perf(b) * (homing ? 1 : P.missQuiet) * (b.aware ? 1 : 0.6);
     return { pw: 1 - Math.exp(-rate * flight), dev: Math.min(P.evadeMax, P.evadeV * flight * 0.5 * perf(b) * (b.aware ? 1 : 0.6)) };
   }
+  const PARTS = [{"slot":"drive","name":"Wisp drive","maker":"Orrin","origin":"recon","eff":1.2,"thrust":7,"noise":0.75,"draw":2,"id":"d_wisp","tier":"light"},{"slot":"drive","name":"Maul drive","maker":"Vask","origin":"battleship","eff":0.85,"thrust":12,"noise":1.4,"draw":7,"id":"d_maul","tier":"heavy"},{"slot":"drive","name":"Plod drive","maker":"Halden","origin":"freighter","eff":1.0,"thrust":8,"noise":1.0,"draw":3,"id":"d_plod","tier":"medium"},{"slot":"drive","name":"Anchor thrusters","maker":"Halden","origin":"station","eff":0.8,"thrust":4,"noise":0.5,"draw":1,"creep":0.5,"id":"d_anchor","tier":"medium"},{"slot":"sink","name":"Fin radiator","maker":"Orrin","origin":"recon","cap":0.85,"draw":1,"id":"s_fin","tier":"light"},{"slot":"sink","name":"Bastion radiator","maker":"Vask","origin":"battleship","cap":1.5,"draw":4,"id":"s_rad","tier":"heavy"},{"slot":"sink","name":"Haul coil","maker":"Halden","origin":"freighter","cap":1.0,"draw":2,"id":"s_coil","tier":"medium"},{"slot":"sink","name":"Reservoir","maker":"Halden","origin":"station","cap":1.55,"draw":3,"coldplus":14,"id":"s_res","tier":"medium"},{"slot":"sensor","name":"Whisper array","maker":"Orrin","origin":"recon","track":6,"draw":1,"warn":0.95,"id":"n_whisper","tier":"light"},{"slot":"sensor","name":"Fire director","maker":"Vask","origin":"battleship","track":11,"draw":5,"warn":0.35,"id":"n_fd","tier":"heavy"},{"slot":"sensor","name":"Cargo scanner","maker":"Halden","origin":"freighter","track":3,"draw":1,"warn":0.5,"id":"n_plain","tier":"medium"},{"slot":"sensor","name":"Station array","maker":"Halden","origin":"station","track":7,"draw":3,"warn":0.7,"id":"n_array","tier":"medium"},{"slot":"weapon","name":"Dart rack","maker":"Orrin","origin":"recon","kill":-2,"exposure":-6,"draw":1,"unaware":4,"id":"w_dart","tier":"light"},{"slot":"weapon","name":"Lance battery","maker":"Vask","origin":"battleship","kill":16,"exposure":5,"draw":7,"id":"w_lance","tier":"heavy"},{"slot":"weapon","name":"Hauler tube","maker":"Halden","origin":"freighter","kill":4,"exposure":0,"draw":2,"id":"w_tube","tier":"medium"},{"slot":"weapon","name":"Fixed station mount","maker":"Halden","origin":"station","kill":6,"exposure":1,"draw":4,"id":"w_mount","tier":"medium"}];   // from data/ship_parts.json; tier is light (recon), medium (freighter, station) or heavy (battleship)
+  const MODULES = [   // small refit modules: a buff with a matching cost. Installed only at a space dock.
+    { id: 'm_shim', slot: 'sink', name: 'Gasket shim', up: 'Heat sink capacity +4%', down: 'Drive efficiency -2%' },
+    { id: 'm_baffle', slot: 'drive', name: 'Baffled nozzle', up: 'Drive noise -6%', down: 'Thrust -3%' },
+    { id: 'm_trim', slot: 'drive', name: 'Trim governor', up: 'Drive efficiency +4%', down: 'Turns 5% slower' },
+    { id: 'm_amp', slot: 'sensor', name: 'Overclocked preamp', up: 'Analysts read 5% faster', down: 'Sensors draw 1 more power' },
+    { id: 'm_filter', slot: 'sensor', name: 'Wide-band filter', up: 'Fewer false readings on decoys', down: 'Faint traces read 4% slower' },
+    { id: 'm_coil', slot: 'weapon', name: 'Tuned seeker coil', up: 'Homing seekers pull 5% closer', down: 'Seekers are 6% easier to spot' },
+    { id: 'm_feed', slot: 'weapon', name: 'Hardened feed', up: 'Salvo reload 5% faster', down: 'Volleys add 4% more heat' },
+    { id: 'm_charge', slot: 'weapon', name: 'Trimmed charge', up: 'Missile blast radius +4%', down: 'Warhead damage -3%' },
+    { id: 'm_bus', slot: 'hull', name: 'Cold-bus wiring', up: 'Idle heat -4%', down: 'Power draw +1' },
+    { id: 'm_plate', slot: 'hull', name: 'Scavenged plate', up: 'Hull +4 points', down: 'Mass +3%, turns slower' },
+    { id: 'm_mute', slot: 'hull', name: 'Absorber tiles', up: 'Hull signature -3%', down: 'Heat sinks fill 2% faster' },
+    { id: 'm_patch', slot: 'hull', name: 'Field patch kit', up: 'Damage repairs 8% faster at dock', down: 'None, but takes a slot' }];
+  const SALV = { destroyer: { kg: [80, 140], mod: 0.35, part: 0.12, pool: ['recon', 'freighter'] }, cruiser: { kg: [200, 340], mod: 0.5, part: 0.2, pool: ['freighter', 'station', 'recon'] }, battleship: { kg: [450, 800], mod: 0.7, part: 0.3, pool: ['battleship', 'station'] } };
+  function salvage(s) {   // what the crew pulls off the derelicts once the shooting stops; computed once and served in the after-action report
+    if (s.loot) return s.loot; const win = s.over === 'win', got = s.an.filter(a => a.kind === 'real' && a.derelict && !a.derelict.looted), f = win ? 1 : 0.5, loot = { kg: 0, ships: [], items: [], full: win };
+    if (!s.disabled || s.over === 'found' || s.over === 'breach0') { s.loot = loot; return loot; }
+    for (const a of got) { const c = shipClass(a), T = SALV[c], kg = Math.round((T.kg[0] + (T.kg[1] - T.kg[0]) * s.r()) * f / 5) * 5, items = []; a.derelict.looted = true;
+      if (s.r() < T.mod * f) { const m = MODULES[Math.floor(s.r() * MODULES.length)]; items.push({ type: 'module', ...m }); }
+      if (s.r() < T.part * f) { const pool = PARTS.filter(p => T.pool.includes(p.origin)), p = pool[Math.floor(s.r() * pool.length)]; items.push({ type: 'component', ...p }); }
+      loot.kg += kg; loot.ships.push({ id: a.id, cls: c, name: a.load.name, kg, items }); loot.items.push(...items); }
+    s.loot = loot; return loot;
+  }
   const CLASS_NAME = { destroyer: 'Destroyer', cruiser: 'Cruiser', battleship: 'Battleship' };
   function shipClass(a) { return a.kind === 'real' ? a.load.cls : a.kind === 'friend' ? 'cruiser' : a.fakeCls; }
   function symbolFor(s, a) {   // which map symbol the contact earns from what we know; null = still a dot
@@ -454,6 +478,6 @@ const HuntRT = (() => {
   function goQuiet(s) { if (s.over || s.vent.on || s.t < s.quietCd) return false; s.quietUntil = s.t + P.quietDur; s.quietCd = s.t + P.quietCd; report(s, 'Abara', 'Going quiet. Sensors dark, nobody touches anything for three minutes.', 'info'); return true; }
   function retreat(s) { if (s.over) return; s.over = s.disabled ? 'breach' : 'breach0'; report(s, 'Abara', 'Breaking contact. Breach drive spinning up.', 'bad'); }
   function setPellAct(s, on) { s.pellAct = !!on && s.integration >= 75; }
-  return { reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, hitProb, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, planPos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge };
+  return { PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, hitProb, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, planPos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge };
 })();
 if (typeof module !== 'undefined') module.exports = HuntRT;

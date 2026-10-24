@@ -241,3 +241,7 @@ Revised (Dave): evade should speed analysis modestly at a modest stealth cost, b
 ## Map symbols and derelicts (Oct 23)
 - Eight SVG symbols (tools/make_symbols.py): destroyer, cruiser, battleship, base, outpost, debris field, derelict, anomaly. Contacts earn a symbol at 80 percent odds, class once readings are thick; crippled ships become derelicts with a salvage value (looting rule is a proposal in docs/derelicts_and_symbols.md). Symbol key in the manual.
 - Fixed: venting was counted as heat fill, so the sink never drained; the sink panel now shows the net rate. Stray literal "\n" in the manual.
+
+## Oct 24 - 240 km map, navigation, damage, salvage
+- 240 km arena; right-click navigation; 6-missile salvos with area damage (killR 20, squared falloff), Standard/EMP/Flare warheads, homing seekers vs cold missiles with target reaction; four-outcome popups (video clip hook in assets/fx); sim-tuned constants (see docs/salvo_design.md).
+- Derelict salvage in after-action report (docs/salvage_and_parts.md). Fix: splash on lures no longer counts toward the win.
