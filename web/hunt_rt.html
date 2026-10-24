@@ -39,6 +39,7 @@ canvas{width:100%;max-width:100%;aspect-ratio:1/1;background:#050807;border:1px 
 .look{display:flex;gap:4px;flex-wrap:wrap;align-items:center}.look .lbl{margin-right:2px}
 .key{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.key div{border:1px solid var(--line);padding:6px;font-size:12px}.key b{display:block;font:700 13px var(--display);letter-spacing:.06em}
 details>summary{cursor:pointer;color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.14em}
+.fxs{}#fx{position:fixed;inset:0;z-index:30;background:rgba(3,6,5,.55);display:flex;align-items:center;justify-content:center}#fx[hidden]{display:none}.fxbox{background:var(--panel);border:1px solid var(--amber);padding:14px;width:min(680px,94vw);display:flex;flex-direction:column;gap:8px}.fxh{font-size:11px;letter-spacing:.14em;color:var(--dim);text-transform:uppercase}#fxc{width:100%;height:auto;aspect-ratio:2/1;background:#040807;border:1px solid #26302c}.fxb{font-size:20px;font-weight:700;min-height:26px}.fxd{font-size:12px;color:var(--dim);min-height:34px}
 .ammo{display:flex;gap:6px;margin:4px 0}.ammo button{flex:1}.ammo button.on{background:var(--amber);color:#0a0e0d}
 .found{font-size:12px}.found b{color:var(--amber);font-size:15px}.xzone{display:grid;grid-template-columns:30% 30% 40%;font-size:9px;color:var(--dim);letter-spacing:.1em}.xp{background:linear-gradient(90deg,rgba(111,195,208,.18) 30%,rgba(255,180,84,.18) 30% 60%,rgba(255,107,90,.18) 60%)!important;position:relative;height:14px;background:#0b1210;border:1px solid var(--line)}.xp s{position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--dim)}.xp i{position:absolute;left:0;top:0;bottom:0;background:var(--amber);transition:width .3s}.xp.hot i{background:var(--red)}.xp.dark i{background:var(--cyan)}
 .xl{display:flex;flex-direction:column;gap:2px;font-size:12px;color:var(--dim)}.xl span b{color:var(--ink);font-weight:500}
@@ -176,6 +177,7 @@ button.fire{background:var(--red);color:#fff;border-color:var(--red);padding:12p
 <div class="help"><b>Pell.</b> Always honest. He helps, and the more he helps the more integrated he becomes. That carries between hunts.</div>
 <div class="row"><button class="go" id="manclose">Close</button></div></div></div>
 <div class="over" id="pausebox" hidden><div class="box"><h3>Paused</h3><div class="help">The displays are blanked. Time is stopped. Press P or Resume.</div><div class="row"><button class="go" id="resume">Resume</button></div></div></div>
+<div id="fx" hidden><div class="fxbox"><div class="fxh" id="fxh"></div><canvas id="fxc" width="640" height="320"></canvas><div class="fxb" id="fxb"></div><div class="fxd" id="fxd"></div><div class="row"><button id="fxok" class="fire">Continue <kbd>Space</kbd></button></div></div></div>
 <div class="over" id="over" hidden><div class="box" id="obox"></div></div>
 <script>
 // Interdict hunt engine v4: REAL TIME with analyst reports. Time unit = game minutes (UI maps real seconds to game minutes).
@@ -665,7 +667,7 @@ function drawBrief() {
 $('bmap').addEventListener('click', e => { const c = $('bmap'), r = c.getBoundingClientRect(), k = c.width / P.arena, x = (e.clientX - r.left) * c.width / r.width, y = (e.clientY - r.top) * c.height / r.height; const hit = brief.route.findIndex(w => Math.hypot(w.x * k - x, w.y * k - y) < 12); if (hit >= 0) brief.route.splice(hit, 1); else brief.route.push({ x: Math.max(6, Math.min(P.arena - 6, x / k)), y: Math.max(6, Math.min(P.arena - 6, y / k)) }); drawBrief(); });
 $('bundo').onclick = () => { brief.route.pop(); drawBrief(); }; $('bclear').onclick = () => { brief.route = []; drawBrief(); };
 $('begin').onclick = () => { $('brief').hidden = true; briefing = false; begin(); };
-function begin() { P.secPerMin = 16; MZ = 1; VZ = 3; follow = true; $('zfollow').classList.add('on'); MCX = MCY = P.arena / 2; S = E.newHunt(brief.seed, { integration: savedInteg, friendly: brief.ally, entry: brief.entry, speed: brief.speed, route: brief.route.map(w => ({ x: w.x, y: w.y })) }); T0 = savedInteg; engageId = null; aimL = null; hist = []; fires = []; trail = []; planEdit = false; feedN = 0; $('feed').innerHTML = ''; setView('tac'); $('over').hidden = true; $('pell').checked = false; build(); uiUpdate(true); }
+function begin() { P.secPerMin = 16; fxOn = null; fxQ = []; $("fx").hidden = true; MZ = 1; VZ = 3; follow = true; $('zfollow').classList.add('on'); MCX = MCY = P.arena / 2; S = E.newHunt(brief.seed, { integration: savedInteg, friendly: brief.ally, entry: brief.entry, speed: brief.speed, route: brief.route.map(w => ({ x: w.x, y: w.y })) }); T0 = savedInteg; engageId = null; aimL = null; hist = []; fires = []; trail = []; planEdit = false; feedN = 0; $('feed').innerHTML = ''; setView('tac'); $('over').hidden = true; $('pell').checked = false; build(); uiUpdate(true); }
 function seg(host, items, cur, on) { host.innerHTML = ''; items.forEach(([v, text, tip]) => { const l = document.createElement('label'); const i = document.createElement('input'); i.type = 'radio'; i.name = host.id; i.dataset.v = v; i.checked = v === cur; i.onchange = () => on(v); const sp = document.createElement('span'); sp.textContent = text; l.title = tip || ''; l.append(i, sp); host.append(l); }); }
 const CH = { thermal: { n: 'Heat', col: '#ff8a4c', tip: 'Heat: how hot the contact runs (Dace)' }, reactor: { n: 'Reactor', col: '#6fc3d0', tip: 'Reactor: neutrino line (Castellan)' }, occlusion: { n: 'Eclipse', col: '#b79cff', tip: 'Eclipse: dark mass blocking starlight (Quill)' } };
 function build() {
@@ -767,7 +769,7 @@ function uiUpdate(force) {
   { const deg = ((Math.atan2(Math.cos(S.hdg || 0), -Math.sin(S.hdg || 0)) * 180 / Math.PI) + 360) % 360; $('helm').textContent = 'Heading ' + String(Math.round(deg)).padStart(3, '0') + ', ' + E.SPEED[S.speed].label.toLowerCase() + (S.orderUntil != null && S.posture !== 'route' ? ', maneuver ends in ' + fmtMin(Math.max(0, S.orderUntil - S.t)) : ''); }
   if (!hist.length || S.t - hist[hist.length - 1].t >= 0.25) { hist.push({ t: S.t, sig: xp.total, stage: S.stage, quiet: !!xp.quiet, vent: !!S.vent.on }); trail.push({ x: S.player.x, y: S.player.y }); }
   if (view === 'str') { drawMap(); drawLedger(); drawTl(); }
-  if (S.over) endScreen();
+  if (S.over && !fxOn && !fxQ.length) endScreen();
 }
 function dial(o) {
   const { label, unit, min, max, a0 = -135, a1 = 135, val, unc = 0, fmt = v => v.toFixed(1), mark = null, major = 5, num = v => v, amber = false, full = false, sub = '' } = o;
@@ -988,12 +990,63 @@ function zoomBy(f) { const W = cv.width, wx = (W / 2 - VX) / VZ, wy = (W / 2 - V
 $('zin').onclick = () => zoomBy(1.4); $('zout').onclick = () => zoomBy(1 / 1.4); $('zfit').onclick = () => { VZ = 1; VX = VY = 0; follow = false; $('zfollow').classList.remove('on'); };
 $('zfollow').onclick = () => { follow = !follow; $('zfollow').classList.toggle('on', follow); if (follow && VZ < 1.5) zoomBy(2); };
 
+let fxOn = null, fxQ = [];
+function fxClass(ev) {   // 0 miss, 1 shrapnel, 2 medium, 3 destroyed
+  if (ev.kind === 'theirs') return ev.result === 'cripple' ? 3 : !ev.n ? 0 : ev.dmg < 10 ? 1 : 2;
+  const r = ev.res.find(q => q.main); if (!r) return null; if (r.result === 'cripple') return 3; if (!r.n) return 0; if (ev.ammo !== 'he') return r.dmg < 12 ? 1 : 2; return r.dmg / (r.max || 100) < 0.18 ? 1 : 2;
+}
+function pumpFx(now) {
+  if (S.events.length) { fxQ.push(...S.events.splice(0)); }
+  if (fxOn) { if (now - fxOn.t0 > 6500) closeFx(); return; }
+  if (!fxQ.length || paused || briefing) return;
+  const ev = fxQ.shift(), cl = fxClass(ev); if (cl == null) return;
+  const mine = ev.kind === 'theirs', r = mine ? null : ev.res.find(q => q.main), wn = E.WARHEAD[ev.ammo || 'he'].name;
+  const cls = mine ? 'ours' : (E.shipClass(S.an[ev.target]) || 'cruiser');
+  fxOn = { ev, cl, mine, t0: now, cls, seed: Math.random() * 99 };
+  $('fxh').textContent = mine ? `Incoming fire from contact ${ev.shooter + 1}` : `${wn} salvo, contact ${ev.target + 1}`;
+  const names = ['MISS', 'SHRAPNEL', 'DAMAGED', 'DESTROYED'], det = [];
+  if (mine) { det.push(ev.n ? `${ev.n} of ${ev.L.length} missiles detonated close to us for ${ev.dmg.toFixed(0)} hull points. Hull ${Math.round(ev.after)} of 100.` : 'Their salvo went wide. The hull rings but holds.'); }
+  else { if (r.n) det.push(`${r.n} of ${ev.res[0].pts.length} missiles got close.` + (r.hp != null && ev.ammo === 'he' ? ` About ${r.dmg.toFixed(0)} hull points; it has ${r.hp} of ${r.max} left.` : ev.ammo === 'emp' ? ` Its systems are down to ${Math.round(r.eff * 100)} percent.` : ev.ammo === 'flare' ? ' It is lit up and easy to read for a few minutes.' : '')); else det.push('Nothing got close enough to hurt it.');
+    ev.res.filter(q => !q.main && q.n).forEach(q => det.push(`Splash also caught contact ${q.id + 1}${q.ally ? ' (OURS)' : ''}.`)); if (ev.selfN) det.push(`${ev.selfN} detonated on top of us.`); }
+  $('fxb').textContent = ''; $('fxb').dataset.txt = names[cl] + (cl === 0 ? (mine ? ': we ride it out' : ': it rocks but holds') : ''); $('fxd').textContent = det.join(' '); $('fxb').style.color = ['var(--dim)', 'var(--amber)', '#ff8a4c', 'var(--red)'][cl];
+  $('fx').hidden = false;
+}
+function closeFx() { fxOn = null; $('fx').hidden = true; last = performance.now(); }
+$('fxok').onclick = closeFx; $('fx').addEventListener('click', e => { if (e.target.id === 'fx') closeFx(); });
+addEventListener('keydown', e => { if (fxOn && (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape')) { e.preventDefault(); e.stopPropagation(); closeFx(); } }, true);
+function drawFx(now) {
+  if (!fxOn) return; const o = fxOn, ev = o.ev, c = $('fxc'), g = c.getContext('2d'), t = (now - o.t0) / 1000, W = c.width, H = c.height, cxs = W / 2, cys = H / 2 + 10, R = ev.R, sc = 100 / R;
+  g.clearRect(0, 0, W, H); g.fillStyle = '#040807'; g.fillRect(0, 0, W, H); for (let i = 0; i < 60; i++) { const q = Math.sin(i * 91.7) * 43758; g.fillStyle = 'rgba(200,220,210,.25)'; g.fillRect(((q - Math.floor(q)) * W) | 0, ((Math.sin(i * 12.9) * 4375.5 % 1 + 1) % 1 * H) | 0, 1.5, 1.5); }
+  const pts = o.mine ? ev.L.map(q => ({ dx: q.dx, dy: q.dy, hit: q.d < R, d: q.d })) : ev.res.find(q => q.main).pts;
+  const col = ev.ammo === 'emp' ? '110,195,255' : ev.ammo === 'flare' ? '255,255,235' : '255,170,70';
+  // ship
+  let shake = 0; const tb = 1.5, big = o.cl; pts.forEach((q, i) => { const tt = t - tb - i * 0.08; if (tt > 0 && tt < 0.5 && (q.hit || q.d < R * 1.6)) shake += (q.hit ? 1 : 0.4) * (1 - tt / 0.5); });
+  const amp = (o.cl === 0 ? 3 : 4 + 3 * o.cl) * Math.min(1.5, shake), sx = cxs + Math.sin(t * 60) * amp, sy = cys + Math.cos(t * 47) * amp * 0.7, size = { destroyer: 26, cruiser: 38, battleship: 54, ours: 32 }[o.cls] || 36, dead = o.cl === 3 && t > tb + 0.6;
+  g.save(); g.translate(sx, sy); const hdg = o.mine ? -0.4 : 0.3; g.rotate(hdg);
+  if (!dead) { g.fillStyle = o.mine ? '#6fc3d0' : '#c9d6cf'; g.strokeStyle = '#0a0e0d'; g.beginPath(); g.moveTo(size, 0); g.lineTo(-size * 0.7, size * 0.45); g.lineTo(-size * 0.45, 0); g.lineTo(-size * 0.7, -size * 0.45); g.closePath(); g.fill(); g.stroke(); }
+  else { const k = Math.min(1, (t - tb - 0.6) / 1.2); [[1, 0, -1, -0.4], [-0.7, 0.45, 0.6, 1], [-0.7, -0.45, 0.3, -1]].forEach(([a, b, vx, vy], j) => { g.save(); g.translate(vx * 40 * k, vy * 30 * k); g.rotate(k * (j - 1)); g.fillStyle = `rgba(120,130,125,${1 - 0.5 * k})`; g.beginPath(); g.moveTo(a * size * 0.5, b * size * 0.4); g.lineTo(a * size * 0.1 - 6, b * size * 0.4 + 10); g.lineTo(-8, 4); g.closePath(); g.fill(); g.restore(); }); }
+  g.restore();
+  // missiles
+  pts.forEach((q, i) => {
+    const tx = cxs + Math.max(-2.3 * R, Math.min(2.3 * R, q.dx)) * sc, ty = cys + Math.max(-1.3 * R, Math.min(1.3 * R, q.dy)) * sc, t0 = 0.2 + i * 0.08, tt = (t - t0) / 1.3, sxm = tx - 330, sym = ty - 40 + i * 5;
+    const cut = q.cut; if (tt >= 0 && tt < 1) { const e = tt * tt * (3 - 2 * tt), cut2 = cut && tt > 0.6; if (!cut2) { const mx = sxm + (tx - sxm) * e, my = sym + (ty - sym) * e; g.strokeStyle = `rgba(${col},.35)`; g.lineWidth = 1.5; g.beginPath(); g.moveTo(mx - (tx - sxm) * 0.06, my - (ty - sym) * 0.06); g.lineTo(mx, my); g.stroke(); g.fillStyle = `rgb(${col})`; g.beginPath(); g.arc(mx, my, 3, 0, 7); g.fill(); } }
+    if (cut && tt >= 0.6 && tt < 0.85) { const e = (tt - 0.6) / 0.25, mx = sxm + (tx - sxm) * 0.68, my = sym + (ty - sym) * 0.68; g.strokeStyle = `rgba(160,255,200,${1 - e})`; for (let a = 0; a < 6; a++) { g.beginPath(); g.moveTo(mx, my); g.lineTo(mx + Math.cos(a * 1.05) * 14 * e, my + Math.sin(a * 1.05) * 14 * e); g.stroke(); } }
+    if (!cut && tt >= 1) { const e = Math.min(1, (tt - 1) / 0.5); if (e < 1) { const rad = (q.hit ? 0.55 : 0.3) * R * sc * e; g.fillStyle = `rgba(${col},${0.5 * (1 - e)})`; g.beginPath(); g.arc(tx, ty, rad, 0, 7); g.fill(); g.strokeStyle = `rgba(${col},${1 - e})`; g.lineWidth = 2; g.beginPath(); g.arc(tx, ty, rad, 0, 7); g.stroke();
+      if (q.hit && ev.ammo === 'he') for (let a = 0; a < 7; a++) { const an = a * 0.9 + i, L1 = 8 + 22 * e; g.strokeStyle = `rgba(255,230,180,${1 - e})`; g.lineWidth = 1; g.beginPath(); g.moveTo(tx + Math.cos(an) * rad * 0.5, ty + Math.sin(an) * rad * 0.5); g.lineTo(tx + Math.cos(an) * (rad * 0.5 + L1), ty + Math.sin(an) * (rad * 0.5 + L1)); g.stroke(); }
+      if (q.hit && ev.ammo === 'emp') { g.strokeStyle = `rgba(150,220,255,${1 - e})`; g.beginPath(); let px = tx, py = ty; for (let a = 0; a < 5; a++) { px += (Math.sin(i * 7 + a * 3 + t * 40) * 14); py += (Math.cos(i * 5 + a * 2) * 14); g.lineTo(px, py); } g.moveTo(tx, ty); g.stroke(); } } }
+  });
+  // flare glow on ship, destruction flash
+  const lastB = tb + 0.6; if (ev.ammo === 'flare' && o.cl > 0 && !o.mine && t > tb) { g.fillStyle = `rgba(255,255,230,${Math.max(0, 0.5 - (t - tb) * 0.12)})`; g.beginPath(); g.arc(sx, sy, size * 1.8, 0, 7); g.fill(); }
+  if (o.cl === 3 && t > tb + 0.4 && t < tb + 1.4) { const e = (t - tb - 0.4); g.fillStyle = `rgba(255,220,160,${0.8 * (1 - e)})`; g.beginPath(); g.arc(sx, sy, 20 + 90 * e, 0, 7); g.fill(); }
+  g.strokeStyle = 'rgba(255,230,184,.25)'; g.setLineDash([3, 4]); g.beginPath(); g.arc(cxs, cys, R * sc, 0, 7); g.stroke(); g.setLineDash([]); g.fillStyle = 'rgba(160,180,170,.6)'; g.font = '10px IBM Plex Mono, monospace'; g.fillText('blast radius', cxs + R * sc * 0.7, cys - R * sc * 0.75);
+  if (t > 2.6 && !$('fxb').textContent) $('fxb').textContent = $('fxb').dataset.txt;
+}
 function frame(now) {
   if (!S) { requestAnimationFrame(frame); return; }
   const dtReal = Math.min(0.25, (now - last) / 1000); last = now;
-  if (!paused && !briefing && !S.over) E.tick(S, dtReal / P.secPerMin * tscale);
+  pumpFx(now); if (!paused && !briefing && !S.over && !fxOn) E.tick(S, dtReal / P.secPerMin * tscale);
   if (now - lastUi > 150) { lastUi = now; uiUpdate(); if (engageId != null) { const hp = now - lastHp > 900; if (hp) lastHp = now; engUpdate(hp); } }
-  if (!paused) draw(); requestAnimationFrame(frame);
+  if (!paused) draw(); drawFx(now); requestAnimationFrame(frame);
 }
 const KN = { real: ['WARSHIP', '#ffb454'], lure: ['DECOY', '#6fc3d0'], ghost: ['STATIC', '#8aa196'] }, CHC = { thermal: '#ff8a4c', reactor: '#6fc3d0', occlusion: '#b79cff' };
 function contactLabel(a, x, y, i) {   // starts as a bare number; each established channel adds a pip; the type guess and its odds come once two channels are in
