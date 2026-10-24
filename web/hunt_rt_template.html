@@ -39,7 +39,7 @@ canvas{width:100%;max-width:100%;aspect-ratio:1/1;background:#050807;border:1px 
 .look{display:flex;gap:4px;flex-wrap:wrap;align-items:center}.look .lbl{margin-right:2px}
 .key{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.key div{border:1px solid var(--line);padding:6px;font-size:12px}.key b{display:block;font:700 13px var(--display);letter-spacing:.06em}
 details>summary{cursor:pointer;color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.14em}
-.fxs{}#fx{position:fixed;inset:0;z-index:30;background:rgba(3,6,5,.55);display:flex;align-items:center;justify-content:center}#fx[hidden]{display:none}.fxbox{background:var(--panel);border:1px solid var(--amber);padding:14px;width:min(680px,94vw);display:flex;flex-direction:column;gap:8px}.fxh{font-size:11px;letter-spacing:.14em;color:var(--dim);text-transform:uppercase}#fxc{width:100%;height:auto;aspect-ratio:2/1;background:#040807;border:1px solid #26302c}.fxb{font-size:20px;font-weight:700;min-height:26px}.fxd{font-size:12px;color:var(--dim);min-height:34px}
+.fxs{}#fx{position:fixed;inset:0;z-index:30;background:rgba(3,6,5,.55);display:flex;align-items:center;justify-content:center}#fx[hidden]{display:none}.fxbox{background:var(--panel);border:1px solid var(--amber);padding:14px;width:min(680px,94vw);display:flex;flex-direction:column;gap:8px}.fxh{font-size:11px;letter-spacing:.14em;color:var(--dim);text-transform:uppercase}#fxv{width:100%;display:block;border:1px solid #26302c;background:#040807}.fxm{position:relative}#fxc{width:100%;height:auto;aspect-ratio:2/1;background:#040807;border:1px solid #26302c}.fxb{font-size:20px;font-weight:700;min-height:26px}.fxd{font-size:12px;color:var(--dim);min-height:34px}
 .ammo{display:flex;gap:6px;margin:4px 0}.ammo button{flex:1}.ammo button.on{background:var(--amber);color:#0a0e0d}
 .found{font-size:12px}.found b{color:var(--amber);font-size:15px}.xzone{display:grid;grid-template-columns:30% 30% 40%;font-size:9px;color:var(--dim);letter-spacing:.1em}.xp{background:linear-gradient(90deg,rgba(111,195,208,.18) 30%,rgba(255,180,84,.18) 30% 60%,rgba(255,107,90,.18) 60%)!important;position:relative;height:14px;background:#0b1210;border:1px solid var(--line)}.xp s{position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--dim)}.xp i{position:absolute;left:0;top:0;bottom:0;background:var(--amber);transition:width .3s}.xp.hot i{background:var(--red)}.xp.dark i{background:var(--cyan)}
 .xl{display:flex;flex-direction:column;gap:2px;font-size:12px;color:var(--dim)}.xl span b{color:var(--ink);font-weight:500}
@@ -177,7 +177,7 @@ button.fire{background:var(--red);color:#fff;border-color:var(--red);padding:12p
 <div class="help"><b>Pell.</b> Always honest. He helps, and the more he helps the more integrated he becomes. That carries between hunts.</div>
 <div class="row"><button class="go" id="manclose">Close</button></div></div></div>
 <div class="over" id="pausebox" hidden><div class="box"><h3>Paused</h3><div class="help">The displays are blanked. Time is stopped. Press P or Resume.</div><div class="row"><button class="go" id="resume">Resume</button></div></div></div>
-<div id="fx" hidden><div class="fxbox"><div class="fxh" id="fxh"></div><canvas id="fxc" width="640" height="320"></canvas><div class="fxb" id="fxb"></div><div class="fxd" id="fxd"></div><div class="row"><button id="fxok" class="fire">Continue <kbd>Space</kbd></button></div></div></div>
+<div id="fx" hidden><div class="fxbox"><div class="fxh" id="fxh"></div><div class="fxm"><canvas id="fxc" width="640" height="320"></canvas><video id="fxv" muted playsinline hidden></video></div><div class="fxb" id="fxb"></div><div class="fxd" id="fxd"></div><div class="row"><button id="fxok" class="fire">Continue <kbd>Space</kbd></button></div></div></div>
 <div class="over" id="over" hidden><div class="box" id="obox"></div></div>
 <script>
 /*ENGINE*/
@@ -538,14 +538,14 @@ function zoomBy(f) { const W = cv.width, wx = (W / 2 - VX) / VZ, wy = (W / 2 - V
 $('zin').onclick = () => zoomBy(1.4); $('zout').onclick = () => zoomBy(1 / 1.4); $('zfit').onclick = () => { VZ = 1; VX = VY = 0; follow = false; $('zfollow').classList.remove('on'); };
 $('zfollow').onclick = () => { follow = !follow; $('zfollow').classList.toggle('on', follow); if (follow && VZ < 1.5) zoomBy(2); };
 
-let fxOn = null, fxQ = [];
+let fxOn = null, fxQ = []; const CLIPS = { 'he_2': 'assets/fx/he_2.mp4' }, CLIPOK = {};   // animation clips by warhead and outcome; missing clips fall back to the canvas animation
 function fxClass(ev) {   // 0 miss, 1 shrapnel, 2 medium, 3 destroyed
   if (ev.kind === 'theirs') return ev.result === 'cripple' ? 3 : !ev.n ? 0 : ev.dmg < 10 ? 1 : 2;
   const r = ev.res.find(q => q.main); if (!r) return null; if (r.result === 'cripple') return 3; if (!r.n) return 0; if (ev.ammo !== 'he') return r.dmg < 12 ? 1 : 2; return r.dmg / (r.max || 100) < 0.18 ? 1 : 2;
 }
 function pumpFx(now) {
   if (S.events.length) { fxQ.push(...S.events.splice(0)); }
-  if (fxOn) { if (now - fxOn.t0 > 6500) closeFx(); return; }
+  if (fxOn) { if (now - fxOn.t0 > (fxOn.clip ? 11000 : 6500)) closeFx(); return; }
   if (!fxQ.length || paused || briefing) return;
   const ev = fxQ.shift(), cl = fxClass(ev); if (cl == null) return;
   const mine = ev.kind === 'theirs', r = mine ? null : ev.res.find(q => q.main), wn = E.WARHEAD[ev.ammo || 'he'].name;
@@ -557,13 +557,15 @@ function pumpFx(now) {
   else { if (r.warned) det.push(ev.homing ? 'Its sensors caught the seekers early and it burned off its line.' : 'It saw them coming and burned off its line.'); if (r.n) det.push(`${r.n} of ${ev.res[0].pts.length} missiles got close.` + (r.hp != null && ev.ammo === 'he' ? ` About ${r.dmg.toFixed(0)} hull points; it has ${r.hp} of ${r.max} left.` : ev.ammo === 'emp' ? ` Its systems are down to ${Math.round(r.eff * 100)} percent.` : ev.ammo === 'flare' ? ' It is lit up and easy to read for a few minutes.' : '')); else det.push('Nothing got close enough to hurt it.');
     ev.res.filter(q => !q.main && q.n).forEach(q => det.push(`Splash also caught contact ${q.id + 1}${q.ally ? ' (OURS)' : ''}.`)); if (ev.selfN) det.push(`${ev.selfN} detonated on top of us.`); }
   $('fxb').textContent = ''; $('fxb').dataset.txt = names[cl] + (cl === 0 ? (mine ? ': we ride it out' : ': it rocks but holds') : ''); $('fxd').textContent = det.join(' '); $('fxb').style.color = ['var(--dim)', 'var(--amber)', '#ff8a4c', 'var(--red)'][cl];
+  const ck = (ev.ammo || 'he') + '_' + cl, v = $('fxv'); fxOn.clip = false; v.hidden = true; $('fxc').style.display = '';
+  if (!mine && CLIPS[ck] && CLIPOK[ck] !== false) { let tried = 0; v.onerror = () => { if (!tried++ && v.src.endsWith('.mp4')) { v.src = CLIPS[ck].replace('.mp4', '.webm'); v.play().catch(() => { }); return; } CLIPOK[ck] = false; if (fxOn) { fxOn.clip = false; v.hidden = true; $('fxc').style.display = ''; } }; v.src = CLIPS[ck]; v.hidden = false; $('fxc').style.display = 'none'; fxOn.clip = true; v.currentTime = 0; v.play().catch(() => { }); }
   $('fx').hidden = false;
 }
-function closeFx() { fxOn = null; $('fx').hidden = true; last = performance.now(); }
+function closeFx() { try { $('fxv').pause(); } catch (e) { } fxOn = null; $('fx').hidden = true; last = performance.now(); }
 $('fxok').onclick = closeFx; $('fx').addEventListener('click', e => { if (e.target.id === 'fx') closeFx(); });
 addEventListener('keydown', e => { if (fxOn && (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape')) { e.preventDefault(); e.stopPropagation(); closeFx(); } }, true);
 function drawFx(now) {
-  if (!fxOn) return; const o = fxOn, ev = o.ev, c = $('fxc'), g = c.getContext('2d'), t = (now - o.t0) / 1000, W = c.width, H = c.height, cxs = W / 2, cys = H / 2 + 10, R = ev.R, sc = 100 / R;
+  if (!fxOn) return; if (fxOn.clip) { const v = $('fxv'); if ((v.currentTime > 3.6 || v.ended) && !$('fxb').textContent) $('fxb').textContent = $('fxb').dataset.txt; return; } const o = fxOn, ev = o.ev, c = $('fxc'), g = c.getContext('2d'), t = (now - o.t0) / 1000, W = c.width, H = c.height, cxs = W / 2, cys = H / 2 + 10, R = ev.R, sc = 100 / R;
   g.clearRect(0, 0, W, H); g.fillStyle = '#040807'; g.fillRect(0, 0, W, H); for (let i = 0; i < 60; i++) { const q = Math.sin(i * 91.7) * 43758; g.fillStyle = 'rgba(200,220,210,.25)'; g.fillRect(((q - Math.floor(q)) * W) | 0, ((Math.sin(i * 12.9) * 4375.5 % 1 + 1) % 1 * H) | 0, 1.5, 1.5); }
   const pts = o.mine ? ev.L.map(q => ({ dx: q.dx, dy: q.dy, hit: q.d < R, d: q.d })) : ev.res.find(q => q.main).pts;
   const col = ev.ammo === 'emp' ? '110,195,255' : ev.ammo === 'flare' ? '255,255,235' : '255,170,70';
