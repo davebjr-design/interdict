@@ -30,3 +30,9 @@ Decided Oct 22: invent our own terms, keep the mechanics true to the Star Wolf r
 - Anchor: station-led parts (mostly Halden); huge sumps, poor drives; wins long stakeouts.
 - Hauler: freighter parts; cheap, forgiving, middling.
 - Patchwork: mixed salvage; a gamble that pays off when the fit rolls well.
+
+## Pell integration (Dave, 2026-10-24)
+Integration is a campaign-level meter, like a good/evil or trusted/untrusted track in other games, with the same kind of consequences. Higher integration with Pell lowers crew morale and changes trust in conversations with other characters. High and low ends can foreclose or open narrative choices later. It carries across hunts. Not a within-hunt cost.
+
+## After-action and crew report voice (Dave, 2026-10-24)
+Crew damage reports are professional and clinical: no damage for a miss, light hull damage for a light hit, possible systems damage for a moderate hit, hull destroyed for a kill.
