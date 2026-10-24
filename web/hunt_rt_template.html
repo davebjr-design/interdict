@@ -184,7 +184,7 @@ button.fire{background:var(--red);color:#fff;border-color:var(--red);padding:12p
 /*SYMBOLS*/
 const E = HuntRT, P = E.P, $ = id => document.getElementById(id);
 let tscale = 1, VX = 0, VY = 0, VZ = 1, follow = false, dragged = false, view = 'tac', hist = [], fires = [], trail = [], planEdit = false, mapG = null, SC = 1;
-let ammo = 'he', S = null, paused = false, engageId = null, cone = 8, aimL = null, built = false, feedN = 0, lastUi = 0, lastHp = 0, savedInteg = 0, T0 = 0;
+let ammo = 'he', homing = false, S = null, paused = false, engageId = null, cone = 8, aimL = null, built = false, feedN = 0, lastUi = 0, lastHp = 0, savedInteg = 0, T0 = 0;
 try { savedInteg = +localStorage.getItem('interdict_integration') || 0; } catch (e) {}
 function save() { try { localStorage.setItem('interdict_integration', String(Math.round(S.integration))); } catch (e) {} }
 let brief = { entry: 'standard', speed: 'cruise', pace: 'normal', ally: true, route: [] }, briefing = false;
@@ -422,16 +422,17 @@ function buildEngage() {
   en.innerHTML = `<div id="sweepb"></div><div class="dials" id="dials"></div><div class="knobs"><div id="kaim"></div><div id="kcone"></div></div>
   <div class="knobs"><input type="range" id="aim" min="0" max="240" step="2" value="60" aria-label="Aim lead"><input type="range" id="cone" min="0" max="24" step="1" value="${cone}" aria-label="Cone width"></div>
   <label class="lbl"><input type="checkbox" id="auto" ${aimL == null ? 'checked' : ''}> follow Abara's suggestion (he tends to under-lead)</label>
-  <div class="lbl">Warhead</div><div class="ammo" id="ammo">${['he','emp','flare'].map(k => `<button data-k="${k}" class="${ammo === k ? 'on' : ''}">${E.WARHEAD[k].name}</button>`).join('')}</div><div class="help" id="ammotip"></div>
+  <div class="lbl">Warhead</div><div class="ammo" id="ammo">${['he','emp','flare'].map(k => `<button data-k="${k}" class="${ammo === k ? 'on' : ''}">${E.WARHEAD[k].name}</button>`).join('')}</div><label class="lbl" title="Homing seekers steer onto the target, so a salvo lands closer. But they run warm and hunt with an active seeker: the target is far more likely to see them coming and burn off its line."><input type="checkbox" id="homing" ${homing ? 'checked' : ''}> homing seekers: tighter landings, but easy to spot</label><div class="help" id="ammotip"></div>
   <div class="hit"><span class="lbl">Chance a missile gets close enough to do something</span><span class="big" id="hp">...</span><div class="hbar"><i id="hpb" style="width:0"></i></div></div>
   <div class="help" id="eninfo"></div><div class="lamp"><span class="led" id="dcled"></span><span id="selfwarn"></span></div><div class="help" id="infl"></div>
   <div class="row"><button class="fire" id="fire">FIRE SALVO</button><button id="cwb" title="Point-blank kinetic round. Instant, ignores scatter grids, only inside 18 km, and the flash is loud.">Coilgun</button><button id="cancel">Back <kbd>Esc</kbd></button></div>`;
   $('solbar').onclick = e => { if (e.target.id === 'refresh' && engageId != null) E.refreshSolution(S, engageId); };
   $('aim').oninput = e => { aimL = +e.target.value; $('auto').checked = false; engUpdate(true); };
   $('auto').onchange = e => { if (e.target.checked) { aimL = null; engUpdate(true); } };
+  $('homing').onchange = e => { homing = e.target.checked; engUpdate(true); };
   $('ammo').onclick = e => { const b = e.target.closest('button'); if (b) { ammo = b.dataset.k; [...$('ammo').children].forEach(c => c.classList.toggle('on', c === b)); engUpdate(true); } };
   $('cone').oninput = e => { cone = +e.target.value; engUpdate(true); };
-  $('fire').onclick = () => { const a2 = S.an[engageId]; if (a2 && E.fire(S, a2.id, aimL, cone, ammo)) { fires.push(S.t); engUpdate(true); } };
+  $('fire').onclick = () => { const a2 = S.an[engageId]; if (a2 && E.fire(S, a2.id, aimL, cone, ammo, homing)) { fires.push(S.t); engUpdate(true); } };
   $('cancel').onclick = () => setView('tac'); $('cwb').onclick = () => { const a2 = S.an[engageId]; if (a2) E.fireClose(S, a2.id); };
   $('tgtitle').textContent = 'Fire solution // contact ' + (a.id + 1);
   engUpdate(true);
@@ -457,7 +458,7 @@ function engUpdate(hp) {
     $('cwb').disabled = !inR || !cwr; $('cwb').textContent = cwr ? 'Coilgun' : 'Coilgun ' + (S.cwCd - S.t).toFixed(1) + ' min'; }
   $('infl').innerHTML = 'Salvos: ' + S.tubes.map((x, i) => `<b style="color:${S.t >= x ? 'var(--green)' : 'var(--amber)'}">${i + 1} ${S.t >= x ? 'READY' : 'RELOAD ' + fmtMin(x - S.t)}</b>`).join(' / ') + (S.volleys.length ? '<br>' + S.volleys.map(v => `In flight at contact ${v.id + 1}: impact in ${fmtMin(Math.max(0, v.at - S.t))}`).join('<br>') : '') + '<br>A new volley adds blast heat now. Detonations near us add more.';
   $('sweepb').innerHTML = S.vent.on ? `<div class="banner">FINS OUT: we are fully visible. A volley fired now lights us up even more.</div>` : S.inc.length ? `<div class="banner">INCOMING FIRE. Move off the aim point, or go quiet (Q) to delay their next salvo.</div>` : '';
-  if (hp) { const d = E.dmgEst(S, a, aimL, cone, ammo, 400), hv = Math.round(100 * d.p), W = E.WARHEAD[ammo]; $('hp').textContent = hv + '%'; $('hpb').style.width = hv + '%'; $('ammotip').textContent = W.tip + ' ' + (ammo === 'he' ? `On average about ${d.exp.toFixed(0)} hull points per volley (a destroyer has about 70, a cruiser 110, a battleship 180).` : ammo === 'emp' ? `On average it knocks about ${d.exp.toFixed(0)} points off its efficiency.` : `On average it adds about ${d.exp.toFixed(0)} points of glare.`); }
+  if (hp) { const d = E.dmgEst(S, a, aimL, cone, ammo, 400, Math.random, homing), hv = Math.round(100 * d.p), W = E.WARHEAD[ammo]; $('hp').textContent = hv + '%'; $('hpb').style.width = hv + '%'; $('ammotip').textContent = W.tip + ' ' + (ammo === 'he' ? `On average about ${d.exp.toFixed(0)} hull points per volley (a destroyer has about 70, a cruiser 110, a battleship 180).` : ammo === 'emp' ? `On average it knocks about ${d.exp.toFixed(0)} points off its efficiency.` : `On average it adds about ${d.exp.toFixed(0)} points of glare.`); }
   drawPlot(a, f);
 }
 function drawPlot(a, f) {
@@ -553,7 +554,7 @@ function pumpFx(now) {
   $('fxh').textContent = mine ? `Incoming fire from contact ${ev.shooter + 1}` : `${wn} salvo, contact ${ev.target + 1}`;
   const names = ['MISS', 'SHRAPNEL', 'DAMAGED', 'DESTROYED'], det = [];
   if (mine) { det.push(ev.n ? `${ev.n} of ${ev.L.length} missiles detonated close to us for ${ev.dmg.toFixed(0)} hull points. Hull ${Math.round(ev.after)} of 100.` : 'Their salvo went wide. The hull rings but holds.'); }
-  else { if (r.n) det.push(`${r.n} of ${ev.res[0].pts.length} missiles got close.` + (r.hp != null && ev.ammo === 'he' ? ` About ${r.dmg.toFixed(0)} hull points; it has ${r.hp} of ${r.max} left.` : ev.ammo === 'emp' ? ` Its systems are down to ${Math.round(r.eff * 100)} percent.` : ev.ammo === 'flare' ? ' It is lit up and easy to read for a few minutes.' : '')); else det.push('Nothing got close enough to hurt it.');
+  else { if (r.warned) det.push(ev.homing ? 'Its sensors caught the seekers early and it burned off its line.' : 'It saw them coming and burned off its line.'); if (r.n) det.push(`${r.n} of ${ev.res[0].pts.length} missiles got close.` + (r.hp != null && ev.ammo === 'he' ? ` About ${r.dmg.toFixed(0)} hull points; it has ${r.hp} of ${r.max} left.` : ev.ammo === 'emp' ? ` Its systems are down to ${Math.round(r.eff * 100)} percent.` : ev.ammo === 'flare' ? ' It is lit up and easy to read for a few minutes.' : '')); else det.push('Nothing got close enough to hurt it.');
     ev.res.filter(q => !q.main && q.n).forEach(q => det.push(`Splash also caught contact ${q.id + 1}${q.ally ? ' (OURS)' : ''}.`)); if (ev.selfN) det.push(`${ev.selfN} detonated on top of us.`); }
   $('fxb').textContent = ''; $('fxb').dataset.txt = names[cl] + (cl === 0 ? (mine ? ': we ride it out' : ': it rocks but holds') : ''); $('fxd').textContent = det.join(' '); $('fxb').style.color = ['var(--dim)', 'var(--amber)', '#ff8a4c', 'var(--red)'][cl];
   $('fx').hidden = false;
