@@ -42,6 +42,8 @@ details>summary{cursor:pointer;color:var(--dim);font-size:11px;text-transform:up
 .fxs{}#fx{position:fixed;inset:0;z-index:30;background:rgba(3,6,5,.55);display:flex;align-items:center;justify-content:center}#fx[hidden]{display:none}.fxbox{background:var(--panel);border:1px solid var(--amber);padding:14px;width:min(680px,94vw);display:flex;flex-direction:column;gap:8px}.fxh{font-size:11px;letter-spacing:.14em;color:var(--dim);text-transform:uppercase}#fxv{width:100%;display:block;border:1px solid #26302c;background:#040807}.fxm{position:relative}#fxc{width:100%;height:auto;aspect-ratio:2/1;background:#040807;border:1px solid #26302c}.fxb{font-size:20px;font-weight:700;min-height:26px}.fxd{font-size:12px;color:var(--dim);min-height:34px}
 .loot{font-size:12px;padding:2px 0 2px 10px;border-left:2px solid var(--amber)}.loot small{color:var(--dim)}
 .ammo{display:flex;gap:6px;margin:4px 0}.ammo button{flex:1}.ammo button.on{background:var(--amber);color:#0a0e0d}
+.bar{position:relative}.bar u{position:absolute;left:0;bottom:0;height:3px;background:#cfe3da;opacity:.85;pointer-events:none}.bar u.done{background:#8fd694}
+.cell#sinkc{cursor:pointer}.cell#sinkc:hover{outline:1px solid var(--amber)}.cell#sinkc.vent{outline:1px solid var(--red);background:rgba(255,90,70,.12)}
 .found{font-size:12px}.found b{color:var(--amber);font-size:15px}.xzone{display:grid;grid-template-columns:30% 30% 40%;font-size:9px;color:var(--dim);letter-spacing:.1em}.xp{background:linear-gradient(90deg,rgba(111,195,208,.18) 30%,rgba(255,180,84,.18) 30% 60%,rgba(255,107,90,.18) 60%)!important;position:relative;height:14px;background:#0b1210;border:1px solid var(--line)}.xp s{position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--dim)}.xp i{position:absolute;left:0;top:0;bottom:0;background:var(--amber);transition:width .3s}.xp.hot i{background:var(--red)}.xp.dark i{background:var(--cyan)}
 .xl{display:flex;flex-direction:column;gap:2px;font-size:12px;color:var(--dim)}.xl span b{color:var(--ink);font-weight:500}
 
@@ -115,8 +117,8 @@ button.fire{background:var(--red);color:#fff;border-color:var(--red);padding:12p
 <div class="cell"><b id="clk">0:00</b></div>
 <div class="cell"><span class="lbl">Enemy fix</span><div class="pips" id="pips" title="How well the best-informed enemy ship knows where we are. One pip: it has a bearing and will hunt us. Three: a firm solution and accurate fire. It slips back if we stay cold and they lose the trace."><div class="pip"></div><div class="pip"></div><div class="pip"></div></div><span id="warn" class="warn"></span></div>
 <div class="cell wide"><span class="stl" id="stl" title="How easy we are to hear. Cold: hard to find. Hot: anything listening can hear us. Active sensor work, tracking, Pell and an aggressive drive all add heat; Go quiet dumps it."><span class="lbl">Signature</span><span class="sg"><i id="stli"></i></span><b id="stlt">COLD</b></span><span class="why" id="stwhy"></span></div>
-<div class="cell" id="sinkc"><span class="lbl">Heat sink</span><span class="sg" id="sinkg"><i id="sinki" style="background:var(--amber)"></i></span><b id="sinkt">5%</b></div>
-<div class="cell"><button id="quiet" title="Sensors dark for 2.5 minutes: nobody works, our signature collapses, enemy fire is delayed and they lose the trace on us. Cooldown 10 minutes. It only slows how fast the heat sink fills; it never empties it. Key: Q">Go quiet</button><button id="vent" title="Extend the cooling fins and dump stored heat. It is the only way to empty the sinks, and while the fins are out we are 100% visible to everyone. Key: V">Vent heat</button><button id="brk" title="Calm option: Breach out now with whatever you have crippled.">Break contact</button></div>
+<div class="cell" id="sinkc" role="button" tabindex="0" title="Click to extend the cooling fins and vent heat; click again to pull them in and return to stealth. Key: V"><span class="lbl" id="sinkl">Heat sink</span><span class="sg" id="sinkg"><i id="sinki" style="background:var(--amber)"></i></span><b id="sinkt">5%</b></div>
+<div class="cell"><button id="quiet" title="Sensors dark for 2.5 minutes: nobody works, our signature collapses, enemy fire is delayed and they lose the trace on us. Cooldown 10 minutes. It only slows how fast the heat sink fills; it never empties it. Key: Q">Go quiet</button><button id="brk" title="Calm option: Breach out now with whatever you have crippled.">Break contact</button></div>
 <div class="cell tick" id="tick"></div>
 <div class="cell" id="vit"></div>
 <nav class="cell tabs" id="tabs"><button data-v="tac" class="on">Tactical <kbd>1</kbd></button><button data-v="str">Strategic <kbd>2</kbd></button><button data-v="tgt" id="tabtgt">Target <kbd>3</kbd></button></nav>
@@ -226,7 +228,7 @@ function build() {
   const ct = $('ct'); ct.innerHTML = '';
   S.an.forEach(a => {
     const d = document.createElement('div'); d.className = 'cr'; d.id = 'cr' + a.id;
-    d.innerHTML = `<div class="id">${a.id + 1}</div><div style="display:flex;flex-direction:column;gap:4px;min-width:0"><div class="top"><span class="chip" id="chip${a.id}"></span><span class="st" id="who${a.id}" style="grid-column:auto"></span></div><div class="bars">${['thermal', 'reactor', 'occlusion'].map(c => `<div class="bar" data-ch="${c}" title="${CH[c].tip}. Click to point ${E.ANALYSTS.find(w => w.ch === c).name} at this contact: faster, cleaner reads, but it adds about ${Math.round(P.glowFocus * 100)}% per minute to our found rate."><i id="b-${a.id}-${c}"></i><span id="bt-${a.id}-${c}"></span></div>`).join('')}</div><div class="btns" id="bn${a.id}"></div></div><div class="st" id="st${a.id}"></div>`;
+    d.innerHTML = `<div class="id">${a.id + 1}</div><div style="display:flex;flex-direction:column;gap:4px;min-width:0"><div class="top"><span class="chip" id="chip${a.id}"></span><span class="st" id="who${a.id}" style="grid-column:auto"></span></div><div class="bars">${['thermal', 'reactor', 'occlusion'].map(c => `<div class="bar" data-ch="${c}" title="${CH[c].tip}. Click to point ${E.ANALYSTS.find(w => w.ch === c).name} at this contact: faster, cleaner reads, but it adds about ${Math.round(P.glowFocus * 100)}% per minute to our found rate."><i id="b-${a.id}-${c}"></i><u id="p-${a.id}-${c}"></u><span id="bt-${a.id}-${c}"></span></div>`).join('')}</div><div class="btns" id="bn${a.id}"></div></div><div class="st" id="st${a.id}"></div>`;
     ct.append(d);
   });
   built = true;
@@ -242,13 +244,13 @@ function btnsFor(a) {
   }
 }
 function fmtMin(m) { const t = Math.round(m * 60); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); }
-function solTxt(a) { const si = E.solveInfo(S, a); if (si.stale) return 'Solution stale. Press Refresh in the Target view, or put an analyst on it.'; if (si.ready) return 'Firing solution ready. Press Target to plan the volley.'; return 'Solving ' + Math.round(si.prog * 100) + '%' + (si.paused ? ', paused while sensors are dark' : ', about ' + fmtMin(si.remain) + ' left') + (si.why.length ? ' (' + si.why.join(', ') + ')' : '') + '.'; }
+function solTxt(a) { const si = E.solveInfo(S, a); if (si.stale) return 'Solution stale. Click REFRESH SOLUTION in the Target view, or put an analyst on it.'; if (si.ready) return 'Firing solution ready. Press Target to plan the volley.'; return 'Solving ' + Math.round(si.prog * 100) + '%' + (si.paused ? ', paused while sensors are dark' : ', about ' + fmtMin(si.remain) + ' left') + (si.why.length ? ' (' + si.why.join(', ') + ')' : '') + '.'; }
 const KN0 = { real: 'WARSHIP', lure: 'DECOY', ghost: 'STATIC' };
 function clsLabel(a) { if (a.idStatus === 'plan') return 'ALLY'; if (a.idStatus === 'hostile') return 'HOSTILE'; if (a.state === 'disabled') return a.kind === 'friend' ? 'DISABLED ALLY' : 'DERELICT'; if (a.state === 'out') return 'RULED OUT'; const c = E.classify(S, a); if (c.n >= 2 && c.p >= 0.5) { const sy0 = E.symbolFor(S, a); return (sy0 && /^ships_/.test(sy0.key) ? sy0.label.toUpperCase() : KN0[c.best]) + ' ' + Math.min(99, Math.round(c.p * 100)) + '%'; } return c.n >= 1 ? '?' : '-'; }
 function setTime(v) { tscale = v; document.querySelectorAll('#tsp button').forEach(b => b.classList.toggle('on', +b.dataset.s === v)); }
 $('tsp').onclick = e => { const b = e.target.closest('button'); if (b) setTime(+b.dataset.s); };
 function ventToggle() { if (!S || S.over) return; if (S.vent.on) E.stopVent(S); else E.startVent(S); uiUpdate(true); }
-$('vent').onclick = ventToggle;
+$('sinkc').onclick = ventToggle; $('sinkc').onkeydown = e => { if (e.key === 'Enter') ventToggle(); };
 function ago(q) { return Math.exp(-(S.t - q.t) * Math.LN2 / P.halfLife); }
 function uiUpdate(force) {
   $('clk').textContent = Math.floor(S.t) + ':' + String(Math.floor((S.t % 1) * 60)).padStart(2, '0') + ' game';
@@ -258,8 +260,9 @@ function uiUpdate(force) {
     const row = $('cr' + a.id); row.className = 'cr ' + a.state;
     ['thermal', 'reactor', 'occlusion'].forEach(c => {
       const q = a.read[c], i = $(`b-${a.id}-${c}`), t = $(`bt-${a.id}-${c}`), nm = CH[c].n;
+      { const pu = $(`p-${a.id}-${c}`), pr = q && !q.blind ? Math.min(1, (q.den || 0) / P.readDone) : 0; pu.style.width = pr * 100 + '%'; pu.className = pr >= 1 ? 'done' : ''; pu.title = pr >= 1 ? 'Read complete' : 'Collecting: ' + Math.round(pr * 100) + ' percent'; }
       if (q && q.blind) { i.style.width = '0'; t.textContent = nm + ' blind'; }
-      else if (q && q.den > 0) { const v = Math.max(0, q.num / q.den), w = E.cat(v); i.style.width = Math.max(2, Math.min(100, v * 100)) + '%'; i.style.opacity = 0.3 + 0.7 * ago(q); i.style.background = CH[c].col; t.textContent = nm + ' ' + (w === 'none' ? 'clear' : w); }
+      else if (q && q.den > 0) { const v = Math.max(0, q.num / q.den), w = E.cat(v); i.style.width = Math.max(2, Math.min(100, v * 100)) + '%'; i.style.opacity = 0.3 + 0.7 * ago(q); i.style.background = CH[c].col; t.textContent = nm + ' ' + (w === 'none' ? 'clear' : w) + (q.den >= P.readDone ? ' \u2713' : ''); }
       else { i.style.width = '0'; t.textContent = nm + ' ?'; }
     });
     row.querySelectorAll('.bar').forEach(b => { const w = S.analysts.find(x => x.id === E.ANALYSTS.find(q => q.ch === b.dataset.ch).id); b.classList.toggle('pt', w.task === a.id); });
@@ -286,7 +289,7 @@ function uiUpdate(force) {
   { const h = S.sink.h, fill = P.sinkK * xp.parts.reduce((q, x) => q + (x.k === 'vent' ? 0 : x.v), 0) / S.me.sink, hot = h >= 0.8 || S.vent.on; $('sinkt').textContent = S.vent.on ? 'VENT' : Math.round(h * 100) + '%'; $('sinki').style.width = Math.max(2, h * 100) + '%'; $('sinki').style.background = h >= 0.8 ? 'var(--red)' : h >= 0.6 ? 'var(--amber)' : 'var(--cyan)'; $('sinkc').className = 'cell stl ' + (S.vent.on || h >= 0.85 ? 'hot' : h >= 0.6 ? 'warm' : '');
     const bar = $('sinkxp').querySelector('i'); bar.style.width = Math.max(2, h * 100) + '%'; bar.style.background = h >= 0.8 ? 'var(--red)' : h >= 0.6 ? 'var(--amber)' : 'var(--cyan)';
     $('sinkinfo').innerHTML = S.vent.on ? `<b>Venting.</b> Fins out, everyone can see us. ${S.vent.forced ? 'Forced: they close at ' + Math.round(P.forcedStop * 100) + '%.' : 'Retract any time.'} Stored ${Math.round(h * 100)}%. Dumping ${(100 / P.ventFull).toFixed(0)}% per min while activity adds ${(fill * 100).toFixed(0)}%, net <b>${((100 / P.ventFull - fill * 100) >= 0 ? '-' : '+') + Math.abs(100 / P.ventFull - fill * 100).toFixed(0)}%</b> per min.${fill * 100 > 100 / P.ventFull * 0.6 ? ' Engines and sensors are fighting the vent: ease off to drain faster.' : ''}` : `Stored <b>${Math.round(h * 100)}%</b>, filling ${(fill * 100).toFixed(1)}% per min` + (h > 0 ? `; about ${fill > 0 ? fmtMin((1 - h) / fill) : 'forever'} until the fins open by themselves.` : '.') + ' Only venting empties it.';
-    const vb = $('vent'); vb.textContent = S.vent.on ? (S.vent.forced ? 'Venting...' : 'Retract fins') : 'Vent heat'; vb.disabled = !!S.over || (S.vent.on && S.vent.forced) || (!S.vent.on && h < P.ventMin); vb.className = S.vent.on ? 'on' : ''; }
+    const sc = $('sinkc'); $('sinkl').textContent = S.vent.on ? 'FINS OUT: click to retract' : h < P.ventMin ? 'Heat sink' : 'Heat sink: click to vent'; sc.classList.toggle('vent', !!S.vent.on); sc.style.cursor = 'pointer'; }
   const gauge = (l, v, col, txt) => `<div class="eg"><span>${l}</span><div class="bar"><i style="width:${Math.round(Math.max(0, Math.min(1, v)) * 100)}%;background:${col}"></i></div><span>${txt}</span></div>`;
   { const fN = S.analysts.filter(w => w.task != null).length, rl = S.tubes.filter(x => S.t < x).length, q = S.t < S.quietUntil;
     $('pw').innerHTML = gauge('Sensors', q ? 0.04 : 0.25 + 0.25 * fN, '#6fc3d0', q ? 'dark' : fN ? fN + ' focused' : 'sweeping') + gauge('Drive', S.orderId != null ? { creep: 0.25, cruise: 0.55, burn: 1 }[S.speed] : 0.08, '#ff8a4c', S.orderId != null ? E.SPEED[S.speed].label.toLowerCase() : 'idle') + gauge('Weapons', rl / P.tubes, '#ffb454', rl ? rl + ' reloading' : 'idle') + gauge('Compute', S.pell && !q ? 0.3 + S.integration / 200 : 0.1, '#b79cff', S.pell ? 'Pell on' : 'idle');
@@ -433,7 +436,7 @@ function buildEngage() {
   $('homing').onchange = e => { homing = e.target.checked; engUpdate(true); };
   $('ammo').onclick = e => { const b = e.target.closest('button'); if (b) { ammo = b.dataset.k; [...$('ammo').children].forEach(c => c.classList.toggle('on', c === b)); engUpdate(true); } };
   $('cone').oninput = e => { cone = +e.target.value; engUpdate(true); };
-  $('fire').onclick = () => { const a2 = S.an[engageId]; if (a2 && E.fire(S, a2.id, aimL, cone, ammo, homing)) { fires.push(S.t); engUpdate(true); } };
+  $('fire').onclick = () => { const a2 = S.an[engageId]; if (a2 && E.solveInfo(S, a2).stale) { E.refreshSolution(S, a2.id); engUpdate(true); return; } if (a2 && E.fire(S, a2.id, aimL, cone, ammo, homing)) { fires.push(S.t); engUpdate(true); } };
   $('cancel').onclick = () => setView('tac'); $('cwb').onclick = () => { const a2 = S.an[engageId]; if (a2) E.fireClose(S, a2.id); };
   $('tgtitle').textContent = 'Fire solution // contact ' + (a.id + 1);
   engUpdate(true);
@@ -451,7 +454,7 @@ function engUpdate(hp) {
   $('kcone').innerHTML = dial({ label: 'CONE WIDTH', unit: 'km spread', min: 0, max: 24, val: cone, major: 12, num: v => v % 6 ? '' : v, amber: true, sub: 'tight = dense and punishing, wide = more coverage' });
   const si = E.solveInfo(S, a), rd = S.tubes.filter(x => S.t >= x).length;
   $('solbar').innerHTML = `<div class="sol"><b style="color:${si.ready ? 'var(--green)' : 'var(--amber)'}">${si.ready ? 'FIRING SOLUTION READY' : si.stale ? 'SOLUTION STALE: PRESS REFRESH' : si.paused ? 'SOLUTION PAUSED (SENSORS DARK)' : 'SOLVING'}</b><div class="bar"><i style="width:${si.prog * 100}%;background:${si.ready ? '#8fd694' : '#ffb454'}"></i><span>${si.ready || si.stale ? '' : fmtMin(si.remain) + ' left'}</span></div><span class="help">${si.why.join(', ')}</span><button id="refresh" title="Throw out this solution and work a fresh one. Pointing analysts at the contact keeps the track fresh without this.">Refresh</button></div><div class="help">Scan is ${fmtMin(S.t - q.t)} old${S.t - q.t > P.solveStale * 0.66 ? ': going stale, the solution will reset' : ''}. Tracking analysts keep it fresh.</div>`;
-  const f2 = $('fire'); f2.disabled = !si.ready || !rd; f2.textContent = !si.ready ? (si.stale ? 'STALE' : 'SOLVING ' + (si.paused ? '' : fmtMin(si.remain))) : !rd ? 'RELOADING ' + fmtMin(Math.min(...S.tubes.map(x => x - S.t))) : 'FIRE SALVO';
+  const f2 = $('fire'); f2.disabled = si.stale ? false : (!si.ready || !rd); f2.textContent = !si.ready ? (si.stale ? 'REFRESH SOLUTION (stale)' : 'SOLVING ' + (si.paused ? '' : fmtMin(si.remain))) : !rd ? 'RELOADING ' + fmtMin(Math.min(...S.tubes.map(x => x - S.t))) : 'FIRE SALVO';
   $('eninfo').textContent = `Arrival in about ${(P.engage + f.tf).toFixed(1)} min. At the aim point the path is uncertain by about ${f.cross.toFixed(1)} km across and ${f.along.toFixed(1)} km along. Grid read: ${a.flutter || 'none yet'}.`;
   { const sr = hpNow ? E.selfRisk(S, a, aimL, cone, 300) : selfCache; selfCache = sr; selfRiskV = sr.p; const ci = E.closeInfo(S, a), inR = ci.d <= P.closeRange, cwr = S.t >= S.cwCd, dang = sr.p >= 0.03;
     $('dcled').className = 'led ' + (dang ? 'r' : 'g');

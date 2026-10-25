@@ -245,3 +245,10 @@ Revised (Dave): evade should speed analysis modestly at a modest stealth cost, b
 ## Oct 24 - 240 km map, navigation, damage, salvage
 - 240 km arena; right-click navigation; 6-missile salvos with area damage (killR 20, squared falloff), Standard/EMP/Flare warheads, homing seekers vs cold missiles with target reaction; four-outcome popups (video clip hook in assets/fx); sim-tuned constants (see docs/salvo_design.md).
 - Derelict salvage in after-action report (docs/salvage_and_parts.md). Fix: splash on lures no longer counts toward the win.
+
+## Oct 25: hunt fixes from Dave's scope feedback
+- One star max per arena.
+- Scanner bars: bar = significance (classification); thin line underneath = collection progress, turns green with a check when the read is complete. Analysts stand down on a contact once their read is complete (no more heat), sweeps skip finished channels.
+- Heat sink header cell is the vent toggle (also V). Fins can always be retracted, even a forced vent (a mistake you can make); label reads FINS OUT: click to retract.
+- Ping: three read rounds, and a locked contact's solution refreshes in about 10 seconds.
+- Stale Fire button now reads REFRESH SOLUTION and recalculates on click.
