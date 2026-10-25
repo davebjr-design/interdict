@@ -309,6 +309,8 @@ Officer callouts: voiced for these events only (recommendation, already close to
 
 ---
 
+**Implementation status (Oct 25, 2026): steps below are done for Tactical, Strategic and Target (scope enlarged to 56u). Remaining: COVER/ECLIPSE lamps, two-step Redline, art manifest.**
+
 ## 12. Migration order (small steps, each shippable and testable)
 
 Files: all changes are in `web/hunt_rt_template.html` (and `build_hunt_rt.sh` output), never hand-edit `hunt_rt.html`. The engine (`hunt_rt_engine.js`) needs no change except where marked.

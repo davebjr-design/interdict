@@ -114,18 +114,9 @@ button.fire{background:var(--red);color:#fff;border-color:var(--red);padding:12p
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
 /*CONSOLECSS*/
 </style>
-<div id="app"><div id="stage"><div id="vwrap"><section class="view" id="v-str">
-<section class="panel"><h2>Arena <span class="lbl">your plan, your trail, what we think is where</span> <button id="planedit" title="Click the map to add waypoints; right-click anywhere on the scope or map to go somewhere; click a waypoint to remove it">Edit flight plan</button> <span class="zb"><button id="mzin" title="Zoom in">+</button><button id="mzout" title="Zoom out">-</button><button id="mzfit" title="Show the whole arena">Fit</button></span></h2><div class="mapbox" id="mapbox"><canvas id="map"></canvas></div></section>
-<section class="panel"><h2>Contact ledger</h2><table id="ledger"></table><div class="help" id="strhelp"></div></section>
-<section class="panel tl"><h2>Timeline</h2><div class="mapbox" id="tlbox"><canvas id="tl"></canvas></div></section>
-</section>
-<section class="view" id="v-tgt">
-<section class="panel"><h2 id="tgtitle">Fire solution</h2><div id="solbar"></div><div class="mapbox" id="plotbox"><canvas id="plot"></canvas></div><div class="help" id="scale"></div></section>
-<section class="panel" id="engage"></section>
-</section>
-</div></div></div>
+<div id="app"><div id="stage"></div></div>
 <div id="ctip" hidden></div>
-<div id="legacy" hidden><div id="wrap">
+<div id="legacy" hidden><section class="view" id="v-str"><button id="planedit"></button><table id="ledger"></table><div id="strhelp"></div><div id="tlbox"><canvas id="tl"></canvas></div></section><section class="view" id="v-tgt"><h2 id="tgtitle"></h2><div id="solbar"></div><div id="scale"></div><section id="engage"></section></section><div id="wrap">
 <header id="strip">
 <div class="cell"><b id="clk">0:00</b></div>
 <div class="cell"><span class="lbl">Enemy fix</span><div class="pips" id="pips" title="How well the best-informed enemy ship knows where we are. One pip: it has a bearing and will hunt us. Three: a firm solution and accurate fire. It slips back if we stay cold and they lose the trace."><div class="pip"></div><div class="pip"></div><div class="pip"></div></div><span id="warn" class="warn"></span></div>
@@ -327,7 +318,7 @@ function uiUpdate(force) {
   { const deg = ((Math.atan2(Math.cos(S.hdg || 0), -Math.sin(S.hdg || 0)) * 180 / Math.PI) + 360) % 360; $('helm').textContent = 'Heading ' + String(Math.round(deg)).padStart(3, '0') + ', ' + E.SPEED[S.speed].label.toLowerCase() + (S.orderUntil != null && S.posture !== 'route' ? ', maneuver ends in ' + fmtMin(Math.max(0, S.orderUntil - S.t)) : ''); }
   if (!hist.length || S.t - hist[hist.length - 1].t >= 0.25) { hist.push({ t: S.t, sig: xp.total, stage: S.stage, quiet: !!xp.quiet, vent: !!S.vent.on }); trail.push({ x: S.player.x, y: S.player.y }); }
   cUpdate();
-  if (view === 'str') { drawMap(); drawLedger(); drawTl(); }
+  if (view === 'str') { drawMap(); }
   if (S.over && !fxOn && !fxQ.length) endScreen();
 }
 function dial(o) {
@@ -347,14 +338,14 @@ function openTarget(id) { engageId = id; aimL = null; setView('tgt'); }
 function setView(v) {
   if (v === 'tgt' && engageId == null) { const a = S && S.an.find(x => x.state === 'locked'); if (!a) return; engageId = a.id; aimL = null; }
   if (v !== 'tgt') engageId = null;
-  view = v; document.body.dataset.view = v; ['tac', 'str', 'tgt'].forEach(k => $('v-' + k).classList.toggle('act', k === v));
+  view = v; document.body.dataset.view = v; cViews(v); ['tac', 'str', 'tgt'].forEach(k => $('v-' + k).classList.toggle('act', k === v));
    $('cmenu').hidden = true;
-  if (v === 'tgt') buildEngage(); layout(); if (S) { if (v === 'str') { drawMap(); drawLedger(); drawTl(); } if (v === 'tgt') engUpdate(true); }
+  if (v === 'tgt') buildEngage(); layout(); if (S) { if (v === 'str') { drawMap(); } if (v === 'tgt') engUpdate(true); }
 }
 function layout() {
   SC = Math.min(innerWidth / 1920, innerHeight / 1080); const app = $('app'); app.style.transform = 'translate(' + ((innerWidth - 1920 * SC) / 2) + 'px,' + ((innerHeight - 1080 * SC) / 2) + 'px) scale(' + SC + ')';
 }
-addEventListener('resize', () => { layout(); if (S && view !== 'tac') { if (view === 'str') { drawMap(); drawLedger(); drawTl(); } else engUpdate(true); } });
+addEventListener('resize', () => { layout(); if (S && view !== 'tac') { if (view === 'str') { drawMap(); } else engUpdate(true); } });
 $('tabs').onclick = e => { const b = e.target.closest('button'); if (b && !b.disabled) setView(b.dataset.v); };
 function fit(c) { const r = c.parentElement.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1), w = r.width / SC, h = r.height / SC; c.width = Math.max(10, w * d); c.height = Math.max(10, h * d); const g = c.getContext('2d'); g.setTransform(d, 0, 0, d, 0, 0); return { g, w, h }; }
 function paintBodies(g, bodies, X, Y, K, fs) {
@@ -393,9 +384,8 @@ function drawMap() {
   S.volleys.forEach(v => { E.missilePos(S, v).forEach(q => { g.fillStyle = '#ffe6b8'; g.beginPath(); g.arc(px(q.x), py(q.y), 3, 0, 7); g.fill(); }); g.strokeStyle = 'rgba(255,180,84,.5)'; g.setLineDash([3, 4]); g.save(); g.translate(px(v.aim.x), py(v.aim.y)); g.rotate(v.dir); g.beginPath(); g.ellipse(0, 0, v.cone * P.alongStretch * K * 1.6 + 2, v.cone * K * 1.6 + 2, 0, 0, 7); g.stroke(); g.restore(); g.setLineDash([]); });
   rotShip(g, px(S.player.x), py(S.player.y), S.hdg, '#6fc3d0', 1); g.fillStyle = '#cfe3da'; g.font = '11px IBM Plex Mono, monospace'; g.fillText('YOU', px(S.player.x) + 10, py(S.player.y) + 4);
   g.restore(); g.font = '10px IBM Plex Mono, monospace'; g.fillStyle = '#4a6a60'; for (let v = 0; v <= P.arena; v += gs) { if (px(v) >= ox && px(v) <= ox + sz) g.fillText(v, px(v) + 2, oy - 4); if (py(v) >= oy && py(v) <= oy + sz) g.fillText(v, ox - 20, py(v) + 4); } g.fillText('breach exit: any edge   ' + P.arena + ' km square   ' + (MZ > 1.01 ? 'zoom ' + MZ.toFixed(1) + 'x, wheel or drag' : 'wheel zooms, drag pans'), ox, oy + sz + 14);
-  $('planedit').className = planEdit ? 'on' : ''; $('planedit').textContent = planEdit ? 'Done editing' : 'Edit flight plan'; $('strhelp').textContent = planEdit ? 'Click the map to add a waypoint. Click a waypoint to remove it.' : 'Dashed line is the flight plan. Contact positions are our best estimate, not the truth.';
+  cPlanUI();
 }
-$('planedit').onclick = () => { planEdit = !planEdit; drawMap(); };
 const mapPt = e => { const r = $('map').getBoundingClientRect(), mx = (e.clientX - r.left) / SC, my = (e.clientY - r.top) / SC; return { mx, my, x: (mx - mapG.ox - mapG.sz / 2) / mapG.K + MCX, y: (my - mapG.oy - mapG.sz / 2) / mapG.K + MCY }; };
 const mapClamp = () => { const half = P.arena / 2 / MZ; MCX = Math.max(half, Math.min(P.arena - half, MCX)); MCY = Math.max(half, Math.min(P.arena - half, MCY)); };
 $('map').addEventListener('wheel', e => { if (!mapG) return; e.preventDefault(); const b = mapPt(e), z0 = MZ; MZ = Math.max(1, Math.min(8, MZ * (e.deltaY < 0 ? 1.25 : 0.8))); const K1 = mapG.sz / P.arena * MZ; MCX = b.x - (b.mx - mapG.ox - mapG.sz / 2) / K1; MCY = b.y - (b.my - mapG.oy - mapG.sz / 2) / K1; mapClamp(); drawMap(); }, { passive: false });
@@ -474,7 +464,8 @@ function engUpdate(hp) {
     $('cwb').disabled = !inR || !cwr; $('cwb').textContent = cwr ? 'Coilgun' : 'Coilgun ' + (S.cwCd - S.t).toFixed(1) + ' min'; }
   $('infl').innerHTML = 'Salvos: ' + S.tubes.map((x, i) => `<b style="color:${S.t >= x ? 'var(--green)' : 'var(--amber)'}">${i + 1} ${S.t >= x ? 'READY' : 'RELOAD ' + fmtMin(x - S.t)}</b>`).join(' / ') + (S.volleys.length ? '<br>' + S.volleys.map(v => `In flight at contact ${v.id + 1}: impact in ${fmtMin(Math.max(0, v.at - S.t))}`).join('<br>') : '') + '<br>A new volley adds blast heat now. Detonations near us add more.';
   $('sweepb').innerHTML = S.vent.on ? `<div class="banner">FINS OUT: we are fully visible. A volley fired now lights us up even more.</div>` : S.inc.length ? `<div class="banner">INCOMING FIRE. Move off the aim point, or go quiet (Q) to delay their next salvo.</div>` : '';
-  if (hp) { const d = E.dmgEst(S, a, aimL, cone, ammo, 400, Math.random, homing), hv = Math.round(100 * d.p), W = E.WARHEAD[ammo]; $('hp').textContent = hv + '%'; $('hpb').style.width = hv + '%'; $('ammotip').textContent = W.tip + ' ' + (ammo === 'he' ? `On average about ${d.exp.toFixed(0)} hull points per volley (a destroyer has about 70, a cruiser 110, a battleship 180).` : ammo === 'emp' ? `On average it knocks about ${d.exp.toFixed(0)} points off its efficiency.` : `On average it adds about ${d.exp.toFixed(0)} points of glare.`); }
+  if (hp) { const d = E.dmgEst(S, a, aimL, cone, ammo, 400, Math.random, homing), hv = Math.round(100 * d.p), W = E.WARHEAD[ammo]; hitNow = { hv }; $('hp').textContent = hv + '%'; $('hpb').style.width = hv + '%'; $('ammotip').textContent = W.tip + ' ' + (ammo === 'he' ? `On average about ${d.exp.toFixed(0)} hull points per volley (a destroyer has about 70, a cruiser 110, a battleship 180).` : ammo === 'emp' ? `On average it knocks about ${d.exp.toFixed(0)} points off its efficiency.` : `On average it adds about ${d.exp.toFixed(0)} points of glare.`); }
+  try { cTgtUpdate({ a, f, sug, q, rg, rel, aob, sp, si, rd }); } catch (e) { console.error(e); }
   drawPlot(a, f);
 }
 function drawPlot(a, f) {
@@ -511,7 +502,7 @@ function endScreen() {
   $('again').onclick = () => start(); $('close').onclick = () => { $('over').hidden = true; };
 }
 function openMenu(id, mx, my) {
-  const a = S.an[id], m = $('cmenu'); if (!a || S.over || a.state === 'disabled') { m.hidden = true; return; }
+  const a = S.an[id], m = $('cmenu'); selId = id; if (!a || S.over || a.state === 'disabled') { m.hidden = true; return; }
   const fr = a.idStatus === 'plan', cdp = Math.max(0, S.pingCd - S.t), dark = S.t < S.quietUntil, mine = k => S.orderId === id && S.posture === k, esc = o => JSON.stringify(o).replace(/'/g, '&#39;');
   const lab = fr ? 'FRIENDLY' : a.state === 'out' ? 'RULED OUT' : a.state === 'locked' ? (a.idStatus === 'hostile' ? 'HOSTILE' : 'WARSHIP') : a.idStatus === 'hostile' ? 'HOSTILE (100%)' : '';
   const btn = (k, t, tip, dis, extra = '') => `<button data-k="${k}" ${dis ? 'disabled' : ''} ${extra} class="${mine(k) ? 'cur' : ''}">${t}<small>${tip}</small></button>`;

@@ -14,7 +14,7 @@ const cplate = (x, y, w, h, txt, o = {}) => cwid('plate', x, y, w, h, txt, o);
 const cgauge = (id, x, y, w, h, o = {}) => cwid('g', x, y, w, h, '', Object.assign({ id }, o));
 const cdial = (id, x, y, w, h, o = {}) => cwid('l', x, y, w, h, '', Object.assign({ id }, o));
 function czone(name, x, y, w, h, title, sub, body, o = {}) {
-  return `<div class="cz ${o.cls || ''}" ${o.id ? `id="${o.id}"` : ''} data-z="${name} ${w}x${h}u" style="--x:${x};--y:${y};--w:${w};--h:${h}">${title ? `<div class="czt">${title}<em>${sub || ''}</em></div>` : ''}${body}</div>`;
+  return `<div class="cz ${o.cls || ''}" ${o.id ? `id="${o.id}"` : ''} ${o.vz ? `data-vz="${o.vz}"` : ''} data-z="${name} ${w}x${h}u" style="--x:${x};--y:${y};--w:${w};--h:${h}">${title ? `<div class="czt">${title}<em>${sub || ''}</em></div>` : ''}${body}</div>`;
 }
 // ---------- SVG toolkit (viewBox = 10 units per u) ----------
 const cpol = (cx, cy, r, a) => { const t = (a - 90) * Math.PI / 180; return [cx + r * Math.cos(t), cy + r * Math.sin(t)]; };
@@ -158,13 +158,13 @@ function cTactical() {
   // SENSORS (analysts)
   let a = '';
   E.ANALYSTS.forEach((w, i) => { const col = CHK[w.ch][2]; a += cwid('an', i * 12, 3, 12, 8, `<div style="position:absolute;left:7%;top:8%;font-weight:700;font-size:calc(var(--u)*1.25);color:${col};letter-spacing:.06em">${w.name}</div><div style="position:absolute;left:7%;top:36%;font-size:calc(var(--u)*1.05);color:#566b62">${w.role}</div><div id="an-t${i}" style="position:absolute;right:7%;bottom:6%;font-family:'DejaVu Sans Mono','IBM Plex Mono',monospace;font-weight:700;font-size:calc(var(--u)*2.7);line-height:1;color:#33423c">--</div><div style="position:absolute;left:7%;bottom:10%;display:flex;gap:calc(var(--u)*.5);align-items:center"><i id="an-l${i}" class="cled" style="width:calc(var(--u)*1.2);height:calc(var(--u)*1.2)"></i><span id="an-s${i}" class="clg" style="color:#cfe3da">SWEEP</span></div>`, { id: 'an' + i, act: 'analyst', arg: w.id, tag: 'M 12x8u', style: 'cursor:pointer', tip: `${w.name} reads ${w.role.toLowerCase()} signals. Sweeping, ${w.name} works through the contacts one at a time. Click a channel bar on a contact slip to point ${w.name} at it; click here to release.` }); });
-  o += czone('SENSORS', 0, 8, 36, 12, 'ANALYSTS', 'who is looking at what', a, { cls: 'blank' });
-  o += czone('CONTACTS', 0, 20, 36, 56, 'CONTACTS', 'numbers match the scope', '<div id="ct" style="position:absolute;inset:0"></div>', { cls: 'blank' });
+  o += czone('SENSORS', 0, 8, 36, 12, 'ANALYSTS', 'who is looking at what', a, { cls: 'blank', vz: 'tac str' });
+  o += czone('CONTACTS', 0, 20, 36, 56, 'CONTACTS', 'numbers match the scope', '<div id="ct" style="position:absolute;inset:0"></div>', { cls: 'blank', vz: 'tac str' });
   // ORDERS
   let b = '';
   [['k-inv', 0, 3, 'INVESTIGATE', 'ALL 3 ANALYSTS', CC.cyan, 'invest'], ['k-ping', 12, 3, 'ACTIVE PING', 'LOUD &middot; HEAT', CC.amber, 'ping'], ['k-lock', 24, 3, 'LOCK ON', '', CC.amber, 'lock'], ['k-dis', 0, 7, 'DISMISS', 'RULE OUT', CC.green, 'dismiss'], ['k-re', 12, 7, 'RE-ANALYZE', 'RULED OUT ONLY', CC.cyan, 'reanalyze'], ['k-rel', 24, 7, 'RELEASE', 'ANALYSTS', CC.cyan, 'release']].forEach(([id, x, y, t, s, c, act]) => { b += ckeyW(id, x, y, 12, 4, t, s, c, { act, tag: 'K 12x4u', heat: act === 'ping' ? { ping: 1 } : null }); });
   b += cwid('evd', 0, 11, 36, 3, '<div id="evd"></div>', { id: 'z-evd', tag: 'LCD 36x3u' });
-  o += czone('ORDERS', 0, 76, 36, 14, '<span id="ord-t">ORDERS</span>', '', b);
+  o += czone('ORDERS', 0, 76, 36, 14, '<span id="ord-t">ORDERS</span>', '', b, { vz: 'tac str' });
   // SCOPE and HELM (scope glass 56u, helm column 20u)
   let s = cwid('beacon', 0, 0.2, 56, 2.8, '<i id="bc-led" class="cled a fl"></i><b>NEXT</b><span id="bc-t"></span>', { id: 'beacon', act: 'beacon', tag: 'beacon 56x3u', style: 'cursor:pointer' });
   s += cwid('glass', 0, 3, 56, 56, '<canvas id="cv" width="640" height="640" aria-label="Radar display"></canvas><div class="cmark" id="cmark"></div>', { cls: 'cglass', id: 'scopebox', tag: 'XL 56x56u', style: 'padding:calc(var(--u)*.3)' });
@@ -175,26 +175,26 @@ function cTactical() {
   s += croW('r-spd', 56, 17, 'SPEED', '8.8', 10, 4, { tag: 'T 10x4u' }) + croW('r-leg', 66, 17, 'LEG', '88:88', 10, 4, { tag: 'T 10x4u' });
   SPDK.forEach((k, i) => { const sp = E.SPEED[k]; s += ckeyW('kd-' + k, 56 + (i % 2) * 10, 21 + (i >> 1) * 4, 10, 4, sp.label.toUpperCase(), sp.v + ' KM/M', SPDC[k], { act: 'drive', arg: k, tag: 'K 10x4u', heat: { speed: k }, cls: k === 'ab' ? 'guard' : '', tip: sp.tip }); });
   s += ckeyW('k-hold', 56, 33, 10, 4, 'HOLD STILL', 'STANCE', CC.green, { act: 'hold', tag: 'K 10x4u', heat: { still: 1 }, tip: 'Stay put. The quietest stance: the drive is off and heat fills slowly.' }) + ckeyW('k-evade', 66, 33, 10, 4, 'EVASIVE', 'STANCE', CC.amber, { act: 'evade', tag: 'K 10x4u', tip: 'Weaving gives the analysts new angles: they read about 10% faster. The drive makes us about 20% louder than holding still.' });
-  s += ckeyW('k-clear', 56, 37, 10, 4, 'CLEAR PLAN', '', null, { act: 'clearplan', tag: 'K 10x4u', tip: 'Drop the flight plan and hold position.' }) + ckeyW('planedit', 66, 37, 10, 4, 'EDIT PLAN', 'STRATEGIC MAP', null, { act: 'editplan', tag: 'K 10x4u', tip: 'Open the strategic map to draw waypoints.' });
+  s += ckeyW('k-clear', 56, 37, 10, 4, 'CLEAR PLAN', '', null, { act: 'clearplan', tag: 'K 10x4u', tip: 'Drop the flight plan and hold position.' }) + ckeyW('k-edit', 66, 37, 10, 4, 'EDIT PLAN', 'STRATEGIC MAP', null, { act: 'editplan', tag: 'K 10x4u', tip: 'Open the strategic map to draw waypoints.' });
   s += cplate(56, 41, 20, 4, 'RIGHT-CLICK: GO HERE<br>SHIFT: QUEUE A WAYPOINT', { tag: 'plate 20x4u' });
   for (let i = 0; i < 4; i++) s += clampW('lw' + i, 56 + i * 5, 45, 'WPT ' + (i + 1), { w: 5, tag: 'S 5x4u' });
   s += clampW('l-back', 56, 49, 'BACKLIT', { w: 10, tip: 'The selected contact is backlit by a star, so the Visual channel can work on it.' }) + clampW('l-plan', 66, 49, 'ON PLAN', { w: 10, tip: 'We are flying a flight plan.' });
   s += cplate(56, 53, 20, 4, 'COURSE LEGS COLORED BY DRIVE SETTING', { tag: 'plate 20x4u' });
-  o += czone('SCOPE', 36, 8, 76, 66, 'SCOPE &amp; HELM', 'who is where, and how we move', s, { cls: 'blank' });
+  o += czone('SCOPE', 36, 8, 76, 66, 'SCOPE &amp; HELM', 'who is where, and how we move', s, { cls: 'blank', vz: 'tac' });
   // WEAPONS and COMMS
   let w = ''; for (let i = 0; i < 3; i++) w += cgauge('g-tube' + i, i * 12, 3, 12, 8, { tag: 'M 12x8u', tip: 'Missile tube. Each takes about ' + P.reload + ' minutes to reload after firing.' });
   w += cgauge('g-coil', 36, 3, 12, 8, { tag: 'M 12x8u', tip: 'Point-blank coilgun: instant, ignores scatter, only inside ' + P.closeRange + ' km, and the flash is loud.' });
   w += croW('r-fly', 0, 11, 'IN FLIGHT', '88:88', 12, 4);
   w += ckeyW('k-tgt', 12, 11, 12, 4, 'TARGET &#9656;', '', CC.amber, { act: 'target', tag: 'K 12x4u', tip: 'Open the fire solution view for a locked contact. Fire from there.' });
   w += clampW('lw-live', 24, 11, 'LIVE', { tip: 'The locked contact is being observed now.' }) + clampW('lw-stale', 30, 11, 'STALE', { tip: 'The firing solution is stale: refresh it in the Target view.' }) + clampW('lw-rng', 36, 11, 'IN RNG', { tip: 'A contact is inside coilgun range.' }) + clampW('lw-fr', 42, 11, 'FRIEND', { tip: 'An ally is near the aim point: weapons safe.' });
-  o += czone('WEAPONS', 36, 74, 48, 16, 'WEAPONS', 'tubes &middot; coilgun', w);
+  o += czone('WEAPONS', 36, 74, 48, 16, 'WEAPONS', 'tubes &middot; coilgun', w, { vz: 'tac' });
   let c = cwid('log', 0, 3, 28, 9, '<div id="feed" class="feed"></div>', { tag: 'LOG 28x9u' });
   c += ckeyW('k-voice', 0, 12, 14, 4, 'VOICE', 'OFF', CC.green, { act: 'voice', tag: 'K 14x4u', tip: 'Officers speak the important calls aloud using your browser voices. Cycle: off, slow, normal, fast.' }) + ckeyW('k-rall', 14, 12, 14, 4, 'KEY CALLS', 'KEY', null, { act: 'rall', tag: 'K 14x4u', tip: 'Key calls only, or every report line.' });
-  o += czone('COMMS', 84, 74, 28, 16, 'COMMS', 'mostly voiced', c);
+  o += czone('COMMS', 84, 74, 28, 16, 'COMMS', 'mostly voiced', c, { vz: 'tac str' });
   return o;
 }
-function cBuild() { $('stage').insertAdjacentHTML('afterbegin', cShell() + '<div id="tacz" style="display:contents">' + cTactical() + '</div>'); }
-cBuild();
+function cViews(v) { document.querySelectorAll('#stage [data-vz]').forEach(z => { z.hidden = !z.dataset.vz.split(' ').includes(v); }); }
+function cBuild() { $('stage').insertAdjacentHTML('afterbegin', cShell() + cTactical() + cStrategic() + cTarget()); cViews('tac'); }
 /* ---------- live state -> widgets ---------- */
 let selId = null, hbuf = [], hbufS = null, cCache = {}, errN = 0;
 const cOn = (id, f) => { const el = $(id); if (el) f(el); };
@@ -207,7 +207,7 @@ function clampSet(id, on, o = {}) {
 function ckeySet(id, o) {   // o: { t, s, lit, dis, rec, hot, heat }
   const el = $(id); if (!el) return; const k = JSON.stringify(o); if (el.dataset.k === k) return; el.dataset.k = k;
   if (o.t != null) el.querySelector('.ckt').innerHTML = o.t; if (o.s != null) el.querySelector('.cks').innerHTML = o.s;
-  el.classList.toggle('lit', !!o.lit); el.classList.toggle('dis', !!o.dis); el.classList.toggle('rec', !!o.rec); el.classList.toggle('hot', !!o.hot); el.classList.toggle('on', !!o.lit);
+  el.classList.toggle('lit', !!o.lit); el.classList.toggle('dis', !!o.dis); el.classList.toggle('rec', !!o.rec); el.classList.toggle('hot', !!o.hot); el.classList.toggle('on', !!o.lit); if (o.guard !== undefined) el.classList.toggle('guard', !!o.guard);
   if (o.heat !== undefined) { if (o.heat) el.dataset.heat = JSON.stringify(o.heat); else delete el.dataset.heat; }
 }
 function croSet(id, v, col, label) {
@@ -460,3 +460,102 @@ document.addEventListener('keydown', e => {   // orders bank keys and selection 
   if (m) { const btn = { invest: 'k-inv', ping: 'k-ping', lock: 'k-lock', dismiss: 'k-dis', reanalyze: 'k-re' }[m]; if (!$(btn).classList.contains('dis')) ACT[m](); e.preventDefault(); }
   else if (e.key === 'Tab') { e.preventDefault(); const live = S.an.filter(a => a.state !== 'out' || true), i = live.findIndex(a => a.id === selId); selId = live[(i + (e.shiftKey ? live.length - 1 : 1)) % live.length].id; uiUpdate(true); }
 });
+/* ---------- Strategic and Target views (same shell) ---------- */
+function clin(vmin, vmax, val, ticks, label, unit, fmt, zones, ghost, rcol, sub, unc, mark) {
+  const a = v => -120 + 240 * (Math.max(vmin, Math.min(vmax, v)) - vmin) / (vmax - vmin);
+  const zs = (zones || [[null, null, '#2b6b66']]).map(([f0, f1, c]) => [f0 == null ? a(vmin) : a(f0), f1 == null ? a(vmax) : a(f1), c]);
+  let s = cdialSvg(a(val), zs, ticks.map(t => [a(t), typeof t === 'string' ? t : fmt(t), true]), fmt(val), label, unit, ghost == null ? null : a(ghost), rcol, sub);
+  let ex = '';
+  if (unc) ex += `<path d="${carc(120, 82, 50, a(val - unc), a(val + unc))}" stroke="#ffb454" stroke-width="3" fill="none" opacity=".9"/>`;
+  if (mark != null) { const [x0, y0] = cpol(120, 82, 36, a(mark)), [x1, y1] = cpol(120, 82, 54, a(mark)); ex += `<line x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${x1.toFixed(1)}" y2="${y1.toFixed(1)}" stroke="#6fc3d0" stroke-width="3" stroke-dasharray="3 2"/>`; }
+  return s.replace('</svg>', ex + '</svg>');
+}
+function cStrategic() {
+  let m = cwid('glass', 0, 3, 62, 62, '<canvas id="map" aria-label="Strategic map"></canvas>', { cls: 'cglass', id: 'mapbox', tag: 'XL 62x62u', tip: 'The whole arena: our trail, the flight plan, and what we think is where. Wheel zooms, drag pans. In edit mode click to add a waypoint and click a waypoint to remove it. Right-click anywhere to go there.' });
+  m += cplate(62, 3, 14, 4, 'FLIGHT PLAN', { tag: 'plate 14x4u' });
+  m += ckeyW('k-pedit', 62, 7, 14, 6, 'EDIT PLAN', 'CLICK THE MAP', CC.amber, { act: 'pedit', tag: 'K 14x6u', tip: 'Click the map to add waypoints; click a waypoint to remove it. Each new leg flies at the current drive setting.' });
+  m += ckeyW('k-pclear', 62, 13, 14, 4, 'CLEAR PLAN', '', null, { act: 'clearplan', tag: 'K 14x4u' }) + ckeyW('k-presume', 62, 17, 14, 4, 'RESUME PLAN', '', CC.green, { act: 'resume', tag: 'K 14x4u' });
+  m += ckeyW('mzin', 62, 21, 7, 4, '+', '', null, { tag: 'K 7x4u' }) + ckeyW('mzout', 69, 21, 7, 4, '&minus;', '', null, { tag: 'K 7x4u' }) + ckeyW('mzfit', 62, 25, 14, 4, 'FIT', 'WHOLE ARENA', null, { tag: 'K 14x4u' });
+  m += croW('r-plen', 62, 29, 'PLAN LENGTH', '888', 14, 4, { tag: 'T 14x4u' }) + croW('r-peta', 62, 33, 'PLAN ETA', '88:88', 14, 4, { tag: 'T 14x4u' });
+  m += cplate(62, 37, 14, 8, 'CLICK MAP:<br>ADD WAYPOINT<br>CLICK A POINT:<br>REMOVE IT', { tag: 'plate 14x8u' }) + cplate(62, 45, 14, 8, 'RIGHT-CLICK:<br>GO HERE<br>SHIFT: QUEUE<br>A WAYPOINT', { tag: 'plate 14x8u' }) + cplate(62, 53, 14, 8, 'LEG COLOR =<br>DRIVE SETTING<br>CYAN SLOW<br>RED REDLINE', { tag: 'plate 14x8u' });
+  let o = czone('MAP', 36, 8, 76, 66, 'ARENA', 'your plan, your trail, what we think is where', m, { vz: 'str', cls: 'blank' });
+  let l = ''; for (let i = 0; i < 4; i++) l += cgauge('g-leg' + i, i * 12, 3, 12, 8, { tag: 'M 12x8u' });
+  l += cplate(0, 11, 48, 4, 'LEG COLORS FOLLOW THE DRIVE SETTING WHEN THE LEG WAS ADDED', { tag: 'plate 48x4u' });
+  o += czone('LEGS', 36, 74, 48, 16, 'LEGS', 'flight plan, per leg', l, { vz: 'str' });
+  return o;
+}
+function cPlanUI() {
+  const left = S.route.length - S.routeI, rest = S.route.slice(S.routeI); let L = 0, T = 0, px = S.player.x, py = S.player.y;
+  rest.forEach(w => { const d = Math.hypot(w.x - px, w.y - py); L += d; T += d / E.SPEED[w.speed || S.speed].v; px = w.x; py = w.y; });
+  ckeySet('k-pedit', { t: planEdit ? 'DONE' : 'EDIT PLAN', s: planEdit ? 'CLICK THE MAP' : 'ADD WAYPOINTS', lit: planEdit });
+  ckeySet('k-pclear', { t: 'CLEAR PLAN', s: '', dis: !left }); ckeySet('k-presume', { t: 'RESUME PLAN', s: left ? left + ' LEFT' : '', dis: !left || S.posture === 'route', rec: left > 0 && S.posture !== 'route' });
+  croSet('r-plen', Math.round(L), left ? CC.cyan : '#6f877d'); croSet('r-peta', left ? mmss(T) : '--:--', left ? CC.cyan : '#6f877d');
+  for (let i = 0; i < 4; i++) { const w = rest[i]; if (!w) { csvg('g-leg' + i, csegSvg(i === 0 ? 'NO PLAN' : '', 0, '#33423c', i === 0 ? 'RIGHT-CLICK' : '--', 12, 8, [], 6)); continue; } const k = w.speed || S.speed, prev = i ? rest[i - 1] : S.player, d = Math.hypot(w.x - prev.x, w.y - prev.y); csvg('g-leg' + i, csegSvg('LEG ' + (S.routeI + i + 1) + ' &middot; ' + E.SPEED[k].label.toUpperCase(), 1, SPDC[k], mmss(d / E.SPEED[k].v) + (i === 3 && rest.length > 4 ? ' +' + (rest.length - 4) : ''), 12, 8, [], 6)); }
+}
+function cTarget() {
+  let t = `<div class="cw cslip lk" id="tsl" style="--x:0;--y:1;--w:36;--h:8"></div>`;
+  [['tl-ready', 'READY', 'g'], ['tl-solv', 'SOLVING', 'a'], ['tl-stale', 'STALE', 'r'], ['tl-pause', 'PAUSED', 'c']].forEach(([id, lab], i) => { t += clampW(id, 37 + i * 6, 1, lab, { tip: { READY: 'The firing solution is ready.', SOLVING: 'The crew is still working the solution.', STALE: 'The scan is too old. Refresh the solution or keep an analyst tracking it.', PAUSED: 'Sensors are dark, so the solution is paused.' }[lab] }); });
+  t += cgauge('g-tsol', 37, 5, 24, 4, { tag: 'M 24x4u', tip: 'Firing solution progress. It speeds up with better readings, a fresh track, and Pell; hull damage, clutter and target maneuvers slow it.' });
+  t += croW('r-tage', 62, 1, 'SCAN AGE', '88:88', 12, 4, { tag: 'T 12x4u' });
+  t += ckeyW('k-trefresh', 62, 5, 12, 4, 'REFRESH', 'NEW SOLUTION', CC.amber, { act: 'trefresh', tag: 'K 12x4u', tip: 'Throw out this solution and work a fresh one. Pointing analysts at the contact keeps the track fresh without this.' });
+  t += clampW('tl-live', 75, 1, 'LIVE', { tip: 'The contact is being observed right now: the bracket is solid.' }) + clampW('tl-proj', 81, 1, 'PROJ', { tip: 'The bracket is projected from the last scan: dashed.' });
+  t += cplate(75, 5, 12, 4, 'SOLID = LIVE<br>DASHED = PROJECTED', { tag: 'plate 12x4u' });
+  t += ckeyW('k-tnext', 88, 1, 12, 8, 'NEXT LOCK', 'CYCLE TARGET', CC.cyan, { act: 'tnext', tag: 'K 12x8u' }) + ckeyW('k-tback', 100, 1, 12, 8, 'BACK', 'ESC', null, { act: 'tback', tag: 'K 12x8u' });
+  let o = czone('SOLUTION', 0, 8, 112, 10, '', '', t, { vz: 'tgt' });
+  let p = cwid('glass', 0, 3, 64, 64, '<canvas id="plot"></canvas>', { cls: 'cglass', id: 'plotbox', tag: 'XL 64x64u' });
+  p += croW('r-taim', 0, 67, 'AIM POINT', '888', 12, 4, { tag: 'T 12x4u' }) + croW('r-tarr', 12, 67, 'ARRIVE', '88:88', 12, 4, { tag: 'T 12x4u' }) + croW('r-tspd', 24, 67, 'TGT 1 MIN', '8.8', 12, 4, { tag: 'T 12x4u' });
+  [['tp-grid', 'GRID', 'Grid read: whether the target is flying a pattern.'], ['tp-dng', 'DANGER', 'Our own missiles could land on us.'], ['tp-coil', 'COIL', 'The target is inside coilgun range.'], ['tp-fr', 'FRIEND', 'An ally is near the aim point.']].forEach(([id, lab, tip], i) => { p += clampW(id, 36 + i * 6, 67, lab, { tip }); });
+  o += czone('PLOT', 0, 18, 64, 72, 'FIRE SOLUTION', '<span id="tgt-sub">contact</span>', p, { vz: 'tgt', cls: 'blank' });
+  let d = '';
+  [['d-brg', 0, 3], ['d-rng', 24, 3], ['d-bow', 0, 19], ['d-tspd', 24, 19], ['d-lead', 0, 35], ['d-cone', 24, 35]].forEach(([id, x, y]) => { d += cdial(id, x, y, 24, 16, { tag: 'L 24x16u' }); });
+  d += ckeyW('k-tauto', 0, 51, 12, 4, 'FOLLOW ABARA', 'AUTO LEAD', CC.green, { act: 'tauto', tag: 'K 12x4u', tip: "Aim where Abara suggests. He tends to under-lead, so drag the aim point further along the track if the target is fast." });
+  d += ckeyW('k-thom', 12, 51, 12, 4, 'HOMING', 'EASY TO SPOT', CC.amber, { act: 'thom', tag: 'K 12x4u', tip: 'Homing seekers: tighter landings, but easy to spot, so the target is more likely to maneuver off its line.' });
+  [['he', 'HE', 'STANDARD'], ['emp', 'EMP', ''], ['flare', 'FLARE', '']].forEach(([k, t, s], i) => { d += ckeyW('k-am-' + k, 24 + i * 8, 51, 8, 4, t, s, CC.amber, { act: 'tammo', arg: k, tag: 'K 8x4u' }); });
+  d += cgauge('g-hit', 0, 55, 24, 8, { tag: 'M 24x8u', tip: 'Chance that a missile gets close enough to do something, from 400 trial volleys at the current aim point and cone.' });
+  [['tf-s0', 'SALVO 1'], ['tf-s1', 'SALVO 2'], ['tf-s2', 'SALVO 3'], ['tf-coil', 'COIL']].forEach(([id, lab], i) => { d += clampW(id, 24 + i * 6, 55, lab, { tip: id === 'tf-coil' ? 'Coilgun ready and the target is inside its range.' : 'This missile tube is loaded.' }); });
+  [['tf-heat', 'DET HEAT', 'Detonations this close will light us up.'], ['tf-aware', 'AWARE', 'The target has noticed us and may maneuver.'], ['tf-near', 'NEAR US', 'Danger close: our own missiles could land on us.'], ['tf-grid', 'GRID', 'We have a grid read on this target.']].forEach(([id, lab, tip], i) => { d += clampW(id, 24 + i * 6, 59, lab, { tip }); });
+  d += ckeyW('k-fire', 0, 63, 36, 8, 'FIRE SALVO', 'NEEDS A READY SOLUTION', CC.red, { act: 'tfire', tag: 'K-XL 36x8u', cls: 'guard' }) + ckeyW('k-coilg', 36, 63, 12, 8, 'COILGUN', 'UNDER 18 KM', CC.amber, { act: 'tcoil', tag: 'K 12x8u', tip: 'Point-blank kinetic round. Instant, ignores scatter grids, only inside 18 km, and the flash is loud.' });
+  o += czone('AIM', 64, 18, 48, 72, 'AIM &amp; FIRE', '', d, { vz: 'tgt' });
+  return o;
+}
+let hitNow = null;
+function cTgtUpdate(T) {
+  const { a, f, sug, q, rg, rel, aob, sp, si, rd } = T, vm = slipVM(a), sl = slipHtml(a, vm, true, 0, false), el = $('tsl'), key = sl.cls + sl.html;
+  if (el.dataset.k !== key) { el.dataset.k = key; el.innerHTML = sl.html; }
+  cOn('tgt-sub', e => { e.textContent = 'contact ' + (a.id + 1); });
+  clampSet('tl-ready', si.ready, { fl: true }); clampSet('tl-solv', !si.ready && !si.stale && !si.paused); clampSet('tl-stale', si.stale, { fl: true }); clampSet('tl-pause', si.paused && !si.ready);
+  csvg('g-tsol', csegSvg('', si.ready ? 1 : si.prog, si.ready ? CC.green : CC.amber, si.ready ? 'SOLUTION READY' : si.stale ? 'STALE: REFRESH' : si.paused ? 'PAUSED: SENSORS DARK' : Math.round(si.prog * 100) + '% &middot; ' + fmtMin(si.remain) + ' LEFT', 24, 4, [], 24));
+  const age = S.t - q.t, live = age < 0.8 || (a.vent && a.ventSeen);
+  croSet('r-tage', mmss(age), age > P.solveStale * 0.66 ? CC.amber : CC.green); clampSet('tl-live', live, { fl: true }); clampSet('tl-proj', !live);
+  ckeySet('k-trefresh', { t: 'REFRESH', s: si.stale ? 'STALE: DO IT' : 'NEW SOLUTION', rec: si.stale }); const lk = S.an.filter(x => x.state === 'locked'); ckeySet('k-tnext', { t: 'NEXT LOCK', s: lk.length > 1 ? lk.length + ' LOCKED' : 'ONLY ONE', dis: lk.length < 2 });
+  const nb = n => String(Math.round(n)).padStart(3, '0');
+  csvg('d-brg', clin(0, 360, rel, [0, 90, 180, 270], 'BEARING', 'degrees off our bow', v => nb(v), [[null, null, '#2b6b66']], null, CC.cyan, '', Math.min(25, Math.atan2(sp.cross, rg) * 57.3)).replace(/>0</, '>AHD<').replace('>90<', '>STB<').replace('>180<', '>AST<').replace('>270<', '>PRT<'));
+  csvg('d-rng', clin(0, 240, rg, [0, 60, 120, 180, 240], 'RANGE', 'km', v => String(Math.round(v)), [[null, P.closeRange, '#a8681f'], [P.closeRange, null, '#2b6b66']], null, CC.cyan, 'COILGUN ' + P.closeRange));
+  csvg('d-bow', clin(-180, 180, aob, [-180, -90, 0, 90, 180], 'BOW ANGLE', aob < 0 ? 'degrees, crossing left' : 'degrees, crossing right', v => Math.abs(Math.round(v)) + '', [[null, null, '#2b6b66']], null, CC.cyan, '0 = HEAD ON', q.hs * 57.3));
+  csvg('d-tspd', clin(0, 12, q.spd, [0, 3, 6, 9, 12], 'TARGET SPEED', 'km per minute', v => (v % 1 ? v.toFixed(1) : String(v)), [[null, 6, '#2b6b66'], [6, null, '#a8681f']], null, CC.cyan, '', q.spd * q.ss));
+  csvg('d-lead', clin(0, 240, f.L, [0, 60, 120, 180, 240], 'AIM LEAD', 'km along path', v => String(Math.round(v)), [[null, null, '#a8681f']], null, CC.amber, 'DRAG THE PLOT', 0, sug));
+  csvg('d-cone', clin(0, 24, cone, [0, 6, 12, 18, 24], 'CONE WIDTH', 'km spread', v => String(Math.round(v)), [[null, null, '#a8681f']], null, CC.amber, 'WHEEL ON PLOT'));
+  croSet('r-taim', Math.round(f.L), CC.amber); croSet('r-tarr', mmss(P.engage + f.tf), CC.amber); croSet('r-tspd', q.spd.toFixed(1), CC.cyan);
+  const sr = selfCache, ci = E.closeInfo(S, a), inR = ci.d <= P.closeRange, cwr = S.t >= S.cwCd, dang = sr.p >= 0.03;
+  clampSet('tp-grid', !!a.flutter); clampSet('tp-dng', dang, { fl: true, col: 'r' }); clampSet('tp-coil', inR); clampSet('tp-fr', S.an.some(x => x.idStatus === 'plan' && x.state !== 'disabled' && Math.hypot(E.truePos(x, S.t).x - f.aim.x, E.truePos(x, S.t).y - f.aim.y) < P.killR * 2));
+  cOn('r-tarr', e => { e.dataset.tip = $('eninfo').textContent; }); cOn('tp-dng', e => { e.dataset.tip = $('selfwarn').textContent; }); cOn('plotbox', e => { e.dataset.tip = $('scale').textContent; });
+  ckeySet('k-tauto', { t: 'FOLLOW ABARA', s: 'AUTO LEAD', lit: aimL == null }); ckeySet('k-thom', { t: 'HOMING', s: 'EASY TO SPOT', lit: !!homing });
+  ['he', 'emp', 'flare'].forEach(k => { ckeySet('k-am-' + k, { t: k.toUpperCase(), s: { he: 'STANDARD', emp: 'DISABLES', flare: 'BLINDS' }[k], lit: ammo === k }); cOn('k-am-' + k, e => { e.dataset.tip = E.WARHEAD[k].tip; }); });
+  if (hitNow) { const hv = hitNow.hv; csvg('g-hit', csegSvg('HIT CHANCE', hv / 100, hv < 25 ? CC.red : hv < 55 ? CC.amber : CC.green, hv + '%', 24, 8, [], 20)); cOn('g-hit', e => { e.dataset.tip = $('ammotip').textContent; }); }
+  S.tubes.forEach((x, i) => clampSet('tf-s' + i, S.t >= x, { col: 'g' })); clampSet('tf-coil', inR && cwr, { col: 'g' });
+  clampSet('tf-heat', sr.dist < 24); clampSet('tf-aware', !!a.aware); clampSet('tf-near', dang, { fl: true, col: 'r' }); clampSet('tf-grid', !!a.flutter, { col: 'c' });
+  const fb = $('fire');
+  if (si.stale) ckeySet('k-fire', { t: 'REFRESH', s: 'SOLUTION IS STALE', guard: false, hot: false, dis: false, lit: true });
+  else if (!si.ready) ckeySet('k-fire', { t: 'SOLVING', s: si.paused ? 'PAUSED' : fmtMin(si.remain) + ' LEFT', dis: true, guard: true });
+  else if (!rd) ckeySet('k-fire', { t: 'RELOADING', s: fmtMin(Math.min(...S.tubes.map(x => x - S.t))), dis: true, guard: true });
+  else ckeySet('k-fire', { t: 'FIRE SALVO', s: (hitNow ? hitNow.hv + '% HIT CHANCE' : 'READY') + (dang ? ' &middot; DANGER CLOSE' : ''), hot: true, guard: false, dis: false });
+  ckeySet('k-coilg', { t: 'COILGUN', s: cwr ? (inR ? 'READY' : 'UNDER ' + P.closeRange + ' KM') : fmtMin(S.cwCd - S.t), dis: !inR || !cwr, hot: inR && cwr });
+}
+Object.assign(ACT, {
+  pedit() { planEdit = !planEdit; if (view === 'str') drawMap(); uiUpdate(true); }, trefresh() { if (engageId != null) E.refreshSolution(S, engageId); engUpdate(true); },
+  tnext() { const lk = S.an.filter(x => x.state === 'locked'); if (lk.length > 1) { const i = lk.findIndex(x => x.id === engageId); engageId = lk[(i + 1) % lk.length].id; aimL = null; buildEngage(); } },
+  tback() { setView('tac'); }, tauto() { $('auto').click(); engUpdate(true); }, thom() { $('homing').click(); },
+  tammo(el) { ammo = el.dataset.arg; [...$('ammo').children].forEach(c => c.classList.toggle('on', c.dataset.k === ammo)); engUpdate(true); },
+  tfire() { $('fire').click(); }, tcoil() { $('cwb').click(); engUpdate(true); },
+});
+cBuild();

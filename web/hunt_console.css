@@ -115,15 +115,10 @@ body{padding:0!important}
 #legacy[hidden]{display:block!important}
 body.sweep #stage{box-shadow:inset 0 0 0 4px #ff6b5a}
 /* secondary views hosted in the stage while they are restyled */
-#vwrap{position:absolute;left:0;top:calc(var(--u)*8);width:calc(var(--u)*112);height:calc(var(--u)*82);background:#0a0f0d;overflow:auto;padding:calc(var(--u)*.6)}
-#vwrap .view{display:none;height:100%;min-height:0}#vwrap .view.act{display:grid}
 /* hovering preview ghost on keys */
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
 
 .ckey.on .ckt{color:var(--kc,#ffb454);text-shadow:0 0 calc(var(--u)*.8) var(--kc,#ffb454)}.ckey.on .ckl{background:var(--kc,#ffb454);box-shadow:0 0 calc(var(--u)*.9) var(--kc,#ffb454)}.ckey.on .cf{background:linear-gradient(180deg,#22302a,#121b17)}
-body:not([data-view="tac"]) #tacz{display:none!important}
-body[data-view="tac"] #vwrap{display:none}
-#vwrap{text-transform:none;letter-spacing:normal;font:13px/1.45 'IBM Plex Mono',ui-monospace,Menlo,monospace;z-index:3}
 #ctip{position:fixed}
 .clog .feed{max-height:none!important;overflow:hidden;display:flex;flex-direction:column-reverse;gap:2px;padding:0}
 .clog .feed div{padding-left:calc(var(--u)*.5);border-left:2px solid #1c2a25;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.35;flex:none}

@@ -257,3 +257,10 @@ Revised (Dave): evade should speed analysis modestly at a modest stealth cost, b
 - Heat sink refill slowed (sinkK 0.7, burn is an afterburner at about 80 percent per real minute), vent drains faster, heat rate dial with hover previews and "full in" clock, UI time in real minutes, per-waypoint speed with shift-queue, relaxed vs alerted hunters at dog-legs. Bot: 79 percent win, 15 percent breach, 2.4 vents per hunt.
 - Redline (9 km/min) overheats: pegged sink costs 3 hull and 15 percent systems per game minute, with Castellan calls. Reports panel: key reports only by default, optional all; officer voice via browser speech (off/slow/normal/fast), important calls only, each kind at most every 20 s.
 - Contact menu regrouped (Scan, Navigate), Re-analyze, Investigate, analysts hold when a read or solution is complete, keep-out zones around planets and the star, drag and wheel targeting, LIVE versus PROJECTED marks.
+
+## Oct 25 (night): UI v2 console implemented
+- The hunt screen is now a fixed 1920x1080 stage (scaled to fit) of zones and widgets: rail, sensors, contacts slips, orders bank (I/G/L/D/R, Tab), 56u scope and helm, weapons, comms, heat, signature, ship. Source: `web/hunt_console.js`, `web/hunt_console.css`; `build_hunt_rt.sh` splices them into the template. Old DOM lives hidden in `#legacy` so the existing updaters still run.
+- NEXT beacon names the one thing to do now. Hover over any heat-affecting key previews heat rate, fill clock and seen-by-enemy.
+- Strategic: map glass plus route editor, per-leg cells; ledger and timeline cut. Target: solution strip, plot, six dials, ammo and homing keys, hit chance, guarded FIRE SALVO.
+- Engine: `visIf` and `modState` for what-if previews (heat rate numbers unchanged).
+- Pause blanks sensors, contacts and scope; rail and heat stay live.

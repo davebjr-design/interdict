@@ -2,6 +2,8 @@
 
 > Note (2026-10-25): this is the original layout spec. The arena is now 240 km (scope zoom and map ranges differ from the 40 km figures below), the heat sink header cell is the vent control, and scanner bars carry a collection-progress line. docs/detection_model.md "Current engine rules" is authoritative for mechanics.
 
+> **Superseded (Oct 25, 2026):** the hunt screen is now the UI v2 console: a fixed 1920x1080 stage scaled to the window, built from zones and widgets. See `design/ui_v2/README.md` for the spec and `web/hunt_console.js` / `web/hunt_console.css` for the implementation. The Strategic and Target views share the same shell.
+
 Status: design proposal. Wireframe: `/tmp/design/mockup.html` (static, sample data, placeholder styling). Screenshots: `/tmp/design/shots/`.
 Nothing in `/home/claude/interdict` was changed.
 
