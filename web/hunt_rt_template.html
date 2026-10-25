@@ -112,8 +112,20 @@ button.fire{background:var(--red);color:#fff;border-color:var(--red);padding:12p
 .lamp{display:flex;gap:6px;align-items:center;font-size:12px}.led{width:10px;height:10px;border-radius:50%;background:#2a3531;display:inline-block}.led.g{background:var(--green)}.led.r{background:var(--red);box-shadow:0 0 6px var(--red)}
 #engage{overflow:auto;gap:8px}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
+/*CONSOLECSS*/
 </style>
-<div id="app"><div id="wrap">
+<div id="app"><div id="stage"><div id="vwrap"><section class="view" id="v-str">
+<section class="panel"><h2>Arena <span class="lbl">your plan, your trail, what we think is where</span> <button id="planedit" title="Click the map to add waypoints; right-click anywhere on the scope or map to go somewhere; click a waypoint to remove it">Edit flight plan</button> <span class="zb"><button id="mzin" title="Zoom in">+</button><button id="mzout" title="Zoom out">-</button><button id="mzfit" title="Show the whole arena">Fit</button></span></h2><div class="mapbox" id="mapbox"><canvas id="map"></canvas></div></section>
+<section class="panel"><h2>Contact ledger</h2><table id="ledger"></table><div class="help" id="strhelp"></div></section>
+<section class="panel tl"><h2>Timeline</h2><div class="mapbox" id="tlbox"><canvas id="tl"></canvas></div></section>
+</section>
+<section class="view" id="v-tgt">
+<section class="panel"><h2 id="tgtitle">Fire solution</h2><div id="solbar"></div><div class="mapbox" id="plotbox"><canvas id="plot"></canvas></div><div class="help" id="scale"></div></section>
+<section class="panel" id="engage"></section>
+</section>
+</div></div></div>
+<div id="ctip" hidden></div>
+<div id="legacy" hidden><div id="wrap">
 <header id="strip">
 <div class="cell"><b id="clk">0:00</b></div>
 <div class="cell"><span class="lbl">Enemy fix</span><div class="pips" id="pips" title="How well the best-informed enemy ship knows where we are. One pip: it has a bearing and will hunt us. Three: a firm solution and accurate fire. It slips back if we stay cold and they lose the trace."><div class="pip"></div><div class="pip"></div><div class="pip"></div></div><span id="warn" class="warn"></span></div>
@@ -128,8 +140,8 @@ button.fire{background:var(--red);color:#fff;border-color:var(--red);padding:12p
 </header>
 <main id="work">
 <section class="view act" id="v-tac">
-<section class="panel rack"><h2>Contacts <span class="lbl">numbers match the scope</span></h2><div class="ct" id="ct"></div></section>
-<div class="mid"><section class="panel scope"><h2>Scope <span class="lbl">click a contact for orders</span> <span class="zb"><button id="zin" title="Zoom in">+</button><button id="zout" title="Zoom out">-</button><button id="zfit" title="Show the whole arena">Fit</button><button id="zfollow" title="Keep the view centered on our ship">Follow</button></span></h2><div class="scopebox" id="scopebox"><canvas id="cv" width="640" height="640" aria-label="Radar display"></canvas></div><div class="helm" id="helm"></div></section>
+<section class="panel rack"><h2>Contacts <span class="lbl">numbers match the scope</span></h2><div class="ct" id="ct-old"></div></section>
+<div class="mid"><section class="panel scope"><h2>Scope <span class="lbl">click a contact for orders</span> </h2><div class="scopebox"></div><div class="helm" id="helm"></div></section>
 <div class="cbot"><section class="panel" id="wpnp"><h2>Weapons</h2><div id="tubes"></div><div class="help" id="wpntxt"></div></section>
 <section class="panel"><h2>Crew</h2><div class="analysts" id="analysts"></div>
 <div class="sub"><span class="lbl">Pell // ship's AI</span><div class="row"><label><input type="checkbox" id="pell"> Pell assists (runs the ship hot)</label></div>
@@ -143,18 +155,10 @@ button.fire{background:var(--red);color:#fff;border-color:var(--red);padding:12p
 <div class="sub"><span class="lbl">Power draw</span><div id="pw"></div></div>
 <div class="sub"><span class="lbl">Hull and systems</span><div id="hl"></div></div>
 <div class="help" id="shiptxt"></div></section>
-<section class="panel grow"><h2>Reports <span class="rctl"><button id="vcyc" title="Officers speak the important calls aloud using your browser voices. Cycle: off, slow, normal, fast.">Voice: off</button><button id="rall" title="Key calls only, or every report line.">Key reports</button></span></h2><div class="feed" id="feed"></div></section></div>
-</section>
-<section class="view" id="v-str">
-<section class="panel"><h2>Arena <span class="lbl">your plan, your trail, what we think is where</span> <button id="planedit" title="Click the map to add waypoints; right-click anywhere on the scope or map to go somewhere; click a waypoint to remove it">Edit flight plan</button> <span class="zb"><button id="mzin" title="Zoom in">+</button><button id="mzout" title="Zoom out">-</button><button id="mzfit" title="Show the whole arena">Fit</button></span></h2><div class="mapbox" id="mapbox"><canvas id="map"></canvas></div></section>
-<section class="panel"><h2>Contact ledger</h2><table id="ledger"></table><div class="help" id="strhelp"></div></section>
-<section class="panel tl"><h2>Timeline</h2><div class="mapbox" id="tlbox"><canvas id="tl"></canvas></div></section>
-</section>
-<section class="view" id="v-tgt">
-<section class="panel"><h2 id="tgtitle">Fire solution</h2><div id="solbar"></div><div class="mapbox" id="plotbox"><canvas id="plot"></canvas></div><div class="help" id="scale"></div></section>
-<section class="panel" id="engage"></section>
+<section class="panel grow"><h2>Reports <span class="rctl"><button id="vcyc">Voice: off</button><button id="rall">Key reports</button></span></h2><div class="feed" id="feed-old"></div></section></div>
 </section>
 </main></div></div>
+</div>
 <div id="cmenu" hidden></div>
 <div class="over" id="brief" hidden><div class="box" style="max-width:900px;max-height:95vh;overflow:auto"><h3>Launch briefing</h3>
 <div class="bgrid"><div class="bleft">
@@ -188,6 +192,7 @@ button.fire{background:var(--red);color:#fff;border-color:var(--red);padding:12p
 /*ENGINE*/
 /*SYMBOLS*/
 const E = HuntRT, P = E.P, $ = id => document.getElementById(id);
+/*CONSOLE*/
 let tscale = 1, VX = 0, VY = 0, VZ = 1, follow = false, dragged = false, view = 'tac', hist = [], fires = [], trail = [], planEdit = false, mapG = null, SC = 1;
 let ammo = 'he', homing = false, S = null, paused = false, engageId = null, cone = 8, aimL = null, built = false, feedN = 0, lastUi = 0, lastHp = 0, savedInteg = 0, T0 = 0;
 try { savedInteg = +localStorage.getItem('interdict_integration') || 0; } catch (e) {}
@@ -228,12 +233,6 @@ function build() {
   seg($('seg-spd'), Object.entries(E.SPEED).map(([k, v]) => [k, v.label, v.tip]), S.speed, v => { E.setSpeed(S, v); $('spdhelp').textContent = E.SPEED[v].tip; }); $('spdhelp').textContent = E.SPEED[S.speed].tip; [...$('seg-post').children].forEach(l => { if (l.querySelector('input')?.dataset.v === 'still') l.dataset.heat = '{"still":1}'; }); [...$('seg-spd').children].forEach((b, i) => b.dataset.heat = JSON.stringify({ speed: Object.keys(E.SPEED)[i] }));
   $('ordtxt').onclick = e => { if (e.target.tagName === 'BUTTON') E.setOrder(S, e.target.dataset.a === 'resume' ? 'route' : 'still', null); };
   $('analysts').innerHTML = E.ANALYSTS.map(a => `<div class="ac"><b>${a.name}</b><span class="lbl">${a.role}</span><span class="t" id="at-${a.id}"></span></div>`).join('');
-  const ct = $('ct'); ct.innerHTML = '';
-  S.an.forEach(a => {
-    const d = document.createElement('div'); d.className = 'cr'; d.id = 'cr' + a.id;
-    d.innerHTML = `<div class="id">${a.id + 1}</div><div style="display:flex;flex-direction:column;gap:4px;min-width:0"><div class="top"><span class="chip" id="chip${a.id}"></span><span class="st" id="who${a.id}" style="grid-column:auto"></span></div><div class="bars">${['thermal', 'reactor', 'occlusion'].map(c => `<div class="bar" data-ch="${c}" title="${CH[c].tip}. Click to point ${E.ANALYSTS.find(w => w.ch === c).name} at this contact: faster, cleaner reads, but it adds about ${Math.round(P.glowFocus * 100)}% per minute to our found rate."><i id="b-${a.id}-${c}"></i><u id="p-${a.id}-${c}"></u><span id="bt-${a.id}-${c}"></span></div>`).join('')}</div><div class="btns" id="bn${a.id}"></div></div><div class="st" id="st${a.id}"></div>`;
-    ct.append(d);
-  });
   built = true;
 }
 function btnsFor(a) {
@@ -277,7 +276,7 @@ function updRate() {
   if (heatHover) { const q = E.heatRate(S, heatHover), a = Math.min(pos(r), pos(q)), b = Math.max(pos(r), pos(q)); u.style.display = 'block'; u.style.left = a + '%'; u.style.width = Math.max(1, b - a) + '%'; txt += ' \u2192 ' + fmt(q); $('sinkclk').textContent = clkTxt(r, h) + ' \u2192 ' + clkTxt(q, h); } else u.style.display = 'none';
   $('ratet').textContent = txt;
 }
-addEventListener('mouseover', e => { const t = e.target.closest && e.target.closest('[data-heat]'); const nh = t ? JSON.parse(t.dataset.heat) : null; if (JSON.stringify(nh) !== JSON.stringify(heatHover)) { heatHover = nh; updRate(); } });   // heat figures per real minute
+addEventListener('mouseover', e => { const t = e.target.closest && e.target.closest('[data-heat]'); const nh = t ? JSON.parse(t.dataset.heat) : null; if (JSON.stringify(nh) !== JSON.stringify(heatHover)) { heatHover = nh; updRate(); if (S) { try { cHeat(); cSig(); } catch (er) { } } } });   // heat figures per real minute
 function fmtMin(m) { const t = Math.round(m * P.secPerMin); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); }
 function solTxt(a) { const si = E.solveInfo(S, a); if (si.stale) return 'Solution stale. Click REFRESH SOLUTION in the Target view, or put an analyst on it.'; if (si.ready) return 'Firing solution ready. Press Target to plan the volley.'; return 'Solving ' + Math.round(si.prog * 100) + '%' + (si.paused ? ', paused while sensors are dark' : ', about ' + fmtMin(si.remain) + ' left') + (si.why.length ? ' (' + si.why.join(', ') + ')' : '') + '.'; }
 const KN0 = { real: 'WARSHIP', lure: 'DECOY', ghost: 'STATIC' };
@@ -291,34 +290,6 @@ function uiUpdate(force) {
   $('clk').textContent = fmtMin(S.t);
   [...$('pips').children].forEach((p, i) => p.classList.toggle('on', i < S.stage));
   E.ANALYSTS.forEach(a => { const w = S.analysts.find(x => x.id === a.id); $('at-' + a.id).textContent = w.task == null ? 'auto sweep' : (S.an[w.task].state === 'locked' ? 'tracking ' : 'focused on ') + 'contact ' + (w.task + 1); });
-  S.an.forEach(a => {
-    const row = $('cr' + a.id); row.className = 'cr ' + a.state;
-    ['thermal', 'reactor', 'occlusion'].forEach(c => {
-      const q = a.read[c], i = $(`b-${a.id}-${c}`), t = $(`bt-${a.id}-${c}`), nm = CH[c].n;
-      { const pu = $(`p-${a.id}-${c}`), pr = q && !q.blind ? Math.min(1, (q.den || 0) / P.readDone) : 0; pu.style.width = pr * 100 + '%'; pu.className = pr >= 1 ? 'done' : ''; pu.title = pr >= 1 ? 'Read complete' : 'Collecting: ' + Math.round(pr * 100) + ' percent'; }
-      if (q && q.blind) { i.style.width = '0'; t.textContent = nm + (c === 'occlusion' ? ': not backlit' : ' blind'); }
-      else if (q && q.den > 0) { const v = Math.max(0, q.num / q.den), w = E.cat(v); i.style.width = Math.max(2, Math.min(100, v * 100)) + '%'; i.style.opacity = 0.3 + 0.7 * ago(q); i.style.background = CH[c].col; t.textContent = nm + ' ' + (w === 'none' ? 'clear' : w) + ' ' + Math.round(Math.min(1, q.den / P.readDone) * 100) + '%' + (q.den >= P.readDone ? ' \u2713' : ''); }
-      else { i.style.width = '0'; t.textContent = nm + ' ?'; }
-    });
-    row.querySelectorAll('.bar').forEach(b => { const w = S.analysts.find(x => x.id === E.ANALYSTS.find(q => q.ch === b.dataset.ch).id); b.classList.toggle('pt', w.task === a.id); });
-    const isF = a.idStatus === 'plan', isH = a.idStatus === 'hostile', rdy = !isF && !isH && a.state === 'open' && E.advice(S, a).call !== 'unsure'; row.classList.toggle('ready', rdy); row.classList.toggle('friend', isF); row.classList.toggle('hostile', isH); row.querySelector('.bars').style.display = isF ? 'none' : '';
-    const on = S.analysts.filter(w => w.task === a.id).map(w => w.name), onTxt = (on.length ? on.join(' and ') + (on.length > 1 ? ' are' : ' is') + ' on it. ' : '') + (S.orderId === a.id ? { close: 'We are closing on it. ', separate: 'We are opening distance. ', evade: 'We are evading it. ', orbit: 'We are circling it. ' }[S.posture] : '');
-    const nread = ['thermal', 'reactor', 'occlusion'].reduce((m, c) => m + (a.read[c]?.den || 0), 0);
-    let chip = { open: rdy ? 'DECISION NEEDED' : nread < 1 ? 'NOT READ YET' : 'UNRESOLVED', out: 'RULED OUT', chasing: 'CHASING', disabled: 'CRIPPLED', locked: 'LOCKED' }[a.state], st = '';
-    if (a.state === 'open') st = rdy ? 'The three sensors agree. Your call: LOCK ON to start a firing solution if you think it is a real warship, or DISMISS if it looks like a decoy or static.' : nread < 1 ? 'No readings yet. The analysts will get to it, or right-click it and pick Scan > Investigate to put all three on it.' : 'Readings are thin or mixed. Investigate it for a better read, or wait.';
-    if (a.state === 'locked' && a.anchor) { const age = S.t - a.anchor.t; st = solTxt(a) + (age > 3 ? ' Scan is stale: the wedge is widening.' : ''); chip = E.solveInfo(S, a).ready ? 'SOLUTION READY' : 'SOLVING'; }
-    if (a.state === 'chasing') st = 'We committed to this one. It resolves in a few minutes.';
-    if (a.state === 'out') st = 'Ruled out. Press Re-analyze for a second look.'; if (a.state === 'disabled') st = a.kind === 'friend' ? 'Crippled by our fire.' : 'Drive dead, no heat signature, reactor line gone. Drifting.';
-    if (isH && a.state === 'open') { chip = 'HOSTILE 100%'; st = 'It pinged us, so it is confirmed hostile. Lock it and go after it.'; }
-    if (isH && a.state === 'locked') chip = E.solveInfo(S, a).ready ? 'HOSTILE, SOLUTION' : 'HOSTILE, SOLVING';
-    if (isF) { chip = 'FRIENDLY'; st = 'Arrived with us. Weapons safe.'; }
-    if (a.state === 'open' && !isF && !isH && S.integration >= 50) { const ad = E.advice(S, a); if (ad.call !== 'unsure') st += ' Pell: ' + { junk: 'this is junk.', ship: 'this is a ship.', maybe: 'probably a ship (no eclipse reading).' }[ad.call]; }
-    if (a.state === 'open' && !isF && !isH) { const c = E.classify(S, a); if (c.n >= 1) { const ev = ['thermal', 'reactor', 'occlusion'].map(ch => { const q = a.read[ch], w = CH[ch].n; if (!q || (!q.blind && !(q.den > 0))) return w + ': no data'; if (q.blind) return w + (ch === 'occlusion' ? ': not backlit' : ': blind'); const cw = E.cat(Math.max(0, q.num / q.den)); return w + ': ' + (cw === 'none' ? 'clear' : cw) + ', ' + Math.round(Math.min(1, q.den / P.readDone) * 100) + '% sure'; }).join('; ');
-      st = (c.p >= 0.5 ? 'Most likely ' + { real: 'a warship', lure: 'a decoy', ghost: 'static' }[c.best] + ', ' + Math.min(99, Math.round(c.p * 100)) + '% certain. ' : 'Not sure yet. ') + 'Evidence: ' + ev + '. ' + st + '' + (rdy ? '' : ' Investigating raises certainty; an active ping raises it faster but is loud and costs heat.'); } }
-    if (a.flutter) st += ' Grid read: ' + a.flutter + '.';
-    if (a.vent && a.ventSeen && a.state !== 'disabled') st = 'VENTING: fins out, fully visible now. ' + st; else if (['open', 'locked'].includes(a.state) && a.idStatus !== 'plan' && !isF) { const mm = (E.infoMult(S, a, 'thermal') + E.infoMult(S, a, 'reactor')) / 2; if (mm < 0.4) st += ' Trace faint (cold, far or behind cover): readings come slowly.'; }
-    $('chip' + a.id).textContent = chip; $('who' + a.id).textContent = onTxt; $('st' + a.id).textContent = st; btnsFor(a);
-  });
   const xp = E.exposure(S), sc = Math.min(100, xp.total / 0.2 * 100), hs = E.stealthState(S); $('stl').className = 'stl ' + hs; $('stli').style.width = Math.max(4, sc) + '%'; $('stlt').textContent = xp.quiet ? 'DARK' : hs.toUpperCase(); $('xp').querySelector('i').style.width = Math.max(3, sc) + '%'; $('xp').className = 'xp' + (xp.quiet ? ' dark' : sc > 60 ? ' hot' : '');
   { const vis = E.ourVis(S); $('found').innerHTML = S.vent.on ? 'Fins out: <b>100% visible</b>' : xp.quiet ? 'Sensors dark: <b>' + Math.round(vis * 100) + '% visible</b>' : 'Enemy sensors see us at <b>' + Math.round(vis * 100) + '%</b> (' + hs + ')'; }
   $('xl').innerHTML = xp.quiet ? '<span><b>Running dark.</b> Nobody is working, so nothing is leaking.</span>' : xp.parts.filter(p => p.k !== 'vent').map(p => `<span><b>${(p.v * P.sinkK / S.me.sink * 100).toFixed(1)}%</b> of the sink per min: ${p.label}</span>`).join('');
@@ -344,17 +315,18 @@ function uiUpdate(force) {
   const stage = S.integration >= 100 ? 'Pell wants a seat at the table.' : S.integration >= 75 ? 'Pell can act on standing orders.' : S.integration >= 50 ? 'Pell recommends a call on every contact.' : S.integration >= 25 ? 'Pell volunteers observations.' : 'Pell stays in his lane.';
   $('integtxt').textContent = 'Integration ' + Math.round(S.integration) + '% (rises while Pell assists, and stays). ' + stage;
   $('actrow').hidden = S.integration < 75; if (S.integration < 75) { $('pellact').checked = false; E.setPellAct(S, false); }
-  while (feedN < S.log.length) { const l = S.log[feedN++]; const d = document.createElement('div'); d.className = l.kind + (l.urgent ? ' u' : ''); d.dataset.t = l.t; d.innerHTML = `<b>${l.who}</b> `; d.append(document.createTextNode(l.text)); $('feed').prepend(d); sayLine(l); if (l.kind === 'integration') save(); }
+  while (feedN < S.log.length) { const l = S.log[feedN++]; const d = document.createElement('div'); d.className = l.kind + (l.urgent ? ' u' : ''); d.dataset.t = l.t; d.innerHTML = `<b>${fmtMin(l.t)}</b> ${l.who} `; d.dataset.tip = l.text; d.append(document.createTextNode(l.text)); $('feed').prepend(d); sayLine(l); if (l.kind === 'integration') save(); }
   [...$('feed').children].forEach(d => { d.style.opacity = Math.max(0.4, 1 - (S.t - d.dataset.t) * 0.06); });
   const qa = S.t < S.quietUntil, cd = Math.max(0, S.quietCd - S.t); $('quiet').textContent = qa ? 'Quiet ' + (S.quietUntil - S.t).toFixed(1) : cd > 0 ? 'Quiet in ' + cd.toFixed(0) : 'Go quiet'; $('quiet').disabled = !!S.over || cd > 0; $('warn').textContent = S.inc.length ? 'INCOMING ' + fmtMin(Math.max(0, Math.min(...S.inc.map(v => v.at)) - S.t)) : '';
   $('brk').disabled = !!S.over; $('brk').textContent = S.spool ? 'Spooling ' + fmtMin(Math.max(0, S.spool.at - S.t)) + ' (cancel)' : 'Break contact'; $('brk').title = 'The breach drive needs ' + P.spool + ' minutes to spool, and the spool makes us very visible. Press again to cancel.';
   { const parts = xp.quiet ? [] : xp.parts.slice().sort((x, y) => y.v - x.v); $('stwhy').textContent = xp.quiet ? 'sensors dark' : parts.length ? 'largest: ' + parts[0].label : 'nothing loud'; }
-  { const n = S.log.length; if ($('tick').dataset.n !== String(n)) { $('tick').dataset.n = n; $('tick').innerHTML = ''; (allReports ? S.log : S.log.filter(l => l.kind !== 'info' || l.urgent)).slice(-2).forEach(l => { const d = document.createElement('div'); d.className = l.kind; d.innerHTML = `<b>${l.who}</b> `; d.append(document.createTextNode(l.text)); $('tick').append(d); }); } }
+  { const n = S.log.length; if ($('tick').dataset.n !== String(n)) { $('tick').dataset.n = n; $('tick').innerHTML = ''; (allReports ? S.log : S.log.filter(l => l.kind !== 'info' || l.urgent)).slice(-2).forEach(l => { const d = document.createElement('div'); d.className = l.kind; d.innerHTML = `<b>${fmtMin(l.t)}</b> ${l.who} `; d.dataset.tip = l.text; d.append(document.createTextNode(l.text)); $('tick').append(d); }); } }
   $('vit').innerHTML = `<span class="lbl">Hull</span><b>${Math.round(S.hull)}%</b><span title="Salvos: green ready, amber reloading">${S.tubes.map(x => `<i class="sq ${S.t >= x ? 'r' : 'l'}"></i>`).join('')}</span>`;
   { const lk = S.an.filter(a => a.state === 'locked'); $('tabtgt').textContent = engageId != null ? 'Target ' + (engageId + 1) : 'Target'; $('tabtgt').disabled = !lk.length && engageId == null; }
   document.body.classList.toggle('sweep', !!S.pending);
   { const deg = ((Math.atan2(Math.cos(S.hdg || 0), -Math.sin(S.hdg || 0)) * 180 / Math.PI) + 360) % 360; $('helm').textContent = 'Heading ' + String(Math.round(deg)).padStart(3, '0') + ', ' + E.SPEED[S.speed].label.toLowerCase() + (S.orderUntil != null && S.posture !== 'route' ? ', maneuver ends in ' + fmtMin(Math.max(0, S.orderUntil - S.t)) : ''); }
   if (!hist.length || S.t - hist[hist.length - 1].t >= 0.25) { hist.push({ t: S.t, sig: xp.total, stage: S.stage, quiet: !!xp.quiet, vent: !!S.vent.on }); trail.push({ x: S.player.x, y: S.player.y }); }
+  cUpdate();
   if (view === 'str') { drawMap(); drawLedger(); drawTl(); }
   if (S.over && !fxOn && !fxQ.length) endScreen();
 }
@@ -376,12 +348,11 @@ function setView(v) {
   if (v === 'tgt' && engageId == null) { const a = S && S.an.find(x => x.state === 'locked'); if (!a) return; engageId = a.id; aimL = null; }
   if (v !== 'tgt') engageId = null;
   view = v; document.body.dataset.view = v; ['tac', 'str', 'tgt'].forEach(k => $('v-' + k).classList.toggle('act', k === v));
-  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.v === v)); $('cmenu').hidden = true;
+   $('cmenu').hidden = true;
   if (v === 'tgt') buildEngage(); layout(); if (S) { if (v === 'str') { drawMap(); drawLedger(); drawTl(); } if (v === 'tgt') engUpdate(true); }
 }
 function layout() {
-  SC = Math.max(0.7, Math.min(1.6, Math.min(innerWidth / 1440, innerHeight / 900))); const app = $('app'); app.style.width = (innerWidth / SC) + 'px'; app.style.height = (innerHeight / SC) + 'px'; app.style.transform = 'scale(' + SC + ')';
-  const r = $('scopebox').getBoundingClientRect(); if (r.width > 10) { const m = Math.floor(Math.min(r.width, r.height) / SC) - 2; cv.style.width = cv.style.height = Math.max(120, m) + 'px'; }
+  SC = Math.min(innerWidth / 1920, innerHeight / 1080); const app = $('app'); app.style.transform = 'translate(' + ((innerWidth - 1920 * SC) / 2) + 'px,' + ((innerHeight - 1080 * SC) / 2) + 'px) scale(' + SC + ')';
 }
 addEventListener('resize', () => { layout(); if (S && view !== 'tac') { if (view === 'str') { drawMap(); drawLedger(); drawTl(); } else engUpdate(true); } });
 $('tabs').onclick = e => { const b = e.target.closest('button'); if (b && !b.disabled) setView(b.dataset.v); };
@@ -580,7 +551,7 @@ $('pell').onchange = e => { S.pell = e.target.checked; };
 $('pellact').onchange = e => E.setPellAct(S, e.target.checked);
 $('manbtn').onclick = () => { $('manual').hidden = false; }; $('manclose').onclick = () => { $('manual').hidden = true; };
 $('quiet').onclick = () => E.goQuiet(S); $('pause').onclick = togglePause; $('resume').onclick = togglePause; $('brk').onclick = () => E.retreat(S); $('newh').onclick = start;
-function togglePause() { paused = !paused; $('pausebox').hidden = !paused; $('wrap').style.visibility = paused ? 'hidden' : 'visible'; last = performance.now(); }
+function togglePause() { paused = !paused; $('pausebox').hidden = !paused; $('stage').classList.toggle('paused', paused); last = performance.now(); }
 document.addEventListener('keydown', e => {
   if (!S || briefing || e.target.tagName === 'INPUT' && e.target.type === 'text') return; const k = e.key;
   if (k === 'p' || k === 'P') { togglePause(); return; } if (paused) { if (k === 'Escape') togglePause(); return; }
@@ -668,7 +639,7 @@ function contactLabel(a, x, y, i) {   // starts as a bare number; each establish
 const F = n => (n / VZ) + 'px IBM Plex Mono, monospace';
 function ringKm() { return VZ < 1.6 ? 40 : VZ < 3.5 ? 20 : 10; }
 function clampView() { const W = cv.width; VX = Math.max(W - W * VZ, Math.min(0, VX)); VY = Math.max(W - W * VZ, Math.min(0, VY)); }
-function draw() { const W = cv.width; if (follow) { const k0 = W / P.arena; VX = W / 2 - S.player.x * k0 * VZ; VY = W / 2 - S.player.y * k0 * VZ; } clampView(); cx.setTransform(1, 0, 0, 1, 0, 0); cx.fillStyle = 'rgba(5,8,7,0.12)'; cx.fillRect(0, 0, W, W); cx.setTransform(VZ, 0, 0, VZ, VX, VY); drawWorld(); cx.setTransform(1, 0, 0, 1, 0, 0); cx.fillStyle = '#6f8a80'; cx.font = '18px IBM Plex Mono, monospace'; if (VZ > 1.01) cx.fillText('zoom ' + VZ.toFixed(1) + 'x  (wheel: zoom, drag: pan)', 10, 20); }
+function draw() { const W = cv.width; if (follow) { const k0 = W / P.arena; VX = W / 2 - S.player.x * k0 * VZ; VY = W / 2 - S.player.y * k0 * VZ; } clampView(); cx.setTransform(1, 0, 0, 1, 0, 0); cx.fillStyle = 'rgba(5,8,7,0.12)'; cx.fillRect(0, 0, W, W); cx.setTransform(VZ, 0, 0, VZ, VX, VY); drawWorld(); cx.setTransform(1, 0, 0, 1, 0, 0); cx.fillStyle = '#6f8a80'; cx.font = '18px IBM Plex Mono, monospace'; }
 function drawWorld() {
   const W = cv.width, k = W / P.arena, PX = S.player.x * k, PY = S.player.y * k; cx.strokeStyle = '#2a3b35'; cx.lineWidth = 2 / VZ; cx.strokeRect(0, 0, W, W); cx.lineWidth = 1; paintBodies(cx, S.bodies, x => x * k, y => y * k, k, F(18));
   cx.strokeStyle = '#17302a'; cx.lineWidth = 1; for (let r = ringKm() * k; r < W * 1.5; r += ringKm() * k) { cx.beginPath(); cx.arc(PX, PY, r, 0, 7); cx.stroke(); }

@@ -423,11 +423,17 @@ const HuntRT = (() => {
     return { total: parts.reduce((q, x) => q + x.v, 0), parts, quiet };
   }
   // net change of the heat sink, as a fraction of the sink per game minute, optionally as if an action had been taken
-  function heatRate(s, mod) {
+  function modState(s, mod) {
     const o = Object.assign({}, mod || {}); if (o.quiet) { o.quietUntil = s.t + P.quietDur; delete o.quiet; } if (o.ping) { o.pingUntil = s.t + P.pingDur; delete o.ping; } if (o.spoolOn) { o.spool = { at: s.t + s.spoolMin }; delete o.spoolOn; } if (o.still) { o.posture = 'still'; o.orderId = null; delete o.still; }
-    const q = Object.assign(Object.create(s), o), vent = o.ventOn != null ? o.ventOn : s.vent.on;
+    const q = Object.assign(Object.create(s), o);
+    if (o.ventOn != null) q.vent = { on: !!o.ventOn, forced: false };
+    return { q, vent: o.ventOn != null ? o.ventOn : s.vent.on };
+  }
+  function heatRate(s, mod) {
+    const { q, vent } = modState(s, mod);
     return P.sinkK * exposure(q).parts.reduce((a, x) => a + (x.k === 'vent' ? 0 : x.v), 0) / s.me.sink - (vent ? 1 / P.ventFull : 0);
   }
+  function visIf(s, mod) { return ourVis(modState(s, mod).q); }   // how visible we would be if the action were taken (hover preview)
   function tick(s, dt) { let left = dt; while (left > 1e-9 && !s.over) { const h = Math.min(P.sub, left); sub(s, h); left -= h; } }
   function assign(s, analystId, contact) { const w = s.analysts.find(x => x.id === analystId); if (!w || s.over || (contact != null && s.an[contact].idStatus === 'plan')) return; w.task = (contact == null || w.task === contact) ? null : contact; w.next = Math.min(w.next, s.t + 0.05); }
   function refreshSolution(s, id) { const a = s.an[id]; if (s.over || !a || a.state !== 'locked') return false; a.solve = 0; a.stale = false; report(s, 'Abara', `Re-working the firing solution on contact ${id + 1}.`, 'info'); return true; }
@@ -515,6 +521,6 @@ const HuntRT = (() => {
     s.spool = { at: s.t + s.spoolMin }; report(s, 'Abara', `Breach drive spooling. ${(s.spoolMin * P.secPerMin / 60).toFixed(1).replace('.0', '')} minutes to jump, and the spool is bright on every sensor.`, 'danger', true);
   }
   function setPellAct(s, on) { s.pellAct = !!on && s.integration >= 75; }
-  return { navBlocked, reanalyze, investigate, heatRate, arenaPlan, TIER_HEAT, PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, hitProb, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, planPos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge };
+  return { navBlocked, reanalyze, investigate, heatRate, visIf, arenaPlan, TIER_HEAT, PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, hitProb, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, planPos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge };
 })();
 if (typeof module !== 'undefined') module.exports = HuntRT;
