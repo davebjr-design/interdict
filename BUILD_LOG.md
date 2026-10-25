@@ -252,3 +252,6 @@ Revised (Dave): evade should speed analysis modestly at a modest stealth cost, b
 - Heat sink header cell is the vent toggle (also V). Fins can always be retracted, even a forced vent (a mistake you can make); label reads FINS OUT: click to retract.
 - Ping: three read rounds, and a locked contact's solution refreshes in about 10 seconds.
 - Stale Fire button now reads REFRESH SOLUTION and recalculates on click.
+
+## Oct 25 (evening): heat rate and navigation
+- Heat sink refill slowed (sinkK 0.7, burn is an afterburner at about 80 percent per real minute), vent drains faster, heat rate dial with hover previews and "full in" clock, UI time in real minutes, per-waypoint speed with shift-queue, relaxed vs alerted hunters at dog-legs. Bot: 79 percent win, 15 percent breach, 2.4 vents per hunt.

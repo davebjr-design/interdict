@@ -45,10 +45,19 @@ Scanning and reads
 - A stale solution (scan older than P.solveStale, 3 min) turns the Fire button into REFRESH SOLUTION, which recalculates on click.
 
 Heat and venting
-- Stored heat only rises with activity. The sink fills at P.sinkK (1.4) x exposure per minute; a ping is about 17 percent of the sink.
-- The header Heat sink cell is the vent control (also key V). Voluntary vent: fins out, visibility 1.0, drains 40 percent per minute (P.ventFull 2.5), which beats the fill rate of a ship burning with three analysts working, and can be retracted at any time, including with missiles incoming (that is a mistake you are allowed to make).
-- Emergency vent: at 100 percent the fins open by themselves. They cannot be retracted by hand until stored heat is under P.forcedRetract (80 percent); they close on their own at P.forcedStop (25 percent). If you do retract between 25 and 80 percent, the fins stay shut for half a game minute before the auto-vent can fire again.
-- Enemies vent by the same rules and the venting is visible (thermal blaze, Dace calls it out).
+- Time in the UI is real time now (clock, ETAs, spool, heat clock). The engine still steps in game minutes (16 real seconds each, P.secPerMin); fmtMin and the heat rate convert. Rates below are per real minute.
+- The sink fills at P.sinkK (0.7) x exposure / sink size. Rough fill rates for our cutter: idle 4 percent, creep 5, cruise 15, burn about 80 (an afterburner: a minute or two to full, so use it in bursts), active ping adds a spike, spool 3 minutes adds about 15 percent. Going quiet cuts it to almost nothing.
+- Heat rate dial (header, under the sink gauge): net fill or drain per real minute, and a clock on the sink reading "full in m:ss" or "empty in m:ss" if nothing changes. Hovering any button or menu item that changes heat (speed, Go quiet, Break contact, the sink/vent cell, Hold still, and the navigation menu) shows a ghost bar and "now -> after" for the rate and the clock. Engine: `heatRate(s, mod)` evaluates exposure on a copy with the action applied.
+- The header Heat sink cell is the vent control (also key V). Venting: fins out, visibility 1.0, drains 25 percent of the sink per game minute (P.ventFull 4, about 94 percent per real minute), enough to beat a burning ship with all analysts working. A voluntary vent can be retracted any time, including with missiles incoming.
+- Emergency vent: at 100 percent the fins open on their own. They cannot be retracted by hand until stored heat is under P.forcedRetract (80 percent); they close by themselves at P.forcedStop (25 percent).
+- Enemies use P.enemyK (1.4), unchanged, with their own sink sizes. Venting enemies are a thermal blaze and Dace calls them out.
+
+Navigation
+- Right-click on the scope or the Strategic map: Go here at creep, cruise or burn, or Clear plan. Hold Shift (on the right-click or on the menu pick) to add a waypoint to the plan instead of replacing it. Each waypoint keeps its own speed; route legs are drawn in cyan (creep), amber (cruise) or red (burn). Plan a burn-while-venting leg then a creep leg to return to stealth.
+
+Dog-leg arrival attitude
+- Arenas entered after clearing the previous one (no warning): hunters are relaxed and not running silent (visibility x1.25, no prior knowledge of us).
+- Arenas entered after leaving a previous arena uncleared: hunters are alerted and running silent (visibility x0.7, starting knowledge 0.7 x warning).
 
 Retreat and spool
 - Break contact (mission) spools for 3 game minutes; dog-leg jump spools for 11.25 game minutes (3 real minutes). Spooling is a stealth modifier only (visibility about 0.9, extra heat 0.3), ship speed is 30 percent always, pressing again cancels. Slow targets let the enemy use a tighter cone (0.7 at rest to 1.0 at cruise).
