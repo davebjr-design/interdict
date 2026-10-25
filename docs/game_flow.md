@@ -22,3 +22,12 @@ Modes: underway (in route), hunt (battle arena), space dock, ground missions (la
 - **Every dog-leg is an arena.** At each dog-leg turn point the ship stops in an arena and must spool the breach drive to jump to the next waypoint. While spooling it is not in stealth mode (visible, loud).
 - **Player choice at a dog-leg:** (a) spool right away and take evasive action in case hunters are present, or (b) clear the contacts in the stopover first, which takes much longer. Same hunt, chosen risk versus time.
 - Design consequence to tune: a spool of 3 minutes in a 240 km field is probably too safe, so "spool immediately" would always win. Spool time, how visible it is, and whether hunters are present at a given dog-leg need to make clearing contacts a real alternative (payoffs: salvage, lower relay exposure, safer next leg).
+
+## Dog-leg bot results (2026-10-25)
+Spool is 11.25 game minutes (3 real minutes at 16 real seconds per game minute); mission-mode Break contact keeps 3 game minutes. Dog-leg arenas have hunters 50 percent of the time in the test (1 or 2 hunters; contacts 30-90 km away); a faint arrival cue (quiet, uneasy, wary) matches presence about two times in three.
+Mechanics added: spool alerts every hunter in range, the ship moves at 30 percent speed while spooling, enemy volleys do 2x damage to a spooling ship, a left-behind hunter gives the next sector's hunters advance warning (their knowledge starts at 63 percent for warn 0.9).
+Bot results (about 120 arenas, perfect-identification bot):
+- Hunters absent: spool now is free (hull 100, 11 min); clearing wastes 40 min.
+- Hunters present: spool now averages hull 52, 47 percent "close" (hull under 50), 4 percent emergency breach, 11 min. Clear first averages hull 73, 11 percent close, 13 percent emergency breach (bot-limited), about 29 min, plus salvage.
+- Without the 2x spool damage and the speed cap, spool now was near-risk-free and always best; with them the choice depends on how suspicious the arena looks.
+- Advance warning only hurts players who then try to hide or clear (clear failure 6 to 13 percent with strong warning); a player who spools at once is already fully exposed.
