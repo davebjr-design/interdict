@@ -46,14 +46,14 @@ Scanning and reads
 
 Heat and venting
 - Time in the UI is real time now (clock, ETAs, spool, heat clock). The engine still steps in game minutes (16 real seconds each, P.secPerMin); fmtMin and the heat rate convert. Rates below are per real minute.
-- The sink fills at P.sinkK (0.7) x exposure / sink size. Speed is five drive settings (20 to 100 percent, 1.2 to 6 km per game minute) plus an afterburner (9 km per game minute). Rough fill rates for our cutter: idle 4 percent, 20% drive 5, 60% drive 15, full drive about 80, afterburner about 240 (under half a minute to full: bursts only), active ping adds a spike, spool 3 minutes adds about 15 percent. Going quiet cuts it to almost nothing.
+- The sink fills at P.sinkK (0.7) x exposure / sink size. Speed is five drive settings (20 to 100 percent, 1.2 to 6 km per game minute) plus Redline (9 km per game minute). Rough fill rates for our cutter: idle 4 percent, 20% drive 5, 60% drive 15, full drive about 80, Redline about 240 (under half a minute to full: bursts only; a pegged sink melts the ship, 3 hull and 15 percent systems per game minute pegged, P.meltHull and P.meltSys), active ping adds a spike, spool 3 minutes adds about 15 percent. Going quiet cuts it to almost nothing.
 - Heat rate dial (header, under the sink gauge): net fill or drain per real minute, and a clock on the sink reading "full in m:ss" or "empty in m:ss" if nothing changes. Hovering any button or menu item that changes heat (speed, Go quiet, Break contact, the sink/vent cell, Hold still, and the navigation menu) shows a ghost bar and "now -> after" for the rate and the clock. Engine: `heatRate(s, mod)` evaluates exposure on a copy with the action applied.
 - The header Heat sink cell is the vent control (also key V). Venting: fins out, visibility 1.0, drains 25 percent of the sink per game minute (P.ventFull 4, about 94 percent per real minute), enough to beat a burning ship with all analysts working. A voluntary vent can be retracted any time, including with missiles incoming.
 - Emergency vent: at 100 percent the fins open on their own. They cannot be retracted by hand until stored heat is under P.forcedRetract (80 percent); they close by themselves at P.forcedStop (25 percent).
 - Enemies use P.enemyK (1.4), unchanged, with their own sink sizes. Venting enemies are a thermal blaze and Dace calls them out.
 
 Navigation
-- Right-click on the scope or the Strategic map: Go here at five drive settings or the afterburner, or Clear plan. Hold Shift (on the right-click or on the menu pick) to add a waypoint to the plan instead of replacing it. Each waypoint keeps its own speed; route legs are drawn in cyan to red by drive setting. Plan a burn-while-venting leg then a creep leg to return to stealth.
+- Right-click on the scope or the Strategic map: Go here at five drive settings or Redline, or Clear plan. Hold Shift (on the right-click or on the menu pick) to add a waypoint to the plan instead of replacing it. Each waypoint keeps its own speed; route legs are drawn in cyan to red by drive setting. Plan a burn-while-venting leg then a creep leg to return to stealth.
 
 Dog-leg arrival attitude
 - Arenas entered after clearing the previous one (no warning): hunters are relaxed and not running silent (visibility x1.25, no prior knowledge of us).
