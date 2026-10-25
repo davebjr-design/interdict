@@ -1,5 +1,7 @@
 # Interdict hunt screen: layout and views
 
+> Note (2026-10-25): this is the original layout spec. The arena is now 240 km (scope zoom and map ranges differ from the 40 km figures below), the heat sink header cell is the vent control, and scanner bars carry a collection-progress line. docs/detection_model.md "Current engine rules" is authoritative for mechanics.
+
 Status: design proposal. Wireframe: `/tmp/design/mockup.html` (static, sample data, placeholder styling). Screenshots: `/tmp/design/shots/`.
 Nothing in `/home/claude/interdict` was changed.
 

@@ -10,7 +10,7 @@ Modes: underway (in route), hunt (battle arena), space dock, ground missions (la
 - Captaining decisions arise here. The captain is called to stations or rooms on the ship to talk to the crew and decide. Narrative advances here.
 
 ## Retreat
-- Always possible, but the breach drive must **spool** first, and spooling makes us visible. Built: Break contact starts a 3-minute spool (signature ~90 percent, extra heat); pressing again cancels. Emergency hull failure still jumps immediately.
+- Always possible, but the breach drive must **spool** first, and spooling makes us more visible (see Spool rules). Break contact starts a 3 game minute spool; pressing again cancels. Emergency hull failure still jumps immediately.
 
 ## Pell (AI)
 - Using Pell gives the AI's advantages at the cost of higher overall AI utilization (integration). It is one-way: integration cannot be removed once Pell has access. Integration is a campaign-level meter (see glossary).

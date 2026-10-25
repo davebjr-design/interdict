@@ -1,4 +1,4 @@
-# Detection model proposal (2026-10-23, awaiting Dave's go-ahead)
+# Detection and heat model (proposal 2026-10-23; "Current engine rules" at the bottom is authoritative, updated 2026-10-25)
 
 Principle: everyone always leaves a trace. Detection is an information RATE, not a yes/no. Same rules for both sides.
 
@@ -8,9 +8,9 @@ Principle: everyone always leaves a trace. Detection is an information RATE, not
 - The enemy tracks us the same way: our signature against their sensor rating. Their aim spread widens when we go cold and still, which is what makes dodging and going quiet work. The hunter "sweeps" become the enemy's information accumulating on us.
 - Loadouts: about six enemy loadouts (sensor rating, signature, crew skill, weapons, speed), randomly assigned. Our ship uses the same fields.
 - Celestial bodies: first pass is backdrops for eclipse and cover (line of sight blocked both ways). Later: nebulae that scatter signatures.
-- Field: larger arena (80 km proposed), speeds and ranges scaled with it, zoom and pan everywhere.
+- Field: large arena (now 240 km), speeds and ranges scaled with it, zoom and pan everywhere.
 
-## As built (2026-10-23, approved by Dave)
+## As built (2026-10-23, approved by Dave). Superseded where "Current engine rules" below differs
 
 Detection (`infoMult`, `ourVis`, `enemyVis`, `enemyAI` in the engine)
 - Visibility of a ship = exposure (what it is doing) scaled to 0.06 to 0.85, times its loadout signature; venting is fixed at 1.0.
@@ -29,3 +29,29 @@ Loadouts (`LOADOUTS`): Picket, Hound (sharp, loud), Shade (quiet, weak), Veteran
 Field and bodies: 80 km square (everything scaled x2: speeds, ranges, missile speed, kill and cone sizes, uncertainty). Two stars (bright discs with a glow ring: eclipse works when a ship passes in front of the glow as seen from us) and one or two planets (solid, block sight both ways, ships steer around them). Zoom and pan on the scope and Strategic map; the briefing chart shows the bodies for the seed it will use.
 
 Tuning knobs: P.sinkK, P.ventFull, P.knowK, P.knowDecay, P.enemySink, P.sensR, P.aimSigMax/Min, P.standoff, LOADOUTS table.
+
+## Current engine rules (2026-10-25, matches web/hunt_rt_engine.js)
+
+Field and bodies
+- Arena 240 km square. Contacts start 100+ km away. Speeds: creep 1.2, cruise 3, burn 6 km per game minute. Sensor reference range P.sensRef 40 km.
+- At most one star per arena (bright disc, eclipse works when a ship crosses its glow as seen from us), plus planets that block sight both ways. Right-click on the scope or map opens the navigation menu.
+- Time: 16 real seconds per game minute (P.secPerMin).
+
+Scanning and reads
+- Three analysts: Dace (heat), Castellan (reactor), Quill (eclipse/occlusion). Reads are decaying averages (half life 3 min).
+- Scanner bars show significance (the classification). The thin line under a bar shows collection progress and turns green with a check at P.readDone (8).
+- When an analyst's read on an open contact is complete they stand down on it ("read complete") and stop adding heat. Auto-sweep skips finished channels. Locked contacts keep tracking.
+- Active ping: three read rounds on every channel for an open contact. On a locked contact it gives a fresh fix and the firing solution is refreshed after P.pingSolve (0.6 game min, about 10 real seconds). Pings cost heat and alert warships.
+- A stale solution (scan older than P.solveStale, 3 min) turns the Fire button into REFRESH SOLUTION, which recalculates on click.
+
+Heat and venting
+- Stored heat only rises with activity. The sink fills at P.sinkK (1.4) x exposure per minute; a ping is about 17 percent of the sink.
+- The header Heat sink cell is the vent control (also key V). Voluntary vent: fins out, visibility 1.0, drains 20 percent per minute, and can be retracted at any time, including with missiles incoming (that is a mistake you are allowed to make).
+- Emergency vent: at 100 percent the fins open by themselves. They cannot be retracted by hand until stored heat is under P.forcedRetract (80 percent); they close on their own at P.forcedStop (25 percent). If you do retract between 25 and 80 percent, the fins stay shut for half a game minute before the auto-vent can fire again.
+- Enemies vent by the same rules and the venting is visible (thermal blaze, Dace calls it out).
+
+Retreat and spool
+- Break contact (mission) spools for 3 game minutes; dog-leg jump spools for 11.25 game minutes (3 real minutes). Spooling is a stealth modifier only (visibility about 0.9, extra heat 0.3), ship speed is 30 percent always, pressing again cancels. Slow targets let the enemy use a tighter cone (0.7 at rest to 1.0 at cruise).
+
+Damage, ammo, salvage
+- See docs/salvo_design.md (6-missile salvos, area damage with dropoff, EMP and flare warheads, grid intercept, four-tier hit popups) and docs/salvage_and_parts.md (yields, modules, parts, heat tiers not yet applied).
