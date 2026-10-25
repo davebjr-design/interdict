@@ -64,3 +64,9 @@ Retreat and spool
 
 Damage, ammo, salvage
 - See docs/salvo_design.md (6-missile salvos, area damage with dropoff, EMP and flare warheads, grid intercept, four-tier hit popups) and docs/salvage_and_parts.md (yields, modules, parts, heat tiers not yet applied).
+
+Contacts, analysts and targeting (2026-10-25, evening)
+- Contact right-click menu has two groups. Scan: Active ping, Lock on (Target when locked), Investigate (all three analysts on it until released or done). Navigate: Close, Separate, Evade, Circle. A ruled-out contact can be brought back with Re-analyze (card button or menu); the wrong-call penalty from the dismissal is refunded.
+- Analysts stand down on a contact when the read on their channel is complete, or the channel is blind (no screen behind it) for a few minutes. On a locked contact, once the solution is ready and the track is fresh (under about 1.8 min old) they go on hold and add no heat, resuming just before the track goes stale.
+- Courses may not end inside a planet's pull (radius + 6 km) or the star's glare (radius + 16 km); the ship is pushed out of those zones.
+- Target view: drag on the plot to move the aim point along the track, mouse wheel to tighten or loosen the cone. A solid bracket and LIVE tag means observed within the last 0.8 game minutes (or the target is venting); dashed and PROJECTED means extrapolated from the last scan. Same convention on the scope.

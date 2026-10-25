@@ -152,9 +152,10 @@ const HuntRT = (() => {
     q.num = q.num * k + obs * w; q.den = q.den * k + w; q.t = s.t; q.blind = false; a.lastRead = s.t; return q.num / q.den;
   }
   const TEXT = { thermal: { strong: 'thermal bloom, strong', faint: 'faint thermal, could be nothing', none: 'nothing thermal' }, reactor: { strong: 'neutrino line, steady', faint: 'faint neutrino flutter', none: 'no reactor signature' }, occlusion: { strong: 'starlight blocked, a dark mass', none: 'starlight clear behind it' } };
+  function readIsDone(a, ch, t) { const q = a.read[ch]; return !!q && (q.den >= P.readDone || ((!!q.blind || !!q.said) && t - q.t < 6)); }   // a blind channel is retried every few minutes
   function doRead(s, who, a, focus) {
     const ch = who.ch, n = a.id + 1, o = obsRead(s, a, ch, focus ? 3 : 1, focus ? 0.22 : 0.45);
-    if (o === null) { const q = a.read[ch]; if (!q.said) { q.said = true; report(s, who.name, `Contact ${n}: no bright screen behind that bearing. I cannot judge it by occlusion.`, 'info'); } return; }
+    if (o === null) { const q = a.read[ch]; q.t = s.t; if (!q.said) { q.said = true; report(s, who.name, `Contact ${n}: no bright screen behind that bearing. I cannot judge it by occlusion.`, 'info'); } return; }
     const q = a.read[ch], c = cat(o.v);
     if (ch === 'occlusion' && c === 'faint') return;
     if (q.cat !== c) { q.cat = c; const t = TEXT[ch][c === 'faint' && ch === 'occlusion' ? 'none' : c]; report(s, who.name, `Contact ${n}: ${t}.`, c === 'strong' ? 'good' : 'info'); }
@@ -284,7 +285,9 @@ const HuntRT = (() => {
   function moving(s) { return (s.orderId != null && ['close', 'separate', 'evade', 'orbit'].includes(s.posture)) || (s.posture === 'route' && s.routeI < s.route.length); }
   function ownSpeed(s) { return moving(s) ? SPEED[s.speed].v * (s.spool ? P.spoolMove : 1) : 0; }   // slower targets let the enemy use a tighter cone
   function engineHeat(s) { return (moving(s) ? SPEED[s.speed].heat : 0) + (s.entry === 'fast' && s.t < P.wakeDur ? P.wakeGlow : 0); }
-  function setRoute(s, pts) { if (s.over) return false; s.route = pts.map(q => ({ x: clamp(q.x, 6, P.arena - 6), y: clamp(q.y, 6, P.arena - 6), speed: q.speed })); s.routeI = 0; if (s.route.length) { s.posture = 'route'; s.orderId = null; s.orderUntil = null; report(s, 'Abara', `New flight plan, ${s.route.length} waypoint${s.route.length > 1 ? 's' : ''}.`, 'info'); } else { s.posture = 'still'; report(s, 'Abara', 'Flight plan cleared. Holding position.', 'info'); } return true; }
+  const KEEP = { planet: 6, star: 16 };   // no courses into a planet's pull or into the star's glare
+  function navBlocked(s, x, y) { for (const b of s.bodies) { const d = Math.hypot(b.x - x, b.y - y), k = KEEP[b.kind] ?? 0; if (k && d < b.r + k) return b.kind === 'star' ? 'Too close to the star: the glare and radiation would cook us.' : 'That is inside a planet\'s gravity well. We will not chart a course there.'; } return null; }
+  function setRoute(s, pts) { if (s.over) return false; pts = pts.filter(q => !navBlocked(s, q.x, q.y)); s.route = pts.map(q => ({ x: clamp(q.x, 6, P.arena - 6), y: clamp(q.y, 6, P.arena - 6), speed: q.speed })); s.routeI = 0; if (s.route.length) { s.posture = 'route'; s.orderId = null; s.orderUntil = null; report(s, 'Abara', `New flight plan, ${s.route.length} waypoint${s.route.length > 1 ? 's' : ''}.`, 'info'); } else { s.posture = 'still'; report(s, 'Abara', 'Flight plan cleared. Holding position.', 'info'); } return true; }
   function relBearing(s, pt) { const b = Math.atan2(pt.x - s.player.x, -(pt.y - s.player.y)) * 180 / Math.PI, h = Math.atan2(Math.cos(s.hdg || 0) * 0 + (Math.cos(s.hdg || 0)), -(Math.sin(s.hdg || 0))) * 180 / Math.PI; return ((b - h + 540) % 360) - 180; }
   function setSpeed(s, k) { k = SPD_ALIAS[k] || k; if (s.over || !SPEED[k]) return false; s.speed = k; if (s.posture === 'route' && s.route[s.routeI]) s.route[s.routeI].speed = k; return true; }
   function setOrder(s, mode, id, mins) {
@@ -295,7 +298,7 @@ const HuntRT = (() => {
     report(s, 'Abara', { still: 'Holding position.', evade: a ? `Evasive pattern, keeping contact ${id + 1} off our flank.` : 'Evasive pattern.', close: `Closing on contact ${id != null ? id + 1 : ''}.`, separate: `Opening distance from contact ${id != null ? id + 1 : ''}.`, orbit: `Circling contact ${id != null ? id + 1 : ''}${mins ? ' for ' + mins + ' minutes' : ''}.` }[mode], 'info');
     return true;
   }
-  function moveShip(s, h) { const ox = s.player.x, oy = s.player.y; moveShip0(s, h); for (const b of s.bodies) if (b.kind === 'planet') { const dx = s.player.x - b.x, dy = s.player.y - b.y, d = Math.hypot(dx, dy) || 1; if (d < b.r + 3) { s.player.x = b.x + dx / d * (b.r + 3); s.player.y = b.y + dy / d * (b.r + 3); } } const dx = s.player.x - ox, dy = s.player.y - oy; s.vel = { vx: dx / h, vy: dy / h }; if (dx * dx + dy * dy > 1e-8) s.hdg = Math.atan2(dy, dx); if (s.hdg == null) s.hdg = 0; }
+  function moveShip(s, h) { const ox = s.player.x, oy = s.player.y; moveShip0(s, h); for (const b of s.bodies) if (b.kind === 'planet' || b.kind === 'star') { const dx = s.player.x - b.x, dy = s.player.y - b.y, d = Math.hypot(dx, dy) || 1, k = b.kind === 'star' ? 10 : 3; if (d < b.r + k) { s.player.x = b.x + dx / d * (b.r + k); s.player.y = b.y + dy / d * (b.r + k); } } const dx = s.player.x - ox, dy = s.player.y - oy; s.vel = { vx: dx / h, vy: dy / h }; if (dx * dx + dy * dy > 1e-8) s.hdg = Math.atan2(dy, dx); if (s.hdg == null) s.hdg = 0; }
   function moveShip0(s, h) {
     const m = s.posture;
     if (s.orderUntil != null && s.t >= s.orderUntil && m !== 'route' && m !== 'still') { s.posture = 'still'; s.orderId = null; s.orderUntil = null; report(s, 'Abara', 'Maneuver complete. Holding position.', 'info'); return; }
@@ -339,8 +342,9 @@ const HuntRT = (() => {
       if (s.t < w.next) continue;
       if (quiet) { w.next = s.quietUntil; continue; }
       if (w.task != null && !['open', 'locked'].includes(s.an[w.task].state)) w.task = null;
-      if (w.task != null && s.an[w.task].state === 'open' && (s.an[w.task].read[w.ch]?.den || 0) >= P.readDone) { const a0 = s.an[w.task]; w.task = null; report(s, w.name, `Contact ${a0.id + 1}: ${w.role.toLowerCase()} read complete. Standing down on it.`, 'info'); }
-      let tgt = w.task != null ? s.an[w.task] : s.an.filter(a => a.state === 'open' && a.idStatus !== 'plan' && (a.read[w.ch]?.den || 0) < P.readDone).sort((a, b) => ((a.read[w.ch]?.t ?? -9) - (b.read[w.ch]?.t ?? -9)))[0];
+      if (w.task != null && s.an[w.task].state === 'open' && readIsDone(s.an[w.task], w.ch, s.t)) { const a0 = s.an[w.task]; w.task = null; report(s, w.name, `Contact ${a0.id + 1}: ${w.role.toLowerCase()} read complete. Standing down on it.`, 'info'); }
+      { const ta = w.task != null ? s.an[w.task] : null; if (ta && ta.state === 'locked' && (ta.solve || 0) >= 1 && ta.anchor && s.t - ta.anchor.t < P.solveStale - 1.2) { if (!w.hold) { w.hold = true; } w.next = s.t + 0.4; continue; } w.hold = false; }
+      let tgt = w.task != null ? s.an[w.task] : s.an.filter(a => a.state === 'open' && a.idStatus !== 'plan' && !readIsDone(a, w.ch, s.t)).sort((a, b) => ((a.read[w.ch]?.t ?? -9) - (b.read[w.ch]?.t ?? -9)))[0];
       if (tgt) doRead(s, w, tgt, w.task != null);
       w.next = s.t + (w.task != null ? P.focusPeriod : P.autoPeriod) / rate;
     }
@@ -413,7 +417,7 @@ const HuntRT = (() => {
   function exposure(s) {   // what is making us easy to find, per game minute (display only; sub() uses the same terms)
     const sq = 1, quiet = s.t < s.quietUntil; let m = POSTURE[s.posture].haz * sq * (s.entry === 'dark' && s.t < P.darkWindow ? P.darkHaz : 1);
     if (s.chase) m *= P.chasemult; if (s.rescanAt) m *= 0.5; if (quiet) m *= P.quietHaz;
-    const fN = s.analysts.filter(x => x.task != null).length, tN = s.analysts.filter(x => x.task != null && s.an[x.task].state === 'locked').length, z = quiet ? 0 : 1;
+    const fN = s.analysts.filter(x => x.task != null && !x.hold).length, tN = s.analysts.filter(x => x.task != null && !x.hold && s.an[x.task].state === 'locked').length, z = quiet ? 0 : 1;
     const parts = [{ k: 'drift', label: 'Hull heat and drive, ' + POSTURE[s.posture].label.toLowerCase() + (s.chase ? ', chasing a false lock' : ''), v: P.base * s.tempo * m }, { k: 'focus', label: 'Active sensor work (' + fN + ' on a contact)', v: P.glowFocus * fN * z }, { k: 'track', label: 'Tracking a locked ship (' + tN + ')', v: P.glowTrack * tN * z }, { k: 'pell', label: 'Pell running the ship hot', v: s.pell && !quiet ? P.glowPell : 0 }, { k: 'beam', label: 'Tight-beam challenge leaking', v: s.t < s.beamUntil ? P.beamGlow : 0 }, { k: 'blast', label: 'Weapons fire and detonations close by', v: s.t < s.blastUntil ? s.blastV : 0 }, { k: 'engine', label: (s.entry === 'fast' && s.t < P.wakeDur ? 'Hot arrival wake and engines' : 'Engine heat, ' + SPEED[s.speed].label.toLowerCase()), v: s.t < s.quietUntil ? 0 : engineHeat(s) }, { k: 'ping', label: 'Active ping, loud', v: s.t < s.pingUntil ? P.pingGlow : 0 }, { k: 'near', label: 'A warship close enough to see our hull', v: nearHeat(s) }, { k: 'vent', label: 'Fins out, venting', v: s.vent.on ? P.visDiv : 0 }].filter(x => x.v > 0.0005);
     if (s.spool) parts.push({ k: 'spool', label: 'Breach drive spooling', v: P.spoolHeat });
     return { total: parts.reduce((q, x) => q + x.v, 0), parts, quiet };
@@ -448,7 +452,13 @@ const HuntRT = (() => {
     if (a.kind === 'real' || a.kind === 'friend') { a.state = 'locked'; a.track = 0; a.solve = 0; scan(s, a); report(s, 'Abara', `Contact ${id + 1} locked. Working a firing solution.`, 'good'); }
     else { a.state = 'chasing'; s.wrong++; s.chase = { id, until: s.t + P.chase }; report(s, 'Abara', `Contact ${id + 1} ruled in; we are chasing it. Hope it is a ship.`, 'info'); for (const w of s.analysts) if (w.task === id) w.task = null; }
   }
-  function dismissContact(s, id) { const a = s.an[id]; if (s.over || a.state !== 'open' || a.idStatus === 'plan') return; a.state = 'out'; if (a.kind === 'real') s.wrong++; for (const w of s.analysts) if (w.task === id) w.task = null; report(s, 'Abara', `Contact ${id + 1} ruled out.`, 'info'); }
+  function dismissContact(s, id) { const a = s.an[id]; if (s.over || a.state !== 'open' || a.idStatus === 'plan') return; a.state = 'out'; a.wrongCounted = a.kind === 'real'; if (a.kind === 'real') s.wrong++; for (const w of s.analysts) if (w.task === id) w.task = null; report(s, 'Abara', `Contact ${id + 1} ruled out.`, 'info'); }
+  function reanalyze(s, id) { const a = s.an[id]; if (s.over || !a || a.state !== 'out') return false; a.state = 'open'; if (a.wrongCounted) { s.wrong--; a.wrongCounted = false; } report(s, 'Abara', `Contact ${id + 1} back under analysis.`, 'info'); return true; }
+  function investigate(s, id) {   // put every analyst on one contact, or take them off again
+    const a = s.an[id]; if (s.over || !a || !['open', 'locked'].includes(a.state) || a.idStatus === 'plan') return false;
+    const all = s.analysts.every(w => w.task === id); for (const w of s.analysts) w.task = all ? null : id;
+    report(s, 'Abara', all ? `Analysts released from contact ${id + 1}.` : `All analysts on contact ${id + 1}.`, 'info'); return true;
+  }
   function fire(s, id, L, cone, kind = 'he', homing = false) {
     if (!WARHEAD[kind]) kind = 'he';
     const a = s.an[id]; if (s.over || a.state !== 'locked' || (a.solve || 0) < 1 || (a.kind === 'friend' && (a.idStatus === 'plan' || a.idStatus === 'confirmed'))) return false;
@@ -505,6 +515,6 @@ const HuntRT = (() => {
     s.spool = { at: s.t + s.spoolMin }; report(s, 'Abara', `Breach drive spooling. ${(s.spoolMin * P.secPerMin / 60).toFixed(1).replace('.0', '')} minutes to jump, and the spool is bright on every sensor.`, 'danger', true);
   }
   function setPellAct(s, on) { s.pellAct = !!on && s.integration >= 75; }
-  return { heatRate, arenaPlan, TIER_HEAT, PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, hitProb, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, planPos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge };
+  return { navBlocked, reanalyze, investigate, heatRate, arenaPlan, TIER_HEAT, PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, hitProb, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, planPos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge };
 })();
 if (typeof module !== 'undefined') module.exports = HuntRT;
