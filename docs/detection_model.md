@@ -21,7 +21,7 @@ Detection (`infoMult`, `ourVis`, `enemyVis`, `enemyAI` in the engine)
 
 Heat (`sinkStep`, `startVent`, `stopVent`)
 - Stored heat only rises. Fill per minute = 1.4 x exposure; going quiet or holding still only slows it. A ping costs about 17 percent of the sink. Nothing drains it except venting.
-- Vent (key V): fins out, we are 100 percent visible, sinks drain at 20 percent per minute (5 min for a full dump), retract any time. Warnings at 60, 80 and 95 percent. At 100 percent the fins open by themselves and close at 25 percent (the cost of neglect, never a dead end).
+- Vent (key V): fins out, we are 100 percent visible, sinks drain at 40 percent per minute (2.5 min for a full dump), retract any time. Warnings at 60, 80 and 95 percent. At 100 percent the fins open by themselves and close at 25 percent (the cost of neglect, never a dead end).
 - Enemies obey the same rules: random starting heat, capacity by loadout, no vent in the first 5 to 9 minutes. Veteran crews vent early but only when they believe we have no fix; the rest vent at 82 percent regardless; everyone at 100. A venting ship is a thermal blaze (thermal rate x1.6), Dace calls it out, and a ship we had ruled out comes back into play. Only real warships vent, so a vent is also a tell.
 
 Loadouts (`LOADOUTS`): Picket, Hound (sharp, loud), Shade (quiet, weak), Veteran (crew 1.25), Green crew (0.75), Brute (big sinks, hits hard). Our cutter is the plain one. Revealed on the end screen.
@@ -46,7 +46,7 @@ Scanning and reads
 
 Heat and venting
 - Stored heat only rises with activity. The sink fills at P.sinkK (1.4) x exposure per minute; a ping is about 17 percent of the sink.
-- The header Heat sink cell is the vent control (also key V). Voluntary vent: fins out, visibility 1.0, drains 20 percent per minute, and can be retracted at any time, including with missiles incoming (that is a mistake you are allowed to make).
+- The header Heat sink cell is the vent control (also key V). Voluntary vent: fins out, visibility 1.0, drains 40 percent per minute (P.ventFull 2.5), which beats the fill rate of a ship burning with three analysts working, and can be retracted at any time, including with missiles incoming (that is a mistake you are allowed to make).
 - Emergency vent: at 100 percent the fins open by themselves. They cannot be retracted by hand until stored heat is under P.forcedRetract (80 percent); they close on their own at P.forcedStop (25 percent). If you do retract between 25 and 80 percent, the fins stay shut for half a game minute before the auto-vent can fire again.
 - Enemies vent by the same rules and the venting is visible (thermal blaze, Dace calls it out).
 
