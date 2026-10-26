@@ -347,7 +347,7 @@ function nextStep() {
   for (const a of S.an) if (a.state === 'locked') { const si = E.solveInfo(S, a); if (si.ready) return { t: 'C' + (a.id + 1) + ': SOLUTION READY, <em>TARGET</em> IT', led: 'a', key: 'k-tgt', id: a.id }; if (si.stale) return { t: 'C' + (a.id + 1) + ': SOLUTION STALE, REFRESH IT IN THE <em>TARGET</em> VIEW', led: 'a', key: 'k-tgt', id: a.id }; }
   const vms = S.an.map(a => ({ a, vm: slipVM(a) })), dec = vms.find(x => x.vm.word === 'DECISION');
   if (dec) return { t: 'C' + dec.vm.n + ': ' + Math.max(2, dec.vm.c.n) + ' SENSORS AGREE, <em>' + 'LOCK ON</em> OR <em>DISMISS</em>', led: 'a', key: E.advice(S, dec.a).call === 'junk' ? 'k-dis' : 'k-lock', id: dec.a.id };
-  const hos = vms.find(x => x.vm.isH && x.a.state === 'open'); if (hos) return { t: 'C' + hos.vm.n + ' PINGED US: <em>LOCK ON</em>', led: 'r', key: 'k-lock', id: hos.a.id };
+  const hos = vms.find(x => x.vm.isH && x.a.state === 'open'); if (hos) return { t: 'C' + hos.vm.n + ' IS A WARSHIP (IT FIRED OR VENTED): <em>LOCK ON</em>', led: 'r', key: 'k-lock', id: hos.a.id };
   const unr = vms.find(x => x.a.state === 'open' && !x.vm.isF && x.vm.nread >= 1 && !S.analysts.some(w => w.task === x.a.id));
   if (unr) return { t: 'C' + unr.vm.n + ': ' + Math.round(unr.vm.c.p * 100) + '% CERTAIN. <em>INVESTIGATE</em> TO RAISE IT', led: 'c', key: 'k-inv', id: unr.a.id };
   const nr = vms.find(x => x.a.state === 'open' && !x.vm.isF && x.vm.nread < 1); if (nr) return { t: 'C' + nr.vm.n + ': NOT READ YET. <em>INVESTIGATE</em>', led: 'c', key: 'k-inv', id: nr.a.id };
@@ -362,8 +362,8 @@ function cOrders() {
   ckeySet('k-inv', { t: 'INVESTIGATE', s: all ? 'STAND DOWN' : 'ALL 3 ANALYSTS', dis: !ok, lit: !!all, rec: nx.key === 'k-inv' && nx.id === id });
   ckeySet('k-ping', { t: 'ACTIVE PING', s: dark ? 'NOT WHEN QUIET' : cdp > 0 ? 'READY IN ' + fmtMin(cdp) : 'LOUD &middot; HEAT', dis: !ok || dark || cdp > 0, heat: { ping: 1 } });
   const lockd = a && a.state === 'locked';
-  ckeySet('k-lock', lockd ? { t: 'TARGET &#9656;', s: vm.word, dis: !ok, lit: true, rec: nx.key === 'k-tgt' && nx.id === id } : { t: 'LOCK ON', s: a && a.state === 'open' && vm.rdy ? 'RECOMMENDED' : 'RULE IT IN', dis: !(ok && a.state === 'open'), rec: nx.key === 'k-lock' && nx.id === id });
-  ckeySet('k-dis', { t: 'DISMISS', s: 'RULE OUT', dis: !(ok && a.state === 'open'), rec: nx.key === 'k-dis' && nx.id === id });
+  ckeySet('k-lock', lockd ? { t: 'TARGET &#9656;', s: vm.word, dis: !ok, lit: true, rec: nx.key === 'k-tgt' && nx.id === id } : { t: 'LOCK ON', s: a && a.state === 'open' && vm.isH ? 'KNOWN WARSHIP' : a && a.state === 'open' && vm.rdy ? 'RECOMMENDED' : 'RULE IT IN', dis: !(ok && a.state === 'open'), rec: nx.key === 'k-lock' && nx.id === id });
+  ckeySet('k-dis', { t: 'DISMISS', s: vm && vm.isH ? 'IT IS HOSTILE' : 'RULE OUT', dis: !(ok && a.state === 'open') || !!(vm && vm.isH), rec: nx.key === 'k-dis' && nx.id === id });
   ckeySet('k-re', { t: 'RE-ANALYZE', s: 'RULED OUT ONLY', dis: !(a && a.state === 'out' && !S.over) });
   ckeySet('k-rel', { t: 'RELEASE', s: 'ANALYSTS', dis: !on.length });
   const ev = cEvidence(a), e = $('evd'); if (e && e.dataset.k !== ev) { e.dataset.k = ev; e.innerHTML = ev; }
@@ -519,12 +519,14 @@ function cTarget() {
   return o;
 }
 let hitNow = null;
+const pauseWhy = si => si.dark ? 'SENSORS DARK' : 'TRACE TOO FAINT';
+const pauseTip = si => si.dark ? 'We went quiet, so nobody is working the solution. It resumes when the sensors come back.' : 'The trace is too faint to work: the target is too far, too cold or behind a body. Close the range, wait for it to vent, or get a clear line of sight.';
 function cTgtUpdate(T) {
   const { a, f, sug, q, rg, rel, aob, sp, si, rd } = T, vm = slipVM(a), sl = slipHtml(a, vm, true, 0, false), el = $('tsl'), key = sl.cls + sl.html;
   if (el.dataset.k !== key) { el.dataset.k = key; el.innerHTML = sl.html; }
   cOn('tgt-sub', e => { e.textContent = 'contact ' + (a.id + 1); });
-  clampSet('tl-ready', si.ready, { fl: true }); clampSet('tl-solv', !si.ready && !si.stale && !si.paused); clampSet('tl-stale', si.stale, { fl: true }); clampSet('tl-pause', si.paused && !si.ready);
-  csvg('g-tsol', csegSvg('', si.ready ? 1 : si.prog, si.ready ? CC.green : CC.amber, si.ready ? 'SOLUTION READY' : si.stale ? 'STALE: REFRESH' : si.paused ? 'PAUSED: SENSORS DARK' : Math.round(si.prog * 100) + '% &middot; ' + fmtMin(si.remain) + ' LEFT', 24, 4, [], 24));
+  clampSet('tl-ready', si.ready, { fl: true }); clampSet('tl-solv', !si.ready && !si.stale && !si.paused); clampSet('tl-stale', si.stale, { fl: true }); clampSet('tl-pause', si.paused && !si.ready); cOn('tl-pause', e => { e.dataset.tip = pauseTip(si); });
+  csvg('g-tsol', csegSvg('', si.ready ? 1 : si.prog, si.ready ? CC.green : CC.amber, si.ready ? 'SOLUTION READY' : si.stale ? 'STALE: REFRESH' : si.paused ? 'PAUSED: ' + pauseWhy(si) : Math.round(si.prog * 100) + '% &middot; ' + fmtMin(si.remain) + ' LEFT', 24, 4, [], 24));
   const age = S.t - q.t, live = age < 0.8 || (a.vent && a.ventSeen);
   croSet('r-tage', mmss(age), age > P.solveStale * 0.66 ? CC.amber : CC.green); clampSet('tl-live', live, { fl: true }); clampSet('tl-proj', !live);
   ckeySet('k-trefresh', { t: 'REFRESH', s: si.stale ? 'STALE: DO IT' : 'NEW SOLUTION', rec: si.stale }); const lk = S.an.filter(x => x.state === 'locked'); ckeySet('k-tnext', { t: 'NEXT LOCK', s: lk.length > 1 ? lk.length + ' LOCKED' : 'ONLY ONE', dis: lk.length < 2 });
@@ -544,9 +546,9 @@ function cTgtUpdate(T) {
   if (hitNow) { const hv = hitNow.hv; csvg('g-hit', csegSvg('HIT CHANCE', hv / 100, hv < 25 ? CC.red : hv < 55 ? CC.amber : CC.green, hv + '%', 24, 8, [], 20)); cOn('g-hit', e => { e.dataset.tip = $('ammotip').textContent; }); }
   S.tubes.forEach((x, i) => clampSet('tf-s' + i, S.t >= x, { col: 'g' })); clampSet('tf-coil', inR && cwr, { col: 'g' });
   clampSet('tf-heat', sr.dist < 24); clampSet('tf-aware', !!a.aware); clampSet('tf-near', dang, { fl: true, col: 'r' }); clampSet('tf-grid', !!a.flutter, { col: 'c' });
-  const fb = $('fire'), kf = $('k-fire'); { const fireable = si.ready && rd && !si.stale; kf.classList.toggle('gd', fireable); kf.classList.toggle('cvd', !si.stale); { const cv = kf.querySelector('.cguard'), h = fireable ? '<b>LIFT GUARD</b><small>THEN PRESS TO FIRE</small>' : !si.ready ? '<b>SOLVING</b><small>' + (si.paused ? 'PAUSED' : fmtMin(si.remain) + ' LEFT') + '</small>' : '<b>RELOADING</b><small>' + fmtMin(Math.min(...S.tubes.map(x => x - S.t))) + '</small>'; if (cv.dataset.h !== h) { cv.dataset.h = h; cv.innerHTML = h; } } if (!fireable) kf.classList.remove('armed'); }
+  const fb = $('fire'), kf = $('k-fire'); { const fireable = si.ready && rd && !si.stale; kf.classList.toggle('gd', fireable); kf.classList.toggle('cvd', !si.stale); { const cv = kf.querySelector('.cguard'), h = fireable ? '<b>LIFT GUARD</b><small>THEN PRESS TO FIRE</small>' : !si.ready ? '<b>SOLVING</b><small>' + (si.paused ? pauseWhy(si) : fmtMin(si.remain) + ' LEFT') + '</small>' : '<b>RELOADING</b><small>' + fmtMin(Math.min(...S.tubes.map(x => x - S.t))) + '</small>'; if (cv.dataset.h !== h) { cv.dataset.h = h; cv.innerHTML = h; } } if (!fireable) kf.classList.remove('armed'); }
   if (si.stale) ckeySet('k-fire', { t: 'REFRESH', s: 'SOLUTION IS STALE', guard: false, hot: false, dis: false, lit: true });
-  else if (!si.ready) ckeySet('k-fire', { t: 'SOLVING', s: si.paused ? 'PAUSED' : fmtMin(si.remain) + ' LEFT', dis: true, guard: true });
+  else if (!si.ready) ckeySet('k-fire', { t: 'SOLVING', s: si.paused ? pauseWhy(si) : fmtMin(si.remain) + ' LEFT', dis: true, guard: true });
   else if (!rd) ckeySet('k-fire', { t: 'RELOADING', s: fmtMin(Math.min(...S.tubes.map(x => x - S.t))), dis: true, guard: true });
   else ckeySet('k-fire', { t: 'FIRE SALVO', s: (hitNow ? hitNow.hv + '% HIT CHANCE' : 'READY') + (dang ? ' &middot; DANGER CLOSE' : ''), hot: true, guard: false, dis: false });
   ckeySet('k-coilg', { t: 'COILGUN', s: cwr ? (inR ? 'READY' : 'UNDER ' + P.closeRange + ' KM') : fmtMin(S.cwCd - S.t), dis: !inR || !cwr, hot: inR && cwr });

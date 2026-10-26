@@ -74,3 +74,7 @@ Contacts, analysts and targeting (2026-10-25, evening)
 
 ## Redline burns (Oct 25)
 Redline is a timed burn, not a speed you sit at by accident: one press of the Redline key is a 15 second burn, two presses 30 seconds, three latch it on, a fourth turns it off. The key only works while the ship is under way (it is dark when stopped) and stopping ends a burn. Measured: from a cold sink Redline fills the sink in about 25 seconds, so 30 seconds is the longest burn that costs nothing, and 2 minutes would cost about 40 hull and 65 percent systems. Times are on the mission clock (1 game minute = 16 seconds). When a timed burn ends, the ship goes back to the speed it was at before. Selecting any other speed cancels the burn. Heat and melt rules are unchanged (see above); the burn just bounds how long you can forget it. Engine: `redlineBurn(s)`, `s.burn = {level, prev, until}`.
+
+
+## Identity from behavior (Oct 26)
+A real warship is marked hostile the moment it fires on us or extends its heat fins while our thermal read can see it. Hostile contacts show 100 percent odds, cannot be dismissed, and the crew treats them as ships. Lures and static never vent or fire, so the marker is never wrong. Faint-trace and dark-sensor pauses of a firing solution are now labeled separately in the Target view.

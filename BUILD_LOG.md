@@ -274,3 +274,8 @@ Revised (Dave): evade should speed analysis modestly at a modest stealth cost, b
 ## Oct 26: random enemy count
 - Each hunt now has 1 to 3 enemy warships (random, chosen at the briefing, hidden from the player; `brief.nreal` passed to `newHunt`). Dog-leg stopovers also roll 1 to 3. Engine default stays 2 so headless tests are unchanged. Classifier priors now use `s.nreal` instead of `P.nreal`. Debrief and win text no longer say "both". Bots: 1 enemy wins about 90 percent, 3 enemies about 61 to 78 percent.
 - Convoy strikes added to the roadmap's parking list (reviewed at Stage 5).
+
+## Oct 26: playtest fixes
+- A warship that fires on us, or extends heat fins where we can see the thermal blaze, is now identified as hostile (100 percent, red slip, cannot be dismissed, analysts' advice says ship). Before, only the reports said so and the odds could still read DECOY. Engine: `markHostile`, classify and advice override. Non-real contacts are never marked. Bots win a little more often (82/85/92 percent vs 76/76/89).
+- "Solving paused" now says why: SENSORS DARK (we went quiet) or TRACE TOO FAINT (too far, cold or behind a body; close the range, wait for it to vent, or clear the line of sight). Hover text explains.
+- Field patch kit text: repairs hull slowly in the field (about 1 point a minute) and 8 percent faster at dock. The refit effects are still not wired into the engine (dock screens come later).

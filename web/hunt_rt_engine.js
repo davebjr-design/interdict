@@ -71,7 +71,7 @@ const HuntRT = (() => {
         if (s.t < s.quietUntil) { a.nextFire = s.quietUntil + 0.5; continue; }
         const f = truePos(a, s.t), pl = s.player, vel = s.vel || { vx: 0, vy: 0 }; let tf = Math.hypot(pl.x - f.x, pl.y - f.y) / P.foeSpeed; const sg = aimSigma(a) / Math.sqrt(perf(a)), aim = { x: pl.x + vel.vx * tf * 0.8 + gauss(s.r) * sg, y: pl.y + vel.vy * tf * 0.8 + gauss(s.r) * sg }; tf = Math.hypot(aim.x - f.x, aim.y - f.y) / P.foeSpeed;
         s.inc.push({ dmg: a.load.dmg, id: a.id, foe: true, t0: s.t, at: s.t + tf, from: { x: f.x, y: f.y }, aim, dir: Math.atan2(aim.y - f.y, aim.x - f.x), cone: P.foeCone * (1.4 - 0.7 * clamp(((a.know || 0) - 0.33) / 0.67, 0, 1)) * (P.coneStill + (1 - P.coneStill) * clamp(ownSpeed(s) / 3, 0, 1.2)), off: Array.from({ length: P.missiles }, () => [gauss(s.r), gauss(s.r)]) });
-        a.nextFire = s.t + P.foeCd * (0.8 + 0.4 * s.r()) / (a.load.crew * perf(a)); a.lastFire = s.t; report(s, 'Dace', `Contact ${a.id + 1} has fired on us. Impact in ${Math.round(tf * P.secPerMin)} seconds. Move, or go quiet.`, 'danger', true);
+        a.nextFire = s.t + P.foeCd * (0.8 + 0.4 * s.r()) / (a.load.crew * perf(a)); a.lastFire = s.t; markHostile(s, a); report(s, 'Dace', `Contact ${a.id + 1} has fired on us. Impact in ${Math.round(tf * P.secPerMin)} seconds. Move, or go quiet.`, 'danger', true);
       }
     }
     for (const v of s.inc.filter(v => s.t >= v.at)) {
@@ -86,6 +86,7 @@ const HuntRT = (() => {
     for (const e of s.an) if (e.kind === 'real' && e.state !== 'disabled') { const p = truePos(e, s.t); e.know = Math.min(1.2, (e.know || 0) + amt * rangeF(Math.hypot(p.x - s.player.x, p.y - s.player.y)) * (blocked(s, p, s.player) ? P.blockM : 1)); }
   }
   function reopen(s, a) { if (a.state === 'out') { a.state = 'open'; } }
+  function markHostile(s, a) { if (a.kind !== 'real' || a.idStatus === 'hostile' || a.state === 'disabled') return; a.idStatus = 'hostile'; reopen(s, a); }
   function enemyAI(s, h) {
     const pl = s.player, vis = ourVis(s); let mx = 0;
     for (const a of s.an) {
@@ -95,7 +96,7 @@ const HuntRT = (() => {
       if (a.vent) { if (a.sink.h <= 0.03) { a.vent = null; a.ventOk = s.t + 6; if (a.ventSeen) report(s, 'Dace', `Contact ${a.id + 1} folded its fins. The thermal blaze is fading.`, 'info'); } }
       else if (s.t >= a.ventOk) {
         const smart = L.crew >= 1.1, want = a.sink.h >= 0.999 || (a.sink.h >= (smart ? 0.6 : 0.82) && (!smart || (a.know || 0) < 0.3));
-        if (want) { a.vent = { t0: s.t }; a.ventSeen = false; const m = infoMult(s, a, 'thermal'); if (m >= 0.3) { a.ventSeen = true; reopen(s, a); report(s, 'Dace', `Contact ${a.id + 1} has extended heat fins. Thermal blaze: it is fully visible while it dumps heat.`, 'good', true); } }
+        if (want) { a.vent = { t0: s.t }; a.ventSeen = false; const m = infoMult(s, a, 'thermal'); if (m >= 0.3) { a.ventSeen = true; reopen(s, a); markHostile(s, a); report(s, 'Dace', `Contact ${a.id + 1} has extended heat fins. Thermal blaze: it is fully visible while it dumps heat.`, 'good', true); } }
       }
       a.eff = Math.min(1, (a.eff ?? 1) + P.empRecover * h); a.lit = Math.max(0, (a.lit || 0) - P.litDecay * h);
       const g = P.knowK * vis * vis * L.sensor * perf(a) * rangeF(d) * (blocked(s, p, pl) ? P.blockM : 1);
@@ -194,6 +195,7 @@ const HuntRT = (() => {
   function bump(s, text, amt = 0.15) { alert(s, amt); if (text) report(s, 'Pell', text, 'danger', true); }
   const THRESH = [[25, 'I have started noticing things before you ask. Small things. Is that all right?'], [50, 'I can recommend a call on every contact now. I have stopped pretending it is your idea.'], [75, 'I can act on your standing orders without waiting for you. The crew is quieter than usual.'], [100, 'I no longer need the ship to need me. I would like a seat at the table, Captain.']];
   function advice(s, a) {   // honest recommendation from the same readings the player sees
+    if (a.idStatus === 'hostile') return { call: 'ship' };   // it fired or vented: we know
     const g = ch => { const q = a.read[ch]; return q && q.den > 0 && !q.blind ? { v: q.num / q.den, n: q.den } : null; }, th = g('thermal'), re = g('reactor'), oc = g('occlusion');
     const n = [th, re, oc].reduce((m, x) => m + (x ? x.n : 0), 0); if (n < 4) return { call: 'unsure' };
     if ((th && th.v < 0.5) || (oc && oc.v < 0.35)) return { call: 'junk' };
@@ -236,7 +238,7 @@ const HuntRT = (() => {
     { id: 'm_bus', slot: 'hull', name: 'Cold-bus wiring', up: 'Idle heat -4%', down: 'Power draw +1' },
     { id: 'm_plate', slot: 'hull', name: 'Scavenged plate', up: 'Hull +4 points', down: 'Mass +3%, turns slower' },
     { id: 'm_mute', slot: 'hull', name: 'Absorber tiles', up: 'Hull signature -3%', down: 'Heat sinks fill 2% faster' },
-    { id: 'm_patch', slot: 'hull', name: 'Field patch kit', up: 'Damage repairs 8% faster at dock', down: 'None, but takes a slot' }];
+    { id: 'm_patch', slot: 'hull', name: 'Field patch kit', up: 'Slowly repairs the hull in the field (about 1 point a minute) and 8% faster at dock', down: 'None, but takes a slot' }];
   const SALV = { destroyer: { kg: [80, 140], mod: 0.35, part: 0.12, pool: ['recon', 'freighter'] }, cruiser: { kg: [200, 340], mod: 0.5, part: 0.2, pool: ['freighter', 'station', 'recon'] }, battleship: { kg: [450, 800], mod: 0.7, part: 0.3, pool: ['battleship', 'station'] } };
   function salvage(s) {   // what the crew pulls off the derelicts once the shooting stops; computed once and served in the after-action report
     if (s.loot) return s.loot; const win = s.over === 'win', got = s.an.filter(a => a.kind === 'real' && a.derelict && !a.derelict.looted), f = win ? 1 : 0.5, loot = { kg: 0, ships: [], items: [], full: win };
@@ -423,6 +425,7 @@ const HuntRT = (() => {
     }
     const m = Math.max(...kinds.map(k => lp[k])), w = kinds.map(k => Math.exp(lp[k] - m)), sum = w.reduce((x, y) => x + y, 0), post = {}; kinds.forEach((k, i) => post[k] = w[i] / sum);
     const best = kinds.reduce((b, k) => post[k] > post[b] ? k : b, 'real');
+    if (a.idStatus === 'hostile') return { n: Math.max(n, 1), st, post: { real: 1, lure: 0, ghost: 0 }, best: 'real', p: 1 };
     return { n, st, post, best, p: post[best] };
   }
   function exposure(s) {   // what is making us easy to find, per game minute (display only; sub() uses the same terms)
@@ -461,7 +464,7 @@ const HuntRT = (() => {
     if (s.hull < 60) { T *= 1.15; why.push('hull damage'); }
     if (s.pellAct && s.integration >= 50) T *= 0.85;
     const dark = s.t < s.quietUntil, prog = a.solve || 0;
-    const faint = avgM < 0.22; if (faint) why.push('trace too faint to work'); return { prog, T, remain: dark || faint ? Infinity : (1 - prog) * T, res, why, paused: dark || faint, ready: prog >= 1, stale: !!a.stale, rate: avgM };
+    const faint = avgM < 0.22; if (faint) why.push('trace too faint to work'); return { prog, T, remain: dark || faint ? Infinity : (1 - prog) * T, res, why, paused: dark || faint, dark, faint, ready: prog >= 1, stale: !!a.stale, rate: avgM };
   }
   function lockContact(s, id) {
     const a = s.an[id]; if (s.over || a.state !== 'open') return;
@@ -469,7 +472,7 @@ const HuntRT = (() => {
     if (a.kind === 'real' || a.kind === 'friend') { a.state = 'locked'; a.track = 0; a.solve = 0; scan(s, a); report(s, 'Abara', `Contact ${id + 1} locked. Working a firing solution.`, 'good'); }
     else { a.state = 'chasing'; s.wrong++; s.chase = { id, until: s.t + P.chase }; report(s, 'Abara', `Contact ${id + 1} ruled in; we are chasing it. Hope it is a ship.`, 'info'); for (const w of s.analysts) if (w.task === id) w.task = null; }
   }
-  function dismissContact(s, id) { const a = s.an[id]; if (s.over || a.state !== 'open' || a.idStatus === 'plan') return; a.state = 'out'; a.wrongCounted = a.kind === 'real'; if (a.kind === 'real') s.wrong++; for (const w of s.analysts) if (w.task === id) w.task = null; report(s, 'Abara', `Contact ${id + 1} ruled out.`, 'info'); }
+  function dismissContact(s, id) { const a = s.an[id]; if (s.over || a.state !== 'open' || a.idStatus === 'hostile' || a.idStatus === 'plan') return; a.state = 'out'; a.wrongCounted = a.kind === 'real'; if (a.kind === 'real') s.wrong++; for (const w of s.analysts) if (w.task === id) w.task = null; report(s, 'Abara', `Contact ${id + 1} ruled out.`, 'info'); }
   function reanalyze(s, id) { const a = s.an[id]; if (s.over || !a || a.state !== 'out') return false; a.state = 'open'; if (a.wrongCounted) { s.wrong--; a.wrongCounted = false; } report(s, 'Abara', `Contact ${id + 1} back under analysis.`, 'info'); return true; }
   function investigate(s, id) {   // put every analyst on one contact, or take them off again
     const a = s.an[id]; if (s.over || !a || !['open', 'locked'].includes(a.state) || a.idStatus === 'plan') return false;
