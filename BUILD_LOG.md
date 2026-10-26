@@ -279,3 +279,12 @@ Revised (Dave): evade should speed analysis modestly at a modest stealth cost, b
 - A warship that fires on us, or extends heat fins where we can see the thermal blaze, is now identified as hostile (100 percent, red slip, cannot be dismissed, analysts' advice says ship). Before, only the reports said so and the odds could still read DECOY. Engine: `markHostile`, classify and advice override. Non-real contacts are never marked. Bots win a little more often (82/85/92 percent vs 76/76/89).
 - "Solving paused" now says why: SENSORS DARK (we went quiet) or TRACE TOO FAINT (too far, cold or behind a body; close the range, wait for it to vent, or clear the line of sight). Hover text explains.
 - Field patch kit text: repairs hull slowly in the field (about 1 point a minute) and 8 percent faster at dock. The refit effects are still not wired into the engine (dock screens come later).
+
+## Tracking model: lock vs. inferred position (weeks 1-2 of the tracking plan)
+- Solve time now depends on target speed (+20% per unit), a lit backdrop (x0.6 faster), and recent maneuvers (within 3 game min). Measured real-seconds averages (`tests/tracktest.js`): backlit still 8, still 26, fast 78, maneuvering 89, cold far 51.
+- Probabilistic fixes: a locked contact only gets a fix with probability clamp((m - 0.35)/0.4); cold or far targets go unfixed and the wedge widens (drift floor `driftK` 0.9 x t^1.5, plus a floor from the original fix error).
+- Solution is gated on certainty (`certReady` 0.6); low certainty pauses solving with the reason POSITION UNCERTAIN and bleeds progress. A course change by a moving target costs 35% of progress.
+- `E.trackState` gives LOCK / TRACK / LAST. UI: slip shows CERT% plus state word, Target lamps LOCK/TRACK(LAST), scope bracket solid / dashed (label TRACK xx%) / dotted ring (LAST KNOWN).
+- Stage 0 log: `S.warn` records missile warning lead time per enemy launch.
+- Stealth cost at 100%/Redline left as is by decision. Bot baseline win rate dipped (66% baseline, 79% with Pell) against 1-3 random enemies; watch in playtest.
+- Not yet: amber/cyan blend with age ring, HEARS US band, stealth missiles.

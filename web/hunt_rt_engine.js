@@ -1,7 +1,7 @@
 // Interdict hunt engine v4: REAL TIME with analyst reports. Time unit = game minutes (UI maps real seconds to game minutes).
 // Three analysts (thermal / reactor / occlusion) read contacts on their own schedule; the player directs attention, interprets, locks, tracks, fires.
 const HuntRT = (() => {
-  const P = { meltHull: 3, meltSys: 0.15, enemyK: 1.4, forcedRetract: 0.8, readDone: 8, pingSolve: 0.6, coneStill: 0.7, spoolMove: 0.3, spoolDog: 11.25, spool: 3, spoolVis: 0.9, spoolHeat: 0.06, missRate: 0.5, dmgExp: 2, homeWarned: 0.15, missQuiet: 0.08, evadeV: 10, evadeMax: 36, homePull: 0.5, missiles: 6, foeW: 3, empRecover: 0.02, litDecay: 0.15, sensRef: 40, symP: 0.8, classDen: 12, enemySink: 3, sinkK: 0.7, ventFull: 4, ventMin: 0.08, forcedStop: 0.25, visDiv: 0.2, visFloor: 0.06, visCap: 0.85, ventSig: 1, knowK: 0.4, knowDecay: 0.05, knowLose: 0.15, sensR: 120, floorM: 0.12, blockM: 0.12, aimSigMax: 36, aimSigMin: 5, standoff: 60, pingAlert: 0.3, launchAlert: 0.15, coilAlert: 0.2, solveStale: 3, foeCd0: 2, foeCd: 3.5, foeCone: 9, foeKill: 4, foeDmg: 12, foeSpeed: 30, manPatrol: [6, 9], manAware: [3, 5], edge: 18, uncDen: 20, uncMin: 2, uncMax: 16, solveMin: 0.8, solveMax: 3.0, solveDen: 8, clutterR: 18, N: 8, nreal: 2, nlure: 3, arena: 240, base: 0.02, glowFocus: 0.010, glowTrack: 0.03, stages: 3, chase: 5, chasemult: 2.5, bait: 0.75, rescan: 5, engage: 1, missileSpeed: 40, alongStretch: 1.5, squeezeAfter: 1000000000.0, squeezeRamp: 0.12, autoPeriod: 0.8, focusPeriod: 0.45, killR: 20, glowPell: 0.012, integrationPerMin: 0.8, sub: 0.05, secPerMin: 16, halfLife: 3, telegraph: 0.8, quietDur: 2.5, quietCd: 10, quietHaz: 0.2, quietCancel: 0.6, suggestShort: 0.72, tubes: 3, reload: 3, darkWindow: 6, darkHaz: 0.5, darkWarm: 4, wakeDur: 3, wakeGlow: 0.10, wpReach: 2, moveRate: 1.1, shipSpeed: 1.0, holdOff: 5, pingCd: 4, pingDur: 1.5, pingGlow: 0.14, pingBump: 0.45, pingBumpOther: 0.15, selfRadius: 7, selfDmg: 25, closeRange: 18, closeCd: 2, closeKill: 8, closeAcc: 0.85, closeGlow: 0.12, closeDur: 2, blastGlow: 0.08, blastDur: 1.5, nearGlow: 0.025, nearRange: 24, closeBump: 0.5, beamGlow: 0.08, beamDur: 1, beamCd: 2, beamBump: 0.35, driftMin: 6, driftMax: 12, shareReads: 2, pellFriction: 0.08 };
+  const P = { meltHull: 3, meltSys: 0.15, enemyK: 1.4, forcedRetract: 0.8, readDone: 8, pingSolve: 0.6, coneStill: 0.7, spoolMove: 0.3, spoolDog: 11.25, spool: 3, spoolVis: 0.9, spoolHeat: 0.06, missRate: 0.5, dmgExp: 2, homeWarned: 0.15, missQuiet: 0.08, evadeV: 10, evadeMax: 36, homePull: 0.5, missiles: 6, foeW: 3, empRecover: 0.02, litDecay: 0.15, sensRef: 40, symP: 0.8, classDen: 12, enemySink: 3, sinkK: 0.7, ventFull: 4, ventMin: 0.08, forcedStop: 0.25, visDiv: 0.2, visFloor: 0.06, visCap: 0.85, ventSig: 1, knowK: 0.4, knowDecay: 0.05, knowLose: 0.15, sensR: 120, floorM: 0.12, blockM: 0.12, aimSigMax: 36, aimSigMin: 5, standoff: 60, pingAlert: 0.3, launchAlert: 0.15, coilAlert: 0.2, solveStale: 3, foeCd0: 2, foeCd: 3.5, foeCone: 9, foeKill: 4, foeDmg: 12, foeSpeed: 30, manPatrol: [6, 9], manAware: [3, 5], edge: 18, uncDen: 20, uncMin: 2, uncMax: 16, solveMin: 0.8, solveMax: 3.0, solveDen: 8, clutterR: 18, N: 8, nreal: 2, nlure: 3, arena: 240, base: 0.02, glowFocus: 0.010, glowTrack: 0.03, stages: 3, chase: 5, chasemult: 2.5, bait: 0.75, rescan: 5, engage: 1, missileSpeed: 40, alongStretch: 1.5, squeezeAfter: 1000000000.0, squeezeRamp: 0.12, autoPeriod: 0.8, focusPeriod: 0.45, killR: 20, glowPell: 0.012, integrationPerMin: 0.8, sub: 0.05, secPerMin: 16, fixLo: 0.35, fixSpan: 0.4, driftK: 0.9, certReady: 0.6, certBleed: 0.5, manPen: 1.5, manWin: 3, manLoss: 0.35, spdK: 0.2, backK: 0.6, halfLife: 3, telegraph: 0.8, quietDur: 2.5, quietCd: 10, quietHaz: 0.2, quietCancel: 0.6, suggestShort: 0.72, tubes: 3, reload: 3, darkWindow: 6, darkHaz: 0.5, darkWarm: 4, wakeDur: 3, wakeGlow: 0.10, wpReach: 2, moveRate: 1.1, shipSpeed: 1.0, holdOff: 5, pingCd: 4, pingDur: 1.5, pingGlow: 0.14, pingBump: 0.45, pingBumpOther: 0.15, selfRadius: 7, selfDmg: 25, closeRange: 18, closeCd: 2, closeKill: 8, closeAcc: 0.85, closeGlow: 0.12, closeDur: 2, blastGlow: 0.08, blastDur: 1.5, nearGlow: 0.025, nearRange: 24, closeBump: 0.5, beamGlow: 0.08, beamDur: 1, beamCd: 2, beamBump: 0.35, driftMin: 6, driftMax: 12, shareReads: 2, pellFriction: 0.08 };
   const POSTURE = { still: { haz: 0.8, rate: 1.0, label: 'Stay still', tip: 'Hunter finds you at 0.8x speed. Analysts work at normal speed.' }, evade: { haz: 0.95, rate: 1.0, label: 'Evasive', tip: 'Weaving gives the analysts new angles to triangulate from, so they read about 10% faster, but the drive makes you about 20% louder than holding still.' }, orbit: { haz: 1.0, rate: 1.0, label: 'Circle', tip: 'Circle the contact at the current range. Angles change constantly, so the analysts triangulate faster, the drive makes noise.' }, route: { haz: 1.0, rate: 1.0, label: 'Flight plan', tip: 'The navigator is flying the plan you drew.' }, close: { haz: 1.0, rate: 1.0, label: 'Close on a contact', tip: 'Moving toward a contact: engine heat depends on your speed; the change of angle helps the analysts, and they read stronger as range drops.' }, separate: { haz: 1.0, rate: 1.0, label: 'Open distance', tip: 'Moving away from a contact: engine heat depends on your speed; the change of angle helps the analysts, but signals weaken with range.' } };
   const START = { dark: 18, standard: 30, fast: 66 };
   const SPEED = { v1: { label: '20%', v: 1.2, heat: 0.0, rate: 1.0, tip: 'One fifth drive: cold, almost no engine heat.' }, v2: { label: '40%', v: 2.4, heat: 0.012, rate: 1.0, tip: 'Two fifths drive: a trace of engine heat.' }, v3: { label: '60%', v: 3.6, heat: 0.04, rate: 1.0, tip: 'Three fifths drive: some engine heat.' }, v4: { label: '80%', v: 4.8, heat: 0.12, rate: 0.9, tip: 'Four fifths drive: loud, and the sink fills noticeably.' }, v5: { label: '100%', v: 6.0, heat: 0.3, rate: 0.8, tip: 'Full drive: the sink fills in a few minutes and sensors are noisy.' }, ab: { label: 'Redline', v: 9.0, heat: 0.9, rate: 0.6, tip: 'Redline: far faster than full drive, but the sink fills in well under a minute, sensors are nearly deaf, and if the sink stays full the ship starts to melt. Short bursts only.' } }, SPD_ALIAS = { creep: 'v1', cruise: 'v3', burn: 'v5' };
@@ -49,7 +49,7 @@ const HuntRT = (() => {
   function velAt(a, t) { const p1 = truePos(a, t - 0.05), p2 = truePos(a, t + 0.05); return { vx: (p2.x - p1.x) / 0.1, vy: (p2.y - p1.y) / 0.1 }; }
   function maneuver(s, a, dh, steer) {
     const p = truePos0(a, s.t), v = legVel(a, s.t), sp = Math.hypot(v.vx, v.vy), h0 = steer != null ? steer : Math.atan2(v.vy, v.vx) + dh;
-    (a.legs || (a.legs = [])).push({ t: s.t, x: p.x, y: p.y, vx: Math.cos(h0) * sp, vy: Math.sin(h0) * sp }); a.lastMan = s.t;
+    (a.legs || (a.legs = [])).push({ t: s.t, x: p.x, y: p.y, vx: Math.cos(h0) * sp, vy: Math.sin(h0) * sp }); a.lastMan = s.t; if (a.state === 'locked' && sp > 0.5 && (a.solve || 0) > 0) a.solve *= 1 - P.manLoss;
     if (a.state === 'locked' && !steer) report(s, 'Dace', `Contact ${a.id + 1} has changed course. Our track is off until we rescan it.`, 'bad');
   }
   function makeAware(s, a, text) {
@@ -71,7 +71,7 @@ const HuntRT = (() => {
         if (s.t < s.quietUntil) { a.nextFire = s.quietUntil + 0.5; continue; }
         const f = truePos(a, s.t), pl = s.player, vel = s.vel || { vx: 0, vy: 0 }; let tf = Math.hypot(pl.x - f.x, pl.y - f.y) / P.foeSpeed; const sg = aimSigma(a) / Math.sqrt(perf(a)), aim = { x: pl.x + vel.vx * tf * 0.8 + gauss(s.r) * sg, y: pl.y + vel.vy * tf * 0.8 + gauss(s.r) * sg }; tf = Math.hypot(aim.x - f.x, aim.y - f.y) / P.foeSpeed;
         s.inc.push({ dmg: a.load.dmg, id: a.id, foe: true, t0: s.t, at: s.t + tf, from: { x: f.x, y: f.y }, aim, dir: Math.atan2(aim.y - f.y, aim.x - f.x), cone: P.foeCone * (1.4 - 0.7 * clamp(((a.know || 0) - 0.33) / 0.67, 0, 1)) * (P.coneStill + (1 - P.coneStill) * clamp(ownSpeed(s) / 3, 0, 1.2)), off: Array.from({ length: P.missiles }, () => [gauss(s.r), gauss(s.r)]) });
-        a.nextFire = s.t + P.foeCd * (0.8 + 0.4 * s.r()) / (a.load.crew * perf(a)); a.lastFire = s.t; markHostile(s, a); report(s, 'Dace', `Contact ${a.id + 1} has fired on us. Impact in ${Math.round(tf * P.secPerMin)} seconds. Move, or go quiet.`, 'danger', true);
+        a.nextFire = s.t + P.foeCd * (0.8 + 0.4 * s.r()) / (a.load.crew * perf(a)); a.lastFire = s.t; markHostile(s, a); (s.warn || (s.warn = [])).push({ id: a.id, t: s.t, lead: tf }); report(s, 'Dace', `Contact ${a.id + 1} has fired on us. Impact in ${Math.round(tf * P.secPerMin)} seconds. Move, or go quiet.`, 'danger', true);
       }
     }
     for (const v of s.inc.filter(v => s.t >= v.at)) {
@@ -160,14 +160,14 @@ const HuntRT = (() => {
     const q = a.read[ch], c = cat(o.v);
     if (ch === 'occlusion' && c === 'faint') return;
     if (q.cat !== c) { q.cat = c; const t = TEXT[ch][c === 'faint' && ch === 'occlusion' ? 'none' : c]; report(s, who.name, `Contact ${n}: ${t}.`, c === 'strong' ? 'good' : 'info'); }
-    if (a.state === 'locked') { a.track += P.focusPeriod * Math.min(1, o.m); scan(s, a, o.m); }
+    if (a.state === 'locked' && s.r() < clamp((o.m - P.fixLo) / P.fixSpan, 0, 1)) { a.track += P.focusPeriod * Math.min(1, o.m); scan(s, a, o.m); }   // a read only yields a fix when the trace is strong enough
   }
   function scan(s, a, m = 1) {
-    const q = 1 / Math.sqrt(clamp(m, 0.35, 1.5)), hs = Math.max(0.05, 0.6 - 0.12 * a.track) * q, ss = Math.max(0.06, 0.45 - 0.09 * a.track) * q, p = truePos(a, s.t), vv = velAt(a, s.t);
-    a.anchor = { x: p.x + gauss(s.r) * 1.2 * q, y: p.y + gauss(s.r) * 1.2 * q, t: s.t, hdg: Math.atan2(vv.vy, vv.vx) + gauss(s.r) * hs, spd: Math.hypot(vv.vx, vv.vy) * (1 + gauss(s.r) * ss), hs, ss };
+    const q = 1 / Math.sqrt(clamp(m, 0.15, 1.5)), hs = Math.max(0.05, 0.6 - 0.12 * a.track) * q, ss = Math.max(0.06, 0.45 - 0.09 * a.track) * q, p = truePos(a, s.t), vv = velAt(a, s.t);
+    a.anchor = { x: p.x + gauss(s.r) * 1.2 * q, y: p.y + gauss(s.r) * 1.2 * q, pe: 1.2 * q, t: s.t, hdg: Math.atan2(vv.vy, vv.vx) + gauss(s.r) * hs, spd: Math.hypot(vv.vx, vv.vy) * (1 + gauss(s.r) * ss), hs, ss };
   }
   function estAt(a, tau) { const q = a.anchor; return { x: q.x + Math.cos(q.hdg) * q.spd * tau, y: q.y + Math.sin(q.hdg) * q.spd * tau }; }
-  function spreadAt(a, tau) { const q = a.anchor; return { along: Math.max(1.5, q.spd * tau * q.ss), cross: Math.max(1.5, q.spd * tau * q.hs) }; }
+  function spreadAt(a, tau) { const q = a.anchor; const fl = Math.max(1.5, 1.3 * (q.pe || 1.2)); return { along: Math.max(fl, q.spd * tau * q.ss), cross: Math.max(fl, q.spd * tau * q.hs, P.driftK * Math.pow(Math.max(0, tau), 1.5)) }; }
   function fanInfo(s, a, L) {
     const q = a.anchor, pl = s.player; let tau = (s.t - q.t) + P.engage + 2, aim;
     if (L == null) { for (let i = 0; i < 6; i++) { aim = estAt(a, tau); const tf = Math.hypot(aim.x - pl.x, aim.y - pl.y) / P.missileSpeed; tau = (s.t - q.t) + P.engage + tf; } L = q.spd * tau * P.suggestShort; }
@@ -282,6 +282,11 @@ const HuntRT = (() => {
     let c = 0; for (const ch of ['thermal', 'reactor', 'occlusion']) { const q = a.read[ch]; if (q && !q.blind && q.den > 0) c += q.den * Math.exp(-(s.t - q.t) * Math.LN2 / P.halfLife); }
     const conf = Math.min(1, c / P.uncDen); return { conf, r: P.uncMin + (P.uncMax - P.uncMin) * Math.pow(1 - conf, 1.2) };
   }
+  function trackState(s, a) {   // how firmly we hold a locked contact: LOCK (fresh and tight), TRACK (dead reckoning), LAST (we have lost it and are guessing)
+    if (a.state !== 'locked' || !a.anchor) return { state: 'none', cert: 0, age: 0 };
+    const age = s.t - a.anchor.t, cert = uncertainty(s, a).conf;
+    return { state: a.stale || age > P.solveStale || cert < 0.5 ? 'last' : cert >= 0.8 && age <= 2.0 ? 'lock' : 'track', cert, age };
+  }
   function displayPos(s, a) { if (a.state === 'locked' && a.anchor) return estAt(a, s.t - a.anchor.t); const p = truePos(a, s.t), u = uncertainty(s, a), m = Math.hypot(a.jit.x, a.jit.y) || 1; return { x: p.x + a.jit.x / m * 0.55 * u.r, y: p.y + a.jit.y / m * 0.55 * u.r }; }
   function missilePos(s, v) { const f = Math.max(0, Math.min(1, (s.t - v.t0) / Math.max(0.01, v.at - v.t0))), cd = Math.cos(v.dir), sd = Math.sin(v.dir); return v.off.map(([ga, gc]) => { const al = ga * v.cone * P.alongStretch, cr = gc * v.cone, ex = v.aim.x + al * cd - cr * sd, ey = v.aim.y + al * sd + cr * cd; return { x: v.from.x + (ex - v.from.x) * f, y: v.from.y + (ey - v.from.y) * f }; }); }
   function moving(s) { return (s.orderId != null && ['close', 'separate', 'evade', 'orbit'].includes(s.posture)) || (s.posture === 'route' && s.routeI < s.route.length); }
@@ -350,6 +355,7 @@ const HuntRT = (() => {
     const friction = 1 - P.pellFriction * Math.max(0, Math.floor(s.integration / 25) - 1), rate = POSTURE[s.posture].rate * (s.entry === 'dark' && s.t < P.darkWarm ? 0.8 : 1) * (moving(s) || s.posture === 'evade' ? P.moveRate : 1) * (moving(s) ? SPEED[s.speed].rate : 1) * friction * (s.hull < 60 ? 0.85 : 1) * s.sysEff;
     for (const a of s.an) if (a.pingSolve && s.t >= a.pingSolve) { a.pingSolve = null; if (a.state === 'locked') { a.solve = 1; a.stale = false; a.track = Math.max(a.track, 3); scan(s, a, 1.5); report(s, 'Abara', `Ping solution on contact ${a.id + 1}. Tight track, ready when you are.`, 'good', true); } }
     for (const a of s.an) if (a.state === 'locked' && (a.solve || 0) >= 1 && a.anchor && s.t - a.anchor.t > P.solveStale) { a.solve = 0; a.stale = true; report(s, 'Abara', `The solution on contact ${a.id + 1} has gone stale. Refresh it when you want a new one; an analyst on the contact keeps the track fresh.`, 'bad'); }
+    for (const a of s.an) if (a.state === 'locked' && !a.stale && (a.solve || 0) > 0 && a.anchor && uncertainty(s, a).conf < P.certReady) a.solve = Math.max(0, a.solve - P.certBleed * h);
     if (!quiet) for (const a of s.an) if (a.state === 'locked' && !a.stale && (a.solve || 0) < 1) { { const si = solveInfo(s, a); if (!si.paused) a.solve = Math.min(1, (a.solve || 0) + h / si.T); } if (a.solve >= 1) { a.track = Math.max(a.track, 3); scan(s, a, 1); report(s, 'Abara', `Firing solution on contact ${a.id + 1}. The track is tight. Ready when you are.`, 'good'); } }
     for (const w of s.analysts) {
       if (s.t < w.next) continue;
@@ -456,15 +462,15 @@ const HuntRT = (() => {
     const res = resolution(a), age = a.anchor ? s.t - a.anchor.t : 3, why = []; let nm = 0, sm = 0; for (const ch of ['thermal', 'reactor', 'occlusion']) if (signal(s, a, ch) !== null) { sm += infoMult(s, a, ch); nm++; } const avgM = nm ? sm / nm : 0.2;
     let T = P.solveMin + (P.solveMax - P.solveMin) * (1 - res) ** 1.3;
     if (res < 0.6) why.push('readings still thin');
-    T *= clamp(0.7 / avgM, 0.75, 2); if (avgM < 0.4) why.push('trace is faint (cold or far)');
+    T *= clamp(0.7 / avgM, 0.75, 3); if (avgM < 0.4) why.push('trace is faint (cold or far)');
     if (age > 2) { T *= 1.25; why.push('stale track'); } else if (age < 0.5) T *= 0.9;
     const tp = truePos(a, s.t); let cl = 0; for (const b of s.an) if (b !== a && b.state !== 'out' && b.state !== 'disabled') { const q = truePos(b, s.t); if (Math.hypot(q.x - tp.x, q.y - tp.y) < P.clutterR) cl++; }
     if (cl) { T *= 1 + Math.min(0.3, 0.1 * cl); why.push('clutter nearby'); }
-    if (a.lastMan != null && s.t - a.lastMan < 3 && a.aware) { T *= 1.3; why.push('target maneuvering'); }
+    { const vv = legVel(a, s.t), spd = Math.hypot(vv.vx, vv.vy); T *= 1 + P.spdK * spd; if (spd > 4.5) why.push('fast target'); if (backdrop(s, a)) T *= P.backK; if (a.lastMan != null && s.t - a.lastMan < P.manWin && spd > 0.5) { T *= P.manPen; why.push('target maneuvering'); } }
     if (s.hull < 60) { T *= 1.15; why.push('hull damage'); }
     if (s.pellAct && s.integration >= 50) T *= 0.85;
     const dark = s.t < s.quietUntil, prog = a.solve || 0;
-    const faint = avgM < 0.22; if (faint) why.push('trace too faint to work'); return { prog, T, remain: dark || faint ? Infinity : (1 - prog) * T, res, why, paused: dark || faint, dark, faint, ready: prog >= 1, stale: !!a.stale, rate: avgM };
+    const faint = avgM < 0.22; if (faint) why.push('trace too faint to work'); const cert = a.anchor ? uncertainty(s, a).conf : 0, unsure = !!a.anchor && cert < P.certReady; if (unsure) why.push('position too uncertain'); return { prog, T, remain: dark || faint || unsure ? Infinity : (1 - prog) * T, res, why, paused: dark || faint || unsure, dark, faint, unsure, cert, ready: prog >= 1, stale: !!a.stale, rate: avgM };
   }
   function lockContact(s, id) {
     const a = s.an[id]; if (s.over || a.state !== 'open') return;
@@ -535,6 +541,6 @@ const HuntRT = (() => {
     s.spool = { at: s.t + s.spoolMin }; report(s, 'Abara', `Breach drive spooling. ${(s.spoolMin * P.secPerMin / 60).toFixed(1).replace('.0', '')} minutes to jump, and the spool is bright on every sensor.`, 'danger', true);
   }
   function setPellAct(s, on) { s.pellAct = !!on && s.integration >= 75; }
-  return { redlineBurn, navBlocked, reanalyze, investigate, heatRate, visIf, arenaPlan, TIER_HEAT, PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, hitProb, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, planPos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge };
+  return { maneuver, trackState, redlineBurn, navBlocked, reanalyze, investigate, heatRate, visIf, arenaPlan, TIER_HEAT, PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, hitProb, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, planPos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge };
 })();
 if (typeof module !== 'undefined') module.exports = HuntRT;

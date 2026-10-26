@@ -283,14 +283,14 @@ function slipVM(a) {
   if (venting && !['locked'].includes(a.state)) { led = 'o'; if (tier === 'c') word = word; }
   let kind = '?', gcol = '#8fa89d';
   if (isF) kind = 'ally'; else if (a.state === 'disabled') kind = 'wreck'; else if (isH) kind = 'ship', gcol = CC.amber; else if (c.n >= 1 && c.p >= 0.5) { kind = { real: 'ship', lure: 'decoy', ghost: 'static' }[c.best]; gcol = { real: CC.amber, lure: CC.cyan, ghost: '#8aa196' }[c.best]; }
-  const odds = isF || a.state === 'disabled' ? '' : isH ? '100%' : c.n >= 1 ? Math.min(99, Math.round(c.p * 100)) + '%' : '--';
+  const ts = a.state === 'locked' ? E.trackState(S, a) : null, odds = ts ? Math.round(ts.cert * 100) + '%' : isF || a.state === 'disabled' ? '' : isH ? '100%' : c.n >= 1 ? Math.min(99, Math.round(c.p * 100)) + '%' : '--';
   const pos = isF ? E.truePos(a, S.t) : a.state === 'locked' && a.anchor ? E.estAt(a, S.t - a.anchor.t) : E.displayPos(S, a), rng = Math.round(Math.hypot(pos.x - S.player.x, pos.y - S.player.y));
   const chans = ['thermal', 'reactor', 'occlusion'].map(ch => {
     const q = a.read[ch], blind = !!(q && q.blind), has = q && !q.blind && q.den > 0, w = S.analysts.find(x => x.id === E.ANALYSTS.find(z => z.ch === ch).id);
     const v = has ? Math.max(0, q.num / q.den) : 0, pr = has ? Math.min(1, q.den / P.readDone) : 0;
     return { ch, off: blind || isF, sig: has ? Math.max(2, Math.min(100, v * 100)) : 0, prog: pr * 100, done: pr >= 1, hold: w.task === a.id && (a.state === 'open' || a.state === 'locked'), op: has ? 0.3 + 0.7 * ago(q) : 1, n: blind ? '--' : pr >= 1 ? '&#10003;' : has ? Math.round(Math.min(99, v * 100)) : '?' };
   });
-  return { n: a.id + 1, word, led, fl, tier, kind, gcol, odds, rng, chans, venting, c, isF, isH, rdy, nread };
+  return { ts, n: a.id + 1, word, led, fl, tier, kind, gcol, odds, rng, chans, venting, c, isF, isH, rdy, nread };
 }
 function slipHtml(a, vm, full, y, sel) {
   const lkc = a.state === 'locked' ? ' lk' : '', cls = (sel ? ' sel' : '') + lkc + (vm.isF ? ' ally' : '') + (a.state === 'out' ? ' out' : '');
@@ -299,7 +299,7 @@ function slipHtml(a, vm, full, y, sel) {
   if (full) {
     inner += cwid('st', 4, 0, 14, 4, `<i class="cled ${vm.led}${vm.fl ? ' fl' : ''}"></i><b style="color:${{ g: CC.green, a: CC.amber, r: CC.red, c: CC.cyan, o: CC.orange, '': '#6f877d' }[vm.led]}">${vm.word}</b>`, { tag: 'st 14x4u' });
     inner += cwid('cls', 18, 0, 4, 4, cglyph(vm.kind, vm.gcol), { tag: 'cls 4x4u' });
-    inner += cwid('od', 22, 0, 6, 4, `<b>${vm.odds}</b><span class="clg">ODDS</span>`, { tag: 'od 6x4u' });
+    inner += cwid('od', 22, 0, 6, 4, `<b>${vm.odds}</b><span class="clg">${vm.ts ? vm.ts.state.toUpperCase() : 'ODDS'}</span>`, { tag: 'od 6x4u' });
     inner += cwid('rng', 28, 0, 8, 4, `${vm.rng}<small style="font-size:.7em;margin-left:.2em">km</small>`, { tag: 'rng 8x4u' });
     vm.chans.forEach((c, i) => { const k = CHK[c.ch]; inner += cwid('ch', i * 12, 4, 12, 4, `<b>${k[0]}</b><div class="cbar"><i style="width:${c.sig}%;opacity:${c.op.toFixed(2)}"></i><u style="width:${c.prog}%"></u><s></s></div><span class="cn">${c.n}</span>`, { cls: (c.done && !c.off ? 'done ' : '') + (c.off ? 'off ' : '') + (c.hold ? 'hold ' : '') + (c.done && !c.off ? 'on' : ''), act: 'chan', arg: a.id + ':' + c.ch, style: `--cc:${k[2]}`, tag: 'ch 12x4u', tip: `${k[1]}: ${a.read[c.ch]?.blind ? (c.ch === 'occlusion' ? 'not backlit, no visual read' : 'blind') : 'strength bar, collection line underneath'}. Click to point ${E.ANALYSTS.find(z => z.ch === c.ch).name} at this contact: faster, cleaner reads, but it adds heat.` }); });
   } else {
@@ -498,8 +498,8 @@ function cTarget() {
   t += cgauge('g-tsol', 37, 5, 24, 4, { tag: 'M 24x4u', tip: 'Firing solution progress. It speeds up with better readings, a fresh track, and Pell; hull damage, clutter and target maneuvers slow it.' });
   t += croW('r-tage', 62, 1, 'SCAN AGE', '88:88', 12, 4, { tag: 'T 12x4u' });
   t += ckeyW('k-trefresh', 62, 5, 12, 4, 'REFRESH', 'NEW SOLUTION', CC.amber, { act: 'trefresh', tag: 'K 12x4u', tip: 'Throw out this solution and work a fresh one. Pointing analysts at the contact keeps the track fresh without this.' });
-  t += clampW('tl-live', 75, 1, 'LIVE', { tip: 'The contact is being observed right now: the bracket is solid.' }) + clampW('tl-proj', 81, 1, 'PROJ', { tip: 'The bracket is projected from the last scan: dashed.' });
-  t += cplate(75, 5, 12, 4, 'SOLID = LIVE<br>DASHED = PROJECTED', { tag: 'plate 12x4u' });
+  t += clampW('tl-live', 75, 1, 'LOCK', { tip: 'LOCK: fresh fix and a tight position. The bracket is solid.' }) + clampW('tl-proj', 81, 1, 'TRACK', { tip: 'TRACK: dead reckoning from the last fix, certainty slipping. LAST (hollow ring) means we have lost it and are guessing; refresh before firing.' });
+  t += cplate(75, 5, 12, 4, 'SOLID = LOCK<br>DASHED = TRACK<br>RING = LAST', { tag: 'plate 12x4u' });
   t += ckeyW('k-tnext', 88, 1, 12, 8, 'NEXT LOCK', 'CYCLE TARGET', CC.cyan, { act: 'tnext', tag: 'K 12x8u' }) + ckeyW('k-tback', 100, 1, 12, 8, 'BACK', 'ESC', null, { act: 'tback', tag: 'K 12x8u' });
   let o = czone('SOLUTION', 0, 8, 112, 10, '', '', t, { vz: 'tgt' });
   let p = cwid('glass', 0, 3, 64, 64, '<canvas id="plot"></canvas>', { cls: 'cglass', id: 'plotbox', tag: 'XL 64x64u' });
@@ -519,16 +519,16 @@ function cTarget() {
   return o;
 }
 let hitNow = null;
-const pauseWhy = si => si.dark ? 'SENSORS DARK' : 'TRACE TOO FAINT';
-const pauseTip = si => si.dark ? 'We went quiet, so nobody is working the solution. It resumes when the sensors come back.' : 'The trace is too faint to work: the target is too far, too cold or behind a body. Close the range, wait for it to vent, or get a clear line of sight.';
+const pauseWhy = si => si.dark ? 'SENSORS DARK' : si.unsure ? 'POSITION UNCERTAIN' : 'TRACE TOO FAINT';
+const pauseTip = si => si.dark ? 'We went quiet, so nobody is working the solution. It resumes when the sensors come back.' : si.unsure ? 'We are only guessing where it is. Solving resumes when a fresh fix tightens the position: keep a sensor on it, close the range, or wait for it to vent.' : 'The trace is too faint to work: the target is too far, too cold or behind a body. Close the range, wait for it to vent, or get a clear line of sight.';
 function cTgtUpdate(T) {
   const { a, f, sug, q, rg, rel, aob, sp, si, rd } = T, vm = slipVM(a), sl = slipHtml(a, vm, true, 0, false), el = $('tsl'), key = sl.cls + sl.html;
   if (el.dataset.k !== key) { el.dataset.k = key; el.innerHTML = sl.html; }
   cOn('tgt-sub', e => { e.textContent = 'contact ' + (a.id + 1); });
   clampSet('tl-ready', si.ready, { fl: true }); clampSet('tl-solv', !si.ready && !si.stale && !si.paused); clampSet('tl-stale', si.stale, { fl: true }); clampSet('tl-pause', si.paused && !si.ready); cOn('tl-pause', e => { e.dataset.tip = pauseTip(si); });
   csvg('g-tsol', csegSvg('', si.ready ? 1 : si.prog, si.ready ? CC.green : CC.amber, si.ready ? 'SOLUTION READY' : si.stale ? 'STALE: REFRESH' : si.paused ? 'PAUSED: ' + pauseWhy(si) : Math.round(si.prog * 100) + '% &middot; ' + fmtMin(si.remain) + ' LEFT', 24, 4, [], 24));
-  const age = S.t - q.t, live = age < 0.8 || (a.vent && a.ventSeen);
-  croSet('r-tage', mmss(age), age > P.solveStale * 0.66 ? CC.amber : CC.green); clampSet('tl-live', live, { fl: true }); clampSet('tl-proj', !live);
+  const age = S.t - q.t, ts = E.trackState(S, a), live = ts.state === 'lock';
+  croSet('r-tage', mmss(age), age > P.solveStale * 0.66 ? CC.amber : CC.green); clampSet('tl-live', live, { fl: true }); clampSet('tl-proj', ts.state !== 'lock'); cOn('tl-proj', e => { const t = ts.state === 'last' ? 'LAST' : 'TRACK'; if (e.dataset.w !== t) { e.dataset.w = t; const b = e.querySelector('.clg'); if (b) b.textContent = t; } });
   ckeySet('k-trefresh', { t: 'REFRESH', s: si.stale ? 'STALE: DO IT' : 'NEW SOLUTION', rec: si.stale }); const lk = S.an.filter(x => x.state === 'locked'); ckeySet('k-tnext', { t: 'NEXT LOCK', s: lk.length > 1 ? lk.length + ' LOCKED' : 'ONLY ONE', dis: lk.length < 2 });
   const nb = n => String(Math.round(n)).padStart(3, '0');
   csvg('d-brg', clin(0, 360, rel, [0, 90, 180, 270], 'BEARING', 'degrees off our bow', v => nb(v), [[null, null, '#2b6b66']], null, CC.cyan, '', Math.min(25, Math.atan2(sp.cross, rg) * 57.3)).replace(/>0</, '>AHD<').replace('>90<', '>STB<').replace('>180<', '>AST<').replace('>270<', '>PRT<'));
