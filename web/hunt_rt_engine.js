@@ -248,7 +248,7 @@ const HuntRT = (() => {
     s.loot = loot; return loot;
   }
   function arenaPlan(r, sus, warn = 0) {   // one dog-leg stopover: is anyone hunting here, and what faint cue does the crew get at arrival
-    const present = r() < sus, nreal = present ? (r() < 0.5 ? 1 : 2) : 0, cue = (present ? 0.65 : 0.35) + (r() - 0.5) * 0.5;
+    const present = r() < sus, nreal = present ? 1 + Math.floor(r() * 3) : 0, cue = (present ? 0.65 : 0.35) + (r() - 0.5) * 0.5;
     return { nreal, present, hint: cue < 0.4 ? 'quiet' : cue < 0.6 ? 'uneasy' : 'wary', warn, dog: true };
   }
   const CLASS_NAME = { destroyer: 'Destroyer', cruiser: 'Cruiser', battleship: 'Battleship' };
@@ -413,7 +413,7 @@ const HuntRT = (() => {
   const KMEAN = { thermal: { real: 0.9, lure: 0.78, ghost: 0.3 }, reactor: { real: 1.0, lure: 0.68, ghost: 0.15 }, occlusion: { real: 0.9, lure: 0.05, ghost: 0.05 } };
   function classify(s, a) {
     const pl = s.player, p = truePos(a, s.t), d = Math.hypot(p.x - pl.x, p.y - pl.y), rf = 1, kinds = ['real', 'lure', 'ghost'];
-    const fr = s.friendly ? 1 : 0, lp = { real: Math.log(P.nreal + fr), lure: Math.log(P.nlure), ghost: Math.log(P.N - P.nreal - P.nlure - fr) }, st = {}; let n = 0;
+    const fr = s.friendly ? 1 : 0, lp = { real: Math.log(s.nreal + fr), lure: Math.log(P.nlure), ghost: Math.log(Math.max(1, P.N - s.nreal - P.nlure - fr)) }, st = {}; let n = 0;
     for (const ch of ['thermal', 'reactor', 'occlusion']) {
       const q = a.read[ch]; if (!q) { st[ch] = 'none'; continue; }
       if (q.blind) { st[ch] = 'blind'; n++; continue; }

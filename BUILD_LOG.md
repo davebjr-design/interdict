@@ -270,3 +270,7 @@ Revised (Dave): evade should speed analysis modestly at a modest stealth cost, b
 - Redline is a heated-seat key: 1 press = 30 s burn, 2 = 2 min, 3 = latched, 4 = off; another speed cancels. Engine `redlineBurn`, `s.burn`; expiry returns to the previous speed with a Castellan call. Display shows level dots and a countdown.
 - New console smoke test `tests/smoke4.py` replaces the obsolete rtsmoke3, plus `tests/burntest.js` for the burn timers.
 - Redline intervals changed to 15 s / 30 s / latch (a 2 minute burn always melted: about 40 hull and 65 percent systems). Redline key is dark when the ship is stopped and backlit under way; stopping ends a burn. FIRE SALVO guard is dark (shows SOLVING or RELOADING) until a solution is ready, then backlit and pulsing.
+
+## Oct 26: random enemy count
+- Each hunt now has 1 to 3 enemy warships (random, chosen at the briefing, hidden from the player; `brief.nreal` passed to `newHunt`). Dog-leg stopovers also roll 1 to 3. Engine default stays 2 so headless tests are unchanged. Classifier priors now use `s.nreal` instead of `P.nreal`. Debrief and win text no longer say "both". Bots: 1 enemy wins about 90 percent, 3 enemies about 61 to 78 percent.
+- Convoy strikes added to the roadmap's parking list (reviewed at Stage 5).

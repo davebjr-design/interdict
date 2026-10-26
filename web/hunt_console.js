@@ -338,7 +338,7 @@ function cSlips() {
 }
 // ----- orders bank, beacon -----
 function nextStep() {
-  if (S.over) return { t: S.over === 'win' ? 'BOTH SHIPS CRIPPLED' : 'HUNT OVER', led: 'g' };
+  if (S.over) return { t: S.over === 'win' ? (S.nreal > 1 ? 'ALL SHIPS CRIPPLED' : 'SHIP CRIPPLED') : 'HUNT OVER', led: 'g' };
   if (S.inc.length) return { t: 'INCOMING FIRE: MOVE OFF THE AIM POINT OR <em>GO QUIET</em>', led: 'r', key: 'k-quiet' };
   const h = S.sink.h;
   if (S.vent.on && S.vent.forced) return { t: 'SINK FULL: FINS HOLD OUT UNTIL ' + Math.round(P.forcedStop * 100) + '%', led: 'r' };
