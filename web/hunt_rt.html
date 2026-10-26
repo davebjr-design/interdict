@@ -240,6 +240,10 @@ body.sweep #stage{box-shadow:inset 0 0 0 4px #ff6b5a}
 .clog .feed:not(.all)>.info:not(.u){display:none}
 .clog .cf{padding:calc(var(--u)*.4) calc(var(--u)*.6)}
 .cevd .cf>*,.cevd #evd{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:calc(var(--u)*.85)}
+.ckey .cguard{display:none}
+.ckey.gd .cguard{display:flex;position:absolute;inset:0;z-index:3;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transform-origin:50% 0;background:repeating-linear-gradient(135deg,#3a1a12 0 calc(var(--u)*.8),#552414 calc(var(--u)*.8) calc(var(--u)*1.6));box-shadow:inset 0 0 0 calc(var(--u)*.25) #c4452e,0 calc(var(--u)*.3) calc(var(--u)*.8) rgba(0,0,0,.6);color:#ffb7a6;letter-spacing:.12em;transition:transform .38s cubic-bezier(.3,1.5,.5,1),opacity .3s}
+.ckey.gd .cguard b{font-size:calc(var(--u)*1.5)}.ckey.gd .cguard small{font-size:calc(var(--u)*.8);opacity:.8}
+.ckey.gd.armed .cguard{transform:perspective(calc(var(--u)*60)) rotateX(-105deg);opacity:0;pointer-events:none}
 
 </style>
 <div id="app"><div id="stage"></div></div>
@@ -1384,7 +1388,7 @@ function cTgtUpdate(T) {
   if (hitNow) { const hv = hitNow.hv; csvg('g-hit', csegSvg('HIT CHANCE', hv / 100, hv < 25 ? CC.red : hv < 55 ? CC.amber : CC.green, hv + '%', 24, 8, [], 20)); cOn('g-hit', e => { e.dataset.tip = $('ammotip').textContent; }); }
   S.tubes.forEach((x, i) => clampSet('tf-s' + i, S.t >= x, { col: 'g' })); clampSet('tf-coil', inR && cwr, { col: 'g' });
   clampSet('tf-heat', sr.dist < 24); clampSet('tf-aware', !!a.aware); clampSet('tf-near', dang, { fl: true, col: 'r' }); clampSet('tf-grid', !!a.flutter, { col: 'c' });
-  const fb = $('fire');
+  const fb = $('fire'), kf = $('k-fire'); { const fireable = si.ready && rd && !si.stale; kf.classList.toggle('gd', fireable); if (!fireable) kf.classList.remove('armed'); }
   if (si.stale) ckeySet('k-fire', { t: 'REFRESH', s: 'SOLUTION IS STALE', guard: false, hot: false, dis: false, lit: true });
   else if (!si.ready) ckeySet('k-fire', { t: 'SOLVING', s: si.paused ? 'PAUSED' : fmtMin(si.remain) + ' LEFT', dis: true, guard: true });
   else if (!rd) ckeySet('k-fire', { t: 'RELOADING', s: fmtMin(Math.min(...S.tubes.map(x => x - S.t))), dis: true, guard: true });
@@ -1396,9 +1400,10 @@ Object.assign(ACT, {
   tnext() { const lk = S.an.filter(x => x.state === 'locked'); if (lk.length > 1) { const i = lk.findIndex(x => x.id === engageId); engageId = lk[(i + 1) % lk.length].id; aimL = null; buildEngage(); } },
   tback() { setView('tac'); }, tauto() { $('auto').click(); engUpdate(true); }, thom() { $('homing').click(); },
   tammo(el) { ammo = el.dataset.arg; [...$('ammo').children].forEach(c => c.classList.toggle('on', c.dataset.k === ammo)); engUpdate(true); },
-  tfire() { $('fire').click(); }, tcoil() { $('cwb').click(); engUpdate(true); },
+  tfire(el) { const k = $('k-fire'); if (k.classList.contains('gd') && !k.classList.contains('armed')) { k.classList.add('armed'); clearTimeout(k._gt); k._gt = setTimeout(() => k.classList.remove('armed'), 4000); return; } k.classList.remove('armed'); clearTimeout(k._gt); $('fire').click(); }, tcoil() { $('cwb').click(); engUpdate(true); },
 });
 cBuild();
+$('k-fire').insertAdjacentHTML('beforeend', '<div class="cguard"><b>LIFT GUARD</b><small>THEN PRESS TO FIRE</small></div>');
 
 let tscale = 1, VX = 0, VY = 0, VZ = 1, follow = false, dragged = false, view = 'tac', hist = [], fires = [], trail = [], planEdit = false, mapG = null, SC = 1;
 let ammo = 'he', homing = false, S = null, paused = false, engageId = null, cone = 8, aimL = null, built = false, feedN = 0, lastUi = 0, lastHp = 0, savedInteg = 0, T0 = 0;

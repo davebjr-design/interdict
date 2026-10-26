@@ -126,3 +126,7 @@ body.sweep #stage{box-shadow:inset 0 0 0 4px #ff6b5a}
 .clog .feed:not(.all)>.info:not(.u){display:none}
 .clog .cf{padding:calc(var(--u)*.4) calc(var(--u)*.6)}
 .cevd .cf>*,.cevd #evd{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:calc(var(--u)*.85)}
+.ckey .cguard{display:none}
+.ckey.gd .cguard{display:flex;position:absolute;inset:0;z-index:3;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transform-origin:50% 0;background:repeating-linear-gradient(135deg,#3a1a12 0 calc(var(--u)*.8),#552414 calc(var(--u)*.8) calc(var(--u)*1.6));box-shadow:inset 0 0 0 calc(var(--u)*.25) #c4452e,0 calc(var(--u)*.3) calc(var(--u)*.8) rgba(0,0,0,.6);color:#ffb7a6;letter-spacing:.12em;transition:transform .38s cubic-bezier(.3,1.5,.5,1),opacity .3s}
+.ckey.gd .cguard b{font-size:calc(var(--u)*1.5)}.ckey.gd .cguard small{font-size:calc(var(--u)*.8);opacity:.8}
+.ckey.gd.armed .cguard{transform:perspective(calc(var(--u)*60)) rotateX(-105deg);opacity:0;pointer-events:none}

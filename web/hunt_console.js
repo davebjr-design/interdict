@@ -544,7 +544,7 @@ function cTgtUpdate(T) {
   if (hitNow) { const hv = hitNow.hv; csvg('g-hit', csegSvg('HIT CHANCE', hv / 100, hv < 25 ? CC.red : hv < 55 ? CC.amber : CC.green, hv + '%', 24, 8, [], 20)); cOn('g-hit', e => { e.dataset.tip = $('ammotip').textContent; }); }
   S.tubes.forEach((x, i) => clampSet('tf-s' + i, S.t >= x, { col: 'g' })); clampSet('tf-coil', inR && cwr, { col: 'g' });
   clampSet('tf-heat', sr.dist < 24); clampSet('tf-aware', !!a.aware); clampSet('tf-near', dang, { fl: true, col: 'r' }); clampSet('tf-grid', !!a.flutter, { col: 'c' });
-  const fb = $('fire');
+  const fb = $('fire'), kf = $('k-fire'); { const fireable = si.ready && rd && !si.stale; kf.classList.toggle('gd', fireable); if (!fireable) kf.classList.remove('armed'); }
   if (si.stale) ckeySet('k-fire', { t: 'REFRESH', s: 'SOLUTION IS STALE', guard: false, hot: false, dis: false, lit: true });
   else if (!si.ready) ckeySet('k-fire', { t: 'SOLVING', s: si.paused ? 'PAUSED' : fmtMin(si.remain) + ' LEFT', dis: true, guard: true });
   else if (!rd) ckeySet('k-fire', { t: 'RELOADING', s: fmtMin(Math.min(...S.tubes.map(x => x - S.t))), dis: true, guard: true });
@@ -556,6 +556,7 @@ Object.assign(ACT, {
   tnext() { const lk = S.an.filter(x => x.state === 'locked'); if (lk.length > 1) { const i = lk.findIndex(x => x.id === engageId); engageId = lk[(i + 1) % lk.length].id; aimL = null; buildEngage(); } },
   tback() { setView('tac'); }, tauto() { $('auto').click(); engUpdate(true); }, thom() { $('homing').click(); },
   tammo(el) { ammo = el.dataset.arg; [...$('ammo').children].forEach(c => c.classList.toggle('on', c.dataset.k === ammo)); engUpdate(true); },
-  tfire() { $('fire').click(); }, tcoil() { $('cwb').click(); engUpdate(true); },
+  tfire(el) { const k = $('k-fire'); if (k.classList.contains('gd') && !k.classList.contains('armed')) { k.classList.add('armed'); clearTimeout(k._gt); k._gt = setTimeout(() => k.classList.remove('armed'), 4000); return; } k.classList.remove('armed'); clearTimeout(k._gt); $('fire').click(); }, tcoil() { $('cwb').click(); engUpdate(true); },
 });
 cBuild();
+$('k-fire').insertAdjacentHTML('beforeend', '<div class="cguard"><b>LIFT GUARD</b><small>THEN PRESS TO FIRE</small></div>');
