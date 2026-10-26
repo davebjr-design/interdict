@@ -14,6 +14,9 @@ with sync_playwright() as p:
         pg.click('#begin'); pg.evaluate("setTime(2)"); pg.wait_for_timeout(1500)
         chk(f'{W} stage present',pg.evaluate("!!$('stage') && $('stage').children.length>10"))
         # burn escalation
+        chk(f'{W} redline dark when stopped',pg.evaluate("$('kd-ab').classList.contains('dis')"))
+        pg.evaluate("E.setRoute(S,[{x:S.player.x+200,y:S.player.y}])"); pg.wait_for_timeout(300)
+        chk(f'{W} redline backlit when moving',pg.evaluate("$('kd-ab').classList.contains('bl')"))
         for lvl in (1,2,3):
             pg.click('#kd-ab'); pg.wait_for_timeout(150)
             chk(f'{W} burn level {lvl}',pg.evaluate("S.burn&&S.burn.level")==lvl)

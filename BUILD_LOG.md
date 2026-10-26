@@ -269,3 +269,4 @@ Revised (Dave): evade should speed analysis modestly at a modest stealth cost, b
 - FIRE SALVO has a flip-up guard: click lifts the cover (hazard plate, 4 second re-close), second click fires. It only appears when a solution is ready and a tube is loaded.
 - Redline is a heated-seat key: 1 press = 30 s burn, 2 = 2 min, 3 = latched, 4 = off; another speed cancels. Engine `redlineBurn`, `s.burn`; expiry returns to the previous speed with a Castellan call. Display shows level dots and a countdown.
 - New console smoke test `tests/smoke4.py` replaces the obsolete rtsmoke3, plus `tests/burntest.js` for the burn timers.
+- Redline intervals changed to 15 s / 30 s / latch (a 2 minute burn always melted: about 40 hull and 65 percent systems). Redline key is dark when the ship is stopped and backlit under way; stopping ends a burn. FIRE SALVO guard is dark (shows SOLVING or RELOADING) until a solution is ready, then backlit and pulsing.

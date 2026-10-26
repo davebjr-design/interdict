@@ -241,9 +241,13 @@ body.sweep #stage{box-shadow:inset 0 0 0 4px #ff6b5a}
 .clog .cf{padding:calc(var(--u)*.4) calc(var(--u)*.6)}
 .cevd .cf>*,.cevd #evd{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:calc(var(--u)*.85)}
 .ckey .cguard{display:none}
-.ckey.gd .cguard{display:flex;position:absolute;inset:0;z-index:3;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transform-origin:50% 0;background:repeating-linear-gradient(135deg,#3a1a12 0 calc(var(--u)*.8),#552414 calc(var(--u)*.8) calc(var(--u)*1.6));box-shadow:inset 0 0 0 calc(var(--u)*.25) #c4452e,0 calc(var(--u)*.3) calc(var(--u)*.8) rgba(0,0,0,.6);color:#ffb7a6;letter-spacing:.12em;transition:transform .38s cubic-bezier(.3,1.5,.5,1),opacity .3s}
-.ckey.gd .cguard b{font-size:calc(var(--u)*1.5)}.ckey.gd .cguard small{font-size:calc(var(--u)*.8);opacity:.8}
-.ckey.gd.armed .cguard{transform:perspective(calc(var(--u)*60)) rotateX(-105deg);opacity:0;pointer-events:none}
+.ckey.cvd .cguard{display:flex;position:absolute;inset:0;z-index:3;flex-direction:column;align-items:center;justify-content:center;transform-origin:50% 0;background:#14100e;box-shadow:inset 0 0 0 calc(var(--u)*.25) #3a2a25,0 calc(var(--u)*.3) calc(var(--u)*.8) rgba(0,0,0,.6);color:#6a5851;letter-spacing:.12em;transition:transform .38s cubic-bezier(.3,1.5,.5,1),opacity .3s,box-shadow .3s,color .3s}
+.ckey.cvd .cguard b{font-size:calc(var(--u)*1.5)}.ckey.cvd .cguard small{font-size:calc(var(--u)*.8);opacity:.8}
+.ckey.gd .cguard{cursor:pointer;background:repeating-linear-gradient(135deg,#3a1a12 0 calc(var(--u)*.8),#552414 calc(var(--u)*.8) calc(var(--u)*1.6));box-shadow:inset 0 0 calc(var(--u)*1.2) #ff5a3c,inset 0 0 0 calc(var(--u)*.25) #ff7a5c,0 0 calc(var(--u)*1.5) rgba(255,90,60,.45);color:#ffd0c2;animation:gdp 1.6s ease-in-out infinite}
+@keyframes gdp{50%{box-shadow:inset 0 0 calc(var(--u)*1.8) #ff5a3c,inset 0 0 0 calc(var(--u)*.25) #ff9c80,0 0 calc(var(--u)*2.2) rgba(255,90,60,.6)}}
+.ckey.gd.armed .cguard{transform:perspective(calc(var(--u)*60)) rotateX(-105deg);opacity:0;pointer-events:none;animation:none}
+.ckey.bl .cf{box-shadow:inset 0 0 calc(var(--u)*1.2) var(--kc),inset 0 1px 0 #34463f,0 0 0 1px #000}.ckey.bl:not(.lit) .ckt{color:var(--kc)}
+.ckey.guard.dis .cf{filter:brightness(.5) saturate(.4)}.ckey.guard.bl:not(.dis) .cf{filter:brightness(1.15)}
 
 </style>
 <div id="app"><div id="stage"></div></div>
@@ -641,15 +645,17 @@ const HuntRT = (() => {
     return true;
   }
   function nearHeat(s) { const pl = s.player; let n = 0; for (const a of s.an) if (a.state === 'locked' && a.kind !== 'friend') { const p = truePos(a, s.t); if (Math.hypot(p.x - pl.x, p.y - pl.y) < P.nearRange) n++; } return n * P.nearGlow * (s.t < s.quietUntil ? 0 : 1); }
-  const BURN = [0, 30, 120];
+  const BURN = [0, 15, 30];
   function redlineBurn(s) {
     if (s.over) return false; const b = s.burn, lab = k => SPEED[k].label;
-    if (!b && s.speed !== 'ab') { const prev = s.speed; setSpeed(s, 'ab'); s.burn = { level: 1, prev, until: s.t + BURN[1] / P.secPerMin }; report(s, 'Castellan', 'Redline burn, thirty seconds. Watch the sink.', 'info'); return true; }
-    if (b && b.level === 1) { b.level = 2; b.until = s.t + BURN[2] / P.secPerMin; report(s, 'Castellan', 'Extending the burn to two minutes.', 'info'); return true; }
+    if (!b && s.speed !== 'ab' && s.posture === 'still') { report(s, 'Castellan', 'Redline needs the drive turning. Give us a heading first.', 'info'); return false; }
+    if (!b && s.speed !== 'ab') { const prev = s.speed; setSpeed(s, 'ab'); s.burn = { level: 1, prev, until: s.t + BURN[1] / P.secPerMin }; report(s, 'Castellan', 'Redline burn, fifteen seconds. Watch the sink.', 'info'); return true; }
+    if (b && b.level === 1) { b.level = 2; b.until = s.t + BURN[2] / P.secPerMin; report(s, 'Castellan', 'Extending the burn to thirty seconds.', 'info'); return true; }
     if (b && b.level === 2) { b.level = 3; b.until = null; report(s, 'Castellan', 'Burn latched. It stays on until you shut it off.', 'danger'); return true; }
     const prev = b ? b.prev : 'v3'; setSpeed(s, prev); report(s, 'Castellan', `Burn off. Back to ${lab(prev)} drive.`, 'info'); return true;
   }
   function sub(s, h) {
+    if (s.burn && s.posture === 'still') { const pv = s.burn.prev; setSpeed(s, pv); report(s, 'Castellan', 'Drive is off, so the burn is off.', 'info'); }
     if (s.burn && s.burn.until != null && s.t >= s.burn.until) { const pv = s.burn.prev; setSpeed(s, pv); report(s, 'Castellan', `Burn complete. Back to ${SPEED[pv].label} drive.`, 'info'); }
     s.t += h; moveShip(s, h); foes(s); if (s.over) return;
     { const hs = stealthState(s); if (hs !== (s.heat || 'cold')) { const was = s.heat || 'cold'; s.heat = hs; if (hs === 'hot') report(s, 'Dace', 'We are running hot. Anything listening can hear us. Ease off the sensors or go quiet.', 'danger'); else if (was === 'hot') report(s, 'Dace', 'Heat is coming down. We are not shouting any more.', 'good'); } }
@@ -1026,7 +1032,7 @@ function cTactical() {
   s += ckeyW('zfollow', 32, 59, 12, 4, 'FOLLOW', 'SHIP', CC.cyan, { tag: 'K 12x4u', tip: 'Keep the view centered on our ship.' }) + ckeyW('zfit', 44, 59, 12, 4, 'FIT', 'WHOLE ARENA', null, { tag: 'K 12x4u', tip: 'Show the whole arena.' });
   s += cdial('d-comp', 56, 3, 20, 14, { tag: 'L 20x14u' });
   s += croW('r-spd', 56, 17, 'SPEED', '8.8', 10, 4, { tag: 'T 10x4u' }) + croW('r-leg', 66, 17, 'LEG', '88:88', 10, 4, { tag: 'T 10x4u' });
-  SPDK.forEach((k, i) => { const sp = E.SPEED[k]; s += ckeyW('kd-' + k, 56 + (i % 2) * 10, 21 + (i >> 1) * 4, 10, 4, sp.label.toUpperCase(), sp.v + ' KM/M', SPDC[k], { act: k === 'ab' ? 'burn' : 'drive', arg: k, tag: 'K 10x4u', heat: { speed: k }, cls: k === 'ab' ? 'guard' : '', tip: k === 'ab' ? 'Redline works like a heated seat. Press once for a 30 second burn, twice for 2 minutes, three times to latch it on, and a fourth press shuts it off. Picking any other speed also ends it. ' + sp.tip : sp.tip }); });
+  SPDK.forEach((k, i) => { const sp = E.SPEED[k]; s += ckeyW('kd-' + k, 56 + (i % 2) * 10, 21 + (i >> 1) * 4, 10, 4, sp.label.toUpperCase(), sp.v + ' KM/M', SPDC[k], { act: k === 'ab' ? 'burn' : 'drive', arg: k, tag: 'K 10x4u', heat: { speed: k }, cls: k === 'ab' ? 'guard' : '', tip: k === 'ab' ? 'Redline works like a heated seat. Backlit when the ship is under way. Press once for a 15 second burn, twice for 30 seconds, three times to latch it on, and a fourth press shuts it off. Stopping the ship or picking any other speed also ends it. ' + sp.tip : sp.tip }); });
   s += ckeyW('k-hold', 56, 33, 10, 4, 'HOLD STILL', 'STANCE', CC.green, { act: 'hold', tag: 'K 10x4u', heat: { still: 1 }, tip: 'Stay put. The quietest stance: the drive is off and heat fills slowly.' }) + ckeyW('k-evade', 66, 33, 10, 4, 'EVASIVE', 'STANCE', CC.amber, { act: 'evade', tag: 'K 10x4u', tip: 'Weaving gives the analysts new angles: they read about 10% faster. The drive makes us about 20% louder than holding still.' });
   s += ckeyW('k-clear', 56, 37, 10, 4, 'CLEAR PLAN', '', null, { act: 'clearplan', tag: 'K 10x4u', tip: 'Drop the flight plan and hold position.' }) + ckeyW('k-edit', 66, 37, 10, 4, 'EDIT PLAN', 'STRATEGIC MAP', null, { act: 'editplan', tag: 'K 10x4u', tip: 'Open the strategic map to draw waypoints.' });
   s += cplate(56, 41, 20, 4, 'RIGHT-CLICK: GO HERE<br>SHIFT: QUEUE A WAYPOINT', { tag: 'plate 20x4u' });
@@ -1060,7 +1066,7 @@ function clampSet(id, on, o = {}) {
 function ckeySet(id, o) {   // o: { t, s, lit, dis, rec, hot, heat }
   const el = $(id); if (!el) return; const k = JSON.stringify(o); if (el.dataset.k === k) return; el.dataset.k = k;
   if (o.t != null) el.querySelector('.ckt').innerHTML = o.t; if (o.s != null) el.querySelector('.cks').innerHTML = o.s;
-  el.classList.toggle('lit', !!o.lit); el.classList.toggle('dis', !!o.dis); el.classList.toggle('rec', !!o.rec); el.classList.toggle('hot', !!o.hot); el.classList.toggle('on', !!o.lit); if (o.guard !== undefined) el.classList.toggle('guard', !!o.guard);
+  el.classList.toggle('lit', !!o.lit); el.classList.toggle('dis', !!o.dis); el.classList.toggle('rec', !!o.rec); el.classList.toggle('hot', !!o.hot); el.classList.toggle('on', !!o.lit); el.classList.toggle('bl', !!o.bl); if (o.guard !== undefined) el.classList.toggle('guard', !!o.guard);
   if (o.heat !== undefined) { if (o.heat) el.dataset.heat = JSON.stringify(o.heat); else delete el.dataset.heat; }
 }
 function croSet(id, v, col, label) {
@@ -1233,7 +1239,7 @@ function cHelm() {
   const moving = !(S.posture === 'still' && S.orderId == null), sp = E.SPEED[S.speed];
   croSet('r-spd', moving ? sp.v.toFixed(1) : '0.0', moving ? CC.cyan : '#6f877d'); cOn('r-spd', el => { const sm = el.querySelector('.cv small'); });
   if (S.posture === 'route' && nxw) { const d = Math.hypot(nxw.x - S.player.x, nxw.y - S.player.y), v = E.SPEED[nxw.speed || S.speed].v; croSet('r-leg', mmss(d / v), CC.cyan, 'LEG ' + (S.routeI + 1) + '/' + S.route.length); } else croSet('r-leg', '--:--', '#6f877d', 'LEG');
-  SPDK.forEach(k => ckeySet('kd-' + k, { lit: S.speed === k, s: k === 'ab' && S.burn ? ['', '\u25CF\u25CB\u25CB ', '\u25CF\u25CF\u25CB ', '\u25CF\u25CF\u25CF LATCHED'][S.burn.level] + (S.burn.until != null ? mmss(Math.max(0, S.burn.until - S.t)) : '') : E.SPEED[k].v + ' KM/M', heat: moving ? { speed: k } : { speed: k, posture: 'route', route: [{ x: Math.round(S.player.x) + 20, y: Math.round(S.player.y) }], routeI: 0, orderId: null } }));
+  SPDK.forEach(k => ckeySet('kd-' + k, { lit: S.speed === k, bl: k === 'ab' && (moving || !!S.burn), dis: k === 'ab' && !moving && !S.burn, s: k === 'ab' && S.burn ? ['', '\u25CF\u25CB\u25CB ', '\u25CF\u25CF\u25CB ', '\u25CF\u25CF\u25CF LATCHED'][S.burn.level] + (S.burn.until != null ? mmss(Math.max(0, S.burn.until - S.t)) : '') : E.SPEED[k].v + ' KM/M', heat: moving ? { speed: k } : { speed: k, posture: 'route', route: [{ x: Math.round(S.player.x) + 20, y: Math.round(S.player.y) }], routeI: 0, orderId: null } }));
   const still = S.posture === 'still' && S.orderId == null;
   ckeySet('k-hold', { lit: still && S.routeI >= S.route.length || (still && S.route.length > S.routeI) }); ckeySet('k-evade', { lit: S.posture === 'evade' && S.orderId == null });
   const left = S.route.length - S.routeI, ck = $('k-clear');
@@ -1397,7 +1403,7 @@ function cTgtUpdate(T) {
   if (hitNow) { const hv = hitNow.hv; csvg('g-hit', csegSvg('HIT CHANCE', hv / 100, hv < 25 ? CC.red : hv < 55 ? CC.amber : CC.green, hv + '%', 24, 8, [], 20)); cOn('g-hit', e => { e.dataset.tip = $('ammotip').textContent; }); }
   S.tubes.forEach((x, i) => clampSet('tf-s' + i, S.t >= x, { col: 'g' })); clampSet('tf-coil', inR && cwr, { col: 'g' });
   clampSet('tf-heat', sr.dist < 24); clampSet('tf-aware', !!a.aware); clampSet('tf-near', dang, { fl: true, col: 'r' }); clampSet('tf-grid', !!a.flutter, { col: 'c' });
-  const fb = $('fire'), kf = $('k-fire'); { const fireable = si.ready && rd && !si.stale; kf.classList.toggle('gd', fireable); if (!fireable) kf.classList.remove('armed'); }
+  const fb = $('fire'), kf = $('k-fire'); { const fireable = si.ready && rd && !si.stale; kf.classList.toggle('gd', fireable); kf.classList.toggle('cvd', !si.stale); { const cv = kf.querySelector('.cguard'), h = fireable ? '<b>LIFT GUARD</b><small>THEN PRESS TO FIRE</small>' : !si.ready ? '<b>SOLVING</b><small>' + (si.paused ? 'PAUSED' : fmtMin(si.remain) + ' LEFT') + '</small>' : '<b>RELOADING</b><small>' + fmtMin(Math.min(...S.tubes.map(x => x - S.t))) + '</small>'; if (cv.dataset.h !== h) { cv.dataset.h = h; cv.innerHTML = h; } } if (!fireable) kf.classList.remove('armed'); }
   if (si.stale) ckeySet('k-fire', { t: 'REFRESH', s: 'SOLUTION IS STALE', guard: false, hot: false, dis: false, lit: true });
   else if (!si.ready) ckeySet('k-fire', { t: 'SOLVING', s: si.paused ? 'PAUSED' : fmtMin(si.remain) + ' LEFT', dis: true, guard: true });
   else if (!rd) ckeySet('k-fire', { t: 'RELOADING', s: fmtMin(Math.min(...S.tubes.map(x => x - S.t))), dis: true, guard: true });

@@ -327,15 +327,17 @@ const HuntRT = (() => {
     return true;
   }
   function nearHeat(s) { const pl = s.player; let n = 0; for (const a of s.an) if (a.state === 'locked' && a.kind !== 'friend') { const p = truePos(a, s.t); if (Math.hypot(p.x - pl.x, p.y - pl.y) < P.nearRange) n++; } return n * P.nearGlow * (s.t < s.quietUntil ? 0 : 1); }
-  const BURN = [0, 30, 120];
+  const BURN = [0, 15, 30];
   function redlineBurn(s) {
     if (s.over) return false; const b = s.burn, lab = k => SPEED[k].label;
-    if (!b && s.speed !== 'ab') { const prev = s.speed; setSpeed(s, 'ab'); s.burn = { level: 1, prev, until: s.t + BURN[1] / P.secPerMin }; report(s, 'Castellan', 'Redline burn, thirty seconds. Watch the sink.', 'info'); return true; }
-    if (b && b.level === 1) { b.level = 2; b.until = s.t + BURN[2] / P.secPerMin; report(s, 'Castellan', 'Extending the burn to two minutes.', 'info'); return true; }
+    if (!b && s.speed !== 'ab' && s.posture === 'still') { report(s, 'Castellan', 'Redline needs the drive turning. Give us a heading first.', 'info'); return false; }
+    if (!b && s.speed !== 'ab') { const prev = s.speed; setSpeed(s, 'ab'); s.burn = { level: 1, prev, until: s.t + BURN[1] / P.secPerMin }; report(s, 'Castellan', 'Redline burn, fifteen seconds. Watch the sink.', 'info'); return true; }
+    if (b && b.level === 1) { b.level = 2; b.until = s.t + BURN[2] / P.secPerMin; report(s, 'Castellan', 'Extending the burn to thirty seconds.', 'info'); return true; }
     if (b && b.level === 2) { b.level = 3; b.until = null; report(s, 'Castellan', 'Burn latched. It stays on until you shut it off.', 'danger'); return true; }
     const prev = b ? b.prev : 'v3'; setSpeed(s, prev); report(s, 'Castellan', `Burn off. Back to ${lab(prev)} drive.`, 'info'); return true;
   }
   function sub(s, h) {
+    if (s.burn && s.posture === 'still') { const pv = s.burn.prev; setSpeed(s, pv); report(s, 'Castellan', 'Drive is off, so the burn is off.', 'info'); }
     if (s.burn && s.burn.until != null && s.t >= s.burn.until) { const pv = s.burn.prev; setSpeed(s, pv); report(s, 'Castellan', `Burn complete. Back to ${SPEED[pv].label} drive.`, 'info'); }
     s.t += h; moveShip(s, h); foes(s); if (s.over) return;
     { const hs = stealthState(s); if (hs !== (s.heat || 'cold')) { const was = s.heat || 'cold'; s.heat = hs; if (hs === 'hot') report(s, 'Dace', 'We are running hot. Anything listening can hear us. Ease off the sensors or go quiet.', 'danger'); else if (was === 'hot') report(s, 'Dace', 'Heat is coming down. We are not shouting any more.', 'good'); } }
