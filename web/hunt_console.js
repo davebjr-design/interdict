@@ -173,7 +173,7 @@ function cTactical() {
   s += ckeyW('zfollow', 32, 59, 12, 4, 'FOLLOW', 'SHIP', CC.cyan, { tag: 'K 12x4u', tip: 'Keep the view centered on our ship.' }) + ckeyW('zfit', 44, 59, 12, 4, 'FIT', 'WHOLE ARENA', null, { tag: 'K 12x4u', tip: 'Show the whole arena.' });
   s += cdial('d-comp', 56, 3, 20, 14, { tag: 'L 20x14u' });
   s += croW('r-spd', 56, 17, 'SPEED', '8.8', 10, 4, { tag: 'T 10x4u' }) + croW('r-leg', 66, 17, 'LEG', '88:88', 10, 4, { tag: 'T 10x4u' });
-  SPDK.forEach((k, i) => { const sp = E.SPEED[k]; s += ckeyW('kd-' + k, 56 + (i % 2) * 10, 21 + (i >> 1) * 4, 10, 4, sp.label.toUpperCase(), sp.v + ' KM/M', SPDC[k], { act: 'drive', arg: k, tag: 'K 10x4u', heat: { speed: k }, cls: k === 'ab' ? 'guard' : '', tip: sp.tip }); });
+  SPDK.forEach((k, i) => { const sp = E.SPEED[k]; s += ckeyW('kd-' + k, 56 + (i % 2) * 10, 21 + (i >> 1) * 4, 10, 4, sp.label.toUpperCase(), sp.v + ' KM/M', SPDC[k], { act: k === 'ab' ? 'burn' : 'drive', arg: k, tag: 'K 10x4u', heat: { speed: k }, cls: k === 'ab' ? 'guard' : '', tip: k === 'ab' ? 'Redline works like a heated seat. Press once for a 30 second burn, twice for 2 minutes, three times to latch it on, and a fourth press shuts it off. Picking any other speed also ends it. ' + sp.tip : sp.tip }); });
   s += ckeyW('k-hold', 56, 33, 10, 4, 'HOLD STILL', 'STANCE', CC.green, { act: 'hold', tag: 'K 10x4u', heat: { still: 1 }, tip: 'Stay put. The quietest stance: the drive is off and heat fills slowly.' }) + ckeyW('k-evade', 66, 33, 10, 4, 'EVASIVE', 'STANCE', CC.amber, { act: 'evade', tag: 'K 10x4u', tip: 'Weaving gives the analysts new angles: they read about 10% faster. The drive makes us about 20% louder than holding still.' });
   s += ckeyW('k-clear', 56, 37, 10, 4, 'CLEAR PLAN', '', null, { act: 'clearplan', tag: 'K 10x4u', tip: 'Drop the flight plan and hold position.' }) + ckeyW('k-edit', 66, 37, 10, 4, 'EDIT PLAN', 'STRATEGIC MAP', null, { act: 'editplan', tag: 'K 10x4u', tip: 'Open the strategic map to draw waypoints.' });
   s += cplate(56, 41, 20, 4, 'RIGHT-CLICK: GO HERE<br>SHIFT: QUEUE A WAYPOINT', { tag: 'plate 20x4u' });
@@ -380,7 +380,7 @@ function cHelm() {
   const moving = !(S.posture === 'still' && S.orderId == null), sp = E.SPEED[S.speed];
   croSet('r-spd', moving ? sp.v.toFixed(1) : '0.0', moving ? CC.cyan : '#6f877d'); cOn('r-spd', el => { const sm = el.querySelector('.cv small'); });
   if (S.posture === 'route' && nxw) { const d = Math.hypot(nxw.x - S.player.x, nxw.y - S.player.y), v = E.SPEED[nxw.speed || S.speed].v; croSet('r-leg', mmss(d / v), CC.cyan, 'LEG ' + (S.routeI + 1) + '/' + S.route.length); } else croSet('r-leg', '--:--', '#6f877d', 'LEG');
-  SPDK.forEach(k => ckeySet('kd-' + k, { lit: S.speed === k, s: E.SPEED[k].v + ' KM/M', heat: moving ? { speed: k } : { speed: k, posture: 'route', route: [{ x: Math.round(S.player.x) + 20, y: Math.round(S.player.y) }], routeI: 0, orderId: null } }));
+  SPDK.forEach(k => ckeySet('kd-' + k, { lit: S.speed === k, s: k === 'ab' && S.burn ? ['', '\u25CF\u25CB\u25CB ', '\u25CF\u25CF\u25CB ', '\u25CF\u25CF\u25CF LATCHED'][S.burn.level] + (S.burn.until != null ? mmss(Math.max(0, S.burn.until - S.t)) : '') : E.SPEED[k].v + ' KM/M', heat: moving ? { speed: k } : { speed: k, posture: 'route', route: [{ x: Math.round(S.player.x) + 20, y: Math.round(S.player.y) }], routeI: 0, orderId: null } }));
   const still = S.posture === 'still' && S.orderId == null;
   ckeySet('k-hold', { lit: still && S.routeI >= S.route.length || (still && S.route.length > S.routeI) }); ckeySet('k-evade', { lit: S.posture === 'evade' && S.orderId == null });
   const left = S.route.length - S.routeI, ck = $('k-clear');
@@ -423,7 +423,7 @@ const ACT = {
   vent() { ventToggle(); }, quiet() { E.goQuiet(S); uiUpdate(true); }, breach() { E.retreat(S); uiUpdate(true); },
   pell() { S.pell = !S.pell; uiUpdate(true); }, pellact() { E.setPellAct(S, !S.pellAct); uiUpdate(true); },
   voice() { $('vcyc').click(); cWeapons(); }, rall() { $('rall').click(); cWeapons(); },
-  drive(el) { E.setSpeed(S, el.dataset.arg); uiUpdate(true); }, hold() { E.setOrder(S, 'still', null); uiUpdate(true); }, evade() { E.setOrder(S, 'evade', null); uiUpdate(true); },
+  drive(el) { E.setSpeed(S, el.dataset.arg); uiUpdate(true); }, burn() { E.redlineBurn(S); uiUpdate(true); }, hold() { E.setOrder(S, 'still', null); uiUpdate(true); }, evade() { E.setOrder(S, 'evade', null); uiUpdate(true); },
   clearplan() { E.setOrder(S, 'still', null); E.setRoute(S, []); uiUpdate(true); }, resume() { E.setOrder(S, 'route', null); uiUpdate(true); }, editplan() { planEdit = true; setView('str'); },
   slip(el) { selId = +el.dataset.arg; uiUpdate(true); },
   chan(el) { const [id, ch] = el.dataset.arg.split(':'), a = S.an[+id]; if (['open', 'locked'].includes(a.state) && a.idStatus !== 'plan') E.assign(S, E.ANALYSTS.find(w => w.ch === ch).id, a.id); selId = a.id; uiUpdate(true); },

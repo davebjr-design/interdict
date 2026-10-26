@@ -337,6 +337,6 @@ Test after each step: the game's bot/playtest harness is unaffected (UI only); m
 
 1. Hunter attitude lamps: reveal or keep hidden (8.4)?
 2. Keep the Strategic view as a separate screen, or fold the map into the scope with a zoom-out key? (v2 keeps it separate because the plan editor needs the full 240 km at once.)
-3. Redline: guarded key (as drawn) or two-step (arm, then press)? The guard is cosmetic until art exists.
+3. Redline: DECIDED (Oct 25): heated-seat key. Press once for a 30 second burn, twice for 2 minutes, three times to latch it on, a fourth press shuts it off; any other drive setting also ends it. Timers run on the mission clock (they pause when the game pauses). When a timed burn ends the ship returns to the speed it had before. FIRE SALVO has a real flip-up guard (click lifts the cover, click again fires, the cover drops after 4 seconds).
 4. Analyst retargeting: click analyst then contact (drawn) or drag the analyst cell onto a slip?
 5. Does the beacon get a voice line (the XO reading it), or stay silent?

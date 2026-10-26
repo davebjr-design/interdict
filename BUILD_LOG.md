@@ -264,3 +264,8 @@ Revised (Dave): evade should speed analysis modestly at a modest stealth cost, b
 - Strategic: map glass plus route editor, per-leg cells; ledger and timeline cut. Target: solution strip, plot, six dials, ammo and homing keys, hit chance, guarded FIRE SALVO.
 - Engine: `visIf` and `modState` for what-if previews (heat rate numbers unchanged).
 - Pause blanks sensors, contacts and scope; rail and heat stay live.
+
+## Oct 25 (night, later): guards and Redline burns
+- FIRE SALVO has a flip-up guard: click lifts the cover (hazard plate, 4 second re-close), second click fires. It only appears when a solution is ready and a tube is loaded.
+- Redline is a heated-seat key: 1 press = 30 s burn, 2 = 2 min, 3 = latched, 4 = off; another speed cancels. Engine `redlineBurn`, `s.burn`; expiry returns to the previous speed with a Castellan call. Display shows level dots and a countdown.
+- New console smoke test `tests/smoke4.py` replaces the obsolete rtsmoke3, plus `tests/burntest.js` for the burn timers.

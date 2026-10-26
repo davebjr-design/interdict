@@ -289,7 +289,7 @@ const HuntRT = (() => {
   function navBlocked(s, x, y) { for (const b of s.bodies) { const d = Math.hypot(b.x - x, b.y - y), k = KEEP[b.kind] ?? 0; if (k && d < b.r + k) return b.kind === 'star' ? 'Too close to the star: the glare and radiation would cook us.' : 'That is inside a planet\'s gravity well. We will not chart a course there.'; } return null; }
   function setRoute(s, pts) { if (s.over) return false; pts = pts.filter(q => !navBlocked(s, q.x, q.y)); s.route = pts.map(q => ({ x: clamp(q.x, 6, P.arena - 6), y: clamp(q.y, 6, P.arena - 6), speed: q.speed })); s.routeI = 0; if (s.route.length) { s.posture = 'route'; s.orderId = null; s.orderUntil = null; report(s, 'Abara', `New flight plan, ${s.route.length} waypoint${s.route.length > 1 ? 's' : ''}.`, 'info'); } else { s.posture = 'still'; report(s, 'Abara', 'Flight plan cleared. Holding position.', 'info'); } return true; }
   function relBearing(s, pt) { const b = Math.atan2(pt.x - s.player.x, -(pt.y - s.player.y)) * 180 / Math.PI, h = Math.atan2(Math.cos(s.hdg || 0) * 0 + (Math.cos(s.hdg || 0)), -(Math.sin(s.hdg || 0))) * 180 / Math.PI; return ((b - h + 540) % 360) - 180; }
-  function setSpeed(s, k) { k = SPD_ALIAS[k] || k; if (s.over || !SPEED[k]) return false; s.speed = k; if (s.posture === 'route' && s.route[s.routeI]) s.route[s.routeI].speed = k; return true; }
+  function setSpeed(s, k) { k = SPD_ALIAS[k] || k; if (s.over || !SPEED[k]) return false; s.burn = null; s.speed = k; if (s.posture === 'route' && s.route[s.routeI]) s.route[s.routeI].speed = k; return true; }
   function setOrder(s, mode, id, mins) {
     if (s.over || !POSTURE[mode]) return false;
     if (mode === 'route') { if (s.routeI >= s.route.length) return false; s.posture = 'route'; s.orderId = null; report(s, 'Abara', `Resuming the flight plan, waypoint ${s.routeI + 1} of ${s.route.length}.`, 'info'); return true; } const a = id != null ? s.an[id] : null;
@@ -327,7 +327,16 @@ const HuntRT = (() => {
     return true;
   }
   function nearHeat(s) { const pl = s.player; let n = 0; for (const a of s.an) if (a.state === 'locked' && a.kind !== 'friend') { const p = truePos(a, s.t); if (Math.hypot(p.x - pl.x, p.y - pl.y) < P.nearRange) n++; } return n * P.nearGlow * (s.t < s.quietUntil ? 0 : 1); }
+  const BURN = [0, 30, 120];
+  function redlineBurn(s) {
+    if (s.over) return false; const b = s.burn, lab = k => SPEED[k].label;
+    if (!b && s.speed !== 'ab') { const prev = s.speed; setSpeed(s, 'ab'); s.burn = { level: 1, prev, until: s.t + BURN[1] / P.secPerMin }; report(s, 'Castellan', 'Redline burn, thirty seconds. Watch the sink.', 'info'); return true; }
+    if (b && b.level === 1) { b.level = 2; b.until = s.t + BURN[2] / P.secPerMin; report(s, 'Castellan', 'Extending the burn to two minutes.', 'info'); return true; }
+    if (b && b.level === 2) { b.level = 3; b.until = null; report(s, 'Castellan', 'Burn latched. It stays on until you shut it off.', 'danger'); return true; }
+    const prev = b ? b.prev : 'v3'; setSpeed(s, prev); report(s, 'Castellan', `Burn off. Back to ${lab(prev)} drive.`, 'info'); return true;
+  }
   function sub(s, h) {
+    if (s.burn && s.burn.until != null && s.t >= s.burn.until) { const pv = s.burn.prev; setSpeed(s, pv); report(s, 'Castellan', `Burn complete. Back to ${SPEED[pv].label} drive.`, 'info'); }
     s.t += h; moveShip(s, h); foes(s); if (s.over) return;
     { const hs = stealthState(s); if (hs !== (s.heat || 'cold')) { const was = s.heat || 'cold'; s.heat = hs; if (hs === 'hot') report(s, 'Dace', 'We are running hot. Anything listening can hear us. Ease off the sensors or go quiet.', 'danger'); else if (was === 'hot') report(s, 'Dace', 'Heat is coming down. We are not shouting any more.', 'good'); } }
     enemyAI(s, h); sinkStep(s, h); if (s.over) return;
@@ -521,6 +530,6 @@ const HuntRT = (() => {
     s.spool = { at: s.t + s.spoolMin }; report(s, 'Abara', `Breach drive spooling. ${(s.spoolMin * P.secPerMin / 60).toFixed(1).replace('.0', '')} minutes to jump, and the spool is bright on every sensor.`, 'danger', true);
   }
   function setPellAct(s, on) { s.pellAct = !!on && s.integration >= 75; }
-  return { navBlocked, reanalyze, investigate, heatRate, visIf, arenaPlan, TIER_HEAT, PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, hitProb, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, planPos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge };
+  return { redlineBurn, navBlocked, reanalyze, investigate, heatRate, visIf, arenaPlan, TIER_HEAT, PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, hitProb, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, planPos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge };
 })();
 if (typeof module !== 'undefined') module.exports = HuntRT;
