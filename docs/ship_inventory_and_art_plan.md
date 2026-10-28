@@ -176,3 +176,15 @@ Dave: the cramped feel is right but the rooms look artificially small on the sta
 - Crew sprites are scaled 0.9x globally (`CHAR`) so a person is about 90% of a door's height.
 - Each door has a `wall` tag ('i' = back-left wall, 'j' = back-right wall). Leaving a room, the person walks to the wall plane and out through the opening, clipped to the opening and darkened, then the screen fades. Arriving, the reverse: they step out of the opening and into the room. Input is locked during the step.
 - Answer to "continuous room or hallway with doorways?": see section 19.
+
+## 19. Spine corridor and scrolling camera (2026-10-28)
+
+**Layout decision (answer to "one continuous shot, or a hallway with doorways?").** A hallway with doorways. The ship is a tube, so a long spine corridor is one scene and compartments are separate scenes entered through hatches (with the step-through animation). The corridor is the thing you walk; rooms branch off it. The earlier Junction room is retired from the slice (art kept in the repo); the spine takes its place.
+
+**Spine corridor** (`assets/rooms/spine_v2.png`, variant c of three, about 5:1): aft hatch at the left end to Engineering; three hatches along the long wall: Mess, crew passage (placeholder), Bridge at the forward end. Rooms hang off one side in the cutaway; the other side (stores, thermal, sensors, weapons) will connect later. Walk grid is 15 x 3 cells.
+
+**Engine additions:** scrolling camera (`scroll: true`) that follows the captain, clamped to the room image with a 30-unit margin; bilinear floor mapping (`B` corner) because generated corridor floors are trapezoids, with Newton-step click picking; deck-plan minimap redrawn as a spine with branches.
+
+**Wiring:** Engineering door -> spine aft hatch; spine Mess hatch <-> Mess left door; spine Bridge hatch <-> Bridge door; Mess right door is a placeholder (stores). Spine k 0.29, zoom 1.75.
+
+**Next:** regenerate Mess and Engineering in the long/narrow submarine style with the corridor as the style reference; branch rooms (cabins, bunks, head, sickbay) as long narrow rooms with doors on the short ends.

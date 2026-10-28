@@ -7,7 +7,7 @@ from PIL import Image
 ENV = dict(os.environ, NODE_USE_ENV_PROXY='1', NODE_EXTRA_CA_CERTS='/root/.ccr/ca-bundle.crt')
 M = ['npm', 'exec', '--yes', '--package=meshy-cli@0.4.0', '--', 'meshy']
 REFS = 'design/assets/engineering_room_src.png,design/assets/mess_room_v2_src.png'
-D = 'design/assets/meshy_output/rooms_v2'; OUTD = 'design/assets/rooms'
+ASPECT = os.environ.get('ASPECT', '3:2'); D = 'design/assets/meshy_output/rooms_v2'; OUTD = 'design/assets/rooms'
 os.makedirs(D, exist_ok=True)
 HEAD = "The two images are style references for the hand-painted look, palette and lighting only. Draw a different room in the same painted style but as the interior of a cramped submarine-style spaceship pressure hull: "
 TAIL = (" Isometric cutaway of the room (floor plus the back-left and back-right walls only), true 2:1 isometric camera, same angle and scale feel as the references. "
@@ -16,6 +16,7 @@ TAIL = (" Isometric cutaway of the room (floor plus the back-left and back-right
  "Plain solid flat magenta (#FF00FF) background outside the room, no gradients. Keep two blank flat wall panels, two clear empty shelf or desk tops and one clear empty floor patch. "
  "Strictly: no windows, no viewports, no stars, no text, no numbers, no letters, no signs, no placards, no labels, no posters, no arrows, no chevrons, no painted markings on the floor, no people.")
 ROOMS = {
+ 'spine': "the ship's main SPINE CORRIDOR, a very long, narrow passage about five times as long as it is wide and only wide enough for two people to pass. The long axis runs along the back-right wall from the back corner toward the right. The long back-right wall has three heavy round-cornered bulkhead hatches standing open, evenly spaced, and between them pipe runs, cable trays, a fold-down wall seat, a strapped crate and a red fire locker with a plain unmarked door. The short back-left wall at the left end has one heavy round-cornered bulkhead hatch standing open. Ribbed hull frames repeat along the whole length. Plain steel grating floor with nothing painted on it.",
  'bridge': "the ship's BRIDGE, a tight, congested combat control room with no window of any kind. Three or four consoles packed close together around a small central control pedestal with an empty glowing ring for the ship AI, two or three heavy recoil chairs with folded harness straps, a chart table folded up from the floor, a dark blank flat display panel set into one wall, thick cable trays and pipes along the ceiling edge. One heavy round-cornered bulkhead door in the back-left wall, standing open.",
  'junction': "a ship passage JUNCTION where the main spine passage meets a crossing passage, a small square room with three heavy round-cornered bulkhead doors standing open, two in the back-left wall and one in the back-right wall, thick pipes and cable trays along the ceiling edge, a red fire locker with a plain unmarked door, one strapped crate against a wall, a plain bare steel floor with a single square hatch plate in the middle, a fold-down seat on the wall.",
 }
@@ -32,10 +33,10 @@ for a in sys.argv[1:]:
     n, k = a.split(':')
     for v in range(int(k)):
         tag = f'{n}_v2{"abcdef"[v]}'
-        r = sh(['image-to-image', 'create', '--ai-model', 'gpt-image-2', '--reference-image-urls', REFS, '--aspect-ratio', '3:2', '--async', '--output-schema', 'v1', '--format', 'json', '--no-update-check', '--prompt', HEAD + ROOMS[n] + TAIL])
+        r = sh(['image-to-image', 'create', '--ai-model', 'gpt-image-2', '--reference-image-urls', REFS, '--aspect-ratio', ASPECT, '--async', '--output-schema', 'v1', '--format', 'json', '--no-update-check', '--prompt', HEAD + ROOMS[n] + TAIL])
         try: jobs[tag] = json.loads(r.stdout)['result']['task_id']; print('submitted', tag, jobs[tag], flush=True)
         except Exception: print('FAILED to submit', tag, r.stdout[-200:], r.stderr[-200:], flush=True)
-json.dump(jobs, open(f'{D}/ids.json', 'w'), indent=1)
+json.dump(jobs, open(f'{D}/ids_{os.getpid()}.json', 'w'), indent=1)
 done = set()
 while len(done) < len(jobs):
     for tag, tid in jobs.items():
