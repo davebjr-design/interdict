@@ -114,3 +114,4 @@ Core cast: captain, Abara, Dace, Castellan, Quill, and Pell (no body).
 - Mess is larger than Engineering, same camera and scale. Contents: galley serving line, lockers and water, four long tables with benches, a round briefing table with a floor projector ring.
 - Mess art task (Meshy image-to-image from the Engineering art, task 01a183f4-498f-77aa-8ea5-a79b38177416, 12 credits) is generated, then cleaned, then wired into a demo.
 - The scripted tutorial hunt waits until the ship interior model works; the tutorial ship then derives from it.
+- Mess v1 generated (12 credits): `design/assets/mess_room_v1.png`, 1536 x 1024, black background, crisp (no dithering, unlike the Engineering source). Darker and cooler than Engineering, so it needs a warmer pass or an amber light layer. Two doorways, two blank wall panels, a clear floor patch; no clear shelf tops yet. Next: key the background, measure the floor grid and scale to Engineering's cell size, then a walkable demo.
