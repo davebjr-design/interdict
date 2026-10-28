@@ -34,3 +34,6 @@ The tutorial teaches the game modes. Its hunt ends when the rogue captain's ship
 ## Notes from Claude
 - Thematic mirror: the player uses Pell, and integration only goes up. The rogue captain is a version of where that road leads.
 - Secret believers in the crew should be a slow reveal tied to relationships, never a punishing betrayal or no-win state.
+
+## Rogue captain (decided 2026-10-28)
+Captain Ilsa Corvane. Female. Charming, intelligent, quietly violent; a believer who thinks she can control the reawakened AI this time.
