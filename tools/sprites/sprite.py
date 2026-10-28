@@ -1,7 +1,7 @@
 import base64,io,json,sys
 from playwright.sync_api import sync_playwright
 from PIL import Image
-S=sys.argv[1]
+S=sys.argv[1]  # unused; usage: sprite.py _ OUT.png  (serve a dir with render.html, three.min.js, GLTFLoader.js and walk.glb on port 8765)
 dirs={'se':90,'sw':0,'ne':180,'nw':-90}
 import math
 with sync_playwright() as p:
@@ -15,4 +15,4 @@ with sync_playwright() as p:
         for f in range(NF):
             u=pg.evaluate(f'shot({th},{f}*dur/{NF})'); im=Image.open(io.BytesIO(base64.b64decode(u.split(',')[1]))).convert('RGBA'); sheet.paste(im,(f*256,ri*320))
         u=pg.evaluate(f'shot({th},0)'); im=Image.open(io.BytesIO(base64.b64decode(u.split(',')[1]))).convert('RGBA'); sheet.paste(im,(ri*256,4*320))
-    sheet.save('/home/claude/interdict/design/assets/captain_sheet.png'); print('saved',sheet.size,errs[:3]); b.close()
+    sheet.save(sys.argv[2] if len(sys.argv)>2 else '/home/claude/interdict/design/assets/captain_sheet.png'); print('saved',sheet.size,errs[:3]); b.close()
