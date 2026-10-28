@@ -150,3 +150,13 @@ Core cast: captain, Abara, Dace, Castellan, Quill, and Pell (no body).
 **Per-room scale.** Each room image carries its own scale k (world units per image pixel), set so a door is about 60 world units tall. Mess and Bridge: k 0.362, 13x13 cells. Junction: k 0.296, 9x9 cells (a smaller room whose doors are big in the image). Cell size stays about 39 world units, so the captain looks the same size everywhere.
 
 **Still to do:** wire the branch rooms, repeat the officer-cabin and bunk-room art for the three cabins and three bunk rooms, add equipment mounts, then damage and style overlays. The bridge has a second door on its front wall that cannot be reached from the camera angle; leave it for a later camera option.
+
+## 16. Submarine pass: Junction and Bridge redone (2026-10-28)
+
+Brief: `docs/room_art_brief_v2.md` (no windows, no directional markers, no placards or lettering; pressure-hull look). Generator: `tools/rooms_v2.py`. Two variants each were generated; all four came back clean (no windows, arrows or text). Chosen: `bridge_v2` (variant b: tight, four recoil chairs, folded chart table, blank wall display, central AI pedestal) and `junction_v2` (variant b: three heavy bulkhead doors, red fire locker, strapped crate, bare floor with one hatch plate). The old `bridge.png` and `junction.png` are superseded.
+
+**Scale (so the captain and crew look right everywhere).** Each room image has its own k (world units per image pixel). The captain's head reaches the top of a door arch in the Mess, so the new rooms were set so the same is true there. Bridge: k 0.235, 8x8 cells. Junction: k 0.185, 7x7 cells. Mess: k 0.362, 13x13. Because the new rooms draw doors much larger relative to the room, they are physically small (the bridge is about 8 cells across), which is on purpose; on the 1280x720 stage they fill about half the width. A per-room camera zoom is possible later but would make the crew look bigger in small rooms, so it is not done.
+
+**Note on the floor shape.** The generated images are not a perfect 2:1 diamond; the walk grid is fitted by corner points (T, R, L) per room, found by overlaying a labeled grid (scratchpad `ov.py` approach: draw the grid on the image, adjust until the wall base and door sills line up).
+
+**Next:** regenerate Engineering and Mess in the same pass for a consistent set, then the branch rooms.

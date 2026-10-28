@@ -64,7 +64,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   // ---------- rooms (world units are 640 x 360; drawn at 2x) ----------
   // A room image is placed centered on the 640x360 stage at scale k (world units per image pixel). k is calibrated from the door height (about 60 world units).
   const space = (w, h, k) => { const ox = (640 - w * k) / 2, oy = (360 - h * k) / 2, W = p => [ox + p[0] * k, oy + p[1] * k]; return { k, box: [ox, oy, w * k, h * k], W, r: (x0, y0, x1, y1) => [...W([x0, y0]), ...W([x1, y1])] }; };
-  const SM = space(1489, 963, 0.362), SB = space(1493, 957, 0.362), SJ = space(1278, 974, 0.296);
+  const SM = space(1489, 963, 0.362), SB = space(1427, 953, 0.235), SJ = space(1390, 957, 0.185);
   const blockList = (arr) => { const s = new Set(); arr.forEach(([i0, i1, j0, j1]) => { for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) s.add(i + ',' + j); }); return s; };
   const ROOMS = {
     eng: {
@@ -89,7 +89,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       blocked: blockList([[0, 8, 0, 1], [8, 8, 2, 2], [0, 0, 6, 12], [2, 3, 3, 6], [5, 7, 3, 6], [2, 3, 8, 11], [5, 7, 8, 11], [9, 11, 8, 10]]),
       doors: [
         { id: 'toEng', rect: SM.r(478, 145, 578, 312), stand: [0, 4], to: 'eng', arrive: [8, 1], dir: 'sw', label: 'Door to Engineering' },
-        { id: 'toJct', rect: SM.r(1355, 345, 1450, 525), stand: [12, 1], to: 'jct', arrive: [0, 6], dir: 'se', label: 'Door forward to the junction' }
+        { id: 'toJct', rect: SM.r(1355, 345, 1450, 525), stand: [12, 1], to: 'jct', arrive: [0, 5], dir: 'se', label: 'Door forward to the junction' }
       ],
       npcs: [{ name: 'Fenwick', col: '#c9b458', cell: [4, 2], sheet: 'fenwick', sc: 0.602 }, { name: 'Abara', col: '#e8853a', cell: [11, 5], sheet: 'abara', sc: 0.609 }, { name: 'Quill', col: '#5fd0e0', cell: [9, 3], sheet: 'quill', sc: 0.637 }],
       props: [
@@ -106,38 +106,37 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       ]
     },
     jct: {
-      name: 'JUNCTION', img: load('assets/rooms/junction.png'), sp: SJ, k: SJ.k, box: SJ.box,
-      T: SJ.W([640, 330]), R: SJ.W([1232, 626]), L: SJ.W([48, 626]), N: 9,
+      name: 'JUNCTION', img: load('assets/rooms/junction_v2.png'), sp: SJ, k: SJ.k, box: SJ.box,
+      T: SJ.W([690, 385]), R: SJ.W([1340, 655]), L: SJ.W([45, 655]), N: 7,
       blurb: 'The junction, the middle of the spine. Aft, the left-hand door leads to the Mess. The next door along that wall is the crew passage (not built yet). Forward, the door on the right wall leads to the bridge.',
-      blocked: blockList([[1, 4, 0, 0], [7, 8, 0, 1]]),
+      blocked: blockList([[0, 1, 0, 0], [0, 1, 4, 4], [0, 0, 6, 6], [5, 6, 0, 0]]),
       doors: [
-        { id: 'toMess', rect: SJ.r(128, 300, 285, 565), stand: [0, 6], to: 'mess', arrive: [12, 1], dir: 'sw', label: 'Door aft to the Mess' },
-        { id: 'toCrew', rect: SJ.r(418, 175, 558, 440), stand: [0, 2], to: null, label: 'Crew passage: cabins, bunks, head (not built yet)' },
-        { id: 'toBridge', rect: SJ.r(1000, 290, 1140, 525), stand: [5, 1], to: 'bridge', arrive: [0, 5], dir: 'se', label: 'Door forward to the bridge' }
+        { id: 'toMess', rect: SJ.r(125, 310, 305, 665), stand: [0, 5], to: 'mess', arrive: [12, 1], dir: 'sw', label: 'Door aft to the Mess' },
+        { id: 'toCrew', rect: SJ.r(405, 185, 585, 500), stand: [0, 2], to: null, label: 'Crew passage: cabins, bunks, head (not built yet)' },
+        { id: 'toBridge', rect: SJ.r(890, 255, 1085, 570), stand: [3, 0], to: 'bridge', arrive: [0, 3], dir: 'se', label: 'Door forward to the bridge' }
       ],
       npcs: [],
-      props: [{ c: [1, 4, 0, 0], h: 100 }, { c: [7, 8, 0, 1], h: 110 }],
+      props: [{ c: [0, 1, 0, 0], h: 200 }, { c: [0, 1, 4, 4], h: 150 }, { c: [0, 0, 6, 6], h: 110 }, { c: [5, 6, 0, 0], h: 130 }],
       lights: [
-        { p: [210, 310], r: 40, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 31 }, { p: [490, 185], r: 40, c: [255, 170, 70], a: 0.3, pat: 'fault', seed: 32 },
-        { p: [780, 180], r: 40, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 33 }, { p: [1065, 310], r: 40, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 34 },
-        { p: [1170, 415], r: 32, c: [255, 170, 70], a: 0.3, pat: 'flicker', seed: 35 }, { p: [725, 392], r: 34, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 36 },
-        { p: [285, 385], r: 20, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 37 }, { p: [580, 258], r: 20, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 38 }, { p: [985, 385], r: 20, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 39 }
+        { p: [480, 170], r: 34, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 31 }, { p: [975, 195], r: 34, c: [255, 170, 70], a: 0.3, pat: 'fault', seed: 32 },
+        { p: [225, 310], r: 26, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 33 }, { p: [1200, 340], r: 26, c: [255, 170, 70], a: 0.3, pat: 'flicker', seed: 34 },
+        { p: [612, 282], r: 16, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 37 }, { p: [1095, 425], r: 16, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 38 }
       ]
     },
     bridge: {
-      name: 'BRIDGE', img: load('assets/rooms/bridge.png'), sp: SB, k: SB.k, box: SB.box,
-      T: SB.W([755, 210]), R: SB.W([1455, 560]), L: SB.W([55, 560]), N: 13,
-      blurb: 'The bridge, the forward end of the ship. The door on the left wall leads aft to the junction. Sensors and weapons will connect from here later.',
-      blocked: blockList([[0, 5, 0, 1], [8, 12, 0, 1], [8, 8, 2, 2], [0, 2, 7, 12], [5, 8, 4, 6], [3, 4, 4, 5], [9, 10, 3, 4], [11, 12, 6, 7]]),
-      doors: [{ id: 'toJct', rect: SB.r(415, 175, 510, 345), stand: [0, 5], to: 'jct', arrive: [5, 1], dir: 'sw', label: 'Door aft to the junction' }],
+      name: 'BRIDGE', img: load('assets/rooms/bridge_v2.png'), sp: SB, k: SB.k, box: SB.box,
+      T: SB.W([700, 330]), R: SB.W([1340, 631]), L: SB.W([60, 631]), N: 8,
+      blurb: 'The bridge, the forward end of the ship. Tight on purpose. The door on the left wall leads aft to the junction. Sensors and weapons will connect from here later.',
+      blocked: blockList([[0, 1, 0, 1], [2, 5, 0, 0], [4, 4, 2, 2], [6, 7, 0, 1], [7, 7, 3, 3], [7, 7, 6, 6], [2, 2, 5, 5], [3, 4, 3, 4], [0, 0, 5, 7]]),
+      doors: [{ id: 'toJct', rect: SB.r(352, 190, 525, 470), stand: [0, 3], to: 'jct', arrive: [3, 0], dir: 'sw', label: 'Door aft to the junction' }],
       npcs: [],
-      props: [{ c: [0, 5, 0, 1], h: 125 }, { c: [8, 12, 0, 1], h: 125 }, { c: [0, 2, 7, 12], h: 125 }, { c: [5, 8, 4, 6], h: 190 }, { c: [3, 4, 4, 5], h: 130 }, { c: [9, 10, 3, 4], h: 130 }, { c: [11, 12, 6, 7], h: 110 }],
+      props: [{ c: [0, 1, 0, 1], h: 120 }, { c: [2, 5, 0, 0], h: 180 }, { c: [4, 4, 2, 2], h: 170 }, { c: [6, 7, 0, 1], h: 170 }, { c: [7, 7, 3, 3], h: 190 }, { c: [7, 7, 6, 6], h: 190 }, { c: [2, 2, 5, 5], h: 190 }, { c: [3, 4, 3, 4], h: 130 }, { c: [0, 0, 5, 7], h: 120 }],
       lights: [
-        { p: [110, 342], r: 40, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 41 }, { p: [467, 180], r: 40, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 42 },
-        { p: [632, 115], r: 40, c: [255, 170, 70], a: 0.3, pat: 'fault', seed: 43 }, { p: [275, 548], r: 34, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 44 },
-        { p: [828, 350], r: 34, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 45 }, { p: [1190, 497], r: 34, c: [255, 170, 70], a: 0.3, pat: 'flicker', seed: 46 },
-        { p: [860, 262], r: 24, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 47 }, { p: [1200, 410], r: 24, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 48 }, { p: [240, 470], r: 24, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 49 },
-        { p: [1010, 650], r: 70, c: [255, 190, 100], a: 0.25, pat: 'pulse', seed: 50 }
+        { p: [555, 180], r: 32, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 41 }, { p: [415, 213], r: 26, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 42 },
+        { p: [800, 175], r: 30, c: [255, 170, 70], a: 0.3, pat: 'fault', seed: 43 }, { p: [195, 325], r: 28, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 44 },
+        { p: [1285, 385], r: 28, c: [255, 170, 70], a: 0.3, pat: 'flicker', seed: 45 }, { p: [160, 582], r: 22, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 46 },
+        { p: [315, 385], r: 16, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 47 }, { p: [538, 250], r: 16, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 48 }, { p: [1092, 433], r: 16, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 49 },
+        { p: [700, 520], r: 44, c: [111, 195, 208], a: 0.3, pat: 'pulse', seed: 50 }
       ]
     }
   };
