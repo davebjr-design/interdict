@@ -188,3 +188,24 @@ Dave: the cramped feel is right but the rooms look artificially small on the sta
 **Wiring:** Engineering door -> spine aft hatch; spine Mess hatch <-> Mess left door; spine Bridge hatch <-> Bridge door; Mess right door is a placeholder (stores). Spine k 0.29, zoom 1.75.
 
 **Next:** regenerate Mess and Engineering in the long/narrow submarine style with the corridor as the style reference; branch rooms (cabins, bunks, head, sickbay) as long narrow rooms with doors on the short ends.
+
+## 20. Hull layout revision 2: two decks, no corridor (2026-10-28)
+
+Settled with Dave. Schematic: `design/ship_schematic.html`. This supersedes the spine-corridor layout in section 19.
+
+**Shape.** Two decks, both 76 m of pressure hull, about 10 m beam, 100 m overall. Compartments chain end to end through bulkhead hatches; there is no corridor. Decks must sum to the same length, which is what makes the map read.
+
+| | Fore to aft |
+|---|---|
+| Upper | Control room (16) · Junction (8) · Missile compartment (26) · Thermal (8) · Engineering upper (18) |
+| Lower | Officer berths (10) · Mess and galley (14) · Crew bunks and tube bases (26) · Engineering lower (26) |
+
+Side rooms (dead ends): CO's stateroom off the aft end of control; boarding airlock off the junction; utility (head, showers, laundry, dormant sickbay) off the mess.
+
+**Vertical.** Two ladders: junction down to the mess, and engineering upper to lower. That makes a circuit of about 150 m on foot, so deck-plan click-to-travel is required, not optional. Engineering is two scenes drawn as one space: the reactor casing holds the same plan position in both, seen from the top through the upper grating and from the base below; the ladder lands in the same spot.
+
+**Weapons.** 24 missile tubes in two rows of 12. Twelve are live, each holding six missiles racked around a central handling hub: 72 missiles, one tube per salvo, twelve salvos of six. The other twelve are racked with salvage canisters, which gives the ship its cargo hold and explains why 28 crew fly this much hull. Missiles are 0.35 m by about 4 m in a 1.2 m tube, much smaller than an ICBM. Close range is a 65 m coil gun along the keel, breech and slug magazine at the forward end of lower engineering, muzzle at the bow. Fire control is in the control room, so there is no separate weapons bay.
+
+**Heat.** Sink loops run the whole hull, dorsal panels and keel runs. Thermal control is Dace's compartment on the upper deck; the sink machinery sits below it in the forward third of lower engineering.
+
+**Cost.** Twelve scenes. All existing room art (bridge, mess, junction, spine corridor, engineering) is the wrong proportion and gets regenerated as long narrow compartments, about 12 credits each. junction_v2 and spine_v2 are shelved, possibly reusable as a derelict interior later.

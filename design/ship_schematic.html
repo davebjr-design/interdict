@@ -1,0 +1,335 @@
+<title>Interdict Hull Schematic</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single wide cutaway up top, then supporting detail in a two-column band, then the build table. Dark-first, console palette. */
+:root {
+  --bg: #0a110f; --panel: #101b17; --panel2: #16241e; --line: #263c33;
+  --fg: #cfe3d8; --dim: #7d948a; --amber: #ffb454; --cyan: #6fc3d0; --warm: #ff8a4c; --green: #8fd694;
+  --disp: 'Chakra Petch', 'Arial Narrow', sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #e9edeb; --panel: #dde3df; --panel2: #d2dad5; --line: #8da199;
+    --fg: #15231e; --dim: #51665d; --amber: #8f5300; --cyan: #0c5d6b; --warm: #9c3810; --green: #286034;
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #e9edeb; --panel: #dde3df; --panel2: #d2dad5; --line: #8da199;
+  --fg: #15231e; --dim: #51665d; --amber: #8f5300; --cyan: #0c5d6b; --warm: #9c3810; --green: #286034;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 400 14px/1.6 var(--mono);
+  padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 28px; }
+header { display: grid; gap: 8px; }
+.eyebrow { font: 600 11px var(--disp); letter-spacing: .22em; text-transform: uppercase; color: var(--amber); }
+h1 { font: 700 clamp(22px, 4vw, 32px); font-family: var(--disp); letter-spacing: .06em; text-transform: uppercase; margin: 0; text-wrap: balance; }
+.sub { color: var(--dim); max-width: 68ch; }
+h2 { font: 600 13px var(--disp); letter-spacing: .18em; text-transform: uppercase; color: var(--amber); margin: 0 0 10px; }
+.figure { border: 1px solid var(--line); background: var(--panel); padding: 10px; overflow-x: auto; }
+.figure svg { display: block; min-width: 900px; width: 100%; height: auto; }
+.band { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 720px) { .band { grid-template-columns: 1fr; } }
+.inset { border: 1px solid var(--line); background: var(--panel); padding: 10px; }
+.inset svg { display: block; width: 100%; height: auto; }
+.facts { display: grid; gap: 10px; min-width: 0; }
+.fact { display: grid; grid-template-columns: 136px minmax(0, 1fr); gap: 14px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+.fact dt { font: 600 11px var(--disp); letter-spacing: .14em; text-transform: uppercase; color: var(--dim); padding-top: 3px; }
+.fact dd { margin: 0; font-variant-numeric: tabular-nums; }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); }
+table { border-collapse: collapse; width: 100%; min-width: 620px; font-size: 13px; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 11px var(--disp); letter-spacing: .14em; text-transform: uppercase; color: var(--dim); background: var(--panel2); }
+tbody tr:last-child td { border-bottom: 0; }
+td.cells { font-variant-numeric: tabular-nums; color: var(--cyan); white-space: nowrap; }
+.deck { font: 600 11px var(--disp); letter-spacing: .12em; text-transform: uppercase; color: var(--amber); white-space: nowrap; }
+.deck.lower { color: var(--cyan); }
+ul { margin: 0; padding-left: 1.1em; display: grid; gap: 7px; }
+li::marker { color: var(--dim); }
+.note { color: var(--dim); font-size: 13px; max-width: 72ch; }
+svg text { font-family: var(--mono); }
+svg .cname { font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: .11em; fill: var(--fg); }
+svg .lbl { font-size: 10.5px; letter-spacing: .05em; fill: var(--dim); }
+svg .tiny { font-size: 9.5px; fill: var(--dim); }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Interdict &middot; hull layout, revision 2</div>
+    <h1>Interdict Hull Schematic</h1>
+    <p class="sub">Two decks, bow to the right. Compartments chain end to end through bulkhead hatches, the way they do on a boat, so there is no corridor whose length has to match the rooms behind it. Both decks run the same 76&nbsp;m, which is what keeps the map legible.</p>
+  </header>
+
+  <div class="figure">
+    <svg viewBox="0 0 1280 372" role="img" aria-label="Side cutaway of the Interdict showing two decks, missile compartment, reactor and keel coil gun">
+      <defs>
+        <pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="var(--line)" stroke-width="2"/>
+        </pattern>
+      </defs>
+
+      <!-- hull shell -->
+      <path d="M 160 100 L 1072 100 C 1150 100 1198 124 1216 160 C 1198 196 1150 220 1072 220 L 160 220 L 62 192 L 62 128 Z"
+            fill="var(--panel2)" stroke="var(--line)" stroke-width="2"/>
+
+      <!-- dorsal heat-sink panels, broken at the airlock trunk -->
+      <rect x="180" y="86" width="620" height="14" fill="url(#hatch)" stroke="var(--line)"/>
+      <rect x="852" y="86" width="208" height="14" fill="url(#hatch)" stroke="var(--line)"/>
+
+      <!-- bilge: trim tanks and sink loops -->
+      <rect x="160" y="182" width="912" height="36" fill="url(#hatch)" opacity=".5"/>
+      <line x1="160" y1="182" x2="1072" y2="182" stroke="var(--line)"/>
+
+      <!-- deck plate -->
+      <rect x="160" y="140" width="912" height="6" fill="var(--line)"/>
+
+      <!-- upper deck compartments -->
+      <g fill="none" stroke="var(--line)" stroke-width="1.5">
+        <rect x="160" y="106" width="216" height="34"/>
+        <rect x="376" y="106" width="96"  height="34"/>
+        <rect x="472" y="106" width="312" height="34"/>
+        <rect x="784" y="106" width="96"  height="34"/>
+        <rect x="880" y="106" width="192" height="34"/>
+      </g>
+      <!-- lower deck compartments -->
+      <g fill="none" stroke="var(--line)" stroke-width="1.5">
+        <rect x="160" y="146" width="312" height="36"/>
+        <rect x="472" y="146" width="312" height="36"/>
+        <rect x="784" y="146" width="168" height="36"/>
+        <rect x="952" y="146" width="120" height="36"/>
+      </g>
+
+      <!-- missile tubes: aft six salvage, forward six live -->
+      <g>
+        <rect x="477" y="106" width="16" height="74" fill="var(--panel)" stroke="var(--cyan)" stroke-width="1.5"/>
+        <rect x="503" y="106" width="16" height="74" fill="var(--panel)" stroke="var(--cyan)" stroke-width="1.5"/>
+        <rect x="529" y="106" width="16" height="74" fill="var(--panel)" stroke="var(--cyan)" stroke-width="1.5"/>
+        <rect x="555" y="106" width="16" height="74" fill="var(--panel)" stroke="var(--cyan)" stroke-width="1.5"/>
+        <rect x="581" y="106" width="16" height="74" fill="var(--panel)" stroke="var(--cyan)" stroke-width="1.5"/>
+        <rect x="607" y="106" width="16" height="74" fill="var(--panel)" stroke="var(--cyan)" stroke-width="1.5"/>
+        <g fill="var(--cyan)" opacity=".55">
+          <rect x="480" y="112" width="10" height="18"/><rect x="480" y="134" width="10" height="18"/><rect x="480" y="156" width="10" height="18"/>
+          <rect x="506" y="112" width="10" height="18"/><rect x="506" y="134" width="10" height="18"/><rect x="506" y="156" width="10" height="18"/>
+          <rect x="532" y="112" width="10" height="18"/><rect x="532" y="134" width="10" height="18"/><rect x="532" y="156" width="10" height="18"/>
+          <rect x="558" y="112" width="10" height="18"/><rect x="558" y="134" width="10" height="18"/><rect x="558" y="156" width="10" height="18"/>
+          <rect x="584" y="112" width="10" height="18"/><rect x="584" y="134" width="10" height="18"/><rect x="584" y="156" width="10" height="18"/>
+          <rect x="610" y="112" width="10" height="18"/><rect x="610" y="134" width="10" height="18"/><rect x="610" y="156" width="10" height="18"/>
+        </g>
+        <rect x="633" y="106" width="16" height="74" fill="var(--panel)" stroke="var(--amber)" stroke-width="1.5"/>
+        <rect x="659" y="106" width="16" height="74" fill="var(--panel)" stroke="var(--amber)" stroke-width="1.5"/>
+        <rect x="685" y="106" width="16" height="74" fill="var(--panel)" stroke="var(--amber)" stroke-width="1.5"/>
+        <rect x="711" y="106" width="16" height="74" fill="var(--panel)" stroke="var(--amber)" stroke-width="1.5"/>
+        <rect x="737" y="106" width="16" height="74" fill="var(--panel)" stroke="var(--amber)" stroke-width="1.5"/>
+        <rect x="763" y="106" width="16" height="74" fill="var(--panel)" stroke="var(--amber)" stroke-width="1.5"/>
+        <g fill="var(--amber)" opacity=".75">
+          <rect x="637" y="112" width="8" height="40"/><rect x="647" y="112" width="8" height="40"/>
+          <rect x="663" y="112" width="8" height="40"/><rect x="673" y="112" width="8" height="40"/>
+          <rect x="689" y="112" width="8" height="40"/><rect x="699" y="112" width="8" height="40"/>
+          <rect x="715" y="112" width="8" height="40"/><rect x="725" y="112" width="8" height="40"/>
+          <rect x="741" y="112" width="8" height="40"/><rect x="751" y="112" width="8" height="40"/>
+          <rect x="767" y="112" width="8" height="40"/><rect x="777" y="112" width="8" height="40"/>
+        </g>
+      </g>
+
+      <!-- reactor, full height through both decks -->
+      <rect x="214" y="106" width="72" height="94" rx="6" fill="var(--panel)" stroke="var(--warm)" stroke-width="2"/>
+      <circle cx="250" cy="153" r="18" fill="none" stroke="var(--warm)" stroke-width="1.5" opacity=".8"/>
+      <circle cx="250" cy="153" r="7" fill="var(--warm)" opacity=".7"/>
+
+      <!-- drive, aft -->
+      <rect x="78" y="134" width="74" height="52" rx="4" fill="var(--panel)" stroke="var(--line)" stroke-width="1.5"/>
+      <path d="M 62 142 L 40 128 L 40 192 L 62 178 Z" fill="var(--panel)" stroke="var(--line)" stroke-width="1.5"/>
+
+      <!-- bow sensor array -->
+      <path d="M 1112 134 C 1152 134 1176 146 1186 160 C 1176 174 1152 186 1112 186 Z" fill="var(--panel)" stroke="var(--line)" stroke-width="1.5"/>
+
+      <!-- keel coil gun: breech aft, muzzle at the bow -->
+      <rect x="430" y="218" width="52" height="22" rx="3" fill="var(--panel)" stroke="var(--amber)" stroke-width="1.5"/>
+      <rect x="482" y="223" width="700" height="12" fill="var(--panel)" stroke="var(--amber)" stroke-width="1.5"/>
+      <path d="M 1182 223 L 1214 229 L 1214 229 L 1182 235 Z" fill="var(--amber)" opacity=".8"/>
+      <g stroke="var(--amber)" stroke-width="1" opacity=".5">
+        <line x1="520" y1="223" x2="520" y2="235"/><line x1="580" y1="223" x2="580" y2="235"/>
+        <line x1="640" y1="223" x2="640" y2="235"/><line x1="700" y1="223" x2="700" y2="235"/>
+        <line x1="760" y1="223" x2="760" y2="235"/><line x1="820" y1="223" x2="820" y2="235"/>
+        <line x1="880" y1="223" x2="880" y2="235"/><line x1="940" y1="223" x2="940" y2="235"/>
+        <line x1="1000" y1="223" x2="1000" y2="235"/><line x1="1060" y1="223" x2="1060" y2="235"/>
+        <line x1="1120" y1="223" x2="1120" y2="235"/>
+      </g>
+
+      <!-- boarding airlock trunk, dorsal, off the junction -->
+      <rect x="800" y="58" width="52" height="48" fill="var(--panel)" stroke="var(--green)" stroke-width="1.5"/>
+      <line x1="800" y1="70" x2="852" y2="70" stroke="var(--green)" stroke-width="1.5"/>
+
+      <!-- side rooms, dashed -->
+      <rect x="886" y="106" width="60" height="34" fill="none" stroke="var(--dim)" stroke-width="1.2" stroke-dasharray="4 3"/>
+      <rect x="886" y="146" width="66" height="36" fill="none" stroke="var(--dim)" stroke-width="1.2" stroke-dasharray="4 3"/>
+
+      <!-- ladders between decks -->
+      <g stroke="var(--green)" stroke-width="2">
+        <line x1="344" y1="140" x2="344" y2="182"/><line x1="356" y1="140" x2="356" y2="182"/>
+        <line x1="344" y1="150" x2="356" y2="150"/><line x1="344" y1="161" x2="356" y2="161"/><line x1="344" y1="172" x2="356" y2="172"/>
+        <line x1="860" y1="140" x2="860" y2="182"/><line x1="872" y1="140" x2="872" y2="182"/>
+        <line x1="860" y1="150" x2="872" y2="150"/><line x1="860" y1="161" x2="872" y2="161"/><line x1="860" y1="172" x2="872" y2="172"/>
+      </g>
+
+      <!-- crew for scale, 1.75 m -->
+      <g fill="var(--fg)" opacity=".85">
+        <circle cx="1020" cy="120" r="3.2"/><path d="M 1016 140 L 1017 126 L 1023 126 L 1024 140 Z"/>
+        <circle cx="990" cy="160" r="3.2"/><path d="M 986 180 L 987 166 L 993 166 L 994 180 Z"/>
+      </g>
+
+      <!-- compartment names -->
+      <g class="cname" text-anchor="middle">
+        <text x="268" y="127">ENGINEERING</text>
+        <text x="424" y="127">THERMAL</text>
+        <text x="628" y="100">MISSILE COMPARTMENT</text>
+        <text x="832" y="127">JUNCTION</text>
+        <text x="976" y="127">CONTROL ROOM</text>
+        <text x="316" y="169">ENGINEERING</text>
+        <text x="628" y="169">CREW BUNKS &amp; TUBE BASES</text>
+        <text x="835" y="169">MESS</text>
+        <text x="1012" y="169">BERTHS</text>
+      </g>
+      <g class="tiny" text-anchor="middle">
+        <text x="268" y="137">upper level</text>
+        <text x="316" y="178">lower level</text>
+      </g>
+
+      <!-- leaders: halo first, then line -->
+      <g fill="none" stroke-linejoin="round">
+        <g stroke="var(--bg)" stroke-width="4">
+          <polyline points="110,38 110,150"/><polyline points="430,38 430,86"/><polyline points="826,52 826,58"/>
+          <polyline points="1000,38 1000,74 916,74 916,106"/>
+          <polyline points="250,200 250,264"/><polyline points="660,240 660,264"/>
+          <polyline points="920,182 920,200 1010,200 1010,264"/>
+          <polyline points="350,182 350,284"/><polyline points="560,200 560,284"/>
+          <polyline points="866,182 866,284"/><polyline points="1150,196 1150,284"/>
+        </g>
+        <g stroke="var(--dim)" stroke-width="1">
+          <polyline points="110,38 110,150"/><polyline points="430,38 430,86"/><polyline points="826,52 826,58"/>
+          <polyline points="1000,38 1000,74 916,74 916,106"/>
+          <polyline points="250,200 250,264"/><polyline points="660,240 660,264"/>
+          <polyline points="920,182 920,200 1010,200 1010,264"/>
+          <polyline points="350,182 350,284"/><polyline points="560,200 560,284"/>
+          <polyline points="866,182 866,284"/><polyline points="1150,196 1150,284"/>
+        </g>
+      </g>
+
+      <g class="lbl" text-anchor="middle">
+        <text x="110" y="32">DRIVE AND THRUST</text>
+        <text x="430" y="32">DORSAL HEAT-SINK PANELS</text>
+        <text x="826" y="46">BOARDING AIRLOCK</text>
+        <text x="1000" y="32">CO&rsquo;S STATEROOM</text>
+        <text x="250" y="276">REACTOR, FULL HEIGHT</text>
+        <text x="660" y="276">COIL GUN: KEEL ACCELERATOR</text>
+        <text x="1010" y="276">UTILITY: HEAD, SHOWERS, SICKBAY</text>
+        <text x="350" y="296">LADDER</text>
+        <text x="560" y="296">TRIM TANKS AND SINK LOOPS</text>
+        <text x="866" y="296">LADDER TO THE MESS</text>
+        <text x="1150" y="296">SENSOR ARRAY AND MUZZLE</text>
+      </g>
+
+      <!-- scale bar -->
+      <g stroke="var(--dim)" stroke-width="1.5">
+        <line x1="160" y1="334" x2="280" y2="334"/>
+        <line x1="160" y1="329" x2="160" y2="339"/><line x1="280" y1="329" x2="280" y2="339"/>
+      </g>
+      <text class="tiny" x="290" y="338">10 m</text>
+      <text class="tiny" x="160" y="356">AFT</text>
+      <text class="tiny" x="1216" y="356" text-anchor="end">FORE</text>
+
+      <!-- legend -->
+      <g>
+        <rect x="470" y="326" width="12" height="12" fill="none" stroke="var(--amber)" stroke-width="1.5"/>
+        <text class="tiny" x="488" y="336">LIVE TUBE</text>
+        <rect x="596" y="326" width="12" height="12" fill="none" stroke="var(--cyan)" stroke-width="1.5"/>
+        <text class="tiny" x="614" y="336">SALVAGE TUBE</text>
+        <rect x="748" y="326" width="12" height="12" fill="none" stroke="var(--warm)" stroke-width="1.5"/>
+        <text class="tiny" x="766" y="336">REACTOR</text>
+        <rect x="866" y="326" width="12" height="12" fill="none" stroke="var(--green)" stroke-width="1.5"/>
+        <text class="tiny" x="884" y="336">VERTICAL LINK</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="band">
+    <div class="inset">
+      <svg viewBox="0 0 240 252" role="img" aria-label="Cross-section of one missile tube holding six missiles around a central handling hub">
+        <circle cx="120" cy="112" r="86" fill="var(--panel2)" stroke="var(--line)" stroke-width="2"/>
+        <circle cx="120" cy="112" r="22" fill="var(--bg)" stroke="var(--dim)" stroke-width="1.5"/>
+        <g fill="var(--bg)" stroke="var(--amber)" stroke-width="2">
+          <circle cx="120" cy="60"  r="25"/>
+          <circle cx="165" cy="86"  r="25"/>
+          <circle cx="165" cy="138" r="25"/>
+          <circle cx="120" cy="164" r="25"/>
+          <circle cx="75"  cy="138" r="25"/>
+          <circle cx="75"  cy="86"  r="25"/>
+        </g>
+        <g fill="var(--amber)" opacity=".55">
+          <circle cx="120" cy="60" r="8"/><circle cx="165" cy="86" r="8"/><circle cx="165" cy="138" r="8"/>
+          <circle cx="120" cy="164" r="8"/><circle cx="75" cy="138" r="8"/><circle cx="75" cy="86" r="8"/>
+        </g>
+        <g stroke="var(--dim)" stroke-width="1">
+          <line x1="34" y1="222" x2="206" y2="222"/>
+          <line x1="34" y1="217" x2="34" y2="227"/><line x1="206" y1="217" x2="206" y2="227"/>
+        </g>
+        <text class="tiny" x="120" y="240" text-anchor="middle">1.2 m tube &middot; six 0.35 m missiles</text>
+      </svg>
+    </div>
+
+    <dl class="facts">
+      <div class="fact"><dt>Hull</dt><dd>About 100 m overall, 76 m of pressure hull in compartments, roughly 10 m across. Two decks of 2.3 m clear.</dd></div>
+      <div class="fact"><dt>Missiles</dt><dd>24 tubes in two rows of 12. Twelve are live: six missiles racked around a handling hub, 72 in all, one tube per salvo. Twelve salvos of six.</dd></div>
+      <div class="fact"><dt>Salvage</dt><dd>The other twelve tubes are racked with canisters. That is the cargo hold, and it is why a crew of 28 is flying this much hull.</dd></div>
+      <div class="fact"><dt>Coil gun</dt><dd>A 65 m keel accelerator for close range. Breech and slug magazine at the forward end of lower engineering; muzzle at the bow. Fire control sits in the control room.</dd></div>
+      <div class="fact"><dt>Heat</dt><dd>Sink loops run the whole hull, dorsal panels and keel runs both. Thermal control is Dace&rsquo;s compartment on the upper deck, with the sink machinery below it in lower engineering.</dd></div>
+      <div class="fact"><dt>Circuit</dt><dd>Aft along the upper deck, down the engineering ladder, forward along the lower deck, up the junction ladder. About 150 m on foot, so the deck plan needs click-to-travel.</dd></div>
+    </dl>
+  </div>
+
+  <section>
+    <h2>Twelve scenes</h2>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Deck</th><th>Compartment</th><th>Cells</th><th>What is in it</th></tr></thead>
+        <tbody>
+          <tr><td class="deck">Upper</td><td>Control room</td><td class="cells">16 &times; 7</td><td>Navigation forward, attack center amidships with the pop-up map table, sensors and ECM aft</td></tr>
+          <tr><td class="deck">Upper</td><td>CO&rsquo;s stateroom</td><td class="cells">5 &times; 5</td><td>Side room off the aft end of control. Dead end, and the only private space on the ship</td></tr>
+          <tr><td class="deck">Upper</td><td>Junction</td><td class="cells">8 &times; 7</td><td>Ladder down to the mess, hatch up to the airlock, hatches fore and aft</td></tr>
+          <tr><td class="deck">Upper</td><td>Boarding airlock</td><td class="cells">4 &times; 4</td><td>Side room off the junction. Suit lockers, outer hatch. Where boarding and salvage EVA happen</td></tr>
+          <tr><td class="deck">Upper</td><td>Missile compartment</td><td class="cells">26 &times; 7</td><td>Twenty-four tube caps in two rows, walkway between. Coil gun loading gear at the aft end</td></tr>
+          <tr><td class="deck">Upper</td><td>Thermal control</td><td class="cells">8 &times; 7</td><td>Dace and three crew. Sink gauges, coolant manifolds, the SINK mount</td></tr>
+          <tr><td class="deck">Upper</td><td>Engineering</td><td class="cells">18 &times; 7</td><td>Upper level. Grating floor around the reactor casing, ladder down, DRIVE mount</td></tr>
+          <tr><td class="deck lower">Lower</td><td>Officer berths</td><td class="cells">10 &times; 7</td><td>Three cabins, two sides each. Forward dead end</td></tr>
+          <tr><td class="deck lower">Lower</td><td>Utility</td><td class="cells">6 &times; 6</td><td>Side room off the mess: head, showers, laundry, and the dormant sickbay</td></tr>
+          <tr><td class="deck lower">Lower</td><td>Mess and galley</td><td class="cells">14 &times; 7</td><td>Fenwick&rsquo;s galley, dry and cold stores aft, the ladder up to the junction, doubles as the briefing room</td></tr>
+          <tr><td class="deck lower">Lower</td><td>Crew bunks</td><td class="cells">26 &times; 7</td><td>Tube bases and handling gear down the middle, fold-out racks along both sides. Most are empty</td></tr>
+          <tr><td class="deck lower">Lower</td><td>Engineering</td><td class="cells">26 &times; 7</td><td>Lower level. Sink machinery forward, reactor base and drive aft, coil gun breech, ladder up</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>What this changes</h2>
+    <ul>
+      <li>The spine corridor is gone. Compartments connect directly, which is what fixes the spacing problem.</li>
+      <li>Every room needs regenerating as a long, narrow compartment. The current bridge, mess, junction and corridor art do not fit the new proportions. That is about 12 credits each.</li>
+      <li>Engineering is two scenes drawn as one space: the reactor casing holds the same plan position in both, you see its top through the upper grating and its base below, and the ladder lands in the same spot.</li>
+      <li>Two ladders only, at the junction and in engineering. That is enough to make the circuit, and a third would just be a shortcut.</li>
+      <li>Click-to-travel on the deck plan stops being optional at twelve scenes across two decks.</li>
+    </ul>
+  </section>
+
+  <p class="note">Measurements are drawn to scale at 12 px per meter. Cell counts assume one grid cell is about one meter, which is what the walk grid already uses.</p>
+</div>
