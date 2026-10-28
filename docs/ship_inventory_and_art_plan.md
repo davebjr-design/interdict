@@ -236,3 +236,26 @@ Each live tube is a rotary magazine: six missiles racked around a central handli
 **Reloading is a dockyard job and cannot be done underway.** Six crew could not handle 72 missiles in flight, and the carousel has to be struck down and refilled from outside the pressure hull. This is explicit so it never becomes a plot hole, and it gives the hunt layer a hard resource ceiling per sortie: twelve salvos, then the coil gun, then home.
 
 The other twelve tubes are racked with salvage canisters and are the cargo hold.
+
+## 22. Compartment art, revision 3 (2026-10-28)
+
+All twelve compartments generated from `tools/rooms_v3.py`, two variants each (three for the control room), 22 tasks in one run through an eight-at-a-time work queue, about four minutes, zero failures. Every result came back clean: no windows, no markings, no lettering, no figures. Chosen variants are copied to `<name>_v3.png`; rejects stay on disk but are git-ignored.
+
+| Compartment | File | Pick | Why |
+|---|---|---|---|
+| Control room | `control_v3.png` | c | Clearest three zones, end hatch reads as the exit, second door for the stateroom |
+| Captain's stateroom | `stateroom_v3.png` | a | Fold-out bunk, fold-down desk, locker, visible door |
+| Junction | `junction_v3.png` | a | Railed floor opening with ladder, overhead wheel hatch, both end hatches, fire locker |
+| Boarding airlock | `airlock_v3.png` | a | Big round pressure hatch, three suits in lockers, bench, drain |
+| Missile compartment | `missile_v3.png` | b | Two parallel rows of tube caps with a grated lane between, amber rings on the live tubes, overhead gantry |
+| Thermal control | `thermal_v3.png` | a | Exchanger stacks, valve wheels, unmarked dials, hatches at both ends |
+| Engineering upper | `eng_upper_v3.png` | a | Reactor dome above the grating plus a railed ladder opening |
+| Engineering lower | `eng_lower_v3.png` | b | Clearest ladder rising into a ceiling opening; reactor base at the end |
+| Officer berths | `berths_v3.png` | a | Three bunk nooks, lockers, clear walking lane |
+| Utility | `utility_v3.png` | a | Two stall doors, basin and mirror, shower curtain, fold-down exam table and cabinet |
+| Mess and galley | `mess_v3.png` | a | Galley counter, four bench tables, blank briefing panel, ladder down from a railed ceiling opening |
+| Crew bunks | `bunks_v3.png` | a | Tube bases down the center, racks along the wall stowed with crates, clear lane |
+
+**Lesson.** The "unlit, dead black glass, no glow" wording still did not stop the generator lighting the Pell node cyan. It is a small fixture, so the practical fix is to accept a lit node in the art and either key it out in code or treat the painted one as the cleared state and draw the dark state over it. Decide when the firewall mechanic gets built.
+
+**Next:** fit walk grids. Each compartment needs its floor corners (T, R, L, and B for trapezoidal floors), cell counts from section 20, blocked cells, prop boxes with heights, door rects and stand cells. This is the serial part; generation was the fast part.
