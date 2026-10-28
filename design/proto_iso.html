@@ -1,4 +1,4 @@
-<title>Interdict Isometric Engineering</title>
+<title>Interdict Ship Walk</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -18,7 +18,7 @@ h1 { font: 700 18px/1.1 var(--disp); letter-spacing: .12em; text-transform: uppe
 #stage { position: relative; border: 1px solid var(--line); background: #07100d; aspect-ratio: 16 / 9; }
 canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .hud { position: absolute; background: rgba(8, 16, 13, .82); border: 1px solid var(--line); padding: 8px 12px; pointer-events: none; }
-#job { top: 12px; left: 12px; max-width: 46%; }
+#job { top: 12px; left: 12px; max-width: 30%; }
 .lab { font: 500 11px var(--disp); letter-spacing: .16em; text-transform: uppercase; color: var(--dim); margin-bottom: 4px; }
 #job .k { font: 700 10px var(--disp); letter-spacing: .14em; color: var(--amber); } #job.done .k { color: var(--green); } #job.done .t { color: var(--dim); text-decoration: line-through; }
 #tip { right: 12px; top: 12px; text-align: right; color: var(--cyan); font-size: 12px; }
@@ -35,76 +35,144 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
 
 <div class="wrap">
   <header>
-    <h1>Interdict Isometric Engineering</h1>
-    <span class="keys"><b>Click the floor</b> to walk &middot; <b>click Castellan</b> to talk &middot; <b>click the amber hatch</b> to inspect it</span>
+    <h1>Interdict Ship Walk</h1>
+    <span class="keys"><b>Click the floor</b> to walk &middot; <b>click a door</b> to change rooms &middot; <b>click a crew member</b> to talk &middot; <b>click the amber manifold</b> to inspect it</span>
   </header>
   <div id="stage">
     <canvas id="cv" width="1280" height="720"></canvas>
     <div id="job" class="hud"><div class="lab">Mission tracker</div><div class="k">MECHANICAL</div><div class="t">Inspect the heat-sink coupling</div></div>
-    <div id="tip" class="hud" hidden></div>
+    <div id="tip" class="hud" hidden></div><div id="room" class="hud" style="left:50%;transform:translateX(-50%);top:12px;font:700 12px var(--disp);letter-spacing:.2em;color:var(--amber)">ENGINEERING</div>
   </div>
   <div class="panel">
     <div id="por">&middot;</div>
-    <div><div id="nm">Ship log</div><div id="tx">You are in Engineering. Castellan is by the reactor. The coupling hatch is on the right-hand wall.</div><div id="fx"></div><div id="ch"></div></div>
+    <div><div id="nm">Ship log</div><div id="tx">You are in Engineering. Castellan is by the reactor. The coupling manifold is behind the tanks. The door on the right wall leads to the Mess.</div><div id="fx"></div><div id="ch"></div></div>
   </div>
   <div class="row"><button id="grid" type="button">Show walk grid</button><button id="reset" type="button">Reset</button></div>
-  <p class="note">The room image is the source art, used as-is at 640 x 360 and scaled up, so it looks soft. A real asset would be rendered at 2048 wide or more. The captain is a Meshy-generated 3D model rendered into sprite frames from this room's camera angle. Castellan and the reactor and hatch glow are stand-ins I added. The walk grid is fitted by hand to the floor in the picture.</p>
+  <p class="note">Room art is generated (Engineering from the original source, the Mess from the lighting standard in docs/room_art_standard.md) and the Mess background is keyed from magenta. The captain is a Meshy-generated 3D model rendered into sprite frames from this camera angle. Light flicker is drawn in code on top of the still art. Castellan and Fenwick are placeholder figures until their models exist. Walk grids are fitted by hand; use Show walk grid to check them.</p>
 </div>
 
 <script>
 (function () {
   const $ = id => document.getElementById(id), cv = $('cv'), cx = cv.getContext('2d'), S = 2;
-  const img = new Image(); let ready = false; img.onload = () => { ready = true; }; img.src = 'assets/engineering_room.png';
-  const spr = new Image(); let sprReady = false; spr.onload = () => { sprReady = true; }; spr.src = 'assets/captain_sheet.png';
+  const load = s => { const i = new Image(); i.src = s; return i; };
+  const spr = load('assets/captain_sheet.png'); let sprReady = false; spr.onload = () => { sprReady = true; };
   const DIRS = ['se', 'sw', 'ne', 'nw'], CW = 256, CH = 320, FEET = [128, 280], SC = 0.62;
-  // floor diamond in source pixels (640x360), measured from the art
-  const T = [320, 131], R = [515, 230], L = [125, 230], N = 10;
-  const cellXY = (i, j) => [T[0] + (i + .5) / N * (R[0] - T[0]) + (j + .5) / N * (L[0] - T[0]), T[1] + (i + .5) / N * (R[1] - T[1]) + (j + .5) / N * (L[1] - T[1])];
-  const ptXY = (u, v) => [T[0] + u * (R[0] - T[0]) + v * (L[0] - T[0]), T[1] + u * (R[1] - T[1]) + v * (L[1] - T[1])];
-  function pick(px, py) { const dx = px - T[0], dy = py - T[1], u = (dx / 195 + dy / 99) / 2, v = (dy / 99 - dx / 195) / 2; return [Math.floor(u * N), Math.floor(v * N)]; }
-  const blocked = new Set(); const blk = (i0, i1, j0, j1) => { for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) blocked.add(i + ',' + j); };
-  blk(0, 1, 3, 6); blk(0, 2, 7, 9); blk(0, 4, 0, 1); blk(5, 6, 0, 0); blk(7, 9, 0, 0);   // reactor, workbench, tanks and pipes, hatch wall
+
+  // ---------- rooms (world units are 640 x 360; drawn at 2x) ----------
+  const MK = 0.362, MOX = (640 - 1489 * MK) / 2, MOY = (360 - 963 * MK) / 2, MW = p => [MOX + p[0] * MK, MOY + p[1] * MK];
+  const mr = (x0, y0, x1, y1) => [...MW([x0, y0]), ...MW([x1, y1])];
+  const blockList = (arr) => { const s = new Set(); arr.forEach(([i0, i1, j0, j1]) => { for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) s.add(i + ',' + j); }); return s; };
+  const ROOMS = {
+    eng: {
+      name: 'ENGINEERING', img: load('assets/engineering_room.png'), box: [0, 0, 640, 360],
+      T: [320, 131], R: [515, 230], L: [125, 230], N: 10,
+      blocked: blockList([[0, 1, 3, 6], [0, 2, 7, 9], [0, 4, 0, 1], [5, 6, 0, 0], [7, 9, 0, 0]]),
+      doors: [{ id: 'toMess', rect: [452, 120, 512, 212], stand: [8, 1], to: 'mess', arrive: [0, 4], dir: 'se', label: 'Door to the Mess' }],
+      npc: { name: 'Castellan', col: '#b69cf0', cell: [4, 4] },
+      lights: [
+        { x: 240, y: 125, r: 120, c: [255, 140, 60], a: 0.2, pat: 'reactor', seed: 1 },
+        { x: 137, y: 202, r: 40, c: [120, 255, 160], a: 0.35, pat: 'blink', seed: 2 },
+        { x: 387, y: 162, r: 40, c: [111, 195, 208], a: 0.35, pat: 'fault', seed: 3 },
+        { x: 509, y: 189, r: 44, c: [255, 180, 84], a: 0.3, pat: 'steady', seed: 4 },
+        { x: 452, y: 150, r: 36, c: [120, 255, 160], a: 0.3, pat: 'blink', seed: 5 }
+      ]
+    },
+    mess: {
+      name: 'MESS HALL', img: load('assets/mess_room.png'), box: [MOX, MOY, 1489 * MK, 963 * MK],
+      T: MW([752, 206]), R: MW([1452, 556]), L: MW([52, 556]), N: 13,
+      blocked: blockList([[0, 8, 0, 1], [8, 8, 2, 2], [0, 0, 6, 12], [2, 3, 3, 6], [5, 7, 3, 6], [2, 3, 8, 11], [5, 7, 8, 11], [9, 11, 8, 10]]),
+      doors: [
+        { id: 'toEng', rect: mr(478, 145, 578, 312), stand: [0, 4], to: 'eng', arrive: [8, 1], dir: 'sw', label: 'Door to Engineering' },
+        { id: 'toCorr', rect: mr(1355, 345, 1450, 525), stand: [12, 1], to: null, label: 'Door to the corridor (not built yet)' }
+      ],
+      npc: { name: 'Fenwick', col: '#c9b458', cell: [4, 2] },
+      lights: [
+        { p: [100, 340], r: 56, c: [255, 170, 70], a: 0.3, pat: 'fault', seed: 11 }, { p: [535, 148], r: 56, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 12 },
+        { p: [917, 138], r: 56, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 13 }, { p: [1040, 193], r: 56, c: [255, 170, 70], a: 0.3, pat: 'fault', seed: 14 },
+        { p: [880, 297], r: 44, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 15 }, { p: [965, 335], r: 44, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 16 },
+        { p: [1082, 393], r: 44, c: [255, 170, 70], a: 0.3, pat: 'flicker', seed: 17 }, { p: [1400, 355], r: 56, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 18 },
+        { p: [595, 210], r: 30, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 19 }, { p: [1348, 410], r: 30, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 20 }, { p: [197, 408], r: 30, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 21 },
+        { p: [815, 745], r: 150, c: [255, 190, 100], a: 0.12, pat: 'pulse', seed: 22 }
+      ]
+    }
+  };
+  Object.values(ROOMS).forEach(r => r.lights.forEach(l => { if (l.p) { const w = MW(l.p); l.x = w[0]; l.y = w[1]; } }));
+  const hash = x => { const v = Math.sin(x * 127.1 + 311.7) * 43758.5453; return v - Math.floor(v); };
+  function lightF(l, t) {
+    const s = l.seed;
+    switch (l.pat) {
+      case 'steady': return 1 + 0.03 * Math.sin(t * 1.7 + s);
+      case 'pulse': return 0.8 + 0.2 * Math.sin(t * 1.4 + s);
+      case 'reactor': return 0.85 + 0.15 * Math.sin(t * 2.3) + 0.05 * Math.sin(t * 7.1 + s) - (hash(Math.floor(t * 14) + s) > 0.97 ? 0.3 : 0);
+      case 'blink': return (Math.floor(t * 0.9 + s) % 3 === 0) ? 0.25 : 1;
+      case 'flicker': return hash(Math.floor(t * 10) + s) > 0.85 ? 0.2 + 0.6 * hash(Math.floor(t * 30) + s) : 1;
+      case 'fault': { const ph = (t + s * 3.7) % 11; return ph < 0.8 ? (hash(Math.floor(t * 20) + s) > 0.5 ? 1 : 0.1) : 1; }
+    }
+    return 1;
+  }
+
+  let room = ROOMS.eng, blocked = room.blocked, N = room.N;
+  const ptXY = (u, v) => [room.T[0] + u * (room.R[0] - room.T[0]) + v * (room.L[0] - room.T[0]), room.T[1] + u * (room.R[1] - room.T[1]) + v * (room.L[1] - room.T[1])];
+  const cellXY = (i, j) => ptXY((i + .5) / N, (j + .5) / N);
+  function pick(px, py) {
+    const T = room.T, ax = room.R[0] - T[0], ay = room.R[1] - T[1], bx = room.L[0] - T[0], by = room.L[1] - T[1], det = ax * by - ay * bx, dx = px - T[0], dy = py - T[1];
+    return [Math.floor((dx * by - dy * bx) / det * N), Math.floor((ax * dy - ay * dx) / det * N)];
+  }
   const free = (i, j) => i >= 0 && j >= 0 && i < N && j < N && !blocked.has(i + ',' + j);
   function bfs(s, t) {
     const key = (i, j) => i + ',' + j, prev = { [key(...s)]: null }, q = [s];
     while (q.length) { const [i, j] = q.shift(); if (i === t[0] && j === t[1]) break; [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([di, dj]) => { const a = i + di, b = j + dj; if (free(a, b) && !(key(a, b) in prev)) { prev[key(a, b)] = [i, j]; q.push([a, b]); } }); }
     if (!(key(...t) in prev)) return null; const p = []; let c = t; while (c) { p.unshift(c); c = prev[key(...c)]; } return p;
   }
-  const me = { i: 7, j: 7, x: 0, y: 0, path: [], tgt: null, col: '#8fd694', name: 'Captain', dir: 'sw', sprite: true };
-  const cast = { i: 4, j: 4, col: '#b69cf0', name: 'Castellan' };
-  const HATCH = { rect: [452, 120, 512, 212], stand: [7, 1] };
-  [me, cast].forEach(o => { const p = cellXY(o.i, o.j); o.x = p[0]; o.y = p[1]; });
-  let done = false, insp = 0, show = false, hover = null, hoverCell = null, dlg = false;
+
+  const me = { i: 7, j: 7, x: 0, y: 0, path: [], then: null, col: '#8fd694', name: 'Captain', dir: 'sw', sprite: true };
+  let npc = null;
+  const MANIFOLD = { rect: [335, 62, 430, 152], stand: [5, 1] };
+  let done = false, insp = 0, show = false, hover = null, hoverCell = null, dlg = false, fade = 0, fadeDir = 0, pending = null;
+  function setRoom(id, cell, dir) {
+    room = ROOMS[id]; blocked = room.blocked; N = room.N; $('room').textContent = room.name;
+    me.i = cell[0]; me.j = cell[1]; const p = cellXY(me.i, me.j); me.x = p[0]; me.y = p[1]; me.path = []; me.then = null; if (dir) me.dir = dir;
+    npc = Object.assign({}, room.npc); const q = cellXY(...npc.cell); npc.x = q[0]; npc.y = q[1];
+  }
+  setRoom('eng', [7, 7]);
 
   function say(sp, text, fx, choices) {
-    const col = sp === 'Castellan' ? '#b69cf0' : '#6f877d'; $('por').textContent = sp[0]; $('por').style.color = col; $('nm').textContent = sp; $('nm').style.color = col; $('tx').textContent = text; $('fx').textContent = fx ? 'EFFECT: ' + fx : '';
-    const ch = $('ch'); ch.innerHTML = ''; (choices || []).forEach(c => { const b = document.createElement('button'); b.type = 'button'; b.textContent = c.t; b.onclick = c.fn; ch.appendChild(b); }); dlg = !!(choices && choices.length);
+    const c = sp === 'Castellan' ? '#b69cf0' : sp === 'Fenwick' ? '#c9b458' : '#6f877d'; $('por').textContent = sp[0]; $('por').style.color = c; $('nm').textContent = sp; $('nm').style.color = c; $('tx').textContent = text; $('fx').textContent = fx ? 'EFFECT: ' + fx : '';
+    const ch = $('ch'); ch.innerHTML = ''; (choices || []).forEach(b0 => { const b = document.createElement('button'); b.type = 'button'; b.textContent = b0.t; b.onclick = b0.fn; ch.appendChild(b); }); dlg = !!(choices && choices.length);
   }
   const close = () => { $('ch').innerHTML = ''; dlg = false; };
-  function talkCast() {
-    if (done) return say('Castellan', 'I will keep an eye on the reactor, Captain.', '', [{ t: 'Continue', fn: close }]);
-    say('Castellan', 'The coupling hatch is on the right-hand wall, Captain. Have a look when you have a moment.', '', [{ t: 'Continue', fn: close }]);
+  function talk() {
+    if (npc.name === 'Castellan') {
+      if (done) return say('Castellan', 'I will keep an eye on the reactor, Captain.', '', [{ t: 'Continue', fn: close }]);
+      return say('Castellan', 'The coupling manifold is behind the tanks, Captain. Have a look when you have a moment.', '', [{ t: 'Continue', fn: close }]);
+    }
+    say('Fenwick', 'Captain! Soup is on. Well, soup is in the pot, which is nearly the same thing. This mess hall seats thirty and we are five. Do you know how much a ladle costs per empty seat? Nothing. It is a joke about nothing.', '', [
+      { t: 'Smells good, Fen.', fn: () => say('Fenwick', 'You are a gentleman and a scholar. Sit anywhere. Sit everywhere!', '', [{ t: 'Continue', fn: close }]) },
+      { t: 'Not now.', fn: () => say('Fenwick', 'Of course, of course. I will just keep it warm. It is what I do. Warm things.', '', [{ t: 'Continue', fn: close }]) }]);
   }
   function afterInspect() {
     say('Castellan', 'The coupling seats fine. Behind it there is a hairline crack in the manifold. Patch it now and we lose four minutes at the next stop. Leave it and I will watch it.', '', [
       { t: 'Patch it now.', fn: () => { done = true; $('job').classList.add('done'); say('Castellan', 'Four minutes. I will have it welded before the next jump.', 'Transit +4:00. Heat sinks fill at the normal rate.', [{ t: 'Continue', fn: close }]); } },
       { t: 'Leave it. Keep a watch on it.', fn: () => { done = true; $('job').classList.add('done'); say('Castellan', 'Aye. I will not enjoy it.', 'Heat sinks fill 8% faster this hunt.', [{ t: 'Continue', fn: close }]); } }]);
   }
-
   function go(cell, then) { const p = bfs([me.i, me.j], cell); if (!p) return false; me.path = p.slice(1); me.then = then || null; return true; }
-  const nearCast = () => [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([a, b]) => [cast.i + a, cast.j + b]).filter(c => free(...c)).sort((a, b) => Math.hypot(a[0] - me.i, a[1] - me.j) - Math.hypot(b[0] - me.i, b[1] - me.j))[0];
+  function nearNpc() { return [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([a, b]) => [npc.cell[0] + a, npc.cell[1] + b]).filter(c => free(...c)).sort((a, b) => Math.hypot(a[0] - me.i, a[1] - me.j) - Math.hypot(b[0] - me.i, b[1] - me.j))[0]; }
   function mpos(e) { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * 640, (e.clientY - r.top) / r.height * 360]; }
-  const inHatch = (x, y) => x > HATCH.rect[0] && x < HATCH.rect[2] && y > HATCH.rect[1] && y < HATCH.rect[3];
-  const onCast = (x, y) => Math.abs(x - cast.x) < 14 && y > cast.y - 56 && y < cast.y + 6;
-  cv.addEventListener('pointermove', e => { const [x, y] = mpos(e); hover = onCast(x, y) ? 'cast' : inHatch(x, y) && !done ? 'hatch' : null; const c = pick(x, y); hoverCell = free(...c) ? c : null; cv.style.cursor = hover || hoverCell ? 'pointer' : 'default'; });
+  const inRect = (x, y, r) => x > r[0] && x < r[2] && y > r[1] && y < r[3];
+  const onNpc = (x, y) => Math.abs(x - npc.x) < 14 && y > npc.y - 56 && y < npc.y + 6;
+  const doorAt = (x, y) => room.doors.find(d => inRect(x, y, d.rect));
+  const manifoldHere = () => room === ROOMS.eng && !done;
+  function useDoor(d) { if (!d.to) { say('Ship log', 'The corridor is not built yet. This door is a placeholder.', '', [{ t: 'Continue', fn: close }]); return; } pending = d; fadeDir = 1; }
+  cv.addEventListener('pointermove', e => { if (fadeDir) return; const [x, y] = mpos(e); const d = doorAt(x, y); hover = onNpc(x, y) ? 'npc' : d ? d : manifoldHere() && inRect(x, y, MANIFOLD.rect) ? 'man' : null; const c = pick(x, y); hoverCell = free(...c) ? c : null; cv.style.cursor = hover || hoverCell ? 'pointer' : 'default'; });
   cv.addEventListener('pointerdown', e => {
-    if (dlg || insp > 0) return; const [x, y] = mpos(e);
-    if (onCast(x, y)) { const c = nearCast(); if (c && go(c, 'cast')) return; if (c && c[0] === me.i && c[1] === me.j) talkCast(); return; }
-    if (inHatch(x, y) && !done) { if (me.i === HATCH.stand[0] && me.j === HATCH.stand[1]) { insp = 0.001; return; } go(HATCH.stand, 'hatch'); return; }
+    if (dlg || insp > 0 || fadeDir) return; const [x, y] = mpos(e); const d = doorAt(x, y);
+    if (onNpc(x, y)) { const c = nearNpc(); if (c && c[0] === me.i && c[1] === me.j) { talk(); return; } if (c && go(c, 'npc')) return; return; }
+    if (d) { if (me.i === d.stand[0] && me.j === d.stand[1]) { useDoor(d); return; } go(d.stand, d); return; }
+    if (manifoldHere() && inRect(x, y, MANIFOLD.rect)) { if (me.i === MANIFOLD.stand[0] && me.j === MANIFOLD.stand[1]) { insp = 0.001; return; } go(MANIFOLD.stand, 'man'); return; }
     const c = pick(x, y); if (free(...c)) go(c, null);
   });
   $('grid').onclick = () => { show = !show; $('grid').textContent = show ? 'Hide walk grid' : 'Show walk grid'; };
-  $('reset').onclick = () => { done = false; insp = 0; me.i = 7; me.j = 7; const p = cellXY(7, 7); me.x = p[0]; me.y = p[1]; me.path = []; me.then = null; $('job').classList.remove('done'); say('Ship log', 'You are in Engineering. Castellan is by the reactor. The coupling hatch is on the right-hand wall.', '', []); };
+  $('reset').onclick = () => { done = false; insp = 0; setRoom('eng', [7, 7]); $('job').classList.remove('done'); say('Ship log', 'You are in Engineering. Castellan is by the reactor. The coupling manifold is behind the tanks. The door on the right wall leads to the Mess.', '', []); };
 
   function diamond(i, j, fill, stroke) { const c = [ptXY(i / N, j / N), ptXY((i + 1) / N, j / N), ptXY((i + 1) / N, (j + 1) / N), ptXY(i / N, (j + 1) / N)]; cx.beginPath(); c.forEach((p, k) => k ? cx.lineTo(p[0] * S, p[1] * S) : cx.moveTo(p[0] * S, p[1] * S)); cx.closePath(); if (fill) { cx.fillStyle = fill; cx.fill(); } if (stroke) { cx.strokeStyle = stroke; cx.lineWidth = 1; cx.stroke(); } }
   function person(o, t, walking) {
@@ -122,28 +190,32 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   let last = performance.now();
   function frame(now) {
     const dt = Math.min(0.05, (now - last) / 1000), t = now / 1000; last = now;
-    // walking
+    if (fadeDir === 1) { fade += dt / 0.25; if (fade >= 1) { fade = 1; const d = pending; pending = null; setRoom(d.to, d.arrive, d.dir); fadeDir = -1; } }
+    else if (fadeDir === -1) { fade -= dt / 0.25; if (fade <= 0) { fade = 0; fadeDir = 0; } }
     let walking = false;
-    if (me.path.length) { const [ti, tj] = me.path[0], tp = cellXY(ti, tj), dx = tp[0] - me.x, dy = tp[1] - me.y, d = Math.hypot(dx, dy); walking = true; me.dir = dx >= 0 ? (dy >= 0 ? 'se' : 'ne') : (dy >= 0 ? 'sw' : 'nw'); if (d < 2) { me.i = ti; me.j = tj; me.path.shift(); } else { const sp = 120 * dt; me.x += dx / d * Math.min(sp, d); me.y += dy / d * Math.min(sp, d); } if (!me.path.length) { const th = me.then; me.then = null; if (th === 'cast') talkCast(); if (th === 'hatch') insp = 0.001; } }
+    if (me.path.length) { const [ti, tj] = me.path[0], tp = cellXY(ti, tj), dx = tp[0] - me.x, dy = tp[1] - me.y, d = Math.hypot(dx, dy); walking = true; me.dir = dx >= 0 ? (dy >= 0 ? 'se' : 'ne') : (dy >= 0 ? 'sw' : 'nw'); if (d < 2) { me.i = ti; me.j = tj; me.path.shift(); } else { const sp = 120 * dt; me.x += dx / d * Math.min(sp, d); me.y += dy / d * Math.min(sp, d); } if (!me.path.length) { const th = me.then; me.then = null; if (th === 'npc') talk(); else if (th === 'man') insp = 0.001; else if (th && th.to !== undefined) useDoor(th); } }
     if (insp > 0 && insp < 1) { insp += dt / 1.6; if (insp >= 1) { insp = 0; afterInspect(); } }
-    // tip
-    const tip = $('tip'); if (hover === 'cast') { tip.hidden = false; tip.textContent = 'Talk to Castellan'; } else if (hover === 'hatch') { tip.hidden = false; tip.textContent = 'Inspect the coupling hatch'; } else tip.hidden = true;
-    cx.clearRect(0, 0, 1280, 720); if (ready) cx.drawImage(img, 0, 0, 1280, 720);
-    // lighting stand-ins
-    cx.save(); cx.globalCompositeOperation = 'lighter';
-    let g = cx.createRadialGradient(240 * S, 125 * S, 4, 240 * S, 125 * S, 120); g.addColorStop(0, 'rgba(255,140,60,' + (0.16 + 0.07 * Math.sin(t * 2.3)) + ')'); g.addColorStop(1, 'rgba(255,140,60,0)'); cx.fillStyle = g; cx.fillRect(0, 0, 1280, 720);
-    const hp = done ? 0.04 : 0.12 + 0.09 * Math.sin(t * 3.4); g = cx.createRadialGradient(482 * S, 168 * S, 2, 482 * S, 168 * S, 70); g.addColorStop(0, 'rgba(255,180,84,' + hp + ')'); g.addColorStop(1, 'rgba(255,180,84,0)'); cx.fillStyle = g; cx.fillRect(0, 0, 1280, 720);
-    cx.restore();
-    if (show) { for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) diamond(i, j, blocked.has(i + ',' + j) ? 'rgba(255,107,90,.28)' : 'rgba(111,195,208,.07)', 'rgba(111,195,208,.55)'); }
-    else if (hoverCell && !dlg) diamond(hoverCell[0], hoverCell[1], 'rgba(255,180,84,.18)', 'rgba(255,180,84,.7)');
-    if (hover === 'hatch') { cx.strokeStyle = '#ffb454'; cx.lineWidth = 2; cx.setLineDash([6, 5]); cx.strokeRect(HATCH.rect[0] * S, HATCH.rect[1] * S, (HATCH.rect[2] - HATCH.rect[0]) * S, (HATCH.rect[3] - HATCH.rect[1]) * S); cx.setLineDash([]); }
-    if (!done) { cx.fillStyle = '#ffb454'; const hx = 482 * S, hy = 122 * S + Math.sin(t * 3) * 4; cx.beginPath(); cx.moveTo(hx, hy + 12); cx.lineTo(hx - 9, hy); cx.lineTo(hx + 9, hy); cx.closePath(); cx.fill(); }
-    // figures sorted by depth
-    const list = [[cast, false], [me, walking]].sort((a, b) => a[0].y - b[0].y); list.forEach(([o, w]) => person(o, t, w));
+    const tip = $('tip'); if (hover === 'npc') { tip.hidden = false; tip.textContent = 'Talk to ' + npc.name; } else if (hover === 'man') { tip.hidden = false; tip.textContent = 'Inspect the coupling manifold'; } else if (hover && hover.label) { tip.hidden = false; tip.textContent = hover.label; } else tip.hidden = true;
+    cx.clearRect(0, 0, 1280, 720);
+    const b = room.box; if (room.img.complete) cx.drawImage(room.img, b[0] * S, b[1] * S, b[2] * S, b[3] * S);
+    // animated lights: additive glow plus a dark patch when a fixture drops out
+    room.lights.forEach(l => {
+      const f = lightF(l, t), x = l.x * S, y = l.y * S;
+      if (f < 0.9) { const g = cx.createRadialGradient(x, y, 0, x, y, l.r * 0.8); g.addColorStop(0, 'rgba(0,0,0,' + (0.9 - f) * 0.55 + ')'); g.addColorStop(1, 'rgba(0,0,0,0)'); cx.fillStyle = g; cx.fillRect(x - l.r, y - l.r, l.r * 2, l.r * 2); }
+      cx.save(); cx.globalCompositeOperation = 'lighter'; const g2 = cx.createRadialGradient(x, y, 1, x, y, l.r); g2.addColorStop(0, 'rgba(' + l.c.join(',') + ',' + (l.a * Math.min(1.3, f)) + ')'); g2.addColorStop(1, 'rgba(' + l.c.join(',') + ',0)'); cx.fillStyle = g2; cx.fillRect(x - l.r, y - l.r, l.r * 2, l.r * 2); cx.restore();
+    });
+    if (room === ROOMS.eng && !done) { const hp = 0.1 + 0.08 * Math.sin(t * 3.4); cx.save(); cx.globalCompositeOperation = 'lighter'; const g = cx.createRadialGradient(770, 210, 2, 770, 210, 70); g.addColorStop(0, 'rgba(255,180,84,' + hp + ')'); g.addColorStop(1, 'rgba(255,180,84,0)'); cx.fillStyle = g; cx.fillRect(0, 0, 1280, 720); cx.restore(); }
+    if (show) { for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) diamond(i, j, blocked.has(i + ',' + j) ? 'rgba(255,107,90,.28)' : 'rgba(111,195,208,.07)', 'rgba(111,195,208,.55)'); room.doors.forEach(d => { cx.strokeStyle = '#8fd694'; cx.lineWidth = 2; cx.strokeRect(d.rect[0] * S, d.rect[1] * S, (d.rect[2] - d.rect[0]) * S, (d.rect[3] - d.rect[1]) * S); }); }
+    else if (hoverCell && !dlg && !fadeDir) diamond(hoverCell[0], hoverCell[1], 'rgba(255,180,84,.18)', 'rgba(255,180,84,.7)');
+    if (hover && hover.rect) { cx.strokeStyle = '#8fd694'; cx.lineWidth = 2; cx.setLineDash([6, 5]); cx.strokeRect(hover.rect[0] * S, hover.rect[1] * S, (hover.rect[2] - hover.rect[0]) * S, (hover.rect[3] - hover.rect[1]) * S); cx.setLineDash([]); }
+    if (hover === 'man') { cx.strokeStyle = '#ffb454'; cx.lineWidth = 2; cx.setLineDash([6, 5]); cx.strokeRect(MANIFOLD.rect[0] * S, MANIFOLD.rect[1] * S, (MANIFOLD.rect[2] - MANIFOLD.rect[0]) * S, (MANIFOLD.rect[3] - MANIFOLD.rect[1]) * S); cx.setLineDash([]); }
+    if (manifoldHere()) { cx.fillStyle = '#ffb454'; const hx = 382 * S, hy = 54 * S + Math.sin(t * 3) * 4; cx.beginPath(); cx.moveTo(hx, hy + 12); cx.lineTo(hx - 9, hy); cx.lineTo(hx + 9, hy); cx.closePath(); cx.fill(); }
+    [[npc, false], [me, walking]].sort((a, b2) => a[0].y - b2[0].y).forEach(([o, w]) => person(o, t, w));
     if (insp > 0) { const x = me.x * S, y = me.y * S - 112; cx.fillStyle = 'rgba(8,16,13,.85)'; cx.fillRect(x - 50, y, 100, 12); cx.fillStyle = '#ffb454'; cx.fillRect(x - 48, y + 2, 96 * Math.min(1, insp), 8); }
+    if (fade > 0) { cx.fillStyle = 'rgba(0,0,0,' + fade + ')'; cx.fillRect(0, 0, 1280, 720); }
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
-  window.__iso = { me, cast, go, bfs, blocked };
+  window.__iso = { me, go, bfs, ROOMS, setRoom, get room() { return room; }, useDoor, get npc() { return npc; } };
 })();
 </script>
