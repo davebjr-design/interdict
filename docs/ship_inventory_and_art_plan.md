@@ -108,3 +108,9 @@ Core cast: captain, Abara, Dace, Castellan, Quill, and Pell (no body).
 - Rooms for departments: Engineering, Thermal, Sensors and ECM, Tactical and Weapons, Astrogation and Helm (bridge stations), Supply/Mess/Maintenance, plus dormant sickbay.
 - Berths: captain's cabin, three officer cabins (two sides each), three 8-rack crew bunk rooms, crew head.
 - Empty stations and racks are visual story: covered consoles, empty chairs (no XO seat user, no chief of the boat), racks stacked with cargo. Handle with the style and damage overlay system, not extra base art.
+
+## 13. Mess hall decisions (Dave, 2026-10-28)
+- The Mess is scaled for about a third of the design crew (about 25 seats) and doubles as the briefing room, as on real submarines. The separate briefing room is dropped; the briefing table lives in the Mess.
+- Mess is larger than Engineering, same camera and scale. Contents: galley serving line, lockers and water, four long tables with benches, a round briefing table with a floor projector ring.
+- Mess art task (Meshy image-to-image from the Engineering art, task 01a183f4-498f-77aa-8ea5-a79b38177416, 12 credits) is generated, then cleaned, then wired into a demo.
+- The scripted tutorial hunt waits until the ship interior model works; the tutorial ship then derives from it.
