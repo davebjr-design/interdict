@@ -13,8 +13,9 @@ Built from the greybox walk (docs and `design/proto_shipwalk.html`) plus the des
 | 4 | Sensor and comms room | passive array, hails | Quill; hail console | SENSOR mount |
 | 5 | Weapons bay / magazine | launch tubes (3), missile racks | Abara off duty; warhead crates (standard, EMP, flare) | WEAPON mount, missile racks |
 | 6 | Mess / galley | social hub | Dace relational scene, meals | none (style showpiece) |
-| 7 | Captain's cabin | the player's room | personal space, decisions in private | none (memento showpiece) |
-| 8 | Crew cabins x4 | Abara, Dace, Castellan, Quill | one cabin template, four dressings, mission mementos | none |
+| 7 | Captain's cabin (larger) | the player's room | personal space, decisions in private | none (memento showpiece) |
+| 7b | Head (crew, one to start) | small room, humor and ambient scenes; second head or captain's ensuite later | | none |
+| 8 | Crew cabins x2 | two officers each, one side per officer | shared cabin template, mirrored sides, each side dressed by its owner; mementos | none |
 | 9 | Cargo hold and salvage bay | salvage kg, module rack, loot sorting | after-action loot appears here | module rack |
 | 10 | Airlock | docking, boarding | derelict salvage | none |
 | 11 | Sickbay | later (crew injury is deferred) | | |
@@ -61,4 +62,42 @@ Order after it: a corridor junction (joins Engineering and Mess), then the Capta
 ## 6. Open questions for Dave
 1. Individual cabins for each companion (recommended, one template dressed four ways) or one shared crew quarters at first?
 2. OK to give each maker a color language (Orrin teal-white, Vask gunmetal and red, Halden ochre)?
+3. Start with the Mess?
+
+## 7. Decisions from Dave (2026-10-28)
+- Maker color languages approved (Orrin teal-white, Vask gunmetal and red, Halden ochre).
+- Tight/loose is aesthetic and narrative only: it tracks NPC relationships and plot, not gameplay buffs.
+- Base plus overlay layers approved.
+- Cabins: two small cabins, each shared by two officers (one side each), plus a larger captain's cabin. One or two heads.
+- Damage should show graphically and be room and component specific. Style should drift.
+
+## 8. Damage display plan (proposal)
+Third overlay layer, independent of style layers and equipment sprites.
+- Every room gets named damage zones: one per equipment mount plus 3 room-level zones (wall panels, ceiling and lights, floor). Zones are listed in the same per-room data file as the art staging slots.
+- Each zone has a state: 0 clean, 1 scuffed or flickering, 2 damaged (sparks, scorch, venting), 3 disabled (dark, dead panel, hazard tape).
+- Overlays are shared decals (scorch, crack, spark, steam, leak, patch plate, hazard tape) placed at zone anchors, so the library is about a dozen images reused in every room. Lighting damage is a separate dim or flicker mask over the room, which is why base rooms are rendered with neutral lighting.
+- Equipment parts do not need damaged variants; zone overlays go on top of the part sprite.
+- Source of damage: hunt events write to zones through a lookup (heat redline hits Engineering sink zone, sensor hits hit the Sensor room, a near miss shakes the bridge and scuffs the nearest wall). Keep it cosmetic plus the effects the hunt already has.
+- Repair is an underway mechanical mini-mission (go inspect, fix). Leftover patch plates stay after repair as scars, which feeds the style layers.
+- No-stress rule: damage is visible and recoverable between legs, never a death spiral.
+
+## 9. Style drift plan (proposal)
+- One hidden tone value (loose to tight) plus a relationship value per crew member. Never shown as a meter.
+- Story beats, dialogue choices and mission outcomes carry small tone nudges. Recent events weigh more (decay), so drift responds but slowly.
+- A room reads from the blend that fits it: common spaces use ship tone, the bridge uses captain tone, each cabin side uses that officer's relationship and mementos.
+- Hysteresis: a room changes style step only after tone passes the threshold by a margin, at most one step per leg, and only at rest points between legs. A line of dialogue or a small scene points it out ("someone hung a dartboard").
+- Specific decor can be trigger-driven (for example the dartboard needs a loose tone and a good Dace relationship), so the ship tells story instead of only following a slider.
+- Save state is small: one float and one number per crew member.
+
+## 10. Crew beyond the core
+Core cast: captain, Abara, Dace, Castellan, Quill, and Pell (no body).
+- Recommendation: no permanent random crew at first. Small complement keeps relationships meaningful.
+- Later: two or three ambient "hands" made from palette swaps of an existing body, with one-line barks and the odd small mini-mission.
+- Visitors from derelicts (survivors, passengers, a prisoner) ride along for a few legs and leave at the next dock. This is a story hook and uses the spare bunk or sickbay.
+- Cost: each new unique body is about 40 credits; palette swaps are free.
+- Cabin pairing is a content hook, since roommates generate relationship scenes. Pairing is open (see open questions).
+
+## 11. Open questions (updated)
+1. Who shares a cabin? Suggestion: Abara and Castellan (odd couple) and Dace and Quill.
+2. One head to start, with a captain's ensuite later?
 3. Start with the Mess?
