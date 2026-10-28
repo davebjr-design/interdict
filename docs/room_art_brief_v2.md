@@ -61,3 +61,19 @@ Keep the room-specific list from section 5 as a second paragraph. Meshy mostly i
 1. Regenerate the Junction and the Bridge first (the two rooms that broke the rules). Both are in the connected slice, so calibration is already known; if the door positions shift, redo the corners and door rects.
 2. Review with Dave, then batch the rest (Engineering and Mess included, for a consistent look). Reference images for style: the new Junction and Bridge once approved, not the old rooms.
 3. Anything generated with lettering or arrows gets rejected rather than painted out, unless the fault is small.
+
+## 8. Revision 2 additions (2026-10-28)
+
+These apply on top of sections 1 to 7 and override anything that conflicts.
+
+**Compartments are long and narrow.** The hull is a tube and compartments chain end to end with no corridor. Most rooms are between 2:1 and 4:1, long axis running fore and aft, with bulkhead hatches in the short end walls. Side rooms (CO's stateroom, airlock, utility) are small and squarish and are entered through a door in a long wall. Sizes are in `docs/ship_inventory_and_art_plan.md` section 20 and drawn to scale in `design/ship_schematic.html`.
+
+**Every compartment is sealed.** There is no window anywhere on this ship, and the generator takes "sealed on all sides, nothing but more plating beyond" far better than it takes "no windows". State the enclosure positively first, then list the forbidden items.
+
+**Two fixtures are now standard furniture in every compartment**, alongside the staging areas:
+- A **Pell node**: a small recessed square wall panel at chest height with a ring in its center, dark and unlit. The game lights it in code when that compartment's firewall is lowered, so the art must leave it dark.
+- A **speaker grille**: a round slotted grille set into the ceiling edge.
+
+**No people, ever.** Crew are sprites composited at runtime. The six models are final and are not being regenerated.
+
+**Generation notes.** `tools/rooms_v3.py` holds the current prompt. Three variants per compartment at about 12 credits each; the queue takes roughly ten at once, so a whole deck can be generated in parallel in a few minutes. The slow part is not generation, it is fitting each walk grid by hand afterward. Reject any result with a window, a marking or any lettering rather than painting it out.

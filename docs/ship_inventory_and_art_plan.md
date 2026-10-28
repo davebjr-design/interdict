@@ -209,3 +209,30 @@ Side rooms (dead ends): CO's stateroom off the aft end of control; boarding airl
 **Heat.** Sink loops run the whole hull, dorsal panels and keel runs. Thermal control is Dace's compartment on the upper deck; the sink machinery sits below it in the forward third of lower engineering.
 
 **Cost.** Twelve scenes. All existing room art (bridge, mess, junction, spine corridor, engineering) is the wrong proportion and gets regenerated as long narrow compartments, about 12 credits each. junction_v2 and spine_v2 are shelved, possibly reusable as a derelict interior later.
+
+## 21. Crew, Pell's architecture, and tube reloading (2026-10-28)
+
+### Main cast only
+Six aboard, no ambient crew (see `docs/crew_roster.md`, revised). Visitors arrive by story and are temporary. Officer movement between hunts is **scripted**, not simulated: each compartment has a set of posed cells, and a ship state picks who is where. No schedules, no needs, no crowd AI.
+
+### Pell is firewalled, and the firewalls are the mechanic
+Dave's framing: closer to the Fable morality meter than to a skill tree. Lowering a firewall gives the player capability at a moral and narrative cost, and the drift is gradual and visible.
+
+**Make it architecture, not a meter.** Pell's reach is physical and you can see it as you walk:
+
+- **Core pedestal**, control room, attack center. A short squat pedestal with a glowing cyan ring. Already in the art direction and in the current bridge art.
+- **Overhead speaker grilles**, every compartment. Pell's *voice* is never gated. This is also what keeps empty rooms from being silent, which matters at six crew.
+- **Node panels**, one per compartment. A small recessed wall panel with a ring at chest height. Dark and unlit where Pell is firewalled out; lit cyan where he has been cleared in. Lowering a firewall lights that compartment's node, and the player can see how far Pell has spread by walking the ship or by looking at the deck plan.
+
+So: **voice is ungated, action is gated.** Pell can always talk. What he can *do* in a compartment, and in some compartments what he can *sense*, depends on whether that node is lit. "I cannot see in there, Captain" is available as a line early and stops being available later, which is the drift made audible.
+
+This fits Dave's standing rule that there is always a calm option at a cost: keeping the firewalls up is the calm path, and it costs capability rather than ending the run. There must be a viable low-Pell route through the game, harder but winnable, or the mechanic becomes a forced march.
+
+Open: Pell's gender. "Hides a larger mind" reads well with a voice that does not settle into one, so leaving it ambiguous is a live option rather than an omission.
+
+### Missile tubes are revolvers, reloaded only at dock
+Each live tube is a rotary magazine: six missiles racked around a central handling hub, fired in sequence or as one salvo. Twelve live tubes, 72 missiles, one tube per salvo, twelve salvos of six.
+
+**Reloading is a dockyard job and cannot be done underway.** Six crew could not handle 72 missiles in flight, and the carousel has to be struck down and refilled from outside the pressure hull. This is explicit so it never becomes a plot hole, and it gives the hunt layer a hard resource ceiling per sortie: twelve salvos, then the coil gun, then home.
+
+The other twelve tubes are racked with salvage canisters and are the cargo hold.
