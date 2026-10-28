@@ -106,7 +106,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       ]
     },
     jct: {
-      name: 'JUNCTION', img: load('assets/rooms/junction_v2.png'), sp: SJ, k: SJ.k, box: SJ.box,
+      name: 'JUNCTION', zoom: 1.7, img: load('assets/rooms/junction_v2.png'), sp: SJ, k: SJ.k, box: SJ.box,
       T: SJ.W([690, 385]), R: SJ.W([1340, 655]), L: SJ.W([45, 655]), N: 7,
       blurb: 'The junction, the middle of the spine. Aft, the left-hand door leads to the Mess. The next door along that wall is the crew passage (not built yet). Forward, the door on the right wall leads to the bridge.',
       blocked: blockList([[0, 1, 0, 0], [0, 1, 4, 4], [0, 0, 6, 6], [5, 6, 0, 0]]),
@@ -124,7 +124,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       ]
     },
     bridge: {
-      name: 'BRIDGE', img: load('assets/rooms/bridge_v2.png'), sp: SB, k: SB.k, box: SB.box,
+      name: 'BRIDGE', zoom: 1.45, img: load('assets/rooms/bridge_v2.png'), sp: SB, k: SB.k, box: SB.box,
       T: SB.W([700, 330]), R: SB.W([1340, 631]), L: SB.W([60, 631]), N: 8,
       blurb: 'The bridge, the forward end of the ship. Tight on purpose. The door on the left wall leads aft to the junction. Sensors and weapons will connect from here later.',
       blocked: blockList([[0, 1, 0, 1], [2, 5, 0, 0], [4, 4, 2, 2], [6, 7, 0, 1], [7, 7, 3, 3], [7, 7, 6, 6], [2, 2, 5, 5], [3, 4, 3, 4], [0, 0, 5, 7]]),
@@ -143,7 +143,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   Object.values(ROOMS).forEach(r => r.lights.forEach(l => { if (l.p) { const w = r.sp.W(l.p); l.x = w[0]; l.y = w[1]; } }));
   // A prop is a box standing on floor cells. When an entity stands BEHIND it (in the iso sense), the prop's image region is redrawn over the entity.
   function hull(pts) { pts = pts.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]); const cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]); const lo = [], up = []; for (const p of pts) { while (lo.length > 1 && cr(lo[lo.length - 2], lo[lo.length - 1], p) <= 0) lo.pop(); lo.push(p); } for (const p of pts.slice().reverse()) { while (up.length > 1 && cr(up[up.length - 2], up[up.length - 1], p) <= 0) up.pop(); up.push(p); } return lo.slice(0, -1).concat(up.slice(0, -1)); }
-  const propPoly = pr => { const [i0, i1, j0, j1] = pr.c, h = pr.h * room.k, g = [[i0, j0], [i1 + 1, j0], [i1 + 1, j1 + 1], [i0, j1 + 1]].map(([a, b]) => ptXY(a / N, b / N)); return hull(g.concat(g.map(p => [p[0], p[1] - h]))); };
+  const propPoly = pr => { const [i0, i1, j0, j1] = pr.c, h = pr.h * room.k, g = [[i0, j0], [i1 + 1, j0], [i1 + 1, j1 + 1], [i0, j1 + 1]].map(([a, b]) => ptXY(a / NI, b / NJ)); return hull(g.concat(g.map(p => [p[0], p[1] - h]))); };
   const inFront = (pr, o) => { const [i0, i1, j0, j1] = pr.c, ci = o.i, cj = o.j; if (ci > i1 || cj > j1) return false; return ci < i0 || cj < j0; };
   const hash = x => { const v = Math.sin(x * 127.1 + 311.7) * 43758.5453; return v - Math.floor(v); };
   function lightF(l, t) {
@@ -159,14 +159,14 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     return 1;
   }
 
-  let room = ROOMS.eng, blocked = room.blocked, N = room.N;
+  let room = ROOMS.eng, blocked = room.blocked, NI = room.Ni || room.N, NJ = room.Nj || room.N;
   const ptXY = (u, v) => [room.T[0] + u * (room.R[0] - room.T[0]) + v * (room.L[0] - room.T[0]), room.T[1] + u * (room.R[1] - room.T[1]) + v * (room.L[1] - room.T[1])];
-  const cellXY = (i, j) => ptXY((i + .5) / N, (j + .5) / N);
+  const cellXY = (i, j) => ptXY((i + .5) / NI, (j + .5) / NJ);
   function pick(px, py) {
     const T = room.T, ax = room.R[0] - T[0], ay = room.R[1] - T[1], bx = room.L[0] - T[0], by = room.L[1] - T[1], det = ax * by - ay * bx, dx = px - T[0], dy = py - T[1];
-    return [Math.floor((dx * by - dy * bx) / det * N), Math.floor((ax * dy - ay * dx) / det * N)];
+    return [Math.floor((dx * by - dy * bx) / det * NI), Math.floor((ax * dy - ay * dx) / det * NJ)];
   }
-  const free = (i, j) => i >= 0 && j >= 0 && i < N && j < N && !blocked.has(i + ',' + j) && !npcs.some(n => n.i === i && n.j === j);
+  const free = (i, j) => i >= 0 && j >= 0 && i < NI && j < NJ && !blocked.has(i + ',' + j) && !npcs.some(n => n.i === i && n.j === j);
   function bfs(s, t) {
     const key = (i, j) => i + ',' + j, prev = { [key(...s)]: null }, q = [s];
     while (q.length) { const [i, j] = q.shift(); if (i === t[0] && j === t[1]) break; [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([di, dj]) => { const a = i + di, b = j + dj; if (free(a, b) && !(key(a, b) in prev)) { prev[key(a, b)] = [i, j]; q.push([a, b]); } }); }
@@ -178,7 +178,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   const MANIFOLD = { rect: [335, 62, 430, 152], stand: [5, 1] };
   let done = false, insp = 0, show = false, hover = null, hoverCell = null, dlg = false, fade = 0, fadeDir = 0, pending = null;
   function setRoom(id, cell, dir) {
-    room = ROOMS[id]; blocked = room.blocked; N = room.N; $('room').textContent = room.name; drawPlan();
+    room = ROOMS[id]; blocked = room.blocked; NI = room.Ni || room.N; NJ = room.Nj || room.N; $('room').textContent = room.name; drawPlan();
     me.i = cell[0]; me.j = cell[1]; const p = cellXY(me.i, me.j); me.x = p[0]; me.y = p[1]; me.path = []; me.then = null; if (dir) me.dir = dir;
     npcs = room.npcs.map(n => { const o = Object.assign({ dir: 'sw' }, n), q = cellXY(...o.cell); o.x = q[0]; o.y = q[1]; o.i = o.cell[0]; o.j = o.cell[1]; o.img = n.sheet ? SHEET[n.sheet] : null; return o; });
   }
@@ -218,7 +218,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   }
   function go(cell, then) { const p = bfs([me.i, me.j], cell); if (!p) return false; me.path = p.slice(1); me.then = then || null; return true; }
   function nearNpc(npc) { return [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([a, b]) => [npc.cell[0] + a, npc.cell[1] + b]).filter(c => free(...c)).sort((a, b) => Math.hypot(a[0] - me.i, a[1] - me.j) - Math.hypot(b[0] - me.i, b[1] - me.j))[0]; }
-  function mpos(e) { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * 640, (e.clientY - r.top) / r.height * 360]; }
+  function mpos(e) { const r = cv.getBoundingClientRect(); const z = room.zoom || 1; return [((e.clientX - r.left) / r.width * 640 - 320) / z + 320, ((e.clientY - r.top) / r.height * 360 - 180) / z + 180]; }
   const inRect = (x, y, r) => x > r[0] && x < r[2] && y > r[1] && y < r[3];
   const npcAt = (x, y) => npcs.find(n => Math.abs(x - n.x) < 14 && y > n.y - 56 && y < n.y + 6);
   const doorAt = (x, y) => room.doors.find(d => inRect(x, y, d.rect));
@@ -235,7 +235,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   $('grid').onclick = () => { show = !show; $('grid').textContent = show ? 'Hide walk grid' : 'Show walk grid'; };
   $('reset').onclick = () => { done = false; insp = 0; setRoom('eng', [7, 7]); $('job').classList.remove('done'); say('Ship log', 'You are in Engineering. Castellan is by the reactor. The coupling manifold is behind the tanks. The door on the right wall leads to the Mess.', '', []); };
 
-  function diamond(i, j, fill, stroke) { const c = [ptXY(i / N, j / N), ptXY((i + 1) / N, j / N), ptXY((i + 1) / N, (j + 1) / N), ptXY(i / N, (j + 1) / N)]; cx.beginPath(); c.forEach((p, k) => k ? cx.lineTo(p[0] * S, p[1] * S) : cx.moveTo(p[0] * S, p[1] * S)); cx.closePath(); if (fill) { cx.fillStyle = fill; cx.fill(); } if (stroke) { cx.strokeStyle = stroke; cx.lineWidth = 1; cx.stroke(); } }
+  function diamond(i, j, fill, stroke) { const c = [ptXY(i / NI, j / NJ), ptXY((i + 1) / NI, j / NJ), ptXY((i + 1) / NI, (j + 1) / NJ), ptXY(i / NI, (j + 1) / NJ)]; cx.beginPath(); c.forEach((p, k) => k ? cx.lineTo(p[0] * S, p[1] * S) : cx.moveTo(p[0] * S, p[1] * S)); cx.closePath(); if (fill) { cx.fillStyle = fill; cx.fill(); } if (stroke) { cx.strokeStyle = stroke; cx.lineWidth = 1; cx.stroke(); } }
   function person(o, t, walking) {
     const x = o.x * S, y = o.y * S, bob = walking ? Math.abs(Math.sin(t * 9)) * 3 : Math.sin(t * 1.5) * 0.8;
     cx.fillStyle = 'rgba(0,0,0,.45)'; cx.beginPath(); cx.ellipse(x, y + 2, 17, 8, 0, 0, 7); cx.fill();
@@ -258,7 +258,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     if (me.path.length) { const [ti, tj] = me.path[0], tp = cellXY(ti, tj), dx = tp[0] - me.x, dy = tp[1] - me.y, d = Math.hypot(dx, dy); walking = true; me.dir = dx >= 0 ? (dy >= 0 ? 'se' : 'ne') : (dy >= 0 ? 'sw' : 'nw'); if (d < 2) { me.i = ti; me.j = tj; me.path.shift(); } else { const sp = 120 * dt; me.x += dx / d * Math.min(sp, d); me.y += dy / d * Math.min(sp, d); } if (!me.path.length) { const th = me.then; me.then = null; if (th && th.npc) talk(th.npc); else if (th === 'man') insp = 0.001; else if (th && th.to !== undefined) useDoor(th); } }
     if (insp > 0 && insp < 1) { insp += dt / 1.6; if (insp >= 1) { insp = 0; afterInspect(); } }
     const tip = $('tip'); if (hover && hover.name) { tip.hidden = false; tip.textContent = 'Talk to ' + hover.name; } else if (hover === 'man') { tip.hidden = false; tip.textContent = 'Inspect the coupling manifold'; } else if (hover && hover.label) { tip.hidden = false; tip.textContent = hover.label; } else tip.hidden = true;
-    cx.clearRect(0, 0, 1280, 720);
+    cx.clearRect(0, 0, 1280, 720); cx.save(); { const z = room.zoom || 1; cx.translate(640, 360); cx.scale(z, z); cx.translate(-640, -360); }
     const b = room.box; if (room.img.complete) cx.drawImage(room.img, b[0] * S, b[1] * S, b[2] * S, b[3] * S);
     // animated lights: additive glow plus a dark patch when a fixture drops out
     room.lights.forEach(l => {
@@ -267,7 +267,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       cx.save(); cx.globalCompositeOperation = 'lighter'; const g2 = cx.createRadialGradient(x, y, 1, x, y, l.r); g2.addColorStop(0, 'rgba(' + l.c.join(',') + ',' + (l.a * Math.min(1.3, f)) + ')'); g2.addColorStop(1, 'rgba(' + l.c.join(',') + ',0)'); cx.fillStyle = g2; cx.fillRect(x - l.r, y - l.r, l.r * 2, l.r * 2); cx.restore();
     });
     if (room === ROOMS.eng && !done) { const hp = 0.1 + 0.08 * Math.sin(t * 3.4); cx.save(); cx.globalCompositeOperation = 'lighter'; const g = cx.createRadialGradient(770, 210, 2, 770, 210, 70); g.addColorStop(0, 'rgba(255,180,84,' + hp + ')'); g.addColorStop(1, 'rgba(255,180,84,0)'); cx.fillStyle = g; cx.fillRect(0, 0, 1280, 720); cx.restore(); }
-    if (show) { for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) diamond(i, j, blocked.has(i + ',' + j) ? 'rgba(255,107,90,.28)' : 'rgba(111,195,208,.07)', 'rgba(111,195,208,.55)'); room.doors.forEach(d => { cx.strokeStyle = '#8fd694'; cx.lineWidth = 2; cx.strokeRect(d.rect[0] * S, d.rect[1] * S, (d.rect[2] - d.rect[0]) * S, (d.rect[3] - d.rect[1]) * S); }); }
+    if (show) { for (let i = 0; i < NI; i++) for (let j = 0; j < NJ; j++) diamond(i, j, blocked.has(i + ',' + j) ? 'rgba(255,107,90,.28)' : 'rgba(111,195,208,.07)', 'rgba(111,195,208,.55)'); room.doors.forEach(d => { cx.strokeStyle = '#8fd694'; cx.lineWidth = 2; cx.strokeRect(d.rect[0] * S, d.rect[1] * S, (d.rect[2] - d.rect[0]) * S, (d.rect[3] - d.rect[1]) * S); }); }
     else if (hoverCell && !dlg && !fadeDir) diamond(hoverCell[0], hoverCell[1], 'rgba(255,180,84,.18)', 'rgba(255,180,84,.7)');
     if (hover && hover.rect) { cx.strokeStyle = '#8fd694'; cx.lineWidth = 2; cx.setLineDash([6, 5]); cx.strokeRect(hover.rect[0] * S, hover.rect[1] * S, (hover.rect[2] - hover.rect[0]) * S, (hover.rect[3] - hover.rect[1]) * S); cx.setLineDash([]); }
     if (hover === 'man') { cx.strokeStyle = '#ffb454'; cx.lineWidth = 2; cx.setLineDash([6, 5]); cx.strokeRect(MANIFOLD.rect[0] * S, MANIFOLD.rect[1] * S, (MANIFOLD.rect[2] - MANIFOLD.rect[0]) * S, (MANIFOLD.rect[3] - MANIFOLD.rect[1]) * S); cx.setLineDash([]); }
@@ -278,6 +278,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     });
     if (show) (room.props || []).forEach(pr => { const poly = propPoly(pr); cx.beginPath(); poly.forEach((q, k) => k ? cx.lineTo(q[0] * S, q[1] * S) : cx.moveTo(q[0] * S, q[1] * S)); cx.closePath(); cx.strokeStyle = '#ffb454'; cx.lineWidth = 1.5; cx.stroke(); });
     if (insp > 0) { const x = me.x * S, y = me.y * S - 112; cx.fillStyle = 'rgba(8,16,13,.85)'; cx.fillRect(x - 50, y, 100, 12); cx.fillStyle = '#ffb454'; cx.fillRect(x - 48, y + 2, 96 * Math.min(1, insp), 8); }
+    cx.restore();
     if (fade > 0) { cx.fillStyle = 'rgba(0,0,0,' + fade + ')'; cx.fillRect(0, 0, 1280, 720); }
     requestAnimationFrame(frame);
   }

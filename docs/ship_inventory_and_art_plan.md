@@ -160,3 +160,13 @@ Brief: `docs/room_art_brief_v2.md` (no windows, no directional markers, no placa
 **Note on the floor shape.** The generated images are not a perfect 2:1 diamond; the walk grid is fitted by corner points (T, R, L) per room, found by overlaying a labeled grid (scratchpad `ov.py` approach: draw the grid on the image, adjust until the wall base and door sills line up).
 
 **Next:** regenerate Engineering and Mess in the same pass for a consistent set, then the branch rooms.
+
+## 17. Room size on screen and rectangular rooms (2026-10-28)
+
+Dave: the cramped feel is right but the rooms look artificially small on the stage; and should rooms be long and narrow like a submarine?
+
+**Done: per-room camera zoom.** Each room has a `zoom` (Bridge 1.45, Junction 1.7, others 1). The whole scene, crew included, is scaled together, so the captain-to-door proportions stay right while the room fills the stage. Mouse picking and the fade overlay account for it.
+
+**Done: rectangular grids in the engine.** A room can now set `Ni` and `Nj` (cells along each axis) instead of a square `N`. Existing rooms are unchanged.
+
+**Proposed: long, narrow rooms in the next art pass.** Generate rooms as about 2:1 or 3:1 rectangles with the long axis along the ship (the spine) and doors on the short ends, so walking through a room is walking down the ship. Rooms that are naturally wide (Mess, Engineering) can be 2:1; passages, bunk rooms, cabins, head, thermal and sensors 3:1 or more; the Junction stays square. Prompt addition: "a long narrow room about three times as long as it is wide, long axis running from the back-left wall to the front-right, doors in the two short end walls". Generated art may not follow the ratio exactly, so expect to pick from variants.
