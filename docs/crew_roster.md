@@ -15,10 +15,10 @@ Personality "modeled on" notes are temperament profiles only. Characters are ori
 | Tactical and Weapons | Abara (also runs Astrogation and Helm) | +5 fire control, missile loaders, point defense | humorous but serious and competent (Miles O'Brien profile) | Weapons bay (WEAPON mount) |
 | Astrogation and Helm | Abara (same person) | +3 navigators and pilots | Abara keeps the O'Brien profile; the navigators as a group lean cool and logical (Spock profile, human) | Bridge / astrogation |
 | Medical | none for now | 0 | | sickbay dormant |
-| Supply, Mess and Maintenance | Quartermaster and galley cook (name TBD) | +4 general supply crew | corny, annoying comic relief with a big heart (Neelix profile) | Mess / galley, stores |
+| Supply, Mess and Maintenance | Fenwick, quartermaster and galley cook (male; "Fen") | +4 general supply crew | corny, annoying comic relief with a big heart (Neelix profile) | Mess / galley, stores |
 
 ## Headcount
-- Named with full models: 6 (captain, Castellan, Dace, Quill, Abara, quartermaster)
+- Named with full models: 6 (captain, Castellan, Dace, Quill, Abara, Fenwick)
 - Support crew (+n, ambient): 22 (Engineering 4, Thermal 3, Sensors 3, Tactical 5, Helm 3, Supply 4)
 - Total aboard: 28
 
