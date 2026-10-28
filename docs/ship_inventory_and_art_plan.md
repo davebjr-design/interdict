@@ -101,3 +101,10 @@ Core cast: captain, Abara, Dace, Castellan, Quill, and Pell (no body).
 1. Who shares a cabin? Suggestion: Abara and Castellan (odd couple) and Dace and Quill.
 2. One head to start, with a captain's ensuite later?
 3. Start with the Mess?
+
+## 12. Update after crew roster (see docs/crew_roster.md)
+- New room: Thermal Management (Dace's department). The SINK mount moves here from Engineering; Engineering keeps the reactor and DRIVE mount.
+- New room: Supply and stores (quartermaster, supply crew, cargo and salvage bay nearby).
+- Rooms for departments: Engineering, Thermal, Sensors and ECM, Tactical and Weapons, Astrogation and Helm (bridge stations), Supply/Mess/Maintenance, plus dormant sickbay.
+- Berths: captain's cabin, three officer cabins (two sides each), three 8-rack crew bunk rooms, crew head.
+- Empty stations and racks are visual story: covered consoles, empty chairs (no XO seat user, no chief of the boat), racks stacked with cargo. Handle with the style and damage overlay system, not extra base art.
