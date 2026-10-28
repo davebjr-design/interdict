@@ -43,3 +43,11 @@ Workflow that worked: Meshy text-to-3d preview (20 credits) -> refine/texture (1
 
 ## Crew generation run (2026-10-28)
 Five named crew previews started on Meshy (text-to-3d preview, a-pose, 20 credits each): Abara, Dace, Castellan, Quill, Fenwick. Prompts follow the tightened pattern: style first ("Chunky hand-painted stylized game character, exaggerated proportions, big hands and boots"), concrete look, wardrobe in the crew accent color, then exclusions ("no hood, no hat, no holsters, no straps, no belt pouches, no weapons"). Prompt text and task IDs are in design/assets/meshy_output/crew/ids.json (git-ignored; IDs are repeated below once results are known). Full profiles: docs/crew_profiles.md.
+
+### Crew task IDs (2026-10-28)
+Style learning: Meshy ignores 'no X' exclusions; body type words matter ('lean slim' vs 'soft rounded shapes' gave a chubby result). Also: `meshy download --output` silently keeps an existing file, so use new filenames when re-downloading thumbnails. Render all sprite sheets with tools/sprites/sprite.py (args: _ OUT.png) while serving render.html, three.min.js, GLTFLoader.js and walk.glb on port 8765. Rig height was 1.7 m for all; scale sprites in the demo by true height (Abara 1.72, Quill 1.80, Castellan 1.83, Dace 1.78, Fenwick 1.70).
+- abara: preview_v1 01a1841d-d89f-71a0-9e83-ac8e3800a9ff, preview 01a1842d-f6a3-777d-9102-6aec637c86b3, refine 01a1843b-8499-7689-a4f1-baff37045719, remesh 01a1843d-51e7-76e8-b97a-276bbadaa294, rig 01a1843e-cd65-73f3-bca1-95d74e3d079b
+- dace: preview_v1 01a1841d-e5a5-77f2-ac8d-43b30d2aea39, preview_v2 01a1842e-0308-74ad-ae8b-29fc75bf6f7e, refine_v2 01a1843b-8ac4-737f-b5a6-359a28f16013, preview 01a1843d-5c55-76f0-b92e-01fc917d9560
+- castellan: preview_v1 01a1841d-f2c4-73b8-a30f-90076c13ea2c, preview 01a1842e-101f-70b7-ac94-f44a91eb504f, refine 01a1843b-9033-7166-9363-bf2c95f9c92b, remesh 01a1843d-5703-7483-87ab-79d9270a5b60, rig 01a1843e-ddef-700e-bbe8-a97dc11e8df0
+- quill: preview 01a1841d-ffa9-7627-8bfa-d9890c6bbc3b, refine 01a1842e-26f9-7541-a501-85353ccdbb33, remesh 01a1843d-4c79-7169-9599-80961daa2f77, rig 01a1843e-b9fd-7602-b2c0-38f3e4926456
+- fenwick: preview_v1 01a1841e-0d67-75b1-a5a4-055315568f66, preview_v2 01a1842e-1b1f-7620-bb61-5fca2621a0b1, refine_v2 01a1843b-95e7-752d-ba9b-69fde193b07c, preview 01a1843d-6815-71ff-ba22-097e0be90663
