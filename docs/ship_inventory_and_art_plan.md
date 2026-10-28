@@ -119,3 +119,10 @@ Core cast: captain, Abara, Dace, Castellan, Quill, and Pell (no body).
 - Light flicker is coded in the demo (patterns: steady, pulse, reactor, blink, flicker, fault), not generated. Meshy has no 2D animation tool in this CLI.
 - Engineering's amber "hatch" became the room's door; the coupling inspection moved to the manifold by the tanks.
 - Depth occlusion (2026-10-28): furniture is part of the room image, so a character standing behind a table looked like standing on it. Fix: each room lists props (footprint cells plus height); when an entity stands behind a prop, the prop's silhouette (footprint hull raised by its height) is redrawn from the room image over the entity. Standard for every room: list the props with their cell footprints and heights next to the blocked cells. The orange outlines appear with Show walk grid.
+
+## 14. Room art batch (2026-10-28)
+13 rooms generated with the lighting standard (Meshy image-to-image, gpt-image-2, 12 credits each, 156 total): bridge, thermal, sensors, weapons, stores, captain_cabin, officer_cabin (template for the three shared cabins), bunk_room (template for three bunk rooms), head, junction, cargo, airlock, sickbay. Keyed images: `design/assets/rooms/<name>.png` (magenta keyed to alpha; magenta sources stay local and git-ignored). Prompts: `tools/rooms_batch.py`. Task IDs: `design/assets/meshy_output/rooms/ids.json` (git-ignored).
+- Equipment mounts are visible and empty: Thermal has a square cradle (SINK), Sensors a floor plate (SENSOR), Weapons a floor plate (WEAPON), Cargo a module wall rack. Drive mount stays in Engineering.
+- Staging areas are present in every room: blank wall panels, clear shelf and desk tops, a clear floor patch.
+- Next: calibrate each room's scale from its door height (Mess: door about 60 world units), choose its grid size N from floor width, define blocked cells, props with heights and door links, then add a deck-plan map so doors connect. Pair the three shared cabins and three bunk rooms by re-dressing the template (overlay layers).
+- Meshy limits how many tasks can queue at once (about 10 pending on the current plan).
