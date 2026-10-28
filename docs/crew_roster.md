@@ -1,5 +1,7 @@
 # Crew roster and departments (Dave, 2026-10-28)
 
+Abara oversees both Tactical and Navigation, which makes Abara the de facto second in command. This is never stated formally.
+
 Tone: closer to Firefly than to the Star Wolf rundowns (~80 crew). The ship was designed for a much larger crew and is run by a skeleton one: no formal second in command, no chief of the boat, no enlisted ranks. Many stations are unmanned or sheeted over, and many bunks are empty or used for storage.
 
 Personality "modeled on" notes are temperament profiles only. Characters are original: no likenesses, no borrowed names, no catchphrases.
@@ -29,7 +31,7 @@ Personality "modeled on" notes are temperament profiles only. Characters are ori
 
 ## Support crew art plan
 - 3-4 base bodies, recolored by department accent. Not individually named; they bark one-liners and fill rooms.
-- Named bodies cost about 40 credits each (5 more now, about 200). Base bodies for ambient crew about 160. Equipment parts about 500. Total about 860 of the 1,070 balance, so budget is tight and ordering matters.
+- Named bodies cost about 40 credits each (5 more now, about 200). Base bodies for ambient crew about 160. Equipment parts about 500. Dave says more credits can be added later, so the budget is not a constraint; still generate in a sensible order.
 
 ## Notes (2026-10-28)
 - Abara is one character with the O'Brien profile and oversees both Tactical and Astrogation/Helm. That makes Abara the de facto second in command. This is never stated formally in the game.
