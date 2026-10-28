@@ -1,0 +1,142 @@
+<title>Interdict Isometric Engineering</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* layout: header, the room on a 16:9 stage, then an order/dialogue strip below it. Single dark console look. */
+:root {
+  --bg: #0b1210; --panel: #101b17; --line: #23372f; --dim: #6f877d; --fg: #cfe3d8;
+  --amber: #ffb454; --cyan: #6fc3d0; --violet: #b69cf0; --red: #ff6b5a; --green: #8fd694;
+  --disp: 'Chakra Petch', 'Arial Narrow', sans-serif; --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 400 13px/1.45 var(--mono); padding-block: 14px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 12px; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; }
+h1 { font: 700 18px/1.1 var(--disp); letter-spacing: .12em; text-transform: uppercase; margin: 0; }
+.keys { color: var(--dim); } .keys b { color: var(--fg); font-weight: 500; }
+#stage { position: relative; border: 1px solid var(--line); background: #07100d; aspect-ratio: 16 / 9; }
+canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.hud { position: absolute; background: rgba(8, 16, 13, .82); border: 1px solid var(--line); padding: 8px 12px; pointer-events: none; }
+#job { top: 12px; left: 12px; max-width: 46%; }
+.lab { font: 500 11px var(--disp); letter-spacing: .16em; text-transform: uppercase; color: var(--dim); margin-bottom: 4px; }
+#job .k { font: 700 10px var(--disp); letter-spacing: .14em; color: var(--amber); } #job.done .k { color: var(--green); } #job.done .t { color: var(--dim); text-decoration: line-through; }
+#tip { right: 12px; top: 12px; text-align: right; color: var(--cyan); font-size: 12px; }
+.panel { background: var(--panel); border: 1px solid var(--line); padding: 12px; display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 14px; align-items: start; min-height: 132px; }
+#por { width: 72px; height: 88px; border: 1px solid currentColor; display: grid; place-items: center; font: 700 38px var(--disp); background: #0c1713; }
+#nm { font: 700 13px var(--disp); letter-spacing: .16em; text-transform: uppercase; margin-bottom: 4px; }
+#tx { max-width: 70ch; } #fx { margin-top: 6px; color: var(--amber); font-size: 12px; }
+#ch { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+button { font: 500 13px var(--mono); background: #0c1713; color: var(--fg); border: 1px solid var(--line); padding: 8px 12px; cursor: pointer; text-align: left; }
+button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; } .row button { font: 700 12px var(--disp); letter-spacing: .12em; text-transform: uppercase; }
+.note { color: var(--dim); max-width: 100ch; }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Interdict Isometric Engineering</h1>
+    <span class="keys"><b>Click the floor</b> to walk &middot; <b>click Castellan</b> to talk &middot; <b>click the amber hatch</b> to inspect it</span>
+  </header>
+  <div id="stage">
+    <canvas id="cv" width="1280" height="720"></canvas>
+    <div id="job" class="hud"><div class="lab">Mission tracker</div><div class="k">MECHANICAL</div><div class="t">Inspect the heat-sink coupling</div></div>
+    <div id="tip" class="hud" hidden></div>
+  </div>
+  <div class="panel">
+    <div id="por">&middot;</div>
+    <div><div id="nm">Ship log</div><div id="tx">You are in Engineering. Castellan is by the reactor. The coupling hatch is on the right-hand wall.</div><div id="fx"></div><div id="ch"></div></div>
+  </div>
+  <div class="row"><button id="grid" type="button">Show walk grid</button><button id="reset" type="button">Reset</button></div>
+  <p class="note">The room image is the source art, used as-is at 640 x 360 and scaled up, so it looks soft. A real asset would be rendered at 2048 wide or more. The crew figures and the reactor and hatch glow are stand-ins I added. The walk grid is fitted by hand to the floor in the picture.</p>
+</div>
+
+<script>
+(function () {
+  const $ = id => document.getElementById(id), cv = $('cv'), cx = cv.getContext('2d'), S = 2;
+  const img = new Image(); let ready = false; img.onload = () => { ready = true; }; img.src = 'assets/engineering_room.png';
+  // floor diamond in source pixels (640x360), measured from the art
+  const T = [320, 131], R = [515, 230], L = [125, 230], N = 10;
+  const cellXY = (i, j) => [T[0] + (i + .5) / N * (R[0] - T[0]) + (j + .5) / N * (L[0] - T[0]), T[1] + (i + .5) / N * (R[1] - T[1]) + (j + .5) / N * (L[1] - T[1])];
+  const ptXY = (u, v) => [T[0] + u * (R[0] - T[0]) + v * (L[0] - T[0]), T[1] + u * (R[1] - T[1]) + v * (L[1] - T[1])];
+  function pick(px, py) { const dx = px - T[0], dy = py - T[1], u = (dx / 195 + dy / 99) / 2, v = (dy / 99 - dx / 195) / 2; return [Math.floor(u * N), Math.floor(v * N)]; }
+  const blocked = new Set(); const blk = (i0, i1, j0, j1) => { for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) blocked.add(i + ',' + j); };
+  blk(0, 1, 3, 6); blk(0, 2, 7, 9); blk(0, 4, 0, 1); blk(5, 6, 0, 0); blk(7, 9, 0, 0);   // reactor, workbench, tanks and pipes, hatch wall
+  const free = (i, j) => i >= 0 && j >= 0 && i < N && j < N && !blocked.has(i + ',' + j);
+  function bfs(s, t) {
+    const key = (i, j) => i + ',' + j, prev = { [key(...s)]: null }, q = [s];
+    while (q.length) { const [i, j] = q.shift(); if (i === t[0] && j === t[1]) break; [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([di, dj]) => { const a = i + di, b = j + dj; if (free(a, b) && !(key(a, b) in prev)) { prev[key(a, b)] = [i, j]; q.push([a, b]); } }); }
+    if (!(key(...t) in prev)) return null; const p = []; let c = t; while (c) { p.unshift(c); c = prev[key(...c)]; } return p;
+  }
+  const me = { i: 7, j: 7, x: 0, y: 0, path: [], tgt: null, col: '#8fd694', name: 'You' };
+  const cast = { i: 4, j: 4, col: '#b69cf0', name: 'Castellan' };
+  const HATCH = { rect: [452, 120, 512, 212], stand: [7, 1] };
+  [me, cast].forEach(o => { const p = cellXY(o.i, o.j); o.x = p[0]; o.y = p[1]; });
+  let done = false, insp = 0, show = false, hover = null, hoverCell = null, dlg = false;
+
+  function say(sp, text, fx, choices) {
+    const col = sp === 'Castellan' ? '#b69cf0' : '#6f877d'; $('por').textContent = sp[0]; $('por').style.color = col; $('nm').textContent = sp; $('nm').style.color = col; $('tx').textContent = text; $('fx').textContent = fx ? 'EFFECT: ' + fx : '';
+    const ch = $('ch'); ch.innerHTML = ''; (choices || []).forEach(c => { const b = document.createElement('button'); b.type = 'button'; b.textContent = c.t; b.onclick = c.fn; ch.appendChild(b); }); dlg = !!(choices && choices.length);
+  }
+  const close = () => { $('ch').innerHTML = ''; dlg = false; };
+  function talkCast() {
+    if (done) return say('Castellan', 'I will keep an eye on the reactor, Captain.', '', [{ t: 'Continue', fn: close }]);
+    say('Castellan', 'The coupling hatch is on the right-hand wall, Captain. Have a look when you have a moment.', '', [{ t: 'Continue', fn: close }]);
+  }
+  function afterInspect() {
+    say('Castellan', 'The coupling seats fine. Behind it there is a hairline crack in the manifold. Patch it now and we lose four minutes at the next stop. Leave it and I will watch it.', '', [
+      { t: 'Patch it now.', fn: () => { done = true; $('job').classList.add('done'); say('Castellan', 'Four minutes. I will have it welded before the next jump.', 'Transit +4:00. Heat sinks fill at the normal rate.', [{ t: 'Continue', fn: close }]); } },
+      { t: 'Leave it. Keep a watch on it.', fn: () => { done = true; $('job').classList.add('done'); say('Castellan', 'Aye. I will not enjoy it.', 'Heat sinks fill 8% faster this hunt.', [{ t: 'Continue', fn: close }]); } }]);
+  }
+
+  function go(cell, then) { const p = bfs([me.i, me.j], cell); if (!p) return false; me.path = p.slice(1); me.then = then || null; return true; }
+  const nearCast = () => [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([a, b]) => [cast.i + a, cast.j + b]).filter(c => free(...c)).sort((a, b) => Math.hypot(a[0] - me.i, a[1] - me.j) - Math.hypot(b[0] - me.i, b[1] - me.j))[0];
+  function mpos(e) { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * 640, (e.clientY - r.top) / r.height * 360]; }
+  const inHatch = (x, y) => x > HATCH.rect[0] && x < HATCH.rect[2] && y > HATCH.rect[1] && y < HATCH.rect[3];
+  const onCast = (x, y) => Math.abs(x - cast.x) < 14 && y > cast.y - 56 && y < cast.y + 6;
+  cv.addEventListener('pointermove', e => { const [x, y] = mpos(e); hover = onCast(x, y) ? 'cast' : inHatch(x, y) && !done ? 'hatch' : null; const c = pick(x, y); hoverCell = free(...c) ? c : null; cv.style.cursor = hover || hoverCell ? 'pointer' : 'default'; });
+  cv.addEventListener('pointerdown', e => {
+    if (dlg || insp > 0) return; const [x, y] = mpos(e);
+    if (onCast(x, y)) { const c = nearCast(); if (c && go(c, 'cast')) return; if (c && c[0] === me.i && c[1] === me.j) talkCast(); return; }
+    if (inHatch(x, y) && !done) { if (me.i === HATCH.stand[0] && me.j === HATCH.stand[1]) { insp = 0.001; return; } go(HATCH.stand, 'hatch'); return; }
+    const c = pick(x, y); if (free(...c)) go(c, null);
+  });
+  $('grid').onclick = () => { show = !show; $('grid').textContent = show ? 'Hide walk grid' : 'Show walk grid'; };
+  $('reset').onclick = () => { done = false; insp = 0; me.i = 7; me.j = 7; const p = cellXY(7, 7); me.x = p[0]; me.y = p[1]; me.path = []; me.then = null; $('job').classList.remove('done'); say('Ship log', 'You are in Engineering. Castellan is by the reactor. The coupling hatch is on the right-hand wall.', '', []); };
+
+  function diamond(i, j, fill, stroke) { const c = [ptXY(i / N, j / N), ptXY((i + 1) / N, j / N), ptXY((i + 1) / N, (j + 1) / N), ptXY(i / N, (j + 1) / N)]; cx.beginPath(); c.forEach((p, k) => k ? cx.lineTo(p[0] * S, p[1] * S) : cx.moveTo(p[0] * S, p[1] * S)); cx.closePath(); if (fill) { cx.fillStyle = fill; cx.fill(); } if (stroke) { cx.strokeStyle = stroke; cx.lineWidth = 1; cx.stroke(); } }
+  function person(o, t, walking) {
+    const x = o.x * S, y = o.y * S, bob = walking ? Math.abs(Math.sin(t * 9)) * 3 : Math.sin(t * 1.5) * 0.8;
+    cx.fillStyle = 'rgba(0,0,0,.45)'; cx.beginPath(); cx.ellipse(x, y + 2, 17, 8, 0, 0, 7); cx.fill();
+    cx.fillStyle = o.col; cx.strokeStyle = 'rgba(0,0,0,.7)'; cx.lineWidth = 2; cx.beginPath(); cx.moveTo(x - 11, y - 2); cx.lineTo(x - 9, y - 50 - bob); cx.quadraticCurveTo(x, y - 58 - bob, x + 9, y - 50 - bob); cx.lineTo(x + 11, y - 2); cx.closePath(); cx.fill(); cx.stroke();
+    cx.fillStyle = '#d8c9b6'; cx.beginPath(); cx.arc(x, y - 64 - bob, 9, 0, 7); cx.fill(); cx.stroke();
+    cx.font = '700 15px Chakra Petch, sans-serif'; cx.textAlign = 'center'; cx.fillStyle = 'rgba(7,16,13,.75)'; cx.fillRect(x - 36, y - 98 - bob, 72, 18); cx.fillStyle = o.col; cx.fillText(o.name.toUpperCase(), x, y - 84 - bob);
+  }
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000), t = now / 1000; last = now;
+    // walking
+    let walking = false;
+    if (me.path.length) { const [ti, tj] = me.path[0], tp = cellXY(ti, tj), dx = tp[0] - me.x, dy = tp[1] - me.y, d = Math.hypot(dx, dy); walking = true; if (d < 2) { me.i = ti; me.j = tj; me.path.shift(); } else { const sp = 120 * dt; me.x += dx / d * Math.min(sp, d); me.y += dy / d * Math.min(sp, d); } if (!me.path.length) { const th = me.then; me.then = null; if (th === 'cast') talkCast(); if (th === 'hatch') insp = 0.001; } }
+    if (insp > 0 && insp < 1) { insp += dt / 1.6; if (insp >= 1) { insp = 0; afterInspect(); } }
+    // tip
+    const tip = $('tip'); if (hover === 'cast') { tip.hidden = false; tip.textContent = 'Talk to Castellan'; } else if (hover === 'hatch') { tip.hidden = false; tip.textContent = 'Inspect the coupling hatch'; } else tip.hidden = true;
+    cx.clearRect(0, 0, 1280, 720); if (ready) cx.drawImage(img, 0, 0, 1280, 720);
+    // lighting stand-ins
+    cx.save(); cx.globalCompositeOperation = 'lighter';
+    let g = cx.createRadialGradient(240 * S, 125 * S, 4, 240 * S, 125 * S, 120); g.addColorStop(0, 'rgba(255,140,60,' + (0.16 + 0.07 * Math.sin(t * 2.3)) + ')'); g.addColorStop(1, 'rgba(255,140,60,0)'); cx.fillStyle = g; cx.fillRect(0, 0, 1280, 720);
+    const hp = done ? 0.04 : 0.12 + 0.09 * Math.sin(t * 3.4); g = cx.createRadialGradient(482 * S, 168 * S, 2, 482 * S, 168 * S, 70); g.addColorStop(0, 'rgba(255,180,84,' + hp + ')'); g.addColorStop(1, 'rgba(255,180,84,0)'); cx.fillStyle = g; cx.fillRect(0, 0, 1280, 720);
+    cx.restore();
+    if (show) { for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) diamond(i, j, blocked.has(i + ',' + j) ? 'rgba(255,107,90,.28)' : 'rgba(111,195,208,.07)', 'rgba(111,195,208,.55)'); }
+    else if (hoverCell && !dlg) diamond(hoverCell[0], hoverCell[1], 'rgba(255,180,84,.18)', 'rgba(255,180,84,.7)');
+    if (hover === 'hatch') { cx.strokeStyle = '#ffb454'; cx.lineWidth = 2; cx.setLineDash([6, 5]); cx.strokeRect(HATCH.rect[0] * S, HATCH.rect[1] * S, (HATCH.rect[2] - HATCH.rect[0]) * S, (HATCH.rect[3] - HATCH.rect[1]) * S); cx.setLineDash([]); }
+    if (!done) { cx.fillStyle = '#ffb454'; const hx = 482 * S, hy = 122 * S + Math.sin(t * 3) * 4; cx.beginPath(); cx.moveTo(hx, hy + 12); cx.lineTo(hx - 9, hy); cx.lineTo(hx + 9, hy); cx.closePath(); cx.fill(); }
+    // figures sorted by depth
+    const list = [[cast, false], [me, walking]].sort((a, b) => a[0].y - b[0].y); list.forEach(([o, w]) => person(o, t, w));
+    if (insp > 0) { const x = me.x * S, y = me.y * S - 112; cx.fillStyle = 'rgba(8,16,13,.85)'; cx.fillRect(x - 50, y, 100, 12); cx.fillStyle = '#ffb454'; cx.fillRect(x - 48, y + 2, 96 * Math.min(1, insp), 8); }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+  window.__iso = { me, cast, go, bfs, blocked };
+})();
+</script>
