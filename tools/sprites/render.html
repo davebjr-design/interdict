@@ -1,0 +1,16 @@
+<!doctype html><meta charset=utf-8><body style="margin:0;background:transparent">
+<canvas id=c width=256 height=320></canvas>
+<script src="three.min.js"></script><script src="GLTFLoader.js"></script>
+<script>
+const W=256,H=320, FH=2.15;
+const r=new THREE.WebGLRenderer({canvas:document.getElementById('c'),alpha:true,antialias:true,preserveDrawingBuffer:true}); r.setSize(W,H,false); r.setClearColor(0,0); r.outputEncoding=THREE.sRGBEncoding; r.toneMapping=THREE.NoToneMapping;
+const sc=new THREE.Scene(); sc.add(new THREE.HemisphereLight(0xdfe8ff,0x6a5a4a,2.2));
+const key=new THREE.DirectionalLight(0xfff0dd,2.6); key.position.set(-3,5,2); sc.add(key);
+const asp=W/H, cam=new THREE.OrthographicCamera(-FH*asp/2,FH*asp/2,FH/2,-FH/2,0.1,50);
+const el=Math.atan(0.5), az=Math.PI/4, d=10; cam.position.set(d*Math.cos(el)*Math.sin(az),0.9+d*Math.sin(el),d*Math.cos(el)*Math.cos(az)); cam.lookAt(0,0.9,0);
+let model,mixer,clip,dur,mixer0;
+new THREE.GLTFLoader().load('walk.glb',g=>{model=g.scene; sc.add(model); mixer0=null; clip=g.animations[0]; dur=clip.duration; mixer=new THREE.AnimationMixer(model); const a=mixer.clipAction(clip); a.play(); window.ready=true; window.bones=()=>{model.updateMatrixWorld(true);let mn=[1e9,1e9,1e9],mx=[-1e9,-1e9,-1e9];const out=[];model.traverse(o=>{if(o.isBone){const v=new THREE.Vector3().setFromMatrixPosition(o.matrixWorld);out.push([o.name,v.x,v.y,v.z]);for(let i=0;i<3;i++){mn[i]=Math.min(mn[i],[v.x,v.y,v.z][i]);mx[i]=Math.max(mx[i],[v.x,v.y,v.z][i]);}}});return {mn,mx,n:out.length,sample:out.slice(0,4)}};
+  const bb=new THREE.Box3().setFromObject(model); window.info={h:bb.max.y-bb.min.y,minY:bb.min.y,cx:(bb.min.x+bb.max.x)/2,cz:(bb.min.z+bb.max.z)/2};},undefined,e=>{window.err=String(e)});
+window.shot=(theta,t)=>{ model.rotation.y=theta; mixer.setTime(t); model.updateMatrixWorld(true); r.render(sc,cam); return document.getElementById('c').toDataURL('image/png'); };
+window.feet=()=>{cam.updateMatrixWorld(true);cam.updateProjectionMatrix();const v=new THREE.Vector3(0,0,0).project(cam); return [(v.x+1)/2*W,(1-v.y)/2*H]};
+</script>

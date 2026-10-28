@@ -48,13 +48,15 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     <div><div id="nm">Ship log</div><div id="tx">You are in Engineering. Castellan is by the reactor. The coupling hatch is on the right-hand wall.</div><div id="fx"></div><div id="ch"></div></div>
   </div>
   <div class="row"><button id="grid" type="button">Show walk grid</button><button id="reset" type="button">Reset</button></div>
-  <p class="note">The room image is the source art, used as-is at 640 x 360 and scaled up, so it looks soft. A real asset would be rendered at 2048 wide or more. The crew figures and the reactor and hatch glow are stand-ins I added. The walk grid is fitted by hand to the floor in the picture.</p>
+  <p class="note">The room image is the source art, used as-is at 640 x 360 and scaled up, so it looks soft. A real asset would be rendered at 2048 wide or more. The captain is a Meshy-generated 3D model rendered into sprite frames from this room's camera angle. Castellan and the reactor and hatch glow are stand-ins I added. The walk grid is fitted by hand to the floor in the picture.</p>
 </div>
 
 <script>
 (function () {
   const $ = id => document.getElementById(id), cv = $('cv'), cx = cv.getContext('2d'), S = 2;
   const img = new Image(); let ready = false; img.onload = () => { ready = true; }; img.src = 'assets/engineering_room.png';
+  const spr = new Image(); let sprReady = false; spr.onload = () => { sprReady = true; }; spr.src = 'assets/captain_sheet.png';
+  const DIRS = ['se', 'sw', 'ne', 'nw'], CW = 256, CH = 320, FEET = [128, 280], SC = 0.62;
   // floor diamond in source pixels (640x360), measured from the art
   const T = [320, 131], R = [515, 230], L = [125, 230], N = 10;
   const cellXY = (i, j) => [T[0] + (i + .5) / N * (R[0] - T[0]) + (j + .5) / N * (L[0] - T[0]), T[1] + (i + .5) / N * (R[1] - T[1]) + (j + .5) / N * (L[1] - T[1])];
@@ -68,7 +70,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     while (q.length) { const [i, j] = q.shift(); if (i === t[0] && j === t[1]) break; [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([di, dj]) => { const a = i + di, b = j + dj; if (free(a, b) && !(key(a, b) in prev)) { prev[key(a, b)] = [i, j]; q.push([a, b]); } }); }
     if (!(key(...t) in prev)) return null; const p = []; let c = t; while (c) { p.unshift(c); c = prev[key(...c)]; } return p;
   }
-  const me = { i: 7, j: 7, x: 0, y: 0, path: [], tgt: null, col: '#8fd694', name: 'You' };
+  const me = { i: 7, j: 7, x: 0, y: 0, path: [], tgt: null, col: '#8fd694', name: 'Captain', dir: 'sw', sprite: true };
   const cast = { i: 4, j: 4, col: '#b69cf0', name: 'Castellan' };
   const HATCH = { rect: [452, 120, 512, 212], stand: [7, 1] };
   [me, cast].forEach(o => { const p = cellXY(o.i, o.j); o.x = p[0]; o.y = p[1]; });
@@ -108,6 +110,11 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   function person(o, t, walking) {
     const x = o.x * S, y = o.y * S, bob = walking ? Math.abs(Math.sin(t * 9)) * 3 : Math.sin(t * 1.5) * 0.8;
     cx.fillStyle = 'rgba(0,0,0,.45)'; cx.beginPath(); cx.ellipse(x, y + 2, 17, 8, 0, 0, 7); cx.fill();
+    if (o.sprite && sprReady) {
+      const di = DIRS.indexOf(o.dir), col = walking ? Math.floor(t * 7.5) % 8 : di, row = walking ? di : 4;
+      cx.drawImage(spr, col * CW, row * CH, CW, CH, x - FEET[0] * SC, y - FEET[1] * SC, CW * SC, CH * SC);
+      cx.font = '700 15px Chakra Petch, sans-serif'; cx.textAlign = 'center'; cx.fillStyle = 'rgba(7,16,13,.75)'; cx.fillRect(x - 40, y - 168, 80, 18); cx.fillStyle = o.col; cx.fillText(o.name.toUpperCase(), x, y - 154); return;
+    }
     cx.fillStyle = o.col; cx.strokeStyle = 'rgba(0,0,0,.7)'; cx.lineWidth = 2; cx.beginPath(); cx.moveTo(x - 11, y - 2); cx.lineTo(x - 9, y - 50 - bob); cx.quadraticCurveTo(x, y - 58 - bob, x + 9, y - 50 - bob); cx.lineTo(x + 11, y - 2); cx.closePath(); cx.fill(); cx.stroke();
     cx.fillStyle = '#d8c9b6'; cx.beginPath(); cx.arc(x, y - 64 - bob, 9, 0, 7); cx.fill(); cx.stroke();
     cx.font = '700 15px Chakra Petch, sans-serif'; cx.textAlign = 'center'; cx.fillStyle = 'rgba(7,16,13,.75)'; cx.fillRect(x - 36, y - 98 - bob, 72, 18); cx.fillStyle = o.col; cx.fillText(o.name.toUpperCase(), x, y - 84 - bob);
@@ -117,7 +124,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     const dt = Math.min(0.05, (now - last) / 1000), t = now / 1000; last = now;
     // walking
     let walking = false;
-    if (me.path.length) { const [ti, tj] = me.path[0], tp = cellXY(ti, tj), dx = tp[0] - me.x, dy = tp[1] - me.y, d = Math.hypot(dx, dy); walking = true; if (d < 2) { me.i = ti; me.j = tj; me.path.shift(); } else { const sp = 120 * dt; me.x += dx / d * Math.min(sp, d); me.y += dy / d * Math.min(sp, d); } if (!me.path.length) { const th = me.then; me.then = null; if (th === 'cast') talkCast(); if (th === 'hatch') insp = 0.001; } }
+    if (me.path.length) { const [ti, tj] = me.path[0], tp = cellXY(ti, tj), dx = tp[0] - me.x, dy = tp[1] - me.y, d = Math.hypot(dx, dy); walking = true; me.dir = dx >= 0 ? (dy >= 0 ? 'se' : 'ne') : (dy >= 0 ? 'sw' : 'nw'); if (d < 2) { me.i = ti; me.j = tj; me.path.shift(); } else { const sp = 120 * dt; me.x += dx / d * Math.min(sp, d); me.y += dy / d * Math.min(sp, d); } if (!me.path.length) { const th = me.then; me.then = null; if (th === 'cast') talkCast(); if (th === 'hatch') insp = 0.001; } }
     if (insp > 0 && insp < 1) { insp += dt / 1.6; if (insp >= 1) { insp = 0; afterInspect(); } }
     // tip
     const tip = $('tip'); if (hover === 'cast') { tip.hidden = false; tip.textContent = 'Talk to Castellan'; } else if (hover === 'hatch') { tip.hidden = false; tip.textContent = 'Inspect the coupling hatch'; } else tip.hidden = true;
