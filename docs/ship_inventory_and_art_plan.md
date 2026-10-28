@@ -126,3 +126,27 @@ Core cast: captain, Abara, Dace, Castellan, Quill, and Pell (no body).
 - Staging areas are present in every room: blank wall panels, clear shelf and desk tops, a clear floor patch.
 - Next: calibrate each room's scale from its door height (Mess: door about 60 world units), choose its grid size N from floor width, define blocked cells, props with heights and door links, then add a deck-plan map so doors connect. Pair the three shared cabins and three bunk rooms by re-dressing the template (overlay layers).
 - Meshy limits how many tasks can queue at once (about 10 pending on the current plan).
+
+## 15. Connected slice and deck plan (2026-10-28)
+
+**Shape.** The ship is long and thin, like a submarine: one fore-aft spine, rooms strung along it, short branches off the spine. Aft is left on the deck plan, fore is right. The plan is drawn in the demo as a minimap (bottom left) with the current room highlighted.
+
+**Spine, aft to fore:** Engineering, Mess, Junction, Bridge. Every step along the spine leaves through a back-right wall door and enters through the next room's back-left wall door, so the walking direction is the same all the way and the ship reads as one line.
+
+**Branches (art exists, not wired yet):** Thermal off Engineering; Stores off the Mess; the crew passage (cabins, bunk rooms, head, sickbay) off the Junction, through its second left-wall door; Sensors and Weapons off the Bridge. The Junction is the hub: aft door to the Mess, crew passage door, forward door to the Bridge.
+
+**Door links in the demo**
+
+| From | Door | To | Arrive |
+|---|---|---|---|
+| Engineering | right wall, cells 7-9 | Mess | (0,4) |
+| Mess | left wall | Engineering | (8,1) |
+| Mess | right wall | Junction | (0,6) |
+| Junction | left wall, far door | Mess | (12,1) |
+| Junction | right wall | Bridge | (0,5) |
+| Junction | left wall, near door | crew passage | not built |
+| Bridge | left wall | Junction | (5,1) |
+
+**Per-room scale.** Each room image carries its own scale k (world units per image pixel), set so a door is about 60 world units tall. Mess and Bridge: k 0.362, 13x13 cells. Junction: k 0.296, 9x9 cells (a smaller room whose doors are big in the image). Cell size stays about 39 world units, so the captain looks the same size everywhere.
+
+**Still to do:** wire the branch rooms, repeat the officer-cabin and bunk-room art for the three cabins and three bunk rooms, add equipment mounts, then damage and style overlays. The bridge has a second door on its front wall that cannot be reached from the camera angle; leave it for a later camera option.
