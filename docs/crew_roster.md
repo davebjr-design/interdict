@@ -10,8 +10,8 @@ Personality "modeled on" notes are temperament profiles only. Characters are ori
 | Engineering | Castellan | +2 reactor technicians, +2 maintenance and damage control | warm, hands-on, folksy tinkerer (Trip Tucker profile) | Engineering (reactor, DRIVE mount) |
 | Thermal Management | Dace | +3 heat sink and cooling fin technicians | brilliant, eager, a bit showy idealist (Julian Bashir profile) | Thermal room (SINK mount) |
 | Sensors and ECM | Quill | +3 passive/active scanning, ECM, stealth management | stiff, formal, wary, dry (Malcolm Reed profile) | Sensor room (SENSOR mount) |
-| Tactical and Weapons | Abara | +5 fire control, missile loaders, point defense | humorous but serious and competent (Miles O'Brien profile) | Weapons bay (WEAPON mount) |
-| Astrogation and Helm | under Abara | +3 navigators and pilots | cool, logical (Spock profile, human) | Bridge / astrogation |
+| Tactical and Weapons | Abara (also runs Astrogation and Helm) | +5 fire control, missile loaders, point defense | humorous but serious and competent (Miles O'Brien profile) | Weapons bay (WEAPON mount) |
+| Astrogation and Helm | Abara (same person) | +3 navigators and pilots | Abara keeps the O'Brien profile; the navigators as a group lean cool and logical (Spock profile, human) | Bridge / astrogation |
 | Medical | none for now | 0 | | sickbay dormant |
 | Supply, Mess and Maintenance | Quartermaster and galley cook (name TBD) | +4 general supply crew | corny, annoying comic relief with a big heart (Neelix profile) | Mess / galley, stores |
 
@@ -30,3 +30,8 @@ Personality "modeled on" notes are temperament profiles only. Characters are ori
 ## Support crew art plan
 - 3-4 base bodies, recolored by department accent. Not individually named; they bark one-liners and fill rooms.
 - Named bodies cost about 40 credits each (5 more now, about 200). Base bodies for ambient crew about 160. Equipment parts about 500. Total about 860 of the 1,070 balance, so budget is tight and ordering matters.
+
+## Notes (2026-10-28)
+- Abara is one character with the O'Brien profile and oversees both Tactical and Astrogation/Helm. That makes Abara the de facto second in command. This is never stated formally in the game.
+- No separate named navigator. The Spock-style temperament is the navigators' group tone, not a seventh named character.
+- Credit budget is not a constraint; Dave can add credits later. Order work by what is built first.
