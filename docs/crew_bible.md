@@ -21,7 +21,7 @@ AI attitude uses the five camps from universe_background.md. Cabin pairing: Abar
 - **Backstory:** born in a Gulf Coast launch town. Her grandfather loaded munitions in the war. Her mother ran a sanctioned launch-pad crew until the bans shut it; her father fixed things quietly for gleaners. She trained as range-safety tech and learned fire control the hard way. Joined Corvane's first crew and stayed longest.
 - **Wants:** a crew that comes home. **Hides:** doesn't know if she still believes Corvane; keeps the module box locked.
 - **With the player:** tests you with small jobs. Respect is earned by competence and by listening. Has the long view, the stories and the caution.
-- **Hooks:** (1) the module box, (2) an old range-safety grudge against the Watch, (3) a grown kid she writes to and never sends.
+- **Hooks:** (1) the module box, (2) an old range-safety grudge against the CSRA, (3) a grown kid she writes to and never sends.
 - **Cabin dressing:** tidy to a fault, hand-labeled drawers, a framed photo of a launch pad, a dartboard she insists is Castellan's.
 
 ## Dace (Thermal Management, ship's de facto doctor)
@@ -45,7 +45,7 @@ AI attitude uses the five camps from universe_background.md. Cabin pairing: Abar
 ## Quill (Sensors and ECM)
 - **Look:** 38, tall, tightly pinned dark hair, spotless coverall, headset worn even off duty, one silver ring.
 - **Voice:** formal, precise, dryly funny when she lets herself be. Dislikes surprises and dislikes people who dislike checklists.
-- **Backstory:** her family ran a signals-listening station that tracked deep-space radio. The Watch closed it after the bans. She grew up listening to noise for patterns. She joined gleaners to keep listening.
+- **Backstory:** her family ran a signals-listening station that tracked deep-space radio. The CSRA closed it after the bans. She grew up listening to noise for patterns. She joined gleaners to keep listening.
 - **Wants:** certainty. **Hides:** logs of signals she can't explain, which fit Corvane's warning. She has not told anyone.
 - **With the player:** wary at first. Trust means being told the truth, including bad news.
 - **Hooks:** (1) the unexplained signals, (2) she and Dace clash over noise, (3) her family's closed station.
@@ -69,7 +69,7 @@ AI attitude uses the five camps from universe_background.md. Cabin pairing: Abar
 ## Captain Ilsa Corvane (rogue captain)
 - **Look:** 47, tall, composed, silver streak in dark hair, cultured voice, always seems amused.
 - **Voice:** charming, intelligent, quotes poetry and history, treats her crew like family and expects loyalty in return. Violence appears as calm decisions.
-- **Backstory:** former Watch officer who enforced the Tally, so she knows the rules from the inside. Her grandmother designed war-era fire control. Years of seeing what the Watch looked away from convinced her that something worse was already awake.
+- **Backstory:** former CSRA officer who enforced the Tally, so she knows the rules from the inside. Her grandmother designed war-era fire control. Years of seeing what the CSRA looked away from convinced her that something worse was already awake.
 - **Conviction:** the world is being endangered by malevolent AI, autonomous or directed. The only defense is to reawaken a bounded AI first and control it this time. The cost she accepts is morally disturbing (collateral, coercion, a ship she scuttled when a crew refused).
 - **Standoff:** persuasion route lets her tell her side; the violence route removes her but the truth survives in Pell's logs and in allies. She can be jailbroken later.
 
