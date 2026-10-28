@@ -1,0 +1,362 @@
+<title>Interdict Ship Walk</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* layout: header strip, then a stage that fills the rest. HUD floats on the stage. Single dark console look, matching the bridge. */
+:root {
+  --bg: #0b1210; --panel: #101b17; --line: #23372f; --dim: #6f877d; --fg: #cfe3d8;
+  --amber: #ffb454; --cyan: #6fc3d0; --violet: #b69cf0; --red: #ff6b5a; --green: #8fd694;
+  --disp: 'Chakra Petch', 'Arial Narrow', sans-serif; --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 400 13px/1.45 var(--mono); display: flex; flex-direction: column; gap: 10px; padding-block: 12px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; }
+h1 { font: 700 18px/1.1 var(--disp); letter-spacing: .12em; text-transform: uppercase; margin: 0; }
+.keys { color: var(--dim); } .keys b { color: var(--fg); font-weight: 500; }
+header button { margin-left: auto; }
+#stage { position: relative; flex: 1; min-height: 460px; border: 1px solid var(--line); background: #07100d; overflow: hidden; }
+#gl { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+button { font: 700 12px var(--disp); letter-spacing: .12em; text-transform: uppercase; background: #0c1713; color: var(--fg); border: 1px solid var(--line); padding: 7px 12px; cursor: pointer; }
+button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+.hud { position: absolute; background: rgba(8, 16, 13, .78); border: 1px solid var(--line); padding: 10px 12px; pointer-events: none; }
+#tracker { top: 12px; left: 12px; width: min(320px, 46%); }
+.lab { font: 500 11px var(--disp); letter-spacing: .16em; text-transform: uppercase; color: var(--dim); margin-bottom: 6px; }
+.m { display: grid; grid-template-columns: 14px 1fr; gap: 0 8px; margin-top: 8px; }
+.m i { width: 10px; height: 10px; margin-top: 4px; border: 1px solid currentColor; font-style: normal; }
+.m.done i { background: currentColor; } .m.done .t { text-decoration: line-through; color: var(--dim); }
+.m .k { font: 700 10px var(--disp); letter-spacing: .14em; } .m .t { color: var(--fg); } .m .w { color: var(--dim); font-size: 12px; }
+#mapwrap { right: 12px; bottom: 12px; text-align: right; } #mm { display: block; width: 252px; height: 119px; }
+#mapwrap .keys { margin-top: 6px; font-size: 12px; }
+#prompt { left: 50%; bottom: 74px; transform: translateX(-50%); font: 700 15px var(--disp); letter-spacing: .08em; color: var(--amber); white-space: nowrap; max-width: 92%; overflow: hidden; text-overflow: ellipsis; }
+#prompt[hidden], #toast[hidden], #holdbar[hidden], #dlg[hidden], #veil[hidden] { display: none; }
+#holdbar { left: 50%; bottom: 56px; transform: translateX(-50%); width: 200px; height: 10px; padding: 0; border-color: var(--amber); } #holdbar i { display: block; height: 100%; width: 0; background: var(--amber); }
+#toast { left: 50%; top: 14px; transform: translateX(-50%); width: min(520px, 46%); color: var(--cyan); text-align: center; }
+#cross { position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px; border: 1px solid rgba(207, 227, 216, .5); border-radius: 50%; pointer-events: none; }
+#dlg { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); width: min(760px, 96%); background: rgba(10, 20, 16, .96); border: 1px solid var(--cyan); padding: 14px; display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 14px; }
+#portrait { width: 84px; height: 104px; border: 1px solid currentColor; display: grid; place-items: center; font: 700 44px var(--disp); background: #0c1713; }
+#dname { font: 700 13px var(--disp); letter-spacing: .16em; text-transform: uppercase; margin-bottom: 4px; }
+#dtext { font-size: 14px; max-width: 62ch; } #dfx { margin-top: 8px; color: var(--amber); font-size: 12px; }
+#dch { display: grid; gap: 6px; margin-top: 12px; } #dch button { text-align: left; text-transform: none; letter-spacing: .02em; font: 500 13px var(--mono); padding: 8px 10px; }
+#dch button b { color: var(--amber); margin-right: 8px; }
+#veil { position: absolute; inset: 0; background: rgba(5, 10, 8, .88); display: grid; place-items: center; text-align: center; padding: 20px; }
+#veil .box { max-width: 560px; } #veil h2 { font: 700 22px var(--disp); letter-spacing: .12em; text-transform: uppercase; margin: 0 0 10px; }
+#veil p { color: var(--dim); margin: 0 0 8px; } #veil p b { color: var(--fg); font-weight: 500; }
+</style>
+
+<header>
+  <h1>Interdict Ship Walk</h1>
+  <span class="keys"><b>WASD</b> move &middot; <b>mouse</b> look (drag if the pointer will not lock) &middot; <b>E</b> interact &middot; <b>T</b> auto-walk to objective &middot; <b>Shift</b> run</span>
+  <button id="skip" type="button">Skip to arrival</button>
+</header>
+<div id="stage">
+  <canvas id="gl"></canvas>
+  <div id="cross"></div>
+  <div id="tracker" class="hud"></div>
+  <div id="toast" class="hud" hidden></div>
+  <div id="prompt" class="hud" hidden></div>
+  <div id="holdbar" class="hud" hidden><i></i></div>
+  <div id="mapwrap" class="hud"><canvas id="mm" width="216" height="102"></canvas><div class="keys" id="walkstat"></div></div>
+  <div id="dlg" hidden>
+    <div id="portrait"></div>
+    <div><div id="dname"></div><div id="dtext"></div><div id="dfx"></div><div id="dch"></div></div>
+  </div>
+  <div id="veil">
+    <div class="box">
+      <h2 id="vh">Greybox ship</h2>
+      <p id="vp">One deck, eight compartments, four crew and Pell. Three small jobs are waiting. When they are done the ship reaches the site and the briefing table opens.</p>
+      <p><b>WASD</b> move &middot; <b>mouse</b> look &middot; <b>E</b> interact (hold for inspections) &middot; <b>T</b> walk to the next objective</p>
+      <p>Judge two things: does walking the ship feel good, and do the little jobs feel worth the walk?</p>
+      <button id="go" type="button">Click to step aboard</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function () {
+  const $ = id => document.getElementById(id);
+  const CELL = 2, COLS = 36, ROWS = 17, WH = 3.2;
+  const grid = Array.from({ length: ROWS }, () => Array(COLS).fill('#'));
+  function carve(c0, c1, r0, r1, ch) { for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) grid[r][c] = ch; }
+  carve(1, 3, 6, 9, 'A'); carve(4, 28, 7, 8, 'K');
+  carve(5, 11, 1, 5, 'Q'); carve(8, 9, 6, 6, 'K');
+  carve(5, 11, 10, 15, 'M'); carve(8, 9, 9, 9, 'K');
+  carve(14, 21, 1, 5, 'B'); carve(17, 18, 6, 6, 'K');
+  carve(14, 21, 10, 15, 'E'); carve(17, 18, 9, 9, 'K');
+  carve(24, 28, 2, 5, 'C'); carve(25, 26, 6, 6, 'K');
+  carve(24, 28, 10, 14, 'S'); carve(25, 26, 9, 9, 'K');
+  carve(29, 29, 7, 8, 'K'); carve(30, 34, 4, 11, 'D');
+  const ZC = { A: 0x3d3a3a, K: 0x2b3a36, Q: 0x35323f, M: 0x3b3a2e, B: 0x1f3a40, E: 0x40302a, C: 0x2a3142, S: 0x2f3f38, D: 0x26333f };
+  const ZL = { A: 0xff8a70, Q: 0xb69cf0, M: 0xffcf8a, B: 0x6fc3d0, E: 0xff9a4a, C: 0x7fa0ff, S: 0x8fd694, D: 0xffd9a0 };
+  const MM = { A: '#4a3d3d', K: '#2f4640', Q: '#3d3850', M: '#4a4630', B: '#244b55', E: '#55392c', C: '#2f3a58', S: '#32503f', D: '#2e4152' };
+
+  // ---------- renderer ----------
+  const cv = $('gl'), stage = $('stage');
+  const renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true });
+  renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+  const scene = new THREE.Scene(); scene.background = new THREE.Color(0x07100d); scene.fog = new THREE.Fog(0x07100d, 8, 38);
+  const camera = new THREE.PerspectiveCamera(72, 1, 0.1, 80); camera.rotation.order = 'YXZ';
+  function resize() { const w = stage.clientWidth, h = stage.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+  new ResizeObserver(resize).observe(stage); resize();
+  scene.add(new THREE.AmbientLight(0x6a8278, 1.7));
+
+  // ---------- structure ----------
+  const wallCells = [], floorCells = [];
+  const isFloor = (c, r) => r >= 0 && c >= 0 && r < ROWS && c < COLS && grid[r][c] !== '#';
+  for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+    if (grid[r][c] !== '#') floorCells.push([c, r]);
+    else { let near = false; for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) if (isFloor(c + dc, r + dr)) near = true; if (near) wallCells.push([c, r]); }
+  }
+  const m4 = new THREE.Matrix4();
+  const walls = new THREE.InstancedMesh(new THREE.BoxGeometry(CELL, WH, CELL), new THREE.MeshStandardMaterial({ color: 0x33463f, roughness: 0.9 }), wallCells.length);
+  wallCells.forEach(([c, r], i) => { m4.setPosition(c * CELL + CELL / 2, WH / 2, r * CELL + CELL / 2); walls.setMatrixAt(i, m4); }); scene.add(walls);
+  const fg = new THREE.PlaneGeometry(CELL, CELL); fg.rotateX(-Math.PI / 2);
+  const floors = new THREE.InstancedMesh(fg, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.8 }), floorCells.length);
+  floorCells.forEach(([c, r], i) => { m4.setPosition(c * CELL + CELL / 2, 0, r * CELL + CELL / 2); floors.setMatrixAt(i, m4); const col = new THREE.Color(ZC[grid[r][c]]); if ((c + r) % 2) col.multiplyScalar(0.82); floors.setColorAt(i, col); }); scene.add(floors);
+  const ceil = new THREE.Mesh(new THREE.PlaneGeometry(COLS * CELL, ROWS * CELL), new THREE.MeshStandardMaterial({ color: 0x18231f, roughness: 1 }));
+  ceil.rotation.x = Math.PI / 2; ceil.position.set(COLS * CELL / 2, WH, ROWS * CELL / 2); scene.add(ceil);
+  function zoneLight(x, z, col, k, dist) { const l = new THREE.PointLight(col, k || 1.1, dist || 18, 1.6); l.position.set(x, 2.7, z); scene.add(l); return l; }
+  zoneLight(26, 8, ZL.B); zoneLight(36, 26, ZL.E); zoneLight(17, 8, ZL.Q, 0.9); zoneLight(17, 26, ZL.M); zoneLight(53, 8, ZL.C); zoneLight(53, 26, ZL.S, 0.8); zoneLight(65, 16, ZL.D, 1.3, 22); zoneLight(5, 16, ZL.A, 0.9, 14);
+  [14, 30, 46].forEach(x => zoneLight(x, 16, 0xcfe3d8, 1.0, 18));
+
+  // ---------- props and colliders ----------
+  const colliders = [];
+  function box(x, z, w, h, d, color, o = {}) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshStandardMaterial({ color, roughness: 0.7, emissive: o.em || 0x000000, emissiveIntensity: o.ei || 1 }));
+    m.position.set(x, (o.y0 || 0) + h / 2, z); scene.add(m);
+    if (o.solid !== false) colliders.push({ x0: x - w / 2, x1: x + w / 2, z0: z - d / 2, z1: z + d / 2 });
+    return m;
+  }
+  // quarters: bunks along the north wall
+  [12.5, 17, 21.5].forEach(x => { box(x, 3.1, 3.4, 0.9, 1.5, 0x4a4560); box(x, 3.1, 3.4, 0.9, 1.5, 0x4a4560, { y0: 1.5, solid: false }); });
+  // mess: two tables, benches
+  box(13.5, 28.5, 3.4, 0.95, 1.3, 0x5a5640); box(20.5, 28.5, 3.4, 0.95, 1.3, 0x5a5640); box(17, 31.2, 8, 0.9, 0.8, 0x44412f);
+  // engineering: reactor and coupling panel
+  const reactor = new THREE.Mesh(new THREE.CylinderGeometry(1.3, 1.3, 3, 20), new THREE.MeshStandardMaterial({ color: 0x5a3a2a, emissive: 0xff7a2a, emissiveIntensity: 0.8, roughness: 0.5 }));
+  reactor.position.set(36, 1.5, 29.4); scene.add(reactor); colliders.push({ x0: 34.7, x1: 37.3, z0: 28.1, z1: 30.7 });
+  const panel = box(43.6, 25, 0.5, 1.4, 2.2, 0x3a3a3a, { y0: 0.6, em: 0xffb454, ei: 0.6, solid: false });
+  box(31, 31.2, 4, 1.2, 1.4, 0x3b2f2a); box(41.5, 31.2, 4, 1.2, 1.4, 0x3b2f2a);
+  // briefing: table with a scope on top
+  const tcv = document.createElement('canvas'); tcv.width = tcv.height = 256; const tg = tcv.getContext('2d'); tg.fillStyle = '#06201f'; tg.fillRect(0, 0, 256, 256); tg.strokeStyle = '#6fc3d0'; tg.lineWidth = 2;
+  [30, 60, 90, 120].forEach(r => { tg.beginPath(); tg.arc(128, 128, r, 0, 7); tg.stroke(); }); tg.beginPath(); tg.moveTo(128, 8); tg.lineTo(128, 248); tg.moveTo(8, 128); tg.lineTo(248, 128); tg.stroke();
+  tg.fillStyle = '#ffb454'; tg.fillRect(160, 80, 8, 8); tg.fillRect(86, 150, 8, 8);
+  box(36, 6.2, 6, 1.0, 2.8, 0x2a3a3d);
+  const holo = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 2.6), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(tcv), transparent: true, opacity: 0.9 })); holo.rotation.x = -Math.PI / 2; holo.position.set(36, 1.03, 6.2); scene.add(holo);
+  [31.5, 40.5].forEach(x => box(x, 9.4, 0.7, 0.7, 0.7, 0x3a4a4d));
+  // comms: console with a hail light
+  const commsC = box(53, 4.9, 6, 1.1, 1.2, 0x2b3550, { em: 0x2244aa, ei: 0.5 });
+  const hailLamp = box(53, 5.55, 1.2, 0.12, 0.1, 0x550000, { y0: 1.1, em: 0xff3b2a, ei: 1, solid: false });
+  box(50, 3.4, 1.2, 1.6, 1, 0x2a3142); box(56, 3.4, 1.2, 1.6, 1, 0x2a3142);
+  // sickbay: beds
+  [51, 55].forEach(x => box(x, 28.6, 1.6, 0.7, 3, 0x3f5648)); box(53, 21.2, 6, 1, 1, 0x2f3f38);
+  // bridge: big console, helm, chair, Pell pedestal
+  box(69.1, 16, 1.4, 1.0, 12, 0x2c3a46, { em: 0x14324a, ei: 0.6 });
+  box(66.4, 10.2, 1.8, 1.0, 1.2, 0x2c3a46, { em: 0x14324a, ei: 0.6 }); box(63.5, 16, 1.0, 1.0, 1.0, 0x4a3a2a);
+  const ped = box(66.5, 21.5, 0.9, 1.0, 0.9, 0x2c3a46);
+  const pell = new THREE.Mesh(new THREE.SphereGeometry(0.34, 20, 16), new THREE.MeshBasicMaterial({ color: 0x6fc3d0 })); pell.position.set(66.5, 1.7, 21.5); scene.add(pell);
+  const pring = new THREE.Mesh(new THREE.TorusGeometry(0.55, 0.02, 8, 40), new THREE.MeshBasicMaterial({ color: 0x6fc3d0 })); pring.position.copy(pell.position); scene.add(pring);
+  const pl = new THREE.PointLight(0x6fc3d0, 0.8, 8, 1.6); pl.position.copy(pell.position); scene.add(pl);
+  // airlock: sealed door frame
+  box(2.3, 16, 0.4, 2.6, 4.6, 0x4a3a3a, { em: 0x802a1a, ei: 0.5, solid: false });
+
+  // ---------- crew ----------
+  const NAMES = { Abara: 0xffb454, Dace: 0xff9a6a, Castellan: 0xb69cf0, Quill: 0x6fc3d0, Pell: 0x6fc3d0 };
+  function plate(txt, col) {
+    const c = document.createElement('canvas'); c.width = 256; c.height = 64; const g = c.getContext('2d'); g.font = '700 30px sans-serif'; g.textAlign = 'center';
+    g.fillStyle = 'rgba(7,16,13,.75)'; g.fillRect(0, 8, 256, 48); g.fillStyle = col; g.fillText(txt.toUpperCase(), 128, 42);
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), transparent: true })); s.scale.set(1.5, 0.375, 1); s.position.y = 2.15; return s;
+  }
+  const crew = {};
+  function npc(name, x, z) {
+    const g = new THREE.Group(), col = NAMES[name], cs = '#' + new THREE.Color(col).getHexString();
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.32, 1.35, 14), new THREE.MeshStandardMaterial({ color: col, roughness: 0.8 })); body.position.y = 0.72;
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 14, 12), new THREE.MeshStandardMaterial({ color: 0xd8c9b6, roughness: 0.9 })); head.position.y = 1.62;
+    const nose = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, 0.12), new THREE.MeshStandardMaterial({ color: 0x222222 })); nose.position.set(0, 1.62, 0.2);
+    g.add(body, head, nose, plate(name, cs)); g.position.set(x, 0, z); scene.add(g);
+    colliders.push({ x0: x - 0.3, x1: x + 0.3, z0: z - 0.3, z1: z + 0.3 }); crew[name] = { g, head, x, z }; return g;
+  }
+  npc('Abara', 66.2, 12.6); npc('Dace', 17, 26); npc('Castellan', 40.6, 22.4); npc('Quill', 50.6, 8.2);
+
+  // ---------- state ----------
+  const flags = { dace: null, manifold: null, hail: null };
+  let walked = 0, autoWalked = 0;
+  const P = { x: 14, z: 16, yaw: 0, pitch: 0 };
+  const TABLE = { x: 36, z: 9.6 }, DACE = { x: 17, z: 24.4 }, PANEL = { x: 42.4, z: 25 }, HAIL = { x: 53, z: 6.6 }, ABARA = { x: 66.2, z: 11 }, PELL = { x: 66.5, z: 19.6 };
+  const MS = {
+    rel: { kind: 'RELATIONAL', col: '#b69cf0', title: 'Dace wants a word', where: 'Mess, port side', t: DACE },
+    mech: { kind: 'MECHANICAL', col: '#ffb454', title: 'Inspect the heat-sink coupling', where: 'Engineering, aft bulkhead', t: PANEL },
+    dip: { kind: 'DIPLOMATIC', col: '#6fc3d0', title: 'Incoming hail', where: 'Comms', t: HAIL },
+    arr: { kind: 'MISSION', col: '#ff6b5a', title: 'Arrival: report to the bridge', where: 'Bridge', t: ABARA, active: false }
+  };
+  Object.values(MS).forEach(m => { if (m.active === undefined) m.active = true; m.done = false; });
+  let tdirty = true, running = false, dlgOpen = false, lockOK = false, auto = null, holdT = 0, holdDone = false;
+  const toastQ = [];
+  function toast(t) { const e = $('toast'); e.textContent = t; e.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => { e.hidden = true; }, 5200); }
+  function drawTracker() {
+    let h = '<div class="lab">Mission tracker</div>';
+    Object.values(MS).filter(m => m.active).forEach(m => { h += '<div class="m' + (m.done ? ' done' : '') + '" style="color:' + m.col + '"><i></i><div><div class="k">' + m.kind + '</div><div class="t">' + m.title + '</div><div class="w">' + m.where + '</div></div></div>'; });
+    $('tracker').innerHTML = h; tdirty = false;
+  }
+  function objective() { const a = Object.values(MS).filter(m => m.active && !m.done); return a.length ? a[0] : null; }
+  function finish(id) {
+    MS[id].done = true; tdirty = true;
+    if (MS.rel.done && MS.mech.done && MS.dip.done && !MS.arr.active) { MS.arr.active = true; toast('PA: Captain to the bridge. We are arriving at the mission site.'); }
+  }
+
+  // ---------- dialogue ----------
+  function open(n) {
+    if (!dlgOpen) { dlgOpen = true; try { document.exitPointerLock(); } catch (e) { } }
+    const col = '#' + new THREE.Color(NAMES[n.sp] || 0xcfe3d8).getHexString();
+    $('portrait').textContent = n.sp[0]; $('portrait').style.color = col; $('dname').textContent = n.sp; $('dname').style.color = col;
+    $('dtext').textContent = n.text; $('dfx').textContent = n.fx ? 'EFFECT: ' + n.fx : '';
+    const ch = $('dch'); ch.innerHTML = ''; n.choices.forEach((c, i) => { const b = document.createElement('button'); b.type = 'button'; b.innerHTML = '<b>' + (i + 1) + '</b>' + c.t; b.onclick = () => pick(i); ch.appendChild(b); });
+    open.cur = n; $('dlg').hidden = false;
+  }
+  function pick(i) { const c = open.cur && open.cur.choices[i]; if (c) c.fn(); }
+  function closeDlg(after) {
+    $('dlg').hidden = true; dlgOpen = false; open.cur = null; if (after) after();
+    if (lockOK) { try { cv.requestPointerLock(); } catch (e) { } setTimeout(() => { if (lockOK && !dlgOpen && document.pointerLockElement !== cv) showVeil('Paused', 'Click to get back to the ship.', 'Resume'); }, 200); }
+  }
+  const reply = (sp, text, fx, after) => open({ sp, text, fx, choices: [{ t: 'Continue', fn: () => closeDlg(after) }] });
+  const say = (sp, text) => open({ sp, text, choices: [{ t: 'Continue', fn: () => closeDlg() }] });
+
+  function daceTalk() {
+    if (MS.rel.done) return say('Dace', 'The sinks are behaving. Thank you, Captain.');
+    open({ sp: 'Dace', text: 'Captain. Got a minute? The heat sinks have run warm since the last jump. Nobody has said anything, so I am saying it.', choices: [
+      { t: 'Walk me through what you would change.', fn: () => reply('Dace', 'Shorter burns, longer rests between them. It costs us time at the stops, but the sinks stay under half.', 'Redline capped at 15 s this hunt. Transit +2:00.', () => { flags.dace = 'short'; finish('rel'); }) },
+      { t: 'Good catch. Take the rest of the shift off.', fn: () => reply('Dace', 'I will sleep with one ear open. Thank you.', 'Dace is rested but off watch: the heat read starts slower this hunt.', () => { flags.dace = 'rest'; finish('rel'); }) },
+      { t: 'We run warm. That is the job.', fn: () => reply('Dace', 'Understood, Captain.', 'No change to the ship. Dace is a little cooler toward you.', () => { flags.dace = 'none'; finish('rel'); }) }] });
+  }
+  function manifoldTalk() {
+    open({ sp: 'Castellan', text: 'The coupling seats fine. Behind it there is a hairline crack in the manifold. Patch it now and we lose four minutes at the next stop. Leave it and I will watch it.', choices: [
+      { t: 'Patch it now.', fn: () => reply('Castellan', 'Four minutes. I will have it welded before the next jump.', 'Transit +4:00. Heat sinks fill at the normal rate.', () => { flags.manifold = 'patched'; finish('mech'); }) },
+      { t: 'Leave it. Keep a watch on it.', fn: () => reply('Castellan', 'Aye. I will not enjoy it.', 'Heat sinks fill 8% faster this hunt.', () => { flags.manifold = 'left'; finish('mech'); }) }] });
+  }
+  function hailTalk() {
+    open({ sp: 'Quill', text: 'Captain, incoming hail. The freighter Halcyon Reach, unarmed. They ask whether we have seen warships in this sector. They are offering nothing for it.', choices: [
+      { t: 'Tell them what we have seen.', fn: () => reply('Quill', 'Sending. They will know we are out here, though.', 'The freighter owes us one. A small extra chance hunters hear the exchange.', () => { flags.hail = 'share'; finish('dip'); }) },
+      { t: 'Decline politely.', fn: () => reply('Quill', 'Logged. Nothing sent.', 'No effect.', () => { flags.hail = 'decline'; finish('dip'); }) },
+      { t: 'Ask for a fee first.', fn: () => reply('Quill', 'They agreed to forty kilograms of salvage. The talking took a while.', '+40 kg salvage credit. The longer exchange adds a small chance we are noticed.', () => { flags.hail = 'fee'; finish('dip'); }) }] });
+  }
+  function abaraTalk() {
+    if (MS.arr.active && !MS.arr.done && !MS.arr.stage2) return reply('Abara', 'Captain on the bridge. We are at the site. The briefing is ready at the table, aft of the bridge, port side.', '', () => { MS.arr.stage2 = true; MS.arr.title = 'Briefing at the table'; MS.arr.where = 'Briefing room'; MS.arr.t = TABLE; tdirty = true; });
+    say('Abara', MS.arr.stage2 ? 'Table is ready when you are, Captain.' : 'Helm is steady, Captain. Say the word.');
+  }
+  function quillTalk() { say('Quill', MS.dip.done ? 'Nothing else on the passive trace, Captain.' : 'The hail light is on the comms console, Captain.'); }
+  function castTalk() { say('Castellan', MS.mech.done ? 'I will keep an eye on the reactor.' : 'The coupling panel is on the aft bulkhead if you want a look.'); }
+  function pellTalk() {
+    open({ sp: 'Pell', text: 'Space has a third axis, Captain. I fold it flat before it reaches your scope. A plan reads faster than a sphere, and nothing you need is lost.', choices: [
+      { t: 'Good. Keep doing that.', fn: () => reply('Pell', 'Of course.', '', null) },
+      { t: 'What does the flattening hide?', fn: () => reply('Pell', 'Depth, mostly. I carry it for you, and I will say so if it ever matters.', '', null) }] });
+  }
+  function briefing() {
+    const L = [];
+    if (flags.dace === 'short') L.push('Redline capped at 15 s. Transit +2:00.'); if (flags.dace === 'rest') L.push('Dace off watch: slower heat read.');
+    if (flags.manifold === 'patched') L.push('Manifold patched. Transit +4:00.'); if (flags.manifold === 'left') L.push('Sinks fill 8% faster.');
+    if (flags.hail === 'share') L.push('Freighter owes us one. Slight chance hunters hear the exchange.'); if (flags.hail === 'fee') L.push('+40 kg salvage credit. Slight chance of notice.');
+    if (!L.length) L.push('No changes carried in.');
+    open({ sp: 'Abara', text: 'Briefing: one to three hostile contacts reported in the stopover. We hold, we close, or we spool and run. Your call.', fx: L.join(' '), choices: [
+      { t: 'Begin the hunt (preview).', fn: () => reply('Abara', 'In the real game the hunt loads here with the effects above. You walked ' + Math.round(walked) + ' m yourself and let the ship walk ' + Math.round(autoWalked) + ' m.', '', () => { MS.arr.done = true; tdirty = true; }) },
+      { t: 'Stay aboard a little longer.', fn: () => closeDlg() }] });
+  }
+
+  // ---------- interactables ----------
+  const act = [
+    { x: DACE.x, z: DACE.z, r: 2.6, lab: () => 'Talk to Dace', go: daceTalk },
+    { x: PANEL.x, z: PANEL.z, r: 2.4, hold: true, lab: () => MS.mech.done ? null : 'Hold E: inspect the coupling', go: manifoldTalk },
+    { x: 40.6, z: 22.4, r: 2, lab: () => 'Talk to Castellan', go: castTalk },
+    { x: HAIL.x, z: HAIL.z, r: 2.6, lab: () => MS.dip.done ? null : 'Answer the hail', go: hailTalk },
+    { x: 50.6, z: 8.2, r: 2, lab: () => 'Talk to Quill', go: quillTalk },
+    { x: ABARA.x, z: ABARA.z, r: 2.6, lab: () => 'Talk to Abara', go: abaraTalk },
+    { x: PELL.x, z: PELL.z, r: 2.4, lab: () => 'Talk to Pell', go: pellTalk },
+    { x: TABLE.x, z: TABLE.z, r: 2.6, lab: () => MS.arr.stage2 && !MS.arr.done ? 'Begin the briefing' : null, go: briefing }
+  ];
+  function nearest() { let b = null, bd = 1e9; act.forEach(a => { const l = a.lab(); if (!l) return; const d = Math.hypot(a.x - P.x, a.z - P.z); if (d < a.r && d < bd) { bd = d; b = a; } }); return b; }
+
+  // ---------- movement ----------
+  const PR = 0.42;
+  function blocked(x, z) {
+    for (const [dx, dz] of [[-PR, -PR], [PR, -PR], [-PR, PR], [PR, PR]]) { const c = Math.floor((x + dx) / CELL), r = Math.floor((z + dz) / CELL); if (r < 0 || c < 0 || r >= ROWS || c >= COLS || grid[r][c] === '#') return true; }
+    for (const b of colliders) if (x > b.x0 - PR && x < b.x1 + PR && z > b.z0 - PR && z < b.z1 + PR) return true;
+    return false;
+  }
+  function step(dx, dz) { const ox = P.x, oz = P.z; if (!blocked(P.x + dx, P.z)) P.x += dx; if (!blocked(P.x, P.z + dz)) P.z += dz; return Math.hypot(P.x - ox, P.z - oz); }
+  function bfs(tx, tz) {
+    const s = [Math.floor(P.x / CELL), Math.floor(P.z / CELL)], t = [Math.floor(tx / CELL), Math.floor(tz / CELL)], prev = {}, q = [s], key = (c, r) => c + ',' + r; prev[key(s[0], s[1])] = null;
+    while (q.length) { const [c, r] = q.shift(); if (c === t[0] && r === t[1]) break; [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dc, dr]) => { const nc = c + dc, nr = r + dr; if (isFloor(nc, nr) && !(key(nc, nr) in prev)) { prev[key(nc, nr)] = [c, r]; q.push([nc, nr]); } }); }
+    if (!(key(t[0], t[1]) in prev)) return null;
+    const path = []; let cur = t; while (cur) { path.unshift({ x: cur[0] * CELL + CELL / 2, z: cur[1] * CELL + CELL / 2 }); cur = prev[key(cur[0], cur[1])]; }
+    path.push({ x: tx, z: tz }); return path;
+  }
+  const keys = new Set();
+  const angD = (a, b) => { let d = (b - a) % (Math.PI * 2); if (d > Math.PI) d -= Math.PI * 2; if (d < -Math.PI) d += Math.PI * 2; return d; };
+  function update(dt) {
+    const mv = ['KeyW', 'KeyS', 'KeyA', 'KeyD'].some(k => keys.has(k));
+    if (mv && auto) { auto = null; toast('Auto-walk off.'); }
+    if (keys.has('ArrowLeft')) P.yaw -= 1.8 * dt; if (keys.has('ArrowRight')) P.yaw += 1.8 * dt;
+    if (auto) {
+      const w = auto[0], d = Math.hypot(w.x - P.x, w.z - P.z);
+      if (d < 0.5) { auto.shift(); if (!auto.length) { auto = null; } }
+      else { const want = Math.atan2(w.z - P.z, w.x - P.x); P.yaw += angD(P.yaw, want) * Math.min(1, dt * 7); const m = step((w.x - P.x) / d * 5.5 * dt, (w.z - P.z) / d * 5.5 * dt); autoWalked += m; if (m < 0.2 * dt) { auto.stuck = (auto.stuck || 0) + dt; if (auto.stuck > 1.2) { auto = null; toast('Auto-walk got stuck.'); } } }
+      if (auto && auto.length === 1 && Math.hypot(auto[0].x - P.x, auto[0].z - P.z) < 1.2) auto = null;
+    } else {
+      const f = (keys.has('KeyW') ? 1 : 0) - (keys.has('KeyS') ? 1 : 0), s = (keys.has('KeyD') ? 1 : 0) - (keys.has('KeyA') ? 1 : 0);
+      if (f || s) { const sp = (keys.has('ShiftLeft') || keys.has('ShiftRight') ? 7 : 4.2) * dt, n = Math.hypot(f, s), cy = Math.cos(P.yaw), sy = Math.sin(P.yaw); walked += step((cy * f - sy * s) / n * sp, (sy * f + cy * s) / n * sp); }
+    }
+    const a = nearest(), pr = $('prompt');
+    if (a) { pr.hidden = false; pr.textContent = a.lab(); } else pr.hidden = true;
+    const hb = $('holdbar');
+    if (a && a.hold && keys.has('KeyE') && !holdDone) { holdT += dt / 1.8; hb.hidden = false; hb.firstChild.style.width = Math.min(100, holdT * 100) + '%'; if (holdT >= 1) { holdDone = true; holdT = 0; hb.hidden = true; a.go(); } }
+    else { holdT = 0; hb.hidden = true; if (!keys.has('KeyE')) holdDone = false; }
+  }
+
+  // ---------- input ----------
+  let dragging = false;
+  function look(dx, dy) { P.yaw += dx * 0.0022; P.pitch = Math.max(-1.2, Math.min(1.2, P.pitch - dy * 0.0022)); }
+  document.addEventListener('mousemove', e => { if (!running || dlgOpen) return; if (document.pointerLockElement === cv || dragging) look(e.movementX, e.movementY); });
+  cv.addEventListener('pointerdown', () => { if (!running || dlgOpen) return; dragging = true; try { const p = cv.requestPointerLock(); if (p && p.catch) p.catch(() => { }); } catch (e) { } });
+  window.addEventListener('pointerup', () => { dragging = false; });
+  document.addEventListener('pointerlockchange', () => { if (document.pointerLockElement === cv) { lockOK = true; $('veil').hidden = true; } else if (lockOK && running && !dlgOpen) showVeil('Paused', 'Click to get back to the ship.', 'Resume'); });
+  window.addEventListener('keydown', e => {
+    if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.code)) e.preventDefault();
+    if (dlgOpen) { if (/^Digit[1-3]$/.test(e.code)) pick(+e.code.slice(5) - 1); else if ((e.code === 'Space' || e.code === 'Enter') && open.cur && open.cur.choices.length === 1) pick(0); return; }
+    if (!running) return; keys.add(e.code);
+    if (e.repeat) return;
+    if (e.code === 'KeyE') { const a = nearest(); if (a && !a.hold) a.go(); }
+    if (e.code === 'KeyT') { if (auto) { auto = null; toast('Auto-walk off.'); return; } const o = objective(); if (!o) return toast('No objective right now.'); const p = bfs(o.t.x, o.t.z); if (p) { auto = p; toast('Auto-walking to: ' + o.title); } }
+  });
+  window.addEventListener('keyup', e => keys.delete(e.code));
+  window.addEventListener('blur', () => keys.clear());
+  function showVeil(h, p, b) { $('vh').textContent = h; $('vp').textContent = p; $('go').textContent = b; $('veil').hidden = false; keys.clear(); }
+  $('go').onclick = () => { running = true; $('veil').hidden = true; try { const p = cv.requestPointerLock(); if (p && p.catch) p.catch(() => { }); } catch (e) { } };
+  $('skip').onclick = () => { ['rel', 'mech', 'dip'].forEach(k => { MS[k].done = true; }); if (!MS.arr.active) { MS.arr.active = true; toast('PA: Captain to the bridge. We are arriving at the mission site.'); } tdirty = true; };
+
+  // ---------- minimap and loop ----------
+  const mm = $('mm').getContext('2d'), S = 6;
+  function drawMap(t) {
+    mm.clearRect(0, 0, 216, 102);
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) { const g = grid[r][c]; mm.fillStyle = g === '#' ? '#0a120f' : MM[g]; mm.fillRect(c * S, r * S, S, S); }
+    const o = objective(); if (o) { const pu = 3 + 2 * Math.sin(t * 5); mm.strokeStyle = o.col; mm.lineWidth = 2; mm.beginPath(); mm.arc(o.t.x / CELL * S, o.t.z / CELL * S, pu + 2, 0, 7); mm.stroke(); }
+    Object.values(crew).forEach(n => { mm.fillStyle = '#cfe3d8'; mm.fillRect(n.x / CELL * S - 1.5, n.z / CELL * S - 1.5, 3, 3); });
+    mm.save(); mm.translate(P.x / CELL * S, P.z / CELL * S); mm.rotate(P.yaw); mm.fillStyle = '#8fd694'; mm.beginPath(); mm.moveTo(6, 0); mm.lineTo(-4, 3.5); mm.lineTo(-4, -3.5); mm.closePath(); mm.fill(); mm.restore();
+    $('walkstat').textContent = 'T: auto-walk · walked ' + Math.round(walked) + ' m';
+  }
+  let last = performance.now();
+  function tick(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now; const t = now / 1000;
+    if (running && !dlgOpen) update(dt);
+    if (tdirty) drawTracker();
+    pell.scale.setScalar(1 + 0.12 * Math.sin(t * 2.4)); pring.rotation.x = t * 0.9; pring.rotation.y = t * 0.6;
+    reactor.material.emissiveIntensity = 0.7 + 0.25 * Math.sin(t * 1.7);
+    hailLamp.material.emissiveIntensity = MS.dip.done ? 0.05 : (Math.sin(t * 6) > 0 ? 1.4 : 0.1);
+    panel.material.emissiveIntensity = MS.mech.done ? 0.1 : 0.5 + 0.3 * Math.sin(t * 3);
+    Object.entries(crew).forEach(([n, c]) => { const dx = P.x - c.x, dz = P.z - c.z; if (Math.hypot(dx, dz) < 7) c.g.rotation.y += angD(c.g.rotation.y, Math.atan2(dx, dz)) * Math.min(1, dt * 4); c.head.position.y = 1.62 + 0.012 * Math.sin(t * 1.5 + n.length); });
+    camera.position.set(P.x, 1.65 + (running ? 0.02 * Math.sin(t * 8) * (keys.size ? 1 : 0) : 0), P.z); camera.rotation.y = -P.yaw - Math.PI / 2; camera.rotation.x = P.pitch;
+    renderer.render(scene, camera); drawMap(t); requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+  window.__ship = { P, MS, flags, grid };
+})();
+</script>

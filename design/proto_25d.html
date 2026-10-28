@@ -1,0 +1,166 @@
+<title>Interdict 2.5D Scope</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* layout: plan-view scope left, depth ladder right, order strip below. Single dark console look. */
+:root {
+  --bg: #0b1210; --panel: #101b17; --line: #23372f; --dim: #6f877d; --fg: #cfe3d8;
+  --amber: #ffb454; --cyan: #6fc3d0; --violet: #b69cf0; --red: #ff6b5a; --green: #8fd694;
+  --disp: 'Chakra Petch', 'Arial Narrow', sans-serif; --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 400 13px/1.45 var(--mono); padding-block: 16px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wrap { max-width: 1040px; margin: 0 auto; display: grid; gap: 14px; }
+h1 { font: 700 20px/1.1 var(--disp); letter-spacing: .12em; text-transform: uppercase; margin: 0; }
+.sub { color: var(--dim); max-width: 70ch; margin: 4px 0 0; }
+.main { display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 14px; align-items: start; }
+.panel { background: var(--panel); border: 1px solid var(--line); padding: 10px; min-width: 0; }
+.lab { font: 500 11px var(--disp); letter-spacing: .16em; text-transform: uppercase; color: var(--dim); margin-bottom: 8px; display: flex; justify-content: space-between; gap: 8px; }
+canvas { width: 100%; height: auto; display: block; background: #07100d; cursor: crosshair; touch-action: none; }
+.row { display: flex; align-items: stretch; gap: 6px; margin-bottom: 6px; cursor: pointer; }
+.band { flex: 1; min-width: 0; border: 1px solid var(--line); padding: 8px; min-height: 74px; position: relative; background: #0c1713; }
+.band.sel { border-color: var(--amber); box-shadow: inset 0 0 0 1px var(--amber); }
+.band .n { font: 700 12px var(--disp); letter-spacing: .14em; }
+.band .d { color: var(--dim); font-size: 11px; }
+.chip { display: inline-block; font-size: 11px; padding: 0 5px; margin: 3px 3px 0 0; border: 1px solid currentColor; }
+.chip.me { color: var(--green); } .chip.c { color: var(--amber); } .chip.wp { color: var(--cyan); border-style: dashed; }
+.layer { height: 0; border-top: 1px dashed var(--violet); margin: 2px 0 8px; position: relative; }
+.layer span { position: absolute; right: 0; top: -9px; background: var(--panel); color: var(--violet); font-size: 10px; letter-spacing: .12em; padding-left: 4px; }
+.btns { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+button { font: 700 12px var(--disp); letter-spacing: .14em; text-transform: uppercase; background: #0c1713; color: var(--fg); border: 1px solid var(--line); padding: 8px 12px; cursor: pointer; }
+button:hover:not(:disabled) { border-color: var(--amber); } button:disabled { opacity: .35; cursor: default; }
+button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+#fire { border-color: var(--red); color: var(--red); }
+#msg { color: var(--amber); min-height: 1.4em; }
+.key { color: var(--dim); font-size: 12px; } .key b { color: var(--fg); font-weight: 500; }
+@media (max-width: 760px) { .main { grid-template-columns: 1fr; } }
+</style>
+
+<div class="wrap">
+  <div>
+    <h1>Interdict 2.5D Scope</h1>
+    <p class="sub">Throwaway prototype. The scope stays a plan view. Depth is three bands, shown by glyph, tint and the ladder on the right. Nothing here is connected to the game engine.</p>
+  </div>
+  <div class="main">
+    <div class="panel">
+      <div class="lab"><span>Plan view &middot; 200 km</span><span id="hud">--</span></div>
+      <canvas id="cv" width="760" height="760"></canvas>
+    </div>
+    <div class="panel">
+      <div class="lab"><span>Depth</span><span>click to set</span></div>
+      <div id="ladder"></div>
+      <div class="key" style="margin-top:8px">
+        <div><b>Filled diamond</b> same band as us</div>
+        <div><b style="color:var(--cyan)">&#9650; hollow</b> shallower</div>
+        <div><b style="color:var(--violet)">&#9660; hollow</b> deeper</div>
+        <div><b style="color:var(--violet)">Faint</b> across the layer</div>
+      </div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="lab"><span>Orders</span><span>two steps: place the point, then pick its depth</span></div>
+    <div class="btns">
+      <button id="fire" disabled>Fire salvo</button>
+      <button id="clr">Clear order</button>
+      <span id="msg"></span>
+    </div>
+    <p class="key" style="margin:8px 0 0"><b>Click the scope</b> to drop a waypoint at the chosen depth. <b>Click a contact</b> to select it. Keys <b>1 2 3</b> choose the band. Changing the band while a waypoint exists re-pins it. The salvo cone is a flat ellipse, but it only counts if the missile's band matches the target's.</p>
+  </div>
+</div>
+
+<script>
+(function () {
+  const cv = document.getElementById('cv'), cx = cv.getContext('2d'), W = cv.width, R = 100, K = W / 2 / 104;
+  const NAMES = ['SHALLOW', 'MID', 'DEEP'], DESC = ['bright, open sky of sensors', 'where most traffic runs', 'cold water, hard to hear'];
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const C = { amber: css('--amber'), cyan: css('--cyan'), violet: css('--violet'), red: css('--red'), green: css('--green'), dim: css('--dim'), line: css('--line') };
+  const ship = { x: 0, y: 70, band: 1, hdg: -Math.PI / 2 };
+  let wp = null, pickBand = 1, sel = null, cone = null, msg = '';
+  const cons = [
+    { id: 1, x: -45, y: -30, band: 1, vx: 0.9, vy: 0.4, t: 4 },
+    { id: 2, x: 50, y: -55, band: 2, vx: -0.6, vy: 0.5, t: 9 },
+    { id: 3, x: 62, y: 10, band: 0, vx: -0.3, vy: -0.7, t: 6 }
+  ];
+  const sx = x => W / 2 + x * K, sy = y => W / 2 + y * K;
+  const layerBlocks = (a, b) => (a >= 2 && b <= 1) || (b >= 2 && a <= 1);   // thermocline sits between MID and DEEP
+  const sBand = () => Math.round(ship.band);
+  function say(t) { msg = t; document.getElementById('msg').textContent = t; }
+
+  function pt(e) { const r = cv.getBoundingClientRect(), p = e.touches ? e.touches[0] : e; return { x: ((p.clientX - r.left) / r.width * W - W / 2) / K, y: ((p.clientY - r.top) / r.height * W - W / 2) / K }; }
+  cv.addEventListener('pointerdown', e => {
+    const p = pt(e); let hit = null, best = 6;
+    cons.forEach(c => { const d = Math.hypot(c.x - p.x, c.y - p.y); if (d < best) { best = d; hit = c; } });
+    if (hit) { sel = hit; cone = null; say('Contact ' + hit.id + ' selected. Band ' + NAMES[hit.band] + (layerBlocks(sBand(), hit.band) ? ' (across the layer, trace is faint).' : '.')); }
+    else if (Math.hypot(p.x, p.y) <= R) { wp = { x: p.x, y: p.y, band: pickBand }; say('Waypoint set at ' + NAMES[pickBand] + '. Pick another band to re-pin it.'); }
+    sync();
+  });
+  function setBand(b) { pickBand = b; if (wp) { wp.band = b; say('Waypoint re-pinned to ' + NAMES[b] + '.'); } sync(); }
+  document.addEventListener('keydown', e => { if (e.key >= '1' && e.key <= '3') setBand(+e.key - 1); });
+  document.getElementById('clr').onclick = () => { wp = null; say('Order cleared.'); sync(); };
+  document.getElementById('fire').onclick = () => {
+    if (!sel) return; const miss = (Math.random() - 0.5) * 6, mx = sel.x + miss, my = sel.y + miss * 0.7;
+    const dir = Math.atan2(sel.y - ship.y, sel.x - ship.x), A = 11, B = 7;
+    const dx = sel.x - mx, dy = sel.y - my, lx = dx * Math.cos(dir) + dy * Math.sin(dir), ly = -dx * Math.sin(dir) + dy * Math.cos(dir);
+    const inCone = (lx * lx) / (A * A) + (ly * ly) / (B * B) <= 1, same = sel.band === sBand();
+    cone = { x: mx, y: my, dir, A, B, t: performance.now(), ok: inCone && same };
+    say(inCone && same ? 'HIT: cone and band both match.' : inCone ? 'MISS: cone covered it, but the missiles ran at ' + NAMES[sBand()] + ' and it is ' + NAMES[sel.band] + '.' : 'MISS: it was outside the cone.');
+  };
+
+  function sync() {
+    document.getElementById('fire').disabled = !sel;
+    const L = document.getElementById('ladder'); let h = '';
+    for (let b = 0; b < 3; b++) {
+      h += '<div class="row" data-b="' + b + '"><div class="band' + (pickBand === b ? ' sel' : '') + '"><div class="n">' + NAMES[b] + '</div><div class="d">' + DESC[b] + '</div>';
+      if (sBand() === b) h += '<span class="chip me">US</span>';
+      cons.forEach(c => { if (c.band === b) h += '<span class="chip c"' + (sel === c ? ' style="background:#2a1f0c"' : '') + '>#' + c.id + '</span>'; });
+      if (wp && wp.band === b) h += '<span class="chip wp">WP</span>';
+      h += '</div></div>';
+      if (b === 1) h += '<div class="layer"><span>LAYER</span></div>';
+    }
+    L.innerHTML = h;
+    L.querySelectorAll('.row').forEach(r => r.onclick = () => setBand(+r.dataset.b));
+  }
+
+  function diamond(x, y, s, fill, col) { cx.beginPath(); cx.moveTo(x, y - s); cx.lineTo(x + s, y); cx.lineTo(x, y + s); cx.lineTo(x - s, y); cx.closePath(); if (fill) { cx.fillStyle = col; cx.fill(); } else { cx.strokeStyle = col; cx.lineWidth = 2; cx.stroke(); } }
+  function tri(x, y, s, up, col) { cx.beginPath(); cx.moveTo(x, y + (up ? -s : s)); cx.lineTo(x + s, y + (up ? s : -s)); cx.lineTo(x - s, y + (up ? s : -s)); cx.closePath(); cx.strokeStyle = col; cx.lineWidth = 2; cx.stroke(); }
+  function label(t, x, y, col, a) { cx.globalAlpha = a; cx.fillStyle = col; cx.font = '500 20px IBM Plex Mono, monospace'; cx.fillText(t, x, y); cx.globalAlpha = 1; }
+
+  let last = performance.now(), ang = 0, acc = 0;
+  function frame(now) {
+    const dt = Math.min(0.1, (now - last) / 1000); last = now; acc += dt; ang += dt * 1.1;
+    // ship: x,y toward waypoint, band drifts toward the waypoint's band
+    if (wp) { const dx = wp.x - ship.x, dy = wp.y - ship.y, d = Math.hypot(dx, dy); if (d > 1) { ship.x += dx / d * 7 * dt; ship.y += dy / d * 7 * dt; ship.hdg = Math.atan2(dy, dx); } const db = wp.band - ship.band; ship.band += Math.sign(db) * Math.min(Math.abs(db), 0.35 * dt); }
+    cons.forEach(c => { c.x += c.vx * dt; c.y += c.vy * dt; if (Math.hypot(c.x, c.y) > 92) { c.vx *= -1; c.vy *= -1; } c.t -= dt; if (c.t <= 0) { c.t = 8 + Math.random() * 8; c.band = Math.max(0, Math.min(2, c.band + (Math.random() < 0.5 ? -1 : 1))); sync(); } });
+    cx.clearRect(0, 0, W, W);
+    // scope disc and rings
+    cx.strokeStyle = C.line; cx.lineWidth = 1.5; [25, 50, 75, 100].forEach(r => { cx.beginPath(); cx.arc(W / 2, W / 2, r * K, 0, 7); cx.stroke(); });
+    cx.beginPath(); cx.moveTo(W / 2, W / 2 - R * K); cx.lineTo(W / 2, W / 2 + R * K); cx.moveTo(W / 2 - R * K, W / 2); cx.lineTo(W / 2 + R * K, W / 2); cx.stroke();
+    cx.fillStyle = 'rgba(111,195,208,.07)'; cx.beginPath(); cx.moveTo(W / 2, W / 2); cx.arc(W / 2, W / 2, R * K, ang, ang + 0.5); cx.fill();
+    // waypoint, with a stem and band ticks so its depth reads in the plan view
+    if (wp) {
+      cx.strokeStyle = C.cyan; cx.setLineDash([6, 6]); cx.lineWidth = 1.5; cx.beginPath(); cx.moveTo(sx(ship.x), sy(ship.y)); cx.lineTo(sx(wp.x), sy(wp.y)); cx.stroke(); cx.setLineDash([]);
+      const px = sx(wp.x), py = sy(wp.y); cx.lineWidth = 2; cx.beginPath(); cx.moveTo(px, py); cx.lineTo(px, py - 36); cx.stroke();
+      for (let b = 0; b < 3; b++) { cx.fillStyle = b === wp.band ? C.cyan : 'rgba(111,195,208,.18)'; cx.fillRect(px + 6, py - 36 + b * 12, 12, 9); }
+      cx.beginPath(); cx.arc(px, py, 7, 0, 7); cx.stroke(); label('WP ' + NAMES[wp.band], px + 24, py - 10, C.cyan, 1);
+    }
+    // contacts
+    cons.forEach(c => {
+      const rel = c.band - sBand(), blocked = layerBlocks(sBand(), c.band), a = blocked ? 0.4 : 1, x = sx(c.x), y = sy(c.y), col = rel === 0 ? C.amber : rel < 0 ? C.cyan : C.violet;
+      cx.globalAlpha = a; if (rel === 0) diamond(x, y, 12, true, col); else tri(x, y, 12, rel < 0, col); cx.globalAlpha = 1;
+      // band pips beside each contact
+      for (let b = 0; b < 3; b++) { cx.globalAlpha = a; cx.fillStyle = b === c.band ? col : 'rgba(207,227,216,.16)'; cx.fillRect(x + 18, y - 14 + b * 9, 8, 6); }
+      cx.globalAlpha = 1; label('#' + c.id + ' ' + NAMES[c.band], x + 32, y + 4, col, a);
+      if (sel === c) { cx.strokeStyle = col; cx.lineWidth = 1.5; cx.setLineDash([4, 4]); cx.beginPath(); cx.arc(x, y, 22, 0, 7); cx.stroke(); cx.setLineDash([]); }
+    });
+    // ship
+    cx.save(); cx.translate(sx(ship.x), sy(ship.y)); cx.rotate(ship.hdg + Math.PI / 2); cx.fillStyle = C.green; cx.beginPath(); cx.moveTo(0, -14); cx.lineTo(9, 11); cx.lineTo(0, 6); cx.lineTo(-9, 11); cx.closePath(); cx.fill(); cx.restore();
+    label('US ' + NAMES[sBand()], sx(ship.x) + 16, sy(ship.y) + 26, C.green, 1);
+    // salvo cone
+    if (cone) { const age = (now - cone.t) / 1000; if (age < 2.5) { cx.save(); cx.translate(sx(cone.x), sy(cone.y)); cx.rotate(cone.dir); cx.strokeStyle = cone.ok ? C.green : C.red; cx.fillStyle = cone.ok ? 'rgba(143,214,148,.12)' : 'rgba(255,107,90,.12)'; cx.lineWidth = 2; cx.beginPath(); cx.ellipse(0, 0, cone.A * 1.5 * K, cone.B * K, 0, 0, 7); cx.fill(); cx.stroke(); cx.restore(); } else cone = null; }
+    if (acc > 0.5) { acc = 0; document.getElementById('hud').textContent = 'us ' + NAMES[sBand()] + ' · pick ' + NAMES[pickBand]; }
+    requestAnimationFrame(frame);
+  }
+  sync(); say('Click the scope to place a waypoint.'); requestAnimationFrame(frame);
+})();
+</script>

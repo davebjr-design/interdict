@@ -288,3 +288,7 @@ Revised (Dave): evade should speed analysis modestly at a modest stealth cost, b
 - Stage 0 log: `S.warn` records missile warning lead time per enemy launch.
 - Stealth cost at 100%/Redline left as is by decision. Bot baseline win rate dipped (66% baseline, 79% with Pell) against 1-3 random enemies; watch in playtest.
 - Not yet: amber/cyan blend with age ring, HEARS US band, stealth missiles.
+
+## Throwaway prototypes (not wired to the engine)
+- `design/proto_25d.html`: 2.5D depth-band scope. Rejected by decision; game stays 2D (lore idea: Pell flattens the volume into a plan view).
+- `design/proto_shipwalk.html`: walkable 3D greybox of the ship (three.js r128). One deck, eight compartments, four crew plus Pell, three mini-missions (relational, mechanical, diplomatic), arrival and briefing table, minimap, T auto-walk, walked-meters counter. Purpose: judge whether walking the ship and the little jobs are fun. Mission outcomes are previewed as hunt modifiers only.
