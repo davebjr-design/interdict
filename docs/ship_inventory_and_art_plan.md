@@ -170,3 +170,9 @@ Dave: the cramped feel is right but the rooms look artificially small on the sta
 **Done: rectangular grids in the engine.** A room can now set `Ni` and `Nj` (cells along each axis) instead of a square `N`. Existing rooms are unchanged.
 
 **Proposed: long, narrow rooms in the next art pass.** Generate rooms as about 2:1 or 3:1 rectangles with the long axis along the ship (the spine) and doors on the short ends, so walking through a room is walking down the ship. Rooms that are naturally wide (Mess, Engineering) can be 2:1; passages, bunk rooms, cabins, head, thermal and sensors 3:1 or more; the Junction stays square. Prompt addition: "a long narrow room about three times as long as it is wide, long axis running from the back-left wall to the front-right, doors in the two short end walls". Generated art may not follow the ratio exactly, so expect to pick from variants.
+
+## 18. Doorway fit and stepping through hatches (2026-10-28)
+
+- Crew sprites are scaled 0.9x globally (`CHAR`) so a person is about 90% of a door's height.
+- Each door has a `wall` tag ('i' = back-left wall, 'j' = back-right wall). Leaving a room, the person walks to the wall plane and out through the opening, clipped to the opening and darkened, then the screen fades. Arriving, the reverse: they step out of the opening and into the room. Input is locked during the step.
+- Answer to "continuous room or hallway with doorways?": see section 19.

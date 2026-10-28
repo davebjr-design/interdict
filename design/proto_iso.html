@@ -59,7 +59,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   const load = s => { const i = new Image(); i.src = s; return i; };
   const spr = load('assets/captain_sheet.png'); let sprReady = false; spr.onload = () => { sprReady = true; };
   const SHEET = { castellan: load('assets/castellan_sheet.png'), abara: load('assets/abara_sheet.png'), quill: load('assets/quill_sheet.png'), dace: load('assets/dace_sheet.png'), fenwick: load('assets/fenwick_sheet.png') };
-  const DIRS = ['se', 'sw', 'ne', 'nw'], CW = 256, CH = 320, FEET = [128, 280], SC = 0.62;
+  const DIRS = ['se', 'sw', 'ne', 'nw'], CW = 256, CH = 320, FEET = [128, 280], SC = 0.62, CHAR = 0.9; // CHAR: global crew scale so a person is about 90% of a door's height
 
   // ---------- rooms (world units are 640 x 360; drawn at 2x) ----------
   // A room image is placed centered on the 640x360 stage at scale k (world units per image pixel). k is calibrated from the door height (about 60 world units).
@@ -71,7 +71,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       name: 'ENGINEERING', img: load('assets/engineering_room.png'), box: [0, 0, 640, 360],
       T: [320, 131], R: [515, 230], L: [125, 230], N: 10,
       blocked: blockList([[0, 1, 3, 6], [0, 2, 7, 9], [0, 4, 0, 1], [5, 6, 0, 0], [7, 9, 0, 0]]),
-      doors: [{ id: 'toMess', rect: [452, 120, 512, 212], stand: [8, 1], to: 'mess', arrive: [0, 4], dir: 'se', label: 'Door to the Mess' }],
+      doors: [{ id: 'toMess', rect: [452, 120, 512, 212], stand: [8, 1], to: 'mess', wall: 'j', arrive: [0, 4], dir: 'se', label: 'Door to the Mess' }],
       npcs: [{ name: 'Castellan', col: '#b69cf0', cell: [4, 4], sheet: 'castellan', sc: 0.648 }, { name: 'Dace', col: '#e8c05a', cell: [7, 4], sheet: 'dace', sc: 0.63 }],
       props: [],
       lights: [
@@ -88,8 +88,8 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       blurb: 'The Mess. Fenwick is at the galley. Aft, the door on the left wall leads back to Engineering. Forward, the door on the right wall leads to the junction and the rest of the ship.',
       blocked: blockList([[0, 8, 0, 1], [8, 8, 2, 2], [0, 0, 6, 12], [2, 3, 3, 6], [5, 7, 3, 6], [2, 3, 8, 11], [5, 7, 8, 11], [9, 11, 8, 10]]),
       doors: [
-        { id: 'toEng', rect: SM.r(478, 145, 578, 312), stand: [0, 4], to: 'eng', arrive: [8, 1], dir: 'sw', label: 'Door to Engineering' },
-        { id: 'toJct', rect: SM.r(1355, 345, 1450, 525), stand: [12, 1], to: 'jct', arrive: [0, 5], dir: 'se', label: 'Door forward to the junction' }
+        { id: 'toEng', rect: SM.r(478, 145, 578, 312), stand: [0, 4], to: 'eng', wall: 'i', arrive: [8, 1], dir: 'sw', label: 'Door to Engineering' },
+        { id: 'toJct', rect: SM.r(1355, 345, 1450, 525), stand: [12, 1], to: 'jct', wall: 'j', arrive: [0, 5], dir: 'se', label: 'Door forward to the junction' }
       ],
       npcs: [{ name: 'Fenwick', col: '#c9b458', cell: [4, 2], sheet: 'fenwick', sc: 0.602 }, { name: 'Abara', col: '#e8853a', cell: [11, 5], sheet: 'abara', sc: 0.609 }, { name: 'Quill', col: '#5fd0e0', cell: [9, 3], sheet: 'quill', sc: 0.637 }],
       props: [
@@ -111,9 +111,9 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       blurb: 'The junction, the middle of the spine. Aft, the left-hand door leads to the Mess. The next door along that wall is the crew passage (not built yet). Forward, the door on the right wall leads to the bridge.',
       blocked: blockList([[0, 1, 0, 0], [0, 1, 4, 4], [0, 0, 6, 6], [5, 6, 0, 0]]),
       doors: [
-        { id: 'toMess', rect: SJ.r(125, 310, 305, 665), stand: [0, 5], to: 'mess', arrive: [12, 1], dir: 'sw', label: 'Door aft to the Mess' },
-        { id: 'toCrew', rect: SJ.r(405, 185, 585, 500), stand: [0, 2], to: null, label: 'Crew passage: cabins, bunks, head (not built yet)' },
-        { id: 'toBridge', rect: SJ.r(890, 255, 1085, 570), stand: [3, 0], to: 'bridge', arrive: [0, 3], dir: 'se', label: 'Door forward to the bridge' }
+        { id: 'toMess', rect: SJ.r(125, 310, 305, 665), stand: [0, 5], to: 'mess', wall: 'i', arrive: [12, 1], dir: 'sw', label: 'Door aft to the Mess' },
+        { id: 'toCrew', rect: SJ.r(405, 185, 585, 500), stand: [0, 2], to: null, wall: 'i', label: 'Crew passage: cabins, bunks, head (not built yet)' },
+        { id: 'toBridge', rect: SJ.r(890, 255, 1085, 570), stand: [3, 0], to: 'bridge', wall: 'j', arrive: [0, 3], dir: 'se', label: 'Door forward to the bridge' }
       ],
       npcs: [],
       props: [{ c: [0, 1, 0, 0], h: 200 }, { c: [0, 1, 4, 4], h: 150 }, { c: [0, 0, 6, 6], h: 110 }, { c: [5, 6, 0, 0], h: 130 }],
@@ -128,7 +128,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       T: SB.W([700, 330]), R: SB.W([1340, 631]), L: SB.W([60, 631]), N: 8,
       blurb: 'The bridge, the forward end of the ship. Tight on purpose. The door on the left wall leads aft to the junction. Sensors and weapons will connect from here later.',
       blocked: blockList([[0, 1, 0, 1], [2, 5, 0, 0], [4, 4, 2, 2], [6, 7, 0, 1], [7, 7, 3, 3], [7, 7, 6, 6], [2, 2, 5, 5], [3, 4, 3, 4], [0, 0, 5, 7]]),
-      doors: [{ id: 'toJct', rect: SB.r(352, 190, 525, 470), stand: [0, 3], to: 'jct', arrive: [3, 0], dir: 'sw', label: 'Door aft to the junction' }],
+      doors: [{ id: 'toJct', rect: SB.r(352, 190, 525, 470), stand: [0, 3], to: 'jct', wall: 'i', arrive: [3, 0], dir: 'sw', label: 'Door aft to the junction' }],
       npcs: [],
       props: [{ c: [0, 1, 0, 1], h: 120 }, { c: [2, 5, 0, 0], h: 180 }, { c: [4, 4, 2, 2], h: 170 }, { c: [6, 7, 0, 1], h: 170 }, { c: [7, 7, 3, 3], h: 190 }, { c: [7, 7, 6, 6], h: 190 }, { c: [2, 2, 5, 5], h: 190 }, { c: [3, 4, 3, 4], h: 130 }, { c: [0, 0, 5, 7], h: 120 }],
       lights: [
@@ -173,13 +173,13 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     if (!(key(...t) in prev)) return null; const p = []; let c = t; while (c) { p.unshift(c); c = prev[key(...c)]; } return p;
   }
 
-  const me = { i: 7, j: 7, x: 0, y: 0, path: [], then: null, col: '#8fd694', name: 'Captain', dir: 'sw', sprite: true, sc: 0.63 };
+  const me = { steps: [], clip: false, i: 7, j: 7, x: 0, y: 0, path: [], then: null, col: '#8fd694', name: 'Captain', dir: 'sw', sprite: true, sc: 0.63 };
   let npcs = [];
   const MANIFOLD = { rect: [335, 62, 430, 152], stand: [5, 1] };
   let done = false, insp = 0, show = false, hover = null, hoverCell = null, dlg = false, fade = 0, fadeDir = 0, pending = null;
   function setRoom(id, cell, dir) {
     room = ROOMS[id]; blocked = room.blocked; NI = room.Ni || room.N; NJ = room.Nj || room.N; $('room').textContent = room.name; drawPlan();
-    me.i = cell[0]; me.j = cell[1]; const p = cellXY(me.i, me.j); me.x = p[0]; me.y = p[1]; me.path = []; me.then = null; if (dir) me.dir = dir;
+    me.steps = []; me.clip = false; me.i = cell[0]; me.j = cell[1]; const p = cellXY(me.i, me.j); me.x = p[0]; me.y = p[1]; me.path = []; me.then = null; if (dir) me.dir = dir;
     npcs = room.npcs.map(n => { const o = Object.assign({ dir: 'sw' }, n), q = cellXY(...o.cell); o.x = q[0]; o.y = q[1]; o.i = o.cell[0]; o.j = o.cell[1]; o.img = n.sheet ? SHEET[n.sheet] : null; return o; });
   }
   // Deck plan: the ship is a long thin hull. Aft (left) to fore (right) the spine is Engineering, Mess, Junction, Bridge; dashed boxes are rooms that have art but are not wired in yet.
@@ -223,10 +223,14 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   const npcAt = (x, y) => npcs.find(n => Math.abs(x - n.x) < 14 && y > n.y - 56 && y < n.y + 6);
   const doorAt = (x, y) => room.doors.find(d => inRect(x, y, d.rect));
   const manifoldHere = () => room === ROOMS.eng && !done;
-  function useDoor(d) { if (!d.to) { say('Ship log', d.label + '. The art exists but this part of the ship is not wired up yet.', '', [{ t: 'Continue', fn: close }]); return; } pending = d; fadeDir = 1; }
+  // Stepping through a hatch: the person walks to the wall plane and out through the opening (clipped to the opening and darkened), or the reverse on arrival.
+  const doorGeom = d => { const [si, sj] = d.stand; return d.wall === 'i' ? { sill: ptXY(0, (sj + .5) / NJ), out: ptXY(-0.8 / NI, (sj + .5) / NJ), dirOut: 'nw', dirIn: 'se' } : { sill: ptXY((si + .5) / NI, 0), out: ptXY((si + .5) / NI, -0.8 / NJ), dirOut: 'ne', dirIn: 'sw' }; };
+  function startExit(d) { const g = doorGeom(d); me.steps = [{ p: g.sill, clip: false }, { p: g.out, clip: true }]; me.stepDoor = d; me.sillP = g.sill; me.outP = g.out; me.dir = g.dirOut; me.path = []; me.then = null; }
+  function startEnter(arrive) { const d2 = room.doors.find(x => x.stand[0] === arrive[0] && x.stand[1] === arrive[1]); if (!d2 || !d2.wall) return; const g = doorGeom(d2), c = cellXY(...d2.stand); me.x = g.out[0]; me.y = g.out[1]; me.steps = [{ p: g.sill, clip: true }, { p: c, clip: false }]; me.stepDoor = null; me.sillP = g.sill; me.outP = g.out; me.dir = g.dirIn; me.clip = true; me.clipRect = d2.rect; }
+  function useDoor(d) { if (!d.to) { say('Ship log', d.label + '. The art exists but this part of the ship is not wired up yet.', '', [{ t: 'Continue', fn: close }]); return; } if (!d.wall) { pending = d; fadeDir = 1; return; } me.clipRect = d.rect; startExit(d); }
   cv.addEventListener('pointermove', e => { if (fadeDir) return; const [x, y] = mpos(e); const d = doorAt(x, y); const nn = npcAt(x, y); hover = nn ? nn : d ? d : manifoldHere() && inRect(x, y, MANIFOLD.rect) ? 'man' : null; const c = pick(x, y); hoverCell = free(...c) ? c : null; cv.style.cursor = hover || hoverCell ? 'pointer' : 'default'; });
   cv.addEventListener('pointerdown', e => {
-    if (dlg || insp > 0 || fadeDir) return; const [x, y] = mpos(e); const d = doorAt(x, y);
+    if (dlg || insp > 0 || fadeDir || me.steps.length) return; const [x, y] = mpos(e); const d = doorAt(x, y);
     const nn = npcAt(x, y); if (nn) { const c = nearNpc(nn); if (c && c[0] === me.i && c[1] === me.j) { talk(nn); return; } if (c && go(c, { npc: nn })) return; return; }
     if (d) { if (me.i === d.stand[0] && me.j === d.stand[1]) { useDoor(d); return; } go(d.stand, d); return; }
     if (manifoldHere() && inRect(x, y, MANIFOLD.rect)) { if (me.i === MANIFOLD.stand[0] && me.j === MANIFOLD.stand[1]) { insp = 0.001; return; } go(MANIFOLD.stand, 'man'); return; }
@@ -239,7 +243,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   function person(o, t, walking) {
     const x = o.x * S, y = o.y * S, bob = walking ? Math.abs(Math.sin(t * 9)) * 3 : Math.sin(t * 1.5) * 0.8;
     cx.fillStyle = 'rgba(0,0,0,.45)'; cx.beginPath(); cx.ellipse(x, y + 2, 17, 8, 0, 0, 7); cx.fill();
-    const sh = o.img || (o.sprite ? spr : null), sc = o.sc || SC;
+    const sh = o.img || (o.sprite ? spr : null), sc = (o.sc || SC) * CHAR;
     if (sh && sh.complete && sh.naturalWidth) {
       const di = DIRS.indexOf(o.dir), col = walking ? Math.floor(t * 7.5) % 8 : di, row = walking ? di : 4;
       cx.drawImage(sh, col * CW, row * CH, CW, CH, x - FEET[0] * sc, y - FEET[1] * sc, CW * sc, CH * sc);
@@ -252,10 +256,16 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   let last = performance.now();
   function frame(now) {
     const dt = Math.min(0.05, (now - last) / 1000), t = now / 1000; last = now;
-    if (fadeDir === 1) { fade += dt / 0.25; if (fade >= 1) { fade = 1; const d = pending; pending = null; setRoom(d.to, d.arrive, d.dir); if (room.blurb) say('Ship log', room.blurb, '', []); fadeDir = -1; } }
+    if (fadeDir === 1) { fade += dt / 0.25; if (fade >= 1) { fade = 1; const d = pending; pending = null; setRoom(d.to, d.arrive, d.dir); startEnter(d.arrive); if (room.blurb) say('Ship log', room.blurb, '', []); fadeDir = -1; } }
     else if (fadeDir === -1) { fade -= dt / 0.25; if (fade <= 0) { fade = 0; fadeDir = 0; } }
     let walking = false;
-    if (me.path.length) { const [ti, tj] = me.path[0], tp = cellXY(ti, tj), dx = tp[0] - me.x, dy = tp[1] - me.y, d = Math.hypot(dx, dy); walking = true; me.dir = dx >= 0 ? (dy >= 0 ? 'se' : 'ne') : (dy >= 0 ? 'sw' : 'nw'); if (d < 2) { me.i = ti; me.j = tj; me.path.shift(); } else { const sp = 120 * dt; me.x += dx / d * Math.min(sp, d); me.y += dy / d * Math.min(sp, d); } if (!me.path.length) { const th = me.then; me.then = null; if (th && th.npc) talk(th.npc); else if (th === 'man') insp = 0.001; else if (th && th.to !== undefined) useDoor(th); } }
+    if (me.steps.length) {
+      const st = me.steps[0], dx = st.p[0] - me.x, dy = st.p[1] - me.y, d = Math.hypot(dx, dy); walking = true; me.clip = st.clip;
+      me.dir = dx >= 0 ? (dy >= 0 ? 'se' : 'ne') : (dy >= 0 ? 'sw' : 'nw');
+      if (d < 1.5) { me.x = st.p[0]; me.y = st.p[1]; me.steps.shift(); if (!me.steps.length) { me.clip = false; const sd = me.stepDoor; me.stepDoor = null; if (sd) { pending = sd; fadeDir = 1; } } else me.clip = me.steps[0].clip; }
+      else { const sp = 62 * dt; me.x += dx / d * Math.min(sp, d); me.y += dy / d * Math.min(sp, d); }
+    }
+    if (!me.steps.length && me.path.length) { const [ti, tj] = me.path[0], tp = cellXY(ti, tj), dx = tp[0] - me.x, dy = tp[1] - me.y, d = Math.hypot(dx, dy); walking = true; me.dir = dx >= 0 ? (dy >= 0 ? 'se' : 'ne') : (dy >= 0 ? 'sw' : 'nw'); if (d < 2) { me.i = ti; me.j = tj; me.path.shift(); } else { const sp = 120 * dt; me.x += dx / d * Math.min(sp, d); me.y += dy / d * Math.min(sp, d); } if (!me.path.length) { const th = me.then; me.then = null; if (th && th.npc) talk(th.npc); else if (th === 'man') insp = 0.001; else if (th && th.to !== undefined) useDoor(th); } }
     if (insp > 0 && insp < 1) { insp += dt / 1.6; if (insp >= 1) { insp = 0; afterInspect(); } }
     const tip = $('tip'); if (hover && hover.name) { tip.hidden = false; tip.textContent = 'Talk to ' + hover.name; } else if (hover === 'man') { tip.hidden = false; tip.textContent = 'Inspect the coupling manifold'; } else if (hover && hover.label) { tip.hidden = false; tip.textContent = hover.label; } else tip.hidden = true;
     cx.clearRect(0, 0, 1280, 720); cx.save(); { const z = room.zoom || 1; cx.translate(640, 360); cx.scale(z, z); cx.translate(-640, -360); }
@@ -273,7 +283,10 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     if (hover === 'man') { cx.strokeStyle = '#ffb454'; cx.lineWidth = 2; cx.setLineDash([6, 5]); cx.strokeRect(MANIFOLD.rect[0] * S, MANIFOLD.rect[1] * S, (MANIFOLD.rect[2] - MANIFOLD.rect[0]) * S, (MANIFOLD.rect[3] - MANIFOLD.rect[1]) * S); cx.setLineDash([]); }
     if (manifoldHere()) { cx.fillStyle = '#ffb454'; const hx = 382 * S, hy = 54 * S + Math.sin(t * 3) * 4; cx.beginPath(); cx.moveTo(hx, hy + 12); cx.lineTo(hx - 9, hy); cx.lineTo(hx + 9, hy); cx.closePath(); cx.fill(); }
     npcs.map(n => [n, false]).concat([[me, walking]]).sort((a, b2) => a[0].y - b2[0].y).forEach(([o, w]) => {
-      person(o, t, w);
+      if (o === me && me.clip && me.clipRect) {
+        const r = me.clipRect, ix = (r[2] - r[0]) * 0.1, depth = Math.min(1, Math.hypot(me.x - me.sillP[0], me.y - me.sillP[1]) / Math.hypot(me.outP[0] - me.sillP[0], me.outP[1] - me.sillP[1]));
+        cx.save(); cx.beginPath(); cx.rect((r[0] + ix) * S, (r[1] + (r[3] - r[1]) * 0.06) * S, (r[2] - r[0] - 2 * ix) * S, (r[3] - r[1]) * 0.94 * S); cx.clip(); cx.globalAlpha = 1 - 0.65 * depth; person(o, t, w); cx.restore();
+      } else person(o, t, w);
       (room.props || []).forEach(pr => { if (!inFront(pr, o)) return; const poly = propPoly(pr); cx.save(); cx.beginPath(); poly.forEach((q, k) => k ? cx.lineTo(q[0] * S, q[1] * S) : cx.moveTo(q[0] * S, q[1] * S)); cx.closePath(); cx.clip(); cx.drawImage(room.img, b[0] * S, b[1] * S, b[2] * S, b[3] * S); cx.restore(); });
     });
     if (show) (room.props || []).forEach(pr => { const poly = propPoly(pr); cx.beginPath(); poly.forEach((q, k) => k ? cx.lineTo(q[0] * S, q[1] * S) : cx.moveTo(q[0] * S, q[1] * S)); cx.closePath(); cx.strokeStyle = '#ffb454'; cx.lineWidth = 1.5; cx.stroke(); });
