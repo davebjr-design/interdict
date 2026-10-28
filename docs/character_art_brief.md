@@ -27,4 +27,5 @@ Purpose: keep every generated character, prop and room looking like one game. Up
 Abara (weapons/helm), Dace (heat), Castellan (reactor), Quill (eclipse/sensors): headwear, jewelry, tattoo concept, accent color. Pell is an AI (no body).
 
 ## Status
-- Captain prompt drafted. First generation attempt was refused by Meshy: the connected free plan cannot create tasks through the API.
+- Captain v1 generated on Meshy (text-to-3d preview 01a18363-742d-7490-9a72-2fa6c8bef78c, refine 01a18365-f140-76b2-be85-3a0860e8488c; 30 credits). GLB not yet downloaded: assets.meshy.ai must be on the network allowlist. Not yet rigged.
+- Meshy task files contain signed URLs, so design/assets/meshy_output/ is git-ignored.
