@@ -51,3 +51,6 @@ Style learning: Meshy ignores 'no X' exclusions; body type words matter ('lean s
 - castellan: preview_v1 01a1841d-f2c4-73b8-a30f-90076c13ea2c, preview 01a1842e-101f-70b7-ac94-f44a91eb504f, refine 01a1843b-9033-7166-9363-bf2c95f9c92b, remesh 01a1843d-5703-7483-87ab-79d9270a5b60, rig 01a1843e-ddef-700e-bbe8-a97dc11e8df0
 - quill: preview 01a1841d-ffa9-7627-8bfa-d9890c6bbc3b, refine 01a1842e-26f9-7541-a501-85353ccdbb33, remesh 01a1843d-4c79-7169-9599-80961daa2f77, rig 01a1843e-b9fd-7602-b2c0-38f3e4926456
 - fenwick: preview_v1 01a1841e-0d67-75b1-a5a4-055315568f66, preview_v2 01a1842e-1b1f-7620-bb61-5fca2621a0b1, refine_v2 01a1843b-95e7-752d-ba9b-69fde193b07c, preview 01a1843d-6815-71ff-ba22-097e0be90663
+
+### Captain v2 (2026-10-28)
+Regenerated with the learned prompt style (style first, positive wording, average build, plain navy shirt, canvas vest, tan trousers, one wristband). Result matches the crew's look. Old sheet kept as design/assets/captain_v1_sheet.png. IDs in design/assets/meshy_output/crew/ids.json under captain2. Height 1.78 m (demo scale 0.63).

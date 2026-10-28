@@ -135,7 +135,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     if (!(key(...t) in prev)) return null; const p = []; let c = t; while (c) { p.unshift(c); c = prev[key(...c)]; } return p;
   }
 
-  const me = { i: 7, j: 7, x: 0, y: 0, path: [], then: null, col: '#8fd694', name: 'Captain', dir: 'sw', sprite: true };
+  const me = { i: 7, j: 7, x: 0, y: 0, path: [], then: null, col: '#8fd694', name: 'Captain', dir: 'sw', sprite: true, sc: 0.63 };
   let npcs = [];
   const MANIFOLD = { rect: [335, 62, 430, 152], stand: [5, 1] };
   let done = false, insp = 0, show = false, hover = null, hoverCell = null, dlg = false, fade = 0, fadeDir = 0, pending = null;
