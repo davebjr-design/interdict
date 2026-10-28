@@ -24,3 +24,13 @@ The tutorial teaches the game modes. Its hunt ends when the rogue captain's ship
 - Twist must survive both standoff routes. If the rogue captain dies, the truth has to survive in another place (Pell's logs, a crew member, the ship records). Persuasion route lets the captain tell part of it early, and the player can choose not to believe it.
 - Seed small hints early: the patron's blessing is a bit too convenient, and the crew are guarded about something.
 - Tutorial implementation idea: scripted director on the existing hunt engine (fixed seed, scripted enemy track, step gating, highlight overlay), skippable, replayable from a codex.
+
+## Decisions (Dave, 2026-10-28, third batch)
+- Early mission after the takeover: a shakedown hunt against a decoy, with the player in full control. This is the first real hunt and lets the tutorial hunt stay fully scripted.
+- The rogue captain is a believer, and there are secret believers throughout the universe (probably including within the crew). If he dies, Pell has it logged and other allies carry the conviction. If he lives he tells his side, and he can be jailbroken later.
+- His disturbing conviction: he is trying to reawaken the AI and thinks he can control it this time, which the player knows is dangerous thinking. He is adamant because he believes malevolent AI is already on the rise (autonomous or directed) and other powers are working on it.
+- Name and gender: Dave asked Claude to propose. Options in the reply: Corvane (f), Verrick (m), Sorrel (either), Rook (m).
+
+## Notes from Claude
+- Thematic mirror: the player uses Pell, and integration only goes up. The rogue captain is a version of where that road leads.
+- Secret believers in the crew should be a slow reveal tied to relationships, never a punishing betrayal or no-win state.
