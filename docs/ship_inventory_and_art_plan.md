@@ -334,3 +334,7 @@ Engineering's art has only one hatch, on its 'i' wall, so the whole upper-deck c
 The captain's stateroom is the exception: its door and control's are both on 'j' walls and neither art has an alternative, so that pair is a plain fade with no `wall` tag. It is a cabin door and a dead end, so there is no direction to preserve.
 
 **`tests/check_ship.js`** now enforces all of it: stand cells against painted hatch positions, reciprocal links, wall alternation, blocked stand and arrival cells, and per-room reachability with crew standing in position. It found the two remaining mistakes after the manual fix. Run it after touching any room definition.
+
+## 26. Refit pass and lessons (2026-10-29)
+
+All twelve rooms were refitted from their true floor corners with spec files in `design/rooms/`, footprint polygons for solids, a fade (no clip mask) for hatch transitions, and constant hatch-height scaling. The crew bunks and lower engineering were regenerated; the missile compartment, mess, airlock and control room had hatch or furniture edits. Status: about 60% of the way to a finished ship model. What we learned for new locations is in `docs/location_generation_lessons.md`.
