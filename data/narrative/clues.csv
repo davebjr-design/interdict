@@ -1,2 +1,5 @@
 clue_id,reveal,planted_in,form,independent_of,notes
 clue.patron.0,patron_agenda,P1,Ostrow answers "the patron's office" too fast,,host captain knows who ordered the hunt
+clue.patron.1,patron_agenda,P4,the blessing call arrives faster than it should,clue.patron.0,planned
+clue.patron.2,patron_agenda,P4,the patron never asks what Corvane said (approves too readily if murdered),clue.patron.0,planned
+clue.patron.3,patron_agenda,1.7,first commission coordinates do not fit the stated job,clue.patron.1,planned
