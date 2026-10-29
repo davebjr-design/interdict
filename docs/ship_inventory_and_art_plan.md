@@ -318,3 +318,19 @@ Rooms are now declared in image pixels (floor quad `t/r/l/b`, cell counts, door 
 **Still rough:** mess table prop hulls sit about a cell off the painted tables; blocked-cell sets outside the first three rooms are generous rather than traced, so some furniture is walkable and some floor is not.
 
 **Next:** click-to-travel on the deck plan, then crew stations and scripted movement (section 25).
+
+## 25. Door alignment and walk direction (2026-10-29)
+
+Dave, on engineering: the captain entered from the wrong direction compared to where he came from in thermal, and was cut off on entry. Two separate bugs, both affecting most of the ship.
+
+**1. Stand cells did not match the painted hatches.** A door's `stand` cell is where the captain stands to use it, and the step-through animation clips him to the door's rect as he passes through the opening. The stand cells were guessed by eye and were wrong on eleven of sixteen hatches; engineering's was three cells off, roughly 250 px. The captain therefore walked to a patch of blank wall, and the clip rect sat somewhere else entirely, so he was drawn cut in half.
+
+The stand cell is computable, not a matter of judgment: for a wall-'i' door the sill is `lerp(T, L, (j+0.5)/Nj)`, for wall 'j' it is `lerp(T, R, (i+0.5)/Ni)`, both in image pixels, and the right cell is the one whose sill is nearest the hatch rect's center. All sixteen are now derived that way.
+
+**2. Both sides of a link used the same wall.** Leaving through a back-right ('j') wall moves the captain up-right; arriving through a back-left ('i') wall moves him down-right. Those continue each other. Exiting 'j' and entering 'j' means he walks up-right, then up-right again out of the far wall, which reads as entering backwards. Five links had matching walls, thermal-to-engineering among them.
+
+Engineering's art has only one hatch, on its 'i' wall, so the whole upper-deck chain was re-paired outward from it: control 'j' to junction 'i', junction 'j' to missile 'i', missile 'j' to thermal 'i', thermal 'j' to engineering 'i'. The lower deck was re-paired the same way. Where a compartment has two painted hatches, which one leads where is now chosen to keep the alternation, not by which end looks forward.
+
+The captain's stateroom is the exception: its door and control's are both on 'j' walls and neither art has an alternative, so that pair is a plain fade with no `wall` tag. It is a cabin door and a dead end, so there is no direction to preserve.
+
+**`tests/check_ship.js`** now enforces all of it: stand cells against painted hatch positions, reciprocal links, wall alternation, blocked stand and arrival cells, and per-room reachability with crew standing in position. It found the two remaining mistakes after the manual fix. Run it after touching any room definition.

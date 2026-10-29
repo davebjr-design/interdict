@@ -93,8 +93,8 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       blurb: 'The control room, forward end of the upper deck. Navigation at the far end, the attack center amidships around the chart table, sensors and ECM aft. Pell\'s core is the pedestal on the centerline. The hatch aft leads to the junction.',
       blocked: blockList([[0, 0, 0, 1], [2, 2, 1, 1], [2, 4, 0, 0], [5, 5, 0, 1], [6, 7, 0, 0], [8, 10, 0, 0], [8, 9, 1, 1], [11, 11, 0, 0]]),
       doors: [
-        { id: 'toJct', rc: [1285, 385, 1435, 615], stand: [13, 0], wall: 'j', to: 'junction', arrive: [2, 0], dir: 'sw', label: 'Hatch aft to the junction' },
-        { id: 'toStateroom', rc: [1150, 345, 1265, 565], stand: [12, 1], wall: 'j', to: 'stateroom', arrive: [5, 0], dir: 'nw', label: "Door to the captain's stateroom" }
+        { id: 'toJct', rc: [1285, 385, 1435, 615], stand: [12, 0], wall: 'j', to: 'junction', arrive: [0, 2], dir: 'sw', label: 'Hatch aft to the junction' },
+        { id: 'toStateroom', rc: [1150, 345, 1265, 565], stand: [10, 1], to: 'stateroom', arrive: [3, 0], dir: 'nw', label: "Door to the captain's stateroom" }
       ],
       npcs: [{ name: 'Abara', col: '#e8853a', cell: [6, 2], sheet: 'abara', sc: 0.609 }, { name: 'Quill', col: '#5fd0e0', cell: [10, 2], sheet: 'quill', sc: 0.637 }],
       props: [
@@ -113,8 +113,8 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       blurb: 'The junction. The hatch to the right leads forward to the control room, the hatch to the left runs aft to the missile compartment. The ladder in the deck goes down to the mess, and the trunk overhead is the boarding airlock.',
       blocked: blockList([[2, 4, 2, 4], [0, 0, 5, 6], [5, 6, 0, 0]]),
       doors: [
-        { id: 'toControl', rc: [875, 195, 1035, 545], stand: [2, 0], wall: 'j', to: 'control', arrive: [13, 0], dir: 'nw', label: 'Hatch forward to the control room' },
-        { id: 'toMissile', rc: [325, 185, 525, 525], stand: [0, 2], wall: 'i', to: 'missile', arrive: [11, 1], dir: 'nw', label: 'Hatch aft to the missile compartment' },
+        { id: 'toControl', rc: [325, 185, 525, 525], stand: [0, 2], wall: 'i', to: 'control', arrive: [12, 0], dir: 'se', label: 'Hatch forward to the control room' },
+        { id: 'toMissile', rc: [875, 195, 1035, 545], stand: [2, 0], wall: 'j', to: 'missile', arrive: [0, 4], dir: 'sw', label: 'Hatch aft to the missile compartment' },
         { id: 'downToMess', rc: [555, 555, 865, 825], stand: [5, 3], ladder: 'down', to: 'mess', arrive: [1, 3], dir: 'sw', label: 'Ladder down to the mess' },
         { id: 'upToAirlock', rc: [550, 80, 840, 220], stand: [1, 1], ladder: 'up', to: 'airlock', arrive: [3, 2], dir: 'se', label: 'Trunk up to the boarding airlock' }
       ],
@@ -131,12 +131,12 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       name: 'MESS AND GALLEY', deck: 'lower', img: load('assets/rooms/mess_v3.png'), img_size: [1494, 953],
       t: [800, 395], r: [1470, 690], l: [25, 700], b: [695, 995], Ni: 11, Nj: 13,
       blurb: 'The mess and galley, directly under the junction. Fenwick is at the counter. It seats twenty-five and there are six of you. The ladder goes back up to the junction; the hatches fore and aft are not wired yet.',
-      blocked: blockList([[0, 0, 0, 2], [0, 0, 4, 9], [0, 1, 0, 0], [2, 3, 1, 6], [4, 5, 2, 7], [6, 7, 3, 8], [8, 9, 4, 9], [7, 8, 0, 0]]),
+      blocked: blockList([[0, 0, 0, 2], [0, 0, 4, 6], [0, 0, 8, 9], [0, 1, 0, 0], [2, 3, 1, 6], [4, 5, 2, 7], [6, 7, 3, 8], [8, 9, 4, 9], [8, 8, 0, 0]]),
       doors: [
         { id: 'upToJct', rc: [590, 165, 710, 500], stand: [1, 3], ladder: 'up', to: 'junction', arrive: [5, 3], dir: 'se', label: 'Ladder up to the junction' },
-        { id: 'toBerths', rc: [55, 395, 205, 645], stand: [0, 12], wall: 'i', to: 'berths', arrive: [0, 4], dir: 'se', label: 'Hatch forward to the officer berths' },
-        { id: 'toUtility', rc: [215, 330, 335, 530], stand: [0, 10], wall: 'i', to: 'utility', arrive: [7, 1], dir: 'se', label: 'Door to the utility compartment' },
-        { id: 'toBunks', rc: [1265, 285, 1405, 565], stand: [9, 0], wall: 'j', to: 'bunks', arrive: [7, 4], dir: 'nw', label: 'Hatch aft to the crew bunks' }
+        { id: 'toBunks', rc: [55, 395, 205, 645], stand: [0, 10], wall: 'i', to: 'bunks', arrive: [4, 1], dir: 'se', label: 'Hatch aft to the crew bunks' },
+        { id: 'toUtility', rc: [215, 330, 335, 530], stand: [0, 7], wall: 'i', to: 'utility', arrive: [5, 1], dir: 'se', label: 'Door to the utility compartment' },
+        { id: 'toBerths', rc: [1265, 285, 1405, 565], stand: [7, 0], wall: 'j', to: 'berths', arrive: [0, 5], dir: 'sw', label: 'Hatch forward to the officer berths' }
       ],
       npcs: [{ name: 'Fenwick', col: '#c9b458', cell: [1, 1], sheet: 'fenwick', sc: 0.602 }],
       props: [
@@ -157,8 +157,8 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       blurb: 'The missile compartment. Twenty-four tubes in two rows: twelve live, six missiles apiece, and twelve racked with salvage canisters. That is the cargo hold. Reloading is a dockyard job.',
       blocked: blockList([[0, 2, 0, 0], [8, 10, 0, 0]]),
       doors: [
-        { id: 'toJct', rc: [1235, 455, 1425, 730], stand: [11, 1], wall: 'j', to: 'junction', arrive: [0, 2], dir: 'sw', label: 'Hatch forward to the junction' },
-        { id: 'toThermal', rc: [15, 150, 120, 420], stand: [0, 3], wall: 'i', to: 'thermal', arrive: [11, 1], dir: 'se', label: 'Hatch aft to thermal control' }
+        { id: 'toJct', rc: [15, 150, 120, 420], stand: [0, 4], wall: 'i', to: 'junction', arrive: [2, 0], dir: 'se', label: 'Hatch forward to the junction' },
+        { id: 'toThermal', rc: [1235, 455, 1425, 730], stand: [11, 1], wall: 'j', to: 'thermal', arrive: [0, 2], dir: 'sw', label: 'Hatch aft to thermal control' }
       ],
       npcs: [],
       props: [{ c: [0, 2, 0, 0], h: 95 }, { c: [8, 10, 0, 0], h: 80 }],
@@ -168,13 +168,13 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       name: 'THERMAL CONTROL', deck: 'upper', img: load('assets/rooms/thermal_v3.png'), img_size: [1480, 985],
       t: [425, 380], r: [1440, 770], l: [25, 545], b: [1040, 935], Ni: 12, Nj: 5,
       blurb: 'Thermal control. Dace runs the heat sinks from here, and the sink loops run the length of the hull. Forward to the missile compartment, aft to engineering.',
-      blocked: blockList([[0, 9, 0, 0], [5, 6, 1, 1], [8, 9, 1, 1]]),
+      blocked: blockList([[0, 8, 0, 0], [5, 6, 1, 1], [8, 9, 1, 1]]),
       doors: [
-        { id: 'toMissile', rc: [1215, 385, 1410, 770], stand: [11, 0], wall: 'j', to: 'missile', arrive: [0, 3], dir: 'nw', label: 'Hatch forward to the missile compartment' },
-        { id: 'toEngUpper', rc: [55, 175, 240, 510], stand: [0, 2], wall: 'i', to: 'eng_upper', arrive: [0, 2], dir: 'se', label: 'Hatch aft to engineering' }
+        { id: 'toMissile', rc: [55, 175, 240, 510], stand: [0, 2], wall: 'i', to: 'missile', arrive: [11, 1], dir: 'se', label: 'Hatch forward to the missile compartment' },
+        { id: 'toEngUpper', rc: [1215, 385, 1410, 770], stand: [9, 0], wall: 'j', to: 'eng_upper', arrive: [0, 5], dir: 'sw', label: 'Hatch aft to engineering' }
       ],
       npcs: [{ name: 'Dace', col: '#e8c05a', cell: [6, 2], sheet: 'dace', sc: 0.63 }],
-      props: [{ c: [0, 9, 0, 0], h: 130 }, { c: [5, 6, 1, 1], h: 70 }, { c: [8, 9, 1, 1], h: 60 }],
+      props: [{ c: [0, 8, 0, 0], h: 130 }, { c: [5, 6, 1, 1], h: 70 }, { c: [8, 9, 1, 1], h: 60 }],
       lights: [{ p: [160, 170], r: 28, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 51 }, { p: [765, 205], r: 28, c: [255, 170, 70], a: 0.30, pat: 'fault', seed: 52 }, { p: [1315, 405], r: 28, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 53 }, { p: [265, 335], r: 16, c: [111, 195, 208], a: 0.40, pat: 'blink', seed: 54 }, { p: [1210, 560], r: 16, c: [111, 195, 208], a: 0.40, pat: 'blink', seed: 55 }]
     },
     eng_upper: {
@@ -183,7 +183,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       blurb: 'Engineering, upper level. The reactor casing comes up through the grating; its base is on the deck below. Castellan is usually here. The ladder goes down to lower engineering.',
       blocked: blockList([[1, 3, 1, 4], [0, 9, 0, 0], [7, 8, 2, 4]]),
       doors: [
-        { id: 'toThermal', rc: [45, 125, 240, 400], stand: [0, 2], wall: 'i', to: 'thermal', arrive: [0, 2], dir: 'se', label: 'Hatch forward to thermal control' },
+        { id: 'toThermal', rc: [45, 125, 240, 470], stand: [0, 5], wall: 'i', to: 'thermal', arrive: [9, 0], dir: 'se', label: 'Hatch forward to thermal control' },
         { id: 'downToEngLower', rc: [905, 510, 1165, 710], stand: [6, 3], ladder: 'down', to: 'eng_lower', arrive: [2, 5], dir: 'sw', label: 'Ladder down to lower engineering' }
       ],
       npcs: [{ name: 'Castellan', col: '#b69cf0', cell: [5, 2], sheet: 'castellan', sc: 0.648 }],
@@ -197,7 +197,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       blocked: blockList([[0, 1, 2, 10], [5, 6, 0, 1]]),
       doors: [
         { id: 'upToEngUpper', rc: [690, 270, 790, 540], stand: [2, 5], ladder: 'up', to: 'eng_upper', arrive: [6, 3], dir: 'se', label: 'Ladder up to upper engineering' },
-        { id: 'toBunks', rc: [1285, 165, 1435, 445], stand: [6, 2], wall: 'j', to: 'bunks', arrive: [6, 1], dir: 'sw', label: 'Hatch forward to the crew bunks' }
+        { id: 'toBunks', rc: [1285, 165, 1435, 445], stand: [5, 2], wall: 'j', to: 'bunks', arrive: [0, 8], dir: 'sw', label: 'Hatch forward to the crew bunks' }
       ],
       npcs: [],
       props: [{ c: [0, 1, 2, 10], h: 130 }, { c: [5, 6, 0, 1], h: 200 }],
@@ -207,13 +207,13 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       name: 'CREW BUNKS', deck: 'lower', img: load('assets/rooms/bunks_v3.png'), img_size: [1509, 775],
       t: [820, 225], r: [1490, 360], l: [30, 620], b: [700, 755], Ni: 8, Nj: 10,
       blurb: 'The crew bunk compartment, wrapped around the bases of the missile tubes. Most racks are folded flat with crates strapped into them. Two are still made up, which is where visitors sleep.',
-      blocked: blockList([[0, 1, 0, 9], [3, 4, 1, 7]]),
+      blocked: blockList([[0, 1, 0, 3], [0, 1, 7, 7], [0, 1, 9, 9], [3, 4, 2, 7]]),
       doors: [
-        { id: 'toEngLower', rc: [1190, 90, 1305, 325], stand: [6, 1], wall: 'j', to: 'eng_lower', arrive: [6, 2], dir: 'nw', label: 'Hatch aft to lower engineering' },
-        { id: 'toMess', rc: [1395, 310, 1500, 520], stand: [7, 4], wall: 'j', to: 'mess', arrive: [9, 0], dir: 'sw', label: 'Hatch forward to the mess' }
+        { id: 'toEngLower', rc: [35, 250, 170, 500], stand: [0, 8], wall: 'i', to: 'eng_lower', arrive: [5, 2], dir: 'se', label: 'Hatch aft to lower engineering' },
+        { id: 'toMess', rc: [1190, 90, 1305, 325], stand: [4, 1], wall: 'j', to: 'mess', arrive: [0, 10], dir: 'sw', label: 'Hatch forward to the mess' }
       ],
       npcs: [],
-      props: [{ c: [0, 1, 0, 9], h: 130 }, { c: [3, 4, 1, 7], h: 180 }],
+      props: [{ c: [0, 1, 0, 3], h: 130 }, { c: [0, 1, 7, 7], h: 130 }, { c: [0, 1, 9, 9], h: 130 }, { c: [3, 4, 2, 7], h: 180 }],
       lights: [{ p: [245, 320], r: 26, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 81 }, { p: [400, 285], r: 26, c: [255, 170, 70], a: 0.30, pat: 'fault', seed: 82 }, { p: [975, 75], r: 26, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 83 }, { p: [1355, 195], r: 26, c: [255, 170, 70], a: 0.30, pat: 'flicker', seed: 84 }, { p: [320, 385], r: 16, c: [111, 195, 208], a: 0.40, pat: 'blink', seed: 85 }, { p: [1380, 295], r: 16, c: [111, 195, 208], a: 0.40, pat: 'blink', seed: 86 }]
     },
     berths: {
@@ -221,7 +221,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       t: [610, 330], r: [1450, 715], l: [20, 520], b: [860, 905], Ni: 9, Nj: 9,
       blurb: 'Officer berths, the forward end of the lower deck. Three cabins, two sides each, and a spare side kept for a visitor. Forward dead end; the hatch goes aft to the mess.',
       blocked: blockList([[0, 8, 0, 1]]),
-      doors: [{ id: 'toMess', rc: [145, 120, 305, 470], stand: [0, 4], wall: 'i', to: 'mess', arrive: [0, 12], dir: 'se', label: 'Hatch aft to the mess' }],
+      doors: [{ id: 'toMess', rc: [145, 120, 305, 470], stand: [0, 5], wall: 'i', to: 'mess', arrive: [7, 0], dir: 'se', label: 'Hatch aft to the mess' }],
       npcs: [],
       props: [{ c: [0, 8, 0, 1], h: 150 }],
       lights: [{ p: [240, 125], r: 26, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 91 }, { p: [520, 145], r: 26, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 92 }, { p: [855, 235], r: 26, c: [255, 170, 70], a: 0.30, pat: 'fault', seed: 93 }, { p: [1215, 355], r: 26, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 94 }, { p: [500, 320], r: 16, c: [111, 195, 208], a: 0.40, pat: 'blink', seed: 95 }, { p: [1360, 600], r: 16, c: [111, 195, 208], a: 0.40, pat: 'blink', seed: 96 }]
@@ -230,20 +230,20 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       name: 'UTILITY', deck: 'lower', img: load('assets/rooms/utility_v3.png'), img_size: [1407, 972],
       t: [690, 420], r: [1390, 640], l: [20, 700], b: [720, 920], Ni: 8, Nj: 8,
       blurb: 'Heads, showers, laundry, and the sickbay nobody has used in a long time. A side room off the mess.',
-      blocked: blockList([[0, 6, 0, 0], [0, 0, 1, 6]]),
-      doors: [{ id: 'toMess', rc: [1150, 170, 1330, 490], stand: [7, 1], wall: 'j', to: 'mess', arrive: [0, 10], dir: 'se', label: 'Door back to the mess' }],
+      blocked: blockList([[0, 4, 0, 0], [0, 0, 1, 6]]),
+      doors: [{ id: 'toMess', rc: [1150, 170, 1330, 490], stand: [5, 1], wall: 'j', to: 'mess', arrive: [0, 7], dir: 'sw', label: 'Door back to the mess' }],
       npcs: [],
-      props: [{ c: [0, 6, 0, 0], h: 140 }, { c: [0, 0, 1, 6], h: 140 }],
+      props: [{ c: [0, 4, 0, 0], h: 140 }, { c: [0, 0, 1, 6], h: 140 }],
       lights: [{ p: [300, 150], r: 24, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 101 }, { p: [740, 95], r: 24, c: [255, 170, 70], a: 0.30, pat: 'fault', seed: 102 }, { p: [1220, 180], r: 24, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 103 }, { p: [350, 230], r: 16, c: [111, 195, 208], a: 0.40, pat: 'blink', seed: 104 }, { p: [1105, 225], r: 16, c: [111, 195, 208], a: 0.40, pat: 'blink', seed: 105 }]
     },
     stateroom: {
       name: "CAPTAIN'S STATEROOM", deck: 'upper', img: load('assets/rooms/stateroom_v3.png'), img_size: [1321, 1081],
       t: [650, 450], r: [1300, 730], l: [20, 710], b: [670, 990], Ni: 8, Nj: 7,
       blurb: 'Your stateroom, off the aft end of the control room. A bunk that folds out of the wall, a desk that folds down, a locker. The only door on the ship you can shut behind you.',
-      blocked: blockList([[0, 0, 0, 6], [0, 4, 0, 0], [6, 7, 0, 0], [6, 7, 1, 2]]),
-      doors: [{ id: 'toControl', rc: [930, 215, 1130, 580], stand: [5, 0], wall: 'j', to: 'control', arrive: [12, 1], dir: 'sw', label: 'Door out to the control room' }],
+      blocked: blockList([[0, 0, 0, 6], [0, 2, 0, 0], [6, 7, 0, 0], [6, 7, 1, 2]]),
+      doors: [{ id: 'toControl', rc: [930, 215, 1130, 580], stand: [3, 0], to: 'control', arrive: [10, 1], dir: 'sw', label: 'Door out to the control room' }],
       npcs: [],
-      props: [{ c: [0, 0, 0, 6], h: 90 }, { c: [0, 4, 0, 0], h: 150 }, { c: [6, 7, 0, 0], h: 150 }, { c: [6, 7, 1, 2], h: 80 }],
+      props: [{ c: [0, 0, 0, 6], h: 90 }, { c: [0, 2, 0, 0], h: 150 }, { c: [6, 7, 0, 0], h: 150 }, { c: [6, 7, 1, 2], h: 80 }],
       lights: [{ p: [175, 790], r: 26, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 111 }, { p: [395, 700], r: 24, c: [255, 170, 70], a: 0.30, pat: 'flicker', seed: 112 }, { p: [745, 795], r: 24, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 113 }, { p: [815, 915], r: 16, c: [111, 195, 208], a: 0.40, pat: 'blink', seed: 114 }]
     },
     airlock: {
