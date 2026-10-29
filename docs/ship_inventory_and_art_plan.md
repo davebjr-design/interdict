@@ -285,3 +285,36 @@ The junction loop is walkable: control room → junction → ladder down → mes
 **Known rough edge:** the mess table prop hulls sit about a cell off the painted tables, so occlusion there will be slightly wrong until the strips are nudged.
 
 **Next:** the remaining nine compartments, then click-to-travel on the deck plan.
+
+## 24. All twelve compartments fitted (2026-10-28)
+
+The whole ship is walkable. Tested bow to stern: stateroom, control, junction, missile, thermal, engineering upper, ladder down, engineering lower, bunks, mess, berths, mess, utility, mess, ladder up, junction, airlock. No unreachable cells anywhere, no broken door links, no errors.
+
+**Camera consistency (Dave: rooms zoomed in and out unpleasantly).** Fixed by changing what calibrates a room's scale. Previously each room's `k` came from its door height, and `zoom` was then whatever filled the stage, which ranged 1.12 to 1.75: the captain's on-screen size changed by more than half between rooms. Now every room is scaled so that **one walk cell is the same number of world units everywhere** (`CELL = 24`), and `zoom` only fills the stage, clamped to 1.0 to 1.15. The captain's apparent size now varies by 14%, and because the change happens behind the transition fade it reads as the same ship rather than a new one.
+
+Rooms are now declared in image pixels (floor quad `t/r/l/b`, cell counts, door rects as `rc`) and `fit()` derives k, box, world corners, zoom and scroll. Adding a compartment is data, not arithmetic.
+
+| Compartment | Cells | Width (world) | Zoom |
+|---|---|---|---|
+| Control room | 14 x 4 | 466 | 1.15 |
+| Captain's stateroom | 8 x 7 | 372 | 1.15 |
+| Junction | 7 x 7 | 327 | 1.15 |
+| Boarding airlock | 8 x 8 | 394 | 1.15 |
+| Missile compartment | 12 x 6 | 492 | 1.15 |
+| Thermal control | 12 x 5 | 427 | 1.15 |
+| Engineering upper | 10 x 7 | 424 | 1.15 |
+| Engineering lower | 7 x 11 | 440 | 1.15 |
+| Crew bunks | 8 x 10 | 446 | 1.15 |
+| Mess and galley | 11 x 13 | 596 | 1.01 |
+| Officer berths | 9 x 9 | 445 | 1.15 |
+| Utility | 8 x 8 | 394 | 1.15 |
+
+**Automated fitting was a dead end.** Two attempts to derive floor quads from the keyed alpha failed: the silhouette's lower boundary is the hull plinth, which sits below the walkable floor, so every fit came out too large and the error varied per room. `tools/fit_estimate.py` is kept for reference but the quads are measured by eye against a labeled grid overlay, three passes per room.
+
+**The reachability harness earns its keep.** It caught the stateroom door standing inside its own furniture block, and before that Fenwick sealing the galley aisle. Both would have been invisible until someone walked into them.
+
+**Two invented doors.** The missile compartment's aft hatch and the mess's utility door sit on blank wall where the art draws no opening, because those compartments came back with fewer hatches than the layout needs. They work; they just do not look like doors. Worth regenerating those two rooms with the extra hatch specified when there is reason to touch them again.
+
+**Still rough:** mess table prop hulls sit about a cell off the painted tables; blocked-cell sets outside the first three rooms are generous rather than traced, so some furniture is walkable and some floor is not.
+
+**Next:** click-to-travel on the deck plan, then crew stations and scripted movement (section 25).

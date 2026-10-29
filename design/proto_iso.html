@@ -41,8 +41,8 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   </header>
   <div id="stage">
     <canvas id="cv" width="1280" height="720"></canvas>
-    <div id="job" class="hud"><div class="lab">Mission tracker</div><div class="k">MECHANICAL</div><div class="t">Walk the ship: control room, junction, mess</div></div>
-    <div id="map" class="hud"><div class="lab">Deck plan</div><svg id="plan" width="330" height="80" viewBox="0 0 330 80"></svg></div>
+    <div id="job" class="hud"><div class="lab">Mission tracker</div><div class="k">MECHANICAL</div><div class="t">Walk the ship, bow to stern, both decks</div></div>
+    <div id="map" class="hud"><div class="lab">Deck plan</div><svg id="plan" width="300" height="118" viewBox="0 0 240 98"></svg></div>
     <div id="tip" class="hud" hidden></div><div id="room" class="hud" style="left:50%;transform:translateX(-50%);top:12px;font:700 12px var(--disp);letter-spacing:.2em;color:var(--amber)">CONTROL ROOM</div>
   </div>
   <div class="panel">
@@ -50,7 +50,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     <div><div id="nm">Ship log</div><div id="tx">The control room, forward end of the upper deck. Navigation at the far end, the attack center amidships around the chart table, sensors and ECM aft. Pell's core is the pedestal on the centerline. The hatch aft leads to the junction.</div><div id="fx"></div><div id="ch"></div></div>
   </div>
   <div class="row"><button id="grid" type="button">Show walk grid</button><button id="reset" type="button">Reset</button></div>
-  <p class="note">Hull revision 2: compartments chain end to end through bulkhead hatches, with a ladder between decks at the junction. Three of twelve compartments are wired; the rest have art but no walk grid yet, and their hatches say so. Room art is generated from the submarine brief in docs/room_art_brief_v2.md and keyed from magenta. Crew are Meshy models rendered to sprite sheets, drawn at 90% of a hatch height. Light flicker is drawn in code over the still art. Walk grids are fitted by hand; use Show walk grid to check them.</p>
+  <p class="note">Hull revision 2: all twelve compartments are walkable. They chain end to end through bulkhead hatches, with ladders between decks at the junction and in engineering. Every room is scaled to the same walk-cell size, so the captain stays the same size throughout and the view only zooms enough to fill the stage. Room art is generated from the submarine brief in docs/room_art_brief_v2.md and keyed from magenta. Crew are Meshy models rendered to sprite sheets, drawn at 90% of a hatch height. Light flicker is drawn in code over the still art. Walk grids are fitted by hand; use Show walk grid to check them.</p>
 </div>
 
 <script>
@@ -66,19 +66,39 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   const space = (w, h, k) => { const ox = (640 - w * k) / 2, oy = (360 - h * k) / 2, W = p => [ox + p[0] * k, oy + p[1] * k]; return { k, box: [ox, oy, w * k, h * k], W, r: (x0, y0, x1, y1) => [...W([x0, y0]), ...W([x1, y1])] }; };
   const SM = space(1489, 963, 0.362), SB = space(1427, 953, 0.235), SS = space(1485, 832, 0.29);
   const blockList = (arr) => { const s = new Set(); arr.forEach(([i0, i1, j0, j1]) => { for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) s.add(i + ',' + j); }); return s; };
-  // Hull revision 2 (docs/ship_inventory_and_art_plan.md sections 20-22). Each room carries its own
-  // image scale k, its floor quad (T, R, L and B) and its cell counts, all fitted by hand to the art.
-  const SCTL = space(1484, 829, 0.356), SJCT = space(1384, 956, 0.226), SMSS = space(1494, 953, 0.311);
+  // Hull revision 2 (docs/ship_inventory_and_art_plan.md sections 20-24).
+  // A room is declared in IMAGE pixels: its floor quad t/r/l/b, its cell counts, and door
+  // rects as rc. fit() turns that into world units. Every room is scaled so one walk cell is
+  // the same number of world units everywhere (CELL), which is what keeps the captain the
+  // same size from room to room; zoom only ever fills the stage, and is clamped so the view
+  // never jumps more than a little when you step through a hatch.
+  const CELL = 24, STAGE_W = 600, ZOOM_MAX = 1.15;
+  function fit(r) {
+    const iw = r.img_size[0], ih = r.img_size[1];
+    const k = CELL / ((r.r[0] - r.l[0]) / (r.Ni + r.Nj));
+    const ox = (640 - iw * k) / 2, oy = (360 - ih * k) / 2, W = p => [ox + p[0] * k, oy + p[1] * k];
+    r.k = k; r.box = [ox, oy, iw * k, ih * k];
+    r.sp = { k, W, r: (x0, y0, x1, y1) => [...W([x0, y0]), ...W([x1, y1])] };
+    r.T = W(r.t); r.R = W(r.r); r.L = W(r.l); r.B = W(r.b);
+    r.zoom = Math.min(ZOOM_MAX, Math.max(1, STAGE_W / r.box[2]));
+    r.scroll = r.box[2] * r.zoom > 632;
+    r.doors.forEach(d => { d.rect = r.sp.r(...d.rc); });
+    r.lights.forEach(l => { const w = W(l.p); l.x = w[0]; l.y = w[1]; });
+    return r;
+  }
   const ROOMS = {
     control: {
-      name: 'CONTROL ROOM', deck: 'upper', img: load('assets/rooms/control_v3.png'), sp: SCTL, k: SCTL.k, box: SCTL.box, zoom: 1.12,
-      T: SCTL.W([345, 300]), R: SCTL.W([1420, 630]), L: SCTL.W([45, 395]), B: SCTL.W([810, 770]), Ni: 14, Nj: 4,
+      name: 'CONTROL ROOM', deck: 'upper', img: load('assets/rooms/control_v3.png'), img_size: [1484, 829],
+      t: [345, 300], r: [1420, 630], l: [45, 395], b: [810, 770], Ni: 14, Nj: 4,
       blurb: 'The control room, forward end of the upper deck. Navigation at the far end, the attack center amidships around the chart table, sensors and ECM aft. Pell\'s core is the pedestal on the centerline. The hatch aft leads to the junction.',
       blocked: blockList([[0, 0, 0, 1], [2, 2, 1, 1], [2, 4, 0, 0], [5, 5, 0, 1], [6, 7, 0, 0], [8, 10, 0, 0], [8, 9, 1, 1], [11, 11, 0, 0]]),
-      doors: [{ id: 'toJct', rect: SCTL.r(1285, 385, 1435, 615), stand: [13, 0], wall: 'j', to: 'junction', arrive: [2, 0], dir: 'sw', label: 'Hatch aft to the junction' }],
+      doors: [
+        { id: 'toJct', rc: [1285, 385, 1435, 615], stand: [13, 0], wall: 'j', to: 'junction', arrive: [2, 0], dir: 'sw', label: 'Hatch aft to the junction' },
+        { id: 'toStateroom', rc: [1150, 345, 1265, 565], stand: [12, 1], wall: 'j', to: 'stateroom', arrive: [5, 0], dir: 'nw', label: "Door to the captain's stateroom" }
+      ],
       npcs: [{ name: 'Abara', col: '#e8853a', cell: [6, 2], sheet: 'abara', sc: 0.609 }, { name: 'Quill', col: '#5fd0e0', cell: [10, 2], sheet: 'quill', sc: 0.637 }],
       props: [
-        { c: [0, 0, 0, 1], h: 85 }, { c: [1, 2, 1, 1], h: 55 }, { c: [2, 4, 0, 0], h: 60 }, { c: [5, 5, 0, 1], h: 70 },
+        { c: [0, 0, 0, 1], h: 85 }, { c: [2, 2, 1, 1], h: 55 }, { c: [2, 4, 0, 0], h: 60 }, { c: [5, 5, 0, 1], h: 70 },
         { c: [6, 7, 0, 0], h: 70 }, { c: [8, 10, 0, 0], h: 95 }, { c: [8, 9, 1, 1], h: 80 }, { c: [11, 11, 0, 0], h: 60 }
       ],
       lights: [
@@ -88,15 +108,15 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       ]
     },
     junction: {
-      name: 'JUNCTION', deck: 'upper', img: load('assets/rooms/junction_v3.png'), sp: SJCT, k: SJCT.k, box: SJCT.box, zoom: 1.75,
-      T: SJCT.W([690, 460]), R: SJCT.W([1400, 665]), L: SJCT.W([-20, 665]), B: SJCT.W([690, 920]), Ni: 7, Nj: 7,
+      name: 'JUNCTION', deck: 'upper', img: load('assets/rooms/junction_v3.png'), img_size: [1384, 956],
+      t: [690, 460], r: [1400, 665], l: [-20, 665], b: [690, 920], Ni: 7, Nj: 7,
       blurb: 'The junction. The hatch to the right leads forward to the control room, the hatch to the left runs aft to the missile compartment. The ladder in the deck goes down to the mess, and the trunk overhead is the boarding airlock.',
       blocked: blockList([[2, 4, 2, 4], [0, 0, 5, 6], [5, 6, 0, 0]]),
       doors: [
-        { id: 'toControl', rect: SJCT.r(875, 195, 1035, 545), stand: [2, 0], wall: 'j', to: 'control', arrive: [13, 0], dir: 'nw', label: 'Hatch forward to the control room' },
-        { id: 'toMissile', rect: SJCT.r(325, 185, 525, 525), stand: [0, 2], wall: 'i', to: null, label: 'Hatch aft to the missile compartment (not wired yet)' },
-        { id: 'downToMess', rect: SJCT.r(555, 555, 865, 825), stand: [5, 3], ladder: 'down', to: 'mess', arrive: [1, 3], dir: 'sw', label: 'Ladder down to the mess' },
-        { id: 'upToAirlock', rect: SJCT.r(550, 80, 840, 220), stand: [1, 1], ladder: 'up', to: null, label: 'Trunk up to the boarding airlock (not wired yet)' }
+        { id: 'toControl', rc: [875, 195, 1035, 545], stand: [2, 0], wall: 'j', to: 'control', arrive: [13, 0], dir: 'nw', label: 'Hatch forward to the control room' },
+        { id: 'toMissile', rc: [325, 185, 525, 525], stand: [0, 2], wall: 'i', to: 'missile', arrive: [11, 1], dir: 'nw', label: 'Hatch aft to the missile compartment' },
+        { id: 'downToMess', rc: [555, 555, 865, 825], stand: [5, 3], ladder: 'down', to: 'mess', arrive: [1, 3], dir: 'sw', label: 'Ladder down to the mess' },
+        { id: 'upToAirlock', rc: [550, 80, 840, 220], stand: [1, 1], ladder: 'up', to: 'airlock', arrive: [3, 2], dir: 'se', label: 'Trunk up to the boarding airlock' }
       ],
       npcs: [],
       props: [{ c: [0, 0, 5, 6], h: 150 }, { c: [5, 6, 0, 0], h: 120 }],
@@ -108,18 +128,19 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       ]
     },
     mess: {
-      name: 'MESS AND GALLEY', deck: 'lower', img: load('assets/rooms/mess_v3.png'), sp: SMSS, k: SMSS.k, box: SMSS.box, zoom: 1.2,
-      T: SMSS.W([800, 395]), R: SMSS.W([1470, 690]), L: SMSS.W([25, 700]), B: SMSS.W([695, 995]), Ni: 11, Nj: 13,
+      name: 'MESS AND GALLEY', deck: 'lower', img: load('assets/rooms/mess_v3.png'), img_size: [1494, 953],
+      t: [800, 395], r: [1470, 690], l: [25, 700], b: [695, 995], Ni: 11, Nj: 13,
       blurb: 'The mess and galley, directly under the junction. Fenwick is at the counter. It seats twenty-five and there are six of you. The ladder goes back up to the junction; the hatches fore and aft are not wired yet.',
       blocked: blockList([[0, 0, 0, 2], [0, 0, 4, 9], [0, 1, 0, 0], [2, 3, 1, 6], [4, 5, 2, 7], [6, 7, 3, 8], [8, 9, 4, 9], [7, 8, 0, 0]]),
       doors: [
-        { id: 'upToJct', rect: SMSS.r(590, 165, 710, 500), stand: [1, 3], ladder: 'up', to: 'junction', arrive: [5, 3], dir: 'se', label: 'Ladder up to the junction' },
-        { id: 'toBerths', rect: SMSS.r(55, 395, 205, 645), stand: [0, 11], wall: 'i', to: null, label: 'Hatch forward to the officer berths (not wired yet)' },
-        { id: 'toBunks', rect: SMSS.r(1265, 285, 1405, 565), stand: [9, 0], wall: 'j', to: null, label: 'Hatch aft to the crew bunks (not wired yet)' }
+        { id: 'upToJct', rc: [590, 165, 710, 500], stand: [1, 3], ladder: 'up', to: 'junction', arrive: [5, 3], dir: 'se', label: 'Ladder up to the junction' },
+        { id: 'toBerths', rc: [55, 395, 205, 645], stand: [0, 12], wall: 'i', to: 'berths', arrive: [0, 4], dir: 'se', label: 'Hatch forward to the officer berths' },
+        { id: 'toUtility', rc: [215, 330, 335, 530], stand: [0, 10], wall: 'i', to: 'utility', arrive: [7, 1], dir: 'se', label: 'Door to the utility compartment' },
+        { id: 'toBunks', rc: [1265, 285, 1405, 565], stand: [9, 0], wall: 'j', to: 'bunks', arrive: [7, 4], dir: 'nw', label: 'Hatch aft to the crew bunks' }
       ],
       npcs: [{ name: 'Fenwick', col: '#c9b458', cell: [1, 1], sheet: 'fenwick', sc: 0.602 }],
       props: [
-        { c: [0, 0, 0, 2], h: 115 }, { c: [0, 0, 4, 9], h: 115 }, { c: [0, 1, 0, 0], h: 95 }, { c: [7, 9, 0, 0], h: 70 },
+        { c: [0, 0, 0, 2], h: 115 }, { c: [0, 0, 4, 9], h: 115 }, { c: [0, 1, 0, 0], h: 95 }, { c: [7, 8, 0, 0], h: 70 },
         { c: [2, 3, 1, 6], h: 58 }, { c: [4, 5, 2, 7], h: 58 }, { c: [6, 7, 3, 8], h: 58 }, { c: [8, 9, 4, 9], h: 58 }
       ],
       lights: [
@@ -129,9 +150,114 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
         { p: [897, 100], r: 30, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 27 }, { p: [1310, 262], r: 30, c: [255, 170, 70], a: 0.3, pat: 'fault', seed: 28 },
         { p: [200, 500], r: 16, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 29 }, { p: [1243, 345], r: 16, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 30 }
       ]
+    },
+    missile: {
+      name: 'MISSILE COMPARTMENT', deck: 'upper', img: load('assets/rooms/missile_v3.png'), img_size: [1498, 838],
+      t: [330, 205], r: [1325, 525], l: [10, 425], b: [1005, 745], Ni: 12, Nj: 6,
+      blurb: 'The missile compartment. Twenty-four tubes in two rows: twelve live, six missiles apiece, and twelve racked with salvage canisters. That is the cargo hold. Reloading is a dockyard job.',
+      blocked: blockList([[0, 2, 0, 0], [8, 10, 0, 0]]),
+      doors: [
+        { id: 'toJct', rc: [1235, 455, 1425, 730], stand: [11, 1], wall: 'j', to: 'junction', arrive: [0, 2], dir: 'sw', label: 'Hatch forward to the junction' },
+        { id: 'toThermal', rc: [15, 150, 120, 420], stand: [0, 3], wall: 'i', to: 'thermal', arrive: [11, 1], dir: 'se', label: 'Hatch aft to thermal control' }
+      ],
+      npcs: [],
+      props: [{ c: [0, 2, 0, 0], h: 95 }, { c: [8, 10, 0, 0], h: 80 }],
+      lights: [{ p: [195, 70], r: 28, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 41 }, { p: [500, 125], r: 28, c: [255, 170, 70], a: 0.30, pat: 'fault', seed: 42 }, { p: [790, 215], r: 28, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 43 }, { p: [1265, 375], r: 26, c: [255, 170, 70], a: 0.30, pat: 'flicker', seed: 44 }, { p: [1015, 330], r: 16, c: [111, 195, 208], a: 0.40, pat: 'blink', seed: 45 }]
+    },
+    thermal: {
+      name: 'THERMAL CONTROL', deck: 'upper', img: load('assets/rooms/thermal_v3.png'), img_size: [1480, 985],
+      t: [425, 380], r: [1440, 770], l: [25, 545], b: [1040, 935], Ni: 12, Nj: 5,
+      blurb: 'Thermal control. Dace runs the heat sinks from here, and the sink loops run the length of the hull. Forward to the missile compartment, aft to engineering.',
+      blocked: blockList([[0, 9, 0, 0], [5, 6, 1, 1], [8, 9, 1, 1]]),
+      doors: [
+        { id: 'toMissile', rc: [1215, 385, 1410, 770], stand: [11, 0], wall: 'j', to: 'missile', arrive: [0, 3], dir: 'nw', label: 'Hatch forward to the missile compartment' },
+        { id: 'toEngUpper', rc: [55, 175, 240, 510], stand: [0, 2], wall: 'i', to: 'eng_upper', arrive: [0, 2], dir: 'se', label: 'Hatch aft to engineering' }
+      ],
+      npcs: [{ name: 'Dace', col: '#e8c05a', cell: [6, 2], sheet: 'dace', sc: 0.63 }],
+      props: [{ c: [0, 9, 0, 0], h: 130 }, { c: [5, 6, 1, 1], h: 70 }, { c: [8, 9, 1, 1], h: 60 }],
+      lights: [{ p: [160, 170], r: 28, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 51 }, { p: [765, 205], r: 28, c: [255, 170, 70], a: 0.30, pat: 'fault', seed: 52 }, { p: [1315, 405], r: 28, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 53 }, { p: [265, 335], r: 16, c: [111, 195, 208], a: 0.40, pat: 'blink', seed: 54 }, { p: [1210, 560], r: 16, c: [111, 195, 208], a: 0.40, pat: 'blink', seed: 55 }]
+    },
+    eng_upper: {
+      name: 'ENGINEERING \u00b7 UPPER', deck: 'upper', img: load('assets/rooms/eng_upper_v3.png'), img_size: [1490, 832],
+      t: [595, 190], r: [1465, 570], l: [30, 420], b: [900, 800], Ni: 10, Nj: 7,
+      blurb: 'Engineering, upper level. The reactor casing comes up through the grating; its base is on the deck below. Castellan is usually here. The ladder goes down to lower engineering.',
+      blocked: blockList([[1, 3, 1, 4], [0, 9, 0, 0], [7, 8, 2, 4]]),
+      doors: [
+        { id: 'toThermal', rc: [45, 125, 240, 400], stand: [0, 2], wall: 'i', to: 'thermal', arrive: [0, 2], dir: 'se', label: 'Hatch forward to thermal control' },
+        { id: 'downToEngLower', rc: [905, 510, 1165, 710], stand: [6, 3], ladder: 'down', to: 'eng_lower', arrive: [2, 5], dir: 'sw', label: 'Ladder down to lower engineering' }
+      ],
+      npcs: [{ name: 'Castellan', col: '#b69cf0', cell: [5, 2], sheet: 'castellan', sc: 0.648 }],
+      props: [{ c: [1, 3, 1, 4], h: 160 }, { c: [0, 9, 0, 0], h: 110 }],
+      lights: [{ p: [480, 120], r: 30, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 61 }, { p: [715, 180], r: 28, c: [255, 170, 70], a: 0.30, pat: 'fault', seed: 62 }, { p: [930, 240], r: 28, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 63 }, { p: [1220, 315], r: 26, c: [255, 170, 70], a: 0.30, pat: 'flicker', seed: 64 }, { p: [180, 200], r: 16, c: [111, 195, 208], a: 0.40, pat: 'blink', seed: 65 }, { p: [1265, 400], r: 16, c: [111, 195, 208], a: 0.40, pat: 'blink', seed: 66 }]
+    },
+    eng_lower: {
+      name: 'ENGINEERING \u00b7 LOWER', deck: 'lower', img: load('assets/rooms/eng_lower_v3.png'), img_size: [1492, 817],
+      t: [880, 310], r: [1480, 420], l: [15, 730], b: [615, 840], Ni: 7, Nj: 11,
+      blurb: 'Engineering, lower level. The reactor base is aft, the heat sink machinery forward, and the coil gun breech runs along the keel. The ladder goes back up.',
+      blocked: blockList([[0, 1, 2, 10], [5, 6, 0, 1]]),
+      doors: [
+        { id: 'upToEngUpper', rc: [690, 270, 790, 540], stand: [2, 5], ladder: 'up', to: 'eng_upper', arrive: [6, 3], dir: 'se', label: 'Ladder up to upper engineering' },
+        { id: 'toBunks', rc: [1285, 165, 1435, 445], stand: [6, 2], wall: 'j', to: 'bunks', arrive: [6, 1], dir: 'sw', label: 'Hatch forward to the crew bunks' }
+      ],
+      npcs: [],
+      props: [{ c: [0, 1, 2, 10], h: 130 }, { c: [5, 6, 0, 1], h: 200 }],
+      lights: [{ p: [95, 455], r: 26, c: [255, 170, 70], a: 0.30, pat: 'flicker', seed: 71 }, { p: [560, 390], r: 28, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 72 }, { p: [865, 265], r: 28, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 73 }, { p: [1300, 120], r: 26, c: [255, 170, 70], a: 0.30, pat: 'fault', seed: 74 }, { p: [780, 350], r: 16, c: [111, 195, 208], a: 0.40, pat: 'blink', seed: 75 }, { p: [1415, 265], r: 16, c: [111, 195, 208], a: 0.40, pat: 'blink', seed: 76 }]
+    },
+    bunks: {
+      name: 'CREW BUNKS', deck: 'lower', img: load('assets/rooms/bunks_v3.png'), img_size: [1509, 775],
+      t: [820, 225], r: [1490, 360], l: [30, 620], b: [700, 755], Ni: 8, Nj: 10,
+      blurb: 'The crew bunk compartment, wrapped around the bases of the missile tubes. Most racks are folded flat with crates strapped into them. Two are still made up, which is where visitors sleep.',
+      blocked: blockList([[0, 1, 0, 9], [3, 4, 1, 7]]),
+      doors: [
+        { id: 'toEngLower', rc: [1190, 90, 1305, 325], stand: [6, 1], wall: 'j', to: 'eng_lower', arrive: [6, 2], dir: 'nw', label: 'Hatch aft to lower engineering' },
+        { id: 'toMess', rc: [1395, 310, 1500, 520], stand: [7, 4], wall: 'j', to: 'mess', arrive: [9, 0], dir: 'sw', label: 'Hatch forward to the mess' }
+      ],
+      npcs: [],
+      props: [{ c: [0, 1, 0, 9], h: 130 }, { c: [3, 4, 1, 7], h: 180 }],
+      lights: [{ p: [245, 320], r: 26, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 81 }, { p: [400, 285], r: 26, c: [255, 170, 70], a: 0.30, pat: 'fault', seed: 82 }, { p: [975, 75], r: 26, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 83 }, { p: [1355, 195], r: 26, c: [255, 170, 70], a: 0.30, pat: 'flicker', seed: 84 }, { p: [320, 385], r: 16, c: [111, 195, 208], a: 0.40, pat: 'blink', seed: 85 }, { p: [1380, 295], r: 16, c: [111, 195, 208], a: 0.40, pat: 'blink', seed: 86 }]
+    },
+    berths: {
+      name: 'OFFICER BERTHS', deck: 'lower', img: load('assets/rooms/berths_v3.png'), img_size: [1473, 946],
+      t: [610, 330], r: [1450, 715], l: [20, 520], b: [860, 905], Ni: 9, Nj: 9,
+      blurb: 'Officer berths, the forward end of the lower deck. Three cabins, two sides each, and a spare side kept for a visitor. Forward dead end; the hatch goes aft to the mess.',
+      blocked: blockList([[0, 8, 0, 1]]),
+      doors: [{ id: 'toMess', rc: [145, 120, 305, 470], stand: [0, 4], wall: 'i', to: 'mess', arrive: [0, 12], dir: 'se', label: 'Hatch aft to the mess' }],
+      npcs: [],
+      props: [{ c: [0, 8, 0, 1], h: 150 }],
+      lights: [{ p: [240, 125], r: 26, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 91 }, { p: [520, 145], r: 26, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 92 }, { p: [855, 235], r: 26, c: [255, 170, 70], a: 0.30, pat: 'fault', seed: 93 }, { p: [1215, 355], r: 26, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 94 }, { p: [500, 320], r: 16, c: [111, 195, 208], a: 0.40, pat: 'blink', seed: 95 }, { p: [1360, 600], r: 16, c: [111, 195, 208], a: 0.40, pat: 'blink', seed: 96 }]
+    },
+    utility: {
+      name: 'UTILITY', deck: 'lower', img: load('assets/rooms/utility_v3.png'), img_size: [1407, 972],
+      t: [690, 420], r: [1390, 640], l: [20, 700], b: [720, 920], Ni: 8, Nj: 8,
+      blurb: 'Heads, showers, laundry, and the sickbay nobody has used in a long time. A side room off the mess.',
+      blocked: blockList([[0, 6, 0, 0], [0, 0, 1, 6]]),
+      doors: [{ id: 'toMess', rc: [1150, 170, 1330, 490], stand: [7, 1], wall: 'j', to: 'mess', arrive: [0, 10], dir: 'se', label: 'Door back to the mess' }],
+      npcs: [],
+      props: [{ c: [0, 6, 0, 0], h: 140 }, { c: [0, 0, 1, 6], h: 140 }],
+      lights: [{ p: [300, 150], r: 24, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 101 }, { p: [740, 95], r: 24, c: [255, 170, 70], a: 0.30, pat: 'fault', seed: 102 }, { p: [1220, 180], r: 24, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 103 }, { p: [350, 230], r: 16, c: [111, 195, 208], a: 0.40, pat: 'blink', seed: 104 }, { p: [1105, 225], r: 16, c: [111, 195, 208], a: 0.40, pat: 'blink', seed: 105 }]
+    },
+    stateroom: {
+      name: "CAPTAIN'S STATEROOM", deck: 'upper', img: load('assets/rooms/stateroom_v3.png'), img_size: [1321, 1081],
+      t: [650, 450], r: [1300, 730], l: [20, 710], b: [670, 990], Ni: 8, Nj: 7,
+      blurb: 'Your stateroom, off the aft end of the control room. A bunk that folds out of the wall, a desk that folds down, a locker. The only door on the ship you can shut behind you.',
+      blocked: blockList([[0, 0, 0, 6], [0, 4, 0, 0], [6, 7, 0, 0], [6, 7, 1, 2]]),
+      doors: [{ id: 'toControl', rc: [930, 215, 1130, 580], stand: [5, 0], wall: 'j', to: 'control', arrive: [12, 1], dir: 'sw', label: 'Door out to the control room' }],
+      npcs: [],
+      props: [{ c: [0, 0, 0, 6], h: 90 }, { c: [0, 4, 0, 0], h: 150 }, { c: [6, 7, 0, 0], h: 150 }, { c: [6, 7, 1, 2], h: 80 }],
+      lights: [{ p: [175, 790], r: 26, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 111 }, { p: [395, 700], r: 24, c: [255, 170, 70], a: 0.30, pat: 'flicker', seed: 112 }, { p: [745, 795], r: 24, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 113 }, { p: [815, 915], r: 16, c: [111, 195, 208], a: 0.40, pat: 'blink', seed: 114 }]
+    },
+    airlock: {
+      name: 'BOARDING AIRLOCK', deck: 'upper', img: load('assets/rooms/airlock_v3.png'), img_size: [1406, 1078],
+      t: [705, 540], r: [1390, 780], l: [20, 780], b: [705, 1020], Ni: 8, Nj: 8,
+      blurb: 'The boarding airlock, off the junction. Suit lockers, a bench, and the outer hatch. This is where you go across to someone else\'s ship.',
+      blocked: blockList([[0, 0, 0, 7], [0, 7, 0, 0], [2, 3, 1, 1]]),
+      doors: [{ id: 'downToJct', rc: [430, 1, 760, 120], stand: [3, 2], ladder: 'down', to: 'junction', arrive: [1, 1], dir: 'se', label: 'Ladder down to the junction' }],
+      npcs: [],
+      props: [{ c: [0, 0, 0, 7], h: 190 }, { c: [0, 7, 0, 0], h: 180 }, { c: [2, 3, 1, 1], h: 60 }],
+      lights: [{ p: [265, 455], r: 26, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 121 }, { p: [620, 455], r: 24, c: [255, 170, 70], a: 0.30, pat: 'steady', seed: 122 }, { p: [75, 575], r: 16, c: [111, 195, 208], a: 0.40, pat: 'blink', seed: 123 }, { p: [760, 700], r: 16, c: [111, 195, 208], a: 0.40, pat: 'blink', seed: 124 }]
     }
   };
-  Object.values(ROOMS).forEach(r => r.lights.forEach(l => { if (l.p) { const w = r.sp.W(l.p); l.x = w[0]; l.y = w[1]; } }));
+  Object.values(ROOMS).forEach(fit);
   // A prop is a box standing on floor cells. When an entity stands BEHIND it (in the iso sense), the prop's image region is redrawn over the entity.
   function hull(pts) { pts = pts.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]); const cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]); const lo = [], up = []; for (const p of pts) { while (lo.length > 1 && cr(lo[lo.length - 2], lo[lo.length - 1], p) <= 0) lo.pop(); lo.push(p); } for (const p of pts.slice().reverse()) { while (up.length > 1 && cr(up[up.length - 2], up[up.length - 1], p) <= 0) up.pop(); up.push(p); } return lo.slice(0, -1).concat(up.slice(0, -1)); }
   const propPoly = pr => { const [i0, i1, j0, j1] = pr.c, h = pr.h * room.k, g = [[i0, j0], [i1 + 1, j0], [i1 + 1, j1 + 1], [i0, j1 + 1]].map(([a, b]) => ptXY(a / NI, b / NJ)); return hull(g.concat(g.map(p => [p[0], p[1] - h]))); };
@@ -184,18 +310,24 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     snapCam = true; me.steps = []; me.clip = false; me.i = cell[0]; me.j = cell[1]; const p = cellXY(me.i, me.j); me.x = p[0]; me.y = p[1]; me.path = []; me.then = null; if (dir) me.dir = dir;
     npcs = room.npcs.map(n => { const o = Object.assign({ dir: 'sw' }, n), q = cellXY(...o.cell); o.x = q[0]; o.y = q[1]; o.i = o.cell[0]; o.j = o.cell[1]; o.img = n.sheet ? SHEET[n.sheet] : null; return o; });
   }
-  // Deck plan: the ship is a long thin hull. Aft (left) to fore (right) the spine is Engineering, Mess, Junction, Bridge; dashed boxes are rooms that have art but are not wired in yet.
-  // Deck plan: upper deck on top, lower deck below, bow to the right. Solid boxes are wired up; dashed are art-only.
-  const PLAN = [['control', 'CONTROL', 246, 6, 70, 20], ['junction', 'JCT', 210, 6, 32, 20], ['mess', 'MESS', 214, 44, 64, 20]],
-    PLAN_FUTURE = [['ENG', 8, 6, 44, 20], ['THERM', 56, 6, 34, 20], ['MISSILE', 94, 6, 112, 20],
-                   ['ENG', 8, 44, 70, 20], ['BUNKS', 82, 44, 128, 20], ['BERTHS', 282, 44, 34, 20]],
-    PLAN_LINK = [[242, 16, 246, 16], [226, 26, 226, 44], [206, 16, 210, 16], [278, 54, 282, 54], [210, 54, 214, 54], [90, 16, 94, 16], [52, 16, 56, 16], [78, 54, 82, 54]];
+  // Deck plan: upper deck band, lower deck band, side rooms above and below, bow to the right.
+  const PLAN = [
+    ['eng_upper', 'ENG U', 8, 26, 44, 20], ['thermal', 'THERM', 54, 26, 30, 20], ['missile', 'MISSILE', 86, 26, 62, 20],
+    ['junction', 'JCT', 150, 26, 26, 20], ['control', 'CONTROL', 178, 26, 52, 20],
+    ['airlock', 'LOCK', 150, 4, 26, 16], ['stateroom', 'CABIN', 190, 4, 40, 16],
+    ['eng_lower', 'ENG L', 8, 52, 52, 20], ['bunks', 'BUNKS', 62, 52, 74, 20], ['mess', 'MESS', 138, 52, 48, 20],
+    ['berths', 'BERTHS', 188, 52, 42, 20], ['utility', 'UTIL', 138, 76, 44, 16]
+  ], PLAN_FUTURE = [], PLAN_LINK = [
+    [52, 36, 54, 36], [84, 36, 86, 36], [148, 36, 150, 36], [176, 36, 178, 36],
+    [60, 62, 62, 62], [136, 62, 138, 62], [186, 62, 188, 62],
+    [163, 46, 163, 52], [30, 46, 30, 52], [163, 20, 163, 26], [205, 20, 205, 26], [155, 72, 155, 76]
+  ];
   function drawPlan() {
-    let h = '<text x="2" y="13" fill="#56706a" font-size="7" font-family="monospace">UPPER</text><text x="2" y="51" fill="#56706a" font-size="7" font-family="monospace">LOWER</text>';
-    PLAN_LINK.forEach(l => { h += '<line x1="' + l[0] + '" y1="' + l[1] + '" x2="' + l[2] + '" y2="' + l[3] + '" stroke="#3a5a4c" stroke-width="1.5"/>'; });
+    let h = '';
+    PLAN_LINK.forEach(l => { const vert = l[0] === l[2]; h += '<line x1="' + l[0] + '" y1="' + l[1] + '" x2="' + l[2] + '" y2="' + l[3] + '" stroke="' + (vert ? '#8fd694' : '#3a5a4c') + '" stroke-width="' + (vert ? 2 : 1.5) + '"/>'; });
     PLAN_FUTURE.forEach(f => { h += '<rect x="' + f[1] + '" y="' + f[2] + '" width="' + f[3] + '" height="' + f[4] + '" fill="none" stroke="#2b3f37" stroke-dasharray="3 3"/><text x="' + (f[1] + f[3] / 2) + '" y="' + (f[2] + f[4] / 2 + 3) + '" fill="#56706a" font-size="7" text-anchor="middle" font-family="monospace">' + f[0] + '</text>'; });
     PLAN.forEach(r => { const cur = ROOMS[r[0]] === room; h += '<rect x="' + r[2] + '" y="' + r[3] + '" width="' + r[4] + '" height="' + r[5] + '" fill="' + (cur ? 'rgba(255,180,84,.25)' : 'rgba(111,195,208,.08)') + '" stroke="' + (cur ? '#ffb454' : '#6fc3d0') + '"/><text x="' + (r[2] + r[4] / 2) + '" y="' + (r[3] + r[5] / 2 + 3) + '" fill="' + (cur ? '#ffb454' : '#9fb9b0') + '" font-size="8" text-anchor="middle" font-family="monospace">' + r[1] + '</text>'; });
-    h += '<text x="6" y="77" fill="#56706a" font-size="7" font-family="monospace">AFT</text><text x="324" y="77" fill="#56706a" font-size="7" font-family="monospace" text-anchor="end">FORE</text>';
+    h += '<text x="2" y="96" fill="#56706a" font-size="7" font-family="monospace">AFT</text><text x="236" y="96" fill="#56706a" font-size="7" font-family="monospace" text-anchor="end">FORE</text>';
     $('plan').innerHTML = h;
   }
   setRoom('control', [12, 2]);
