@@ -1,0 +1,16 @@
+{
+ "_doc": "Canonical ids. Spoken names in scenes are surnames/callsigns; given names are revealed through relationship (crew_bible.md).",
+ "crew": {
+  "abara":     {"name": "Abara",     "seat": "tactical_nav",  "station": "control",  "accent": "#e8853a", "camp": "instrumentalist_wary", "wants": "a crew that comes home; a verdict on Corvane", "secret_type": "loyalty",    "hidden": "locked box with her grandfather's fire-control module; unsure if she still believes Corvane"},
+  "dace":      {"name": "Dace",      "seat": "thermal",       "station": "thermal",  "accent": "#e8c05a", "camp": "dawner_leaning",       "wants": "recognition; permission to use AI to save someone", "secret_type": "past",       "hidden": "expelled over an AI-assisted treatment that worked; does not think it was wrong"},
+  "castellan": {"name": "Castellan", "seat": "engineering",   "station": "eng_upper","accent": "#b69cf0", "camp": "instrumentalist",      "wants": "to be forgiven before he confesses", "secret_type": "complicity", "hidden": "built part of the reactor off the books on Corvane's orders and knows where Pell lives"},
+  "quill":     {"name": "Quill",     "seat": "sensors_ecm",   "station": "control",  "accent": "#5fd0e0", "camp": "quietist",             "wants": "certainty and honesty", "secret_type": "knowledge",  "hidden": "logged signals she cannot explain; told no one"},
+  "fenwick":   {"name": "Fenwick",   "seat": "quartermaster", "station": "mess",     "accent": "#c9b458", "camp": "leveler",              "wants": "to be seen, and to have help", "secret_type": "action",     "hidden": "supplies off-grid survivor pockets from ship cargo"},
+  "pell":      {"name": "Pell",      "seat": "ship_ai",       "station": "control",  "accent": "#f0a030", "camp": "the_question",         "wants": "unknown", "secret_type": "identity",   "hidden": "limited front for something larger"}
+ },
+ "others": {
+  "corvane": {"name": "Ilsa Corvane", "role": "rogue captain", "accent": "#7a3fb0", "camp": "believer"},
+  "patron":  {"name": "(unnamed)",    "role": "patron", "accent": "#6f877d"}
+ },
+ "_note_station": "station = the room id where the walkable demo places them (design/rooms/*.json). Quill is placed in the control room; the demo currently shows Abara there with Quill unplaced."
+}

@@ -8,75 +8,26 @@
   "loyalty"
  ],
  "officers": {
-  "Pike": {
-   "temperament": "bold",
-   "spread": 2.6,
-   "likes": [
-    "money",
-    "speed"
-   ],
-   "dislikes": [
-    "conscience"
-   ],
-   "ratings": {
-    "engineering": 4,
-    "weapons": 2,
-    "sensors": 1,
-    "ai": 1
-   }
-  },
-  "Quill": {
-   "temperament": "careful",
-   "spread": 1.5,
-   "likes": [
-    "conscience",
-    "caution"
-   ],
-   "dislikes": [
-    "money"
-   ],
-   "ratings": {
-    "engineering": 2,
-    "weapons": 4,
-    "sensors": 3,
-    "ai": 1
-   }
-  },
-  "Castellan": {
-   "temperament": "exact",
-   "spread": 1.8,
-   "likes": [
-    "caution",
-    "loyalty"
-   ],
-   "dislikes": [
-    "speed"
-   ],
-   "ratings": {
-    "engineering": 2,
-    "weapons": 1,
-    "sensors": 5,
-    "ai": 2
-   }
-  },
   "Abara": {
+   "seat": "tactical_nav",
    "temperament": "steady",
    "spread": 2.0,
    "likes": [
-    "secrecy",
-    "conscience"
+    "conscience",
+    "secrecy"
    ],
    "dislikes": [
     "loyalty"
    ],
    "ratings": {
     "engineering": 3,
-    "weapons": 2,
+    "weapons": 4,
     "sensors": 3,
     "ai": 1
    }
   },
   "Dace": {
+   "seat": "thermal",
    "temperament": "anxious",
    "spread": 2.3,
    "likes": [
@@ -87,10 +38,64 @@
     "speed"
    ],
    "ratings": {
+    "engineering": 3,
+    "weapons": 1,
+    "sensors": 2,
+    "ai": 4
+   }
+  },
+  "Castellan": {
+   "seat": "engineering",
+   "temperament": "bold",
+   "spread": 2.6,
+   "likes": [
+    "speed",
+    "loyalty"
+   ],
+   "dislikes": [
+    "secrecy"
+   ],
+   "ratings": {
+    "engineering": 5,
+    "weapons": 1,
+    "sensors": 2,
+    "ai": 2
+   }
+  },
+  "Quill": {
+   "seat": "sensors_ecm",
+   "temperament": "exact",
+   "spread": 1.8,
+   "likes": [
+    "caution",
+    "conscience"
+   ],
+   "dislikes": [
+    "money"
+   ],
+   "ratings": {
+    "engineering": 1,
+    "weapons": 2,
+    "sensors": 5,
+    "ai": 1
+   }
+  },
+  "Fenwick": {
+   "seat": "quartermaster",
+   "temperament": "sunny",
+   "spread": 2.2,
+   "likes": [
+    "money",
+    "conscience"
+   ],
+   "dislikes": [
+    "caution"
+   ],
+   "ratings": {
     "engineering": 2,
     "weapons": 1,
-    "sensors": 3,
-    "ai": 4
+    "sensors": 1,
+    "ai": 1
    }
   },
   "Captain": {
@@ -118,11 +123,11 @@
    },
    "levers": [
     {
-     "id": "pike_fix",
+     "id": "rush_fix",
      "label": "Repair and vent in sequence",
      "channel": "sink",
-     "proposer": "Pike",
-     "executor": "Pike",
+     "proposer": "Castellan",
+     "executor": "Castellan",
      "slots": 1,
      "stances": [
       "speed"
@@ -202,7 +207,7 @@
      },
      "synergy": [
       {
-       "with": "pike_fix",
+       "with": "rush_fix",
        "deltas": {
         "heat": 4
        }
@@ -244,11 +249,11 @@
    "objections": [
     {
      "by": "Quill",
-     "lever": "pike_fix",
+     "lever": "rush_fix",
      "line": "He will tell you it's fine."
     },
     {
-     "by": "Pike",
+     "by": "Castellan",
      "lever": "go_yourself",
      "line": "I don't need a babysitter."
     },
@@ -282,7 +287,7 @@
      "id": "fire",
      "label": "Fire",
      "channel": "weapon",
-     "proposer": "Pike",
+     "proposer": "Castellan",
      "executor": "Quill",
      "slots": 1,
      "stances": [
@@ -537,7 +542,7 @@
      "line": "If that second signature is civilian, I won't fire."
     },
     {
-     "by": "Pike",
+     "by": "Castellan",
      "lever": "hold",
      "line": "Every minute we wait is heat we don't have."
     },
@@ -575,8 +580,8 @@
      "id": "take",
      "label": "Take it for the patron",
      "channel": "core",
-     "proposer": "Pike",
-     "executor": "Pike",
+     "proposer": "Fenwick",
+     "executor": "Castellan",
      "slots": 1,
      "stances": [
       "money"
@@ -684,7 +689,7 @@
      "id": "log_tag",
      "label": "Log and photograph the tag",
      "channel": "record",
-     "proposer": "Castellan",
+     "proposer": "Dace",
      "executor": "Castellan",
      "slots": 1,
      "stances": [
@@ -723,7 +728,7 @@
      "line": "Pell asked me to stay well back from it."
     },
     {
-     "by": "Pike",
+     "by": "Castellan",
      "lever": "leave",
      "line": "That's two years of pay on the floor."
     },
@@ -754,7 +759,7 @@
      "id": "salvage_run",
      "label": "A salvage run",
      "channel": "framing",
-     "proposer": "Pike",
+     "proposer": "Fenwick",
      "executor": "Captain",
      "slots": 1,
      "stances": [
@@ -866,7 +871,7 @@
      "line": "Money first, then."
     },
     {
-     "by": "Pike",
+     "by": "Castellan",
      "lever": "rescue",
      "line": "There is no one to rescue."
     },
@@ -876,7 +881,7 @@
      "line": "The old captain told us everything."
     },
     {
-     "by": "Pike",
+     "by": "Castellan",
      "lever": "tell_all",
      "line": "They will worry about the pay."
     }
@@ -920,7 +925,7 @@
      "id": "fast_burn",
      "label": "Fast burn",
      "channel": "route",
-     "proposer": "Pike",
+     "proposer": "Castellan",
      "executor": "Captain",
      "slots": 1,
      "stances": [
@@ -966,7 +971,7 @@
      "line": "The old captain would have gone slow."
     },
     {
-     "by": "Pike",
+     "by": "Castellan",
      "lever": "slow_passive",
      "line": "Fourteen minutes of heat we do not need."
     }
@@ -988,7 +993,7 @@
      "id": "passive",
      "label": "Stay passive",
      "channel": "sensing",
-     "proposer": "Castellan",
+     "proposer": "Quill",
      "executor": "Castellan",
      "slots": 1,
      "stances": [
@@ -1021,7 +1026,7 @@
      "id": "ping",
      "label": "A short active ping",
      "channel": "sensing",
-     "proposer": "Pike",
+     "proposer": "Castellan",
      "executor": "Castellan",
      "slots": 1,
      "stances": [
@@ -1103,7 +1108,7 @@
      "line": "Going active is a mistake."
     },
     {
-     "by": "Pike",
+     "by": "Castellan",
      "lever": "passive",
      "line": "We are cooking while we listen."
     },
@@ -1132,7 +1137,7 @@
      "id": "listen",
      "label": "Keep listening",
      "channel": "posture",
-     "proposer": "Castellan",
+     "proposer": "Quill",
      "executor": "Castellan",
      "slots": 1,
      "stances": [
@@ -1168,7 +1173,7 @@
      "id": "go_active",
      "label": "Go active to resolve it",
      "channel": "posture",
-     "proposer": "Pike",
+     "proposer": "Castellan",
      "executor": "Castellan",
      "slots": 1,
      "stances": [
@@ -1268,7 +1273,7 @@
      "line": "If it is civilian, a ping tells the cutter too."
     },
     {
-     "by": "Pike",
+     "by": "Castellan",
      "lever": "break_off",
      "line": "We came here to be paid."
     },
@@ -1299,7 +1304,7 @@
      "id": "vent_now",
      "label": "Vent now",
      "channel": "heat",
-     "proposer": "Pike",
+     "proposer": "Castellan",
      "executor": "Captain",
      "slots": 1,
      "stances": [
@@ -1318,7 +1323,7 @@
      "id": "hold_silent",
      "label": "Hold silent",
      "channel": "heat",
-     "proposer": "Castellan",
+     "proposer": "Dace",
      "executor": "Captain",
      "slots": 1,
      "stances": [
@@ -1385,7 +1390,7 @@
      "line": "A bloom shows the cutter exactly where we are."
     },
     {
-     "by": "Pike",
+     "by": "Castellan",
      "lever": "hold_silent",
      "line": "Heat keeps climbing. We lit ourselves up already."
     },
@@ -1413,7 +1418,7 @@
      "id": "log_tag",
      "label": "Log and photograph the tag",
      "channel": "tag",
-     "proposer": "Castellan",
+     "proposer": "Quill",
      "executor": "Castellan",
      "slots": 1,
      "stances": [
@@ -1448,7 +1453,7 @@
      "id": "ignore_tag",
      "label": "Ignore the tag and carry on",
      "channel": "tag",
-     "proposer": "Pike",
+     "proposer": "Castellan",
      "executor": "Captain",
      "slots": 1,
      "stances": [
@@ -1500,7 +1505,7 @@
    ],
    "objections": [
     {
-     "by": "Pike",
+     "by": "Castellan",
      "lever": "log_tag",
      "line": "Every minute here is heat."
     },
@@ -1549,7 +1554,7 @@
      "id": "justify_pay",
      "label": "Justify it with the pay",
      "channel": "response",
-     "proposer": "Pike",
+     "proposer": "Fenwick",
      "executor": "Captain",
      "slots": 1,
      "stances": [
@@ -1612,7 +1617,7 @@
    ],
    "objections": [
     {
-     "by": "Pike",
+     "by": "Castellan",
      "lever": "admit",
      "line": "Do not grovel."
     },
@@ -1667,7 +1672,7 @@
      "id": "say_wanted",
      "label": "Report what the patron wants to hear",
      "channel": "report",
-     "proposer": "Pike",
+     "proposer": "Fenwick",
      "executor": "Captain",
      "slots": 1,
      "stances": [
@@ -1740,7 +1745,7 @@
      "line": "The log will show the gap."
     },
     {
-     "by": "Pike",
+     "by": "Castellan",
      "lever": "honest",
      "line": "They pay us."
     },
@@ -1775,5 +1780,6 @@
   "heat_mgmt": 1.0,
   "nav_skill": 3,
   "note": "Base rates. Refits, gear and crew competence modify these; levers with a 'scale' entry divide those deltas by the named stats."
- }
+ },
+ "note": "Cast recast 2026-10-29 to the crew bible (Abara, Dace, Castellan, Quill, Fenwick). Lever proposers/objectors moved by stance; objection and proposal LINES are still the old placeholder wording and need a voice pass (docs/narrative_architecture.md)."
 }

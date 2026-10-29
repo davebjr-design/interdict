@@ -1,0 +1,10 @@
+fact,description,known_by_at_start,revealed_via
+module_box,Abara keeps her grandfather's fire-control module locked up,abara,arc.abara
+dace_expulsion,Dace was expelled over an AI-assisted treatment that worked,dace,arc.dace
+offbooks_reactor,Castellan built part of the reactor off the books on Corvane's orders,castellan;corvane;patron?,arc.castellan
+pell_location,Castellan knows where Pell physically lives in the ship,castellan;corvane,arc.castellan
+unexplained_signals,Quill has logged signals she cannot explain,quill,arc.quill
+survivor_pockets,Fenwick supplies off-grid survivor populations from the ship's cargo,fenwick,arc.fenwick
+pell_is_front,Pell is a limited front for something larger,pell;corvane?,integration
+corvane_scuttled_ship,Corvane scuttled a ship whose crew refused her,corvane,derelict/corvane
+patron_agenda,What the patron actually wants,patron,
