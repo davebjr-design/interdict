@@ -1,2 +1,3 @@
 callback_id,promise,owner_storylet,planted_in,payoff_in,status
 ames_return,"If Ames lived (wounded) he turns up in Act 2 outside the captains' bar to thank you; if dead his name is spoken by Dunne or Ostrow",TBD,P3,act2.bar,planted
+scuttled_six,"Corvane's six dead from the scuttled ship; does one connect to Abara?",TBD,P3 R4,,open
