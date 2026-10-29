@@ -28,14 +28,19 @@ How a beat is written: `id | mode | where | who | what happens | choices → sta
 
 ## ACT 0: probation and the takeover (text-writable now; playable later)
 
-**P1 | TEXT | host ship bridge | Host captain (new, name TBD), host first mate [P] | The brief.** Host captain explains the rules among thieves: nobody reactivates AI recklessly, and Corvane has. You are probationary; you watch, you do what you are told, you are told why. Corvane is described as the best captain they ever hunted with. *Choices:* ask about Corvane (sets `knows.corvane_was_csra`) / keep quiet. Seed: the host captain knows more than she says about who ordered this.
+**P1 | TEXT | host ship briefing room | Host captain Ostrow [P name], first mate Dunne, boarding hand Ames, you | The briefing. [D: player participates]** A real briefing, not a cutscene: the host captain talks, and the player is asked things. She explains the rules among thieves (nobody reactivates AI recklessly) and why Corvane has crossed the line. Ostrow admires Corvane and says so. Dunne is the pragmatist; Ames is young, new to boarding, and asks you a small question that makes you like him (e.g. what to do if his hands shake). *Player choices (all free, none fail):* questions about Corvane, about the patron's role, about the boarding plan, about Ames. Each answer sets a `knows.*` fact or a small `told.*`/trust flag with the host crew only. *Seeds:* Ostrow knows who ordered this and will not say; the briefing says "the patron's office" without a name. Setup for P3: **Ames goes aboard with you and Dunne.**
 
-**P2 | HUNT scripted | tutorial | Host captain gives orders ("do X") | Teaches hunt mode.** Fixed outcome: Corvane's ship found. Each beat is a button highlight with one line of why. (Hunt scripting is already specified in `opening_sequence.md`.)
+**P2 | HUNT scripted | tutorial | Ostrow gives orders ("do X") | Teaches hunt mode.** Fixed outcome: Corvane's ship found. Each beat is a button highlight with one line of why. (Hunt scripting is already specified in `opening_sequence.md`.)
 
-**P3 | TEXT/scripted | Corvane's bridge | Corvane, Abara, Quill, Pell (voice) [P] | The standoff.** You go aboard alone or with one host officer. Corvane is calm, amused, courteous. Her crew stand at stations and say nothing. Pell's glow is on a pedestal. Two routes:
-- **Persuade** (needs a hook found during P1-P2, otherwise it costs trust): she tells part of her case ("something worse is already awake") and stands down. *Effects:* `corvane=persuaded`, `trust.abara +10`, `trust.quill +5`, `trust.castellan -5`. She is confined, not freed.
-- **Violence** (always available): fast and clean; she dies calmly, finishing a sentence. *Effects:* `corvane=killed`, `trust.abara -15`, `trust.dace -10`, `trust.castellan +5` (he feels relieved and ashamed), Pell trust starts lower. Pell logs everything.
-- Both: Abara is the one who looks at Corvane last. Quill says nothing and writes something down. Seed `clue.signals.1`.
+**P3 | TEXT with a pressure clock | Corvane's bridge | Corvane, Pell (voice), Abara, Quill; you, Dunne, Ames | The standoff. [D: persuasion is just a choice; attacking can cut it off at any point; the player's anxiety should grow]**
+Structure: a conversation in rounds (aim for 5-6). On each round the player picks a line that keeps talking, or **draws and fires**. There is no stated meter and no signal that Corvane will yield. Corvane stays amused, courteous and exact; her crew stay still.
+- **Round 1:** Corvane greets you by name and offers tea. Calm. Pell speaks (see below).
+- **Round 2:** Ames, nerves breaking, raises his weapon or says the wrong thing. **Corvane has him shot (or does it herself) calmly, mid-sentence, then continues the conversation.** This is the anxiety spike: the player has just seen what she is. Dunne is now watching you to see whether you shoot.
+- **Round 3-5:** she tells you her case in pieces ("something worse is already awake"), asks you what the Tally has ever done about it, and presses on whether you will do what she did if you were her. The player can keep talking or cut her off.
+- **Resolution A (persuaded):** if the player keeps talking through to the end, she agrees to stand down on her own terms and gives up her codes. `corvane=persuaded`. Her crew's reaction is guarded relief; Ames's death still counts against you with Abara.
+- **Resolution B (shot):** at any round the player can shoot. The earlier it happens, the less she has said (less truth survives in her own words, more in Pell's logs) and the less the crew has seen of her humanity; later, she has told you more. `corvane=killed`. Either way the shot is quick, hers is not a clean death, and Quill writes something down.
+- **Both resolutions:** Ames is dead. Dunne's last line to you is not forgiveness. No-win rule honored: both routes get you the ship; neither is a free one. Seed `clue.signals.1` in Quill's behaviour.
+**Pell in the standoff [D: Pell speaks; Corvane trusts Pell; contents a little nuts].** Calm voice, wrong content. Examples to choose from or replace: Pell counts the boarders' heartbeats aloud and offers Corvane "a quieter rate"; says it has already begun the funeral log "for convenience, in either order"; thanks Corvane for the new window and says the ship's old name was a bad name; apologises to Ames before he is shot and does not say for what; addresses Corvane as the one who "keeps the light on". Corvane answers Pell fondly, as if to a colleague, never as a tool. The player should leave unsure whether Pell is loyal, insane, or three steps ahead.
 
 **P4 | TEXT | any private place | the Patron (voice) | The blessing.** A warm, patient voice approves you as captain "by the usual arrangements". It says it wants this ship quiet and the AI stopped. It tells you the crew will be difficult and that it will "see to it" you have what you need. *Seeds:* the call arrives faster than it should (`clue.patron.1`); it does not ask what happened (`clue.patron.2`). *Choice:* thank it / ask who it is (it deflects).
 
@@ -82,9 +87,15 @@ How a beat is written: `id | mode | where | who | what happens | choices → sta
 | Fenwick | Cooks bigger | Cooks smaller, then bigger |
 | Pell | Careful | Quiet, logs stay locked until you ask |
 
+## Decisions (Dave, 2026-10-29)
+- The host captain gives a briefing the player takes part in (P1).
+- Persuasion is just a dialogue choice, cut off at any point by shooting. Corvane's surrender must never look likely. She may kill a boarder first (Ames).
+- Pell speaks in the standoff. Corvane trusts Pell. What Pell says is a little nuts.
+- Act 1 is fixed in order. The only branch is keep talking vs shoot Corvane.
+- Captains' bar and dock first appear in Act 2.
+
 ## Open questions for Dave
-1. Host ship crew: do we want a named host captain (a foil or a future patron-side figure) or keep it minimal?
-2. Standoff: does the persuade route need a prior "hook" or is it always available with a cost?
-3. Does Pell speak in the standoff, or only after you take command?
-4. How much of Act 1 is player-authored choice vs fixed? (Proposal: fixed order, free responses, no skippable character introductions.)
-5. Where does the player first meet the captains' bar and dock cycle: Act 2 as above, or earlier?
+1. Host-ship names are mine (Ostrow, Dunne, Ames). Fine, or do you want others?
+2. Does the player ever see Ames's death coming (a prompt to protect him) or is it a shock?
+3. Pell's standoff lines: pick the flavour you like from the list, or tell me the direction (more menacing, more tender, more bureaucratic).
+4. Does Abara or Quill react at all during the standoff, or only after?
