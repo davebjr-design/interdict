@@ -1,0 +1,206 @@
+{
+ "id": "missile",
+ "name": "MISSILE COMPARTMENT",
+ "deck": "upper",
+ "file": "missile_v3g.png",
+ "img_size": [
+  1497,
+  839
+ ],
+ "quad": {
+  "t": [
+   325,
+   212
+  ],
+  "r": [
+   1455,
+   655
+  ],
+  "l": [
+   25,
+   335
+  ],
+  "b": [
+   1100,
+   830
+  ]
+ },
+ "Ni": 14,
+ "Nj": 4,
+ "hatch_h": 255,
+ "floor": [
+  [
+   330,
+   218
+  ],
+  [
+   1445,
+   655
+  ],
+  [
+   1210,
+   825
+  ],
+  [
+   900,
+   795
+  ],
+  [
+   45,
+   345
+  ]
+ ],
+ "solids": [
+  {
+   "name": "bench",
+   "p": [
+    [
+     865,
+     470
+    ],
+    [
+     990,
+     420
+    ],
+    [
+     1000,
+     455
+    ],
+    [
+     880,
+     500
+    ]
+   ],
+   "h": 70
+  },
+  {
+   "name": "crates",
+   "p": [
+    [
+     1030,
+     520
+    ],
+    [
+     1150,
+     470
+    ],
+    [
+     1160,
+     520
+    ],
+    [
+     1040,
+     570
+    ]
+   ],
+   "h": 80
+  }
+ ],
+ "block": [],
+ "open": [],
+ "blurb": "The missile compartment. Twenty-four tubes in two rows: twelve live, six missiles apiece, and twelve racked with salvage canisters. That is the cargo hold. Reloading is a dockyard job.",
+ "doors": [
+  {
+   "id": "toJct",
+   "rc": [
+    40,
+    130,
+    190,
+    335
+   ],
+   "wall": "i",
+   "to": "junction",
+   "label": "Hatch forward to the junction"
+  },
+  {
+   "id": "toThermal",
+   "rc": [
+    1255,
+    480,
+    1410,
+    740
+   ],
+   "wall": "I",
+   "to": "thermal",
+   "label": "Hatch aft to thermal control"
+  }
+ ],
+ "npcs": [],
+ "lights": [
+  {
+   "p": [
+    195,
+    70
+   ],
+   "r": 28,
+   "c": [
+    255,
+    170,
+    70
+   ],
+   "a": 0.3,
+   "pat": "steady",
+   "seed": 41
+  },
+  {
+   "p": [
+    500,
+    125
+   ],
+   "r": 28,
+   "c": [
+    255,
+    170,
+    70
+   ],
+   "a": 0.3,
+   "pat": "fault",
+   "seed": 42
+  },
+  {
+   "p": [
+    790,
+    215
+   ],
+   "r": 28,
+   "c": [
+    255,
+    170,
+    70
+   ],
+   "a": 0.3,
+   "pat": "steady",
+   "seed": 43
+  },
+  {
+   "p": [
+    1265,
+    375
+   ],
+   "r": 26,
+   "c": [
+    255,
+    170,
+    70
+   ],
+   "a": 0.3,
+   "pat": "flicker",
+   "seed": 44
+  },
+  {
+   "p": [
+    1015,
+    330
+   ],
+   "r": 16,
+   "c": [
+    111,
+    195,
+    208
+   ],
+   "a": 0.4,
+   "pat": "blink",
+   "seed": 45
+  }
+ ]
+}

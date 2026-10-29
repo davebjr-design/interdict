@@ -1,0 +1,326 @@
+{
+ "id": "junction",
+ "name": "JUNCTION",
+ "deck": "upper",
+ "file": "junction_v3.png",
+ "img_size": [
+  1384,
+  956
+ ],
+ "quad": {
+  "t": [
+   700,
+   440
+  ],
+  "r": [
+   1335,
+   690
+  ],
+  "l": [
+   50,
+   665
+  ],
+  "b": [
+   690,
+   940
+  ]
+ },
+ "Ni": 7,
+ "Nj": 7,
+ "hatch_h": 330,
+ "floor": [
+  [
+   700,
+   445
+  ],
+  [
+   1325,
+   690
+  ],
+  [
+   1000,
+   925
+  ],
+  [
+   420,
+   925
+  ],
+  [
+   60,
+   670
+  ]
+ ],
+ "solids": [
+  {
+   "name": "locker",
+   "p": [
+    [
+     150,
+     565
+    ],
+    [
+     270,
+     535
+    ],
+    [
+     278,
+     600
+    ],
+    [
+     200,
+     628
+    ]
+   ],
+   "h": 280
+  },
+  {
+   "name": "table",
+   "p": [
+    [
+     62,
+     560
+    ],
+    [
+     110,
+     545
+    ],
+    [
+     270,
+     610
+    ],
+    [
+     200,
+     715
+    ],
+    [
+     120,
+     660
+    ]
+   ],
+   "h": 95
+  },
+  {
+   "name": "cage",
+   "p": [
+    [
+     505,
+     680
+    ],
+    [
+     690,
+     595
+    ],
+    [
+     865,
+     680
+    ],
+    [
+     690,
+     795
+    ]
+   ],
+   "h": 110
+  },
+  {
+   "name": "crate",
+   "p": [
+    [
+     1150,
+     600
+    ],
+    [
+     1235,
+     560
+    ],
+    [
+     1310,
+     590
+    ],
+    [
+     1310,
+     680
+    ],
+    [
+     1235,
+     690
+    ],
+    [
+     1160,
+     650
+    ]
+   ],
+   "h": 100
+  }
+ ],
+ "block": [],
+ "open": [],
+ "blurb": "The junction. The hatch to the right leads forward to the control room, the hatch to the left runs aft to the missile compartment. The ladder in the deck goes down to the mess, and the trunk overhead is the boarding airlock.",
+ "doors": [
+  {
+   "id": "toControl",
+   "rc": [
+    325,
+    180,
+    500,
+    535
+   ],
+   "wall": "i",
+   "to": "control",
+   "label": "Hatch forward to the control room"
+  },
+  {
+   "id": "toMissile",
+   "rc": [
+    880,
+    190,
+    1055,
+    520
+   ],
+   "wall": "j",
+   "to": "missile",
+   "label": "Hatch aft to the missile compartment"
+  },
+  {
+   "id": "downToMess",
+   "rc": [
+    505,
+    485,
+    865,
+    795
+   ],
+   "ladder": "down",
+   "stand": [
+    3,
+    5
+   ],
+   "to": "mess",
+   "dir": "sw",
+   "label": "Ladder down to the mess"
+  },
+  {
+   "id": "upToAirlock",
+   "rc": [
+    545,
+    85,
+    835,
+    200
+   ],
+   "ladder": "up",
+   "stand": [
+    1,
+    1
+   ],
+   "to": "airlock",
+   "dir": "se",
+   "label": "Trunk up to the boarding airlock"
+  }
+ ],
+ "npcs": [],
+ "lights": [
+  {
+   "p": [
+    392,
+    160
+   ],
+   "r": 30,
+   "c": [
+    255,
+    170,
+    70
+   ],
+   "a": 0.3,
+   "pat": "steady",
+   "seed": 11
+  },
+  {
+   "p": [
+    988,
+    158
+   ],
+   "r": 30,
+   "c": [
+    255,
+    170,
+    70
+   ],
+   "a": 0.3,
+   "pat": "fault",
+   "seed": 12
+  },
+  {
+   "p": [
+    684,
+    232
+   ],
+   "r": 26,
+   "c": [
+    255,
+    170,
+    70
+   ],
+   "a": 0.3,
+   "pat": "steady",
+   "seed": 13
+  },
+  {
+   "p": [
+    163,
+    238
+   ],
+   "r": 26,
+   "c": [
+    255,
+    170,
+    70
+   ],
+   "a": 0.3,
+   "pat": "flicker",
+   "seed": 14
+  },
+  {
+   "p": [
+    1222,
+    268
+   ],
+   "r": 26,
+   "c": [
+    255,
+    170,
+    70
+   ],
+   "a": 0.3,
+   "pat": "steady",
+   "seed": 15
+  },
+  {
+   "p": [
+    511,
+    292
+   ],
+   "r": 16,
+   "c": [
+    111,
+    195,
+    208
+   ],
+   "a": 0.4,
+   "pat": "blink",
+   "seed": 16
+  },
+  {
+   "p": [
+    1056,
+    352
+   ],
+   "r": 16,
+   "c": [
+    111,
+    195,
+    208
+   ],
+   "a": 0.4,
+   "pat": "blink",
+   "seed": 17
+  }
+ ]
+}

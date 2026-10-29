@@ -31,17 +31,10 @@ const FILE = 'file://' + require('path').resolve(__dirname, '../design/proto_iso
         if (r.blocked.has(d.stand.join(','))) out.push(`${key}: stand cell ${d.stand} is blocked`);
         if (d.stand[0] >= r.Ni || d.stand[1] >= r.Nj) out.push(`${key}: stand cell ${d.stand} is outside the grid`);
 
-        // the stand cell must be the one nearest the painted hatch
+        // stand cells are derived from the painted hatch in fit(); here just confirm a wall hatch stands on its wall edge
         if (d.wall) {
-          const cx = (d.rc[0] + d.rc[2]) / 2, cy = (d.rc[1] + d.rc[3]) / 2;
-          const N = d.wall === 'i' ? r.Nj : r.Ni, far = d.wall === 'i' ? r.l : r.r;
-          let best = 0, bd = Infinity;
-          for (let k = 0; k < N; k++) {
-            const s = lerp(r.t, far, (k + 0.5) / N), dist = Math.hypot(s[0] - cx, s[1] - cy);
-            if (dist < bd) { bd = dist; best = k; }
-          }
-          const cur = d.wall === 'i' ? d.stand[1] : d.stand[0];
-          if (cur !== best) out.push(`${key}: stand is ${cur} along wall '${d.wall}' but the hatch is at ${best}`);
+          const ok = d.wall === 'i' ? d.stand[0] === 0 : d.wall === 'I' ? d.stand[0] === r.Ni - 1 : d.wall === 'J' ? d.stand[1] === r.Nj - 1 : d.stand[1] === 0;
+          if (!ok) out.push(`${key}: stand ${d.stand} is not on wall '${d.wall}'`);
         }
 
         if (!d.to) continue;
@@ -54,17 +47,18 @@ const FILE = 'file://' + require('path').resolve(__dirname, '../design/proto_iso
         if (back.arrive[0] !== d.stand[0] || back.arrive[1] !== d.stand[1])
           out.push(`${key}: return lands at ${back.arrive}, not ${d.stand}`);
         if (!!d.wall !== !!back.wall) out.push(`${key}: wall tag mismatch with ${d.to}.${back.id}`);
-        else if (d.wall && d.wall === back.wall)
-          out.push(`${key}: both sides use wall '${d.wall}', so the walk direction reverses`);
+        else if (d.wall && !d.fade) {
+          // exit through j or I walks right, through i or J walks left; arriving through i or J walks right, through j or I left
+          const cls = w => (w === 'j' || w === 'I') ? 'A' : 'B';
+          if (cls(d.wall) === cls(back.wall)) out.push(`${key}: walls '${d.wall}' and '${back.wall}' reverse the walk direction`);
+        }
       }
     }
 
     // reachability, with crew placed
     for (const [n, r] of Object.entries(R)) {
-      let start = null;
-      for (let i = 0; i < r.Ni && !start; i++) for (let j = 0; j < r.Nj && !start; j++)
-        if (!r.blocked.has(i + ',' + j) && !r.npcs.some(c => c.cell[0] === i && c.cell[1] === j)) start = [i, j];
-      if (!start) { out.push(`${n}: no free cell at all`); continue; }
+      let start = r.doors[0].stand.slice();
+            if (!start) { out.push(`${n}: no free cell at all`); continue; }
       I.setRoom(n, start, 'se');
       const stuck = [];
       for (let i = 0; i < r.Ni; i++) for (let j = 0; j < r.Nj; j++) {

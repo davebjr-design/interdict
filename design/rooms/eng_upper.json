@@ -1,0 +1,293 @@
+{
+ "id": "eng_upper",
+ "name": "ENGINEERING \u00b7 UPPER",
+ "deck": "upper",
+ "file": "eng_upper_v3.png",
+ "img_size": [
+  1490,
+  832
+ ],
+ "quad": {
+  "t": [
+   300,
+   300
+  ],
+  "r": [
+   1470,
+   580
+  ],
+  "l": [
+   25,
+   435
+  ],
+  "b": [
+   905,
+   812
+  ]
+ },
+ "Ni": 13,
+ "Nj": 4,
+ "hatch_h": 270,
+ "floor": [
+  [
+   305,
+   305
+  ],
+  [
+   1460,
+   575
+  ],
+  [
+   905,
+   792
+  ],
+  [
+   45,
+   440
+  ]
+ ],
+ "solids": [
+  {
+   "name": "reactor",
+   "p": [
+    [
+     405,
+     505
+    ],
+    [
+     560,
+     360
+    ],
+    [
+     700,
+     345
+    ],
+    [
+     845,
+     470
+    ],
+    [
+     800,
+     540
+    ],
+    [
+     620,
+     615
+    ],
+    [
+     480,
+     580
+    ]
+   ],
+   "h": 220
+  },
+  {
+   "name": "bench",
+   "p": [
+    [
+     900,
+     425
+    ],
+    [
+     1060,
+     385
+    ],
+    [
+     1090,
+     415
+    ],
+    [
+     1040,
+     480
+    ],
+    [
+     930,
+     455
+    ]
+   ],
+   "h": 95
+  },
+  {
+   "name": "shelf",
+   "p": [
+    [
+     1305,
+     545
+    ],
+    [
+     1360,
+     520
+    ],
+    [
+     1450,
+     560
+    ],
+    [
+     1400,
+     585
+    ]
+   ],
+   "h": 190
+  },
+  {
+   "name": "ladder cage",
+   "p": [
+    [
+     915,
+     645
+    ],
+    [
+     1035,
+     530
+    ],
+    [
+     1155,
+     590
+    ],
+    [
+     1045,
+     745
+    ]
+   ],
+   "h": 60
+  }
+ ],
+ "block": [],
+ "open": [],
+ "blurb": "Engineering, upper level. The reactor casing comes up through the grating; its base is on the deck below. Castellan is usually here. The ladder goes down to lower engineering.",
+ "doors": [
+  {
+   "id": "toThermal",
+   "rc": [
+    90,
+    120,
+    235,
+    395
+   ],
+   "wall": "i",
+   "to": "thermal",
+   "label": "Hatch forward to thermal control"
+  },
+  {
+   "id": "downToEngLower",
+   "rc": [
+    915,
+    520,
+    1160,
+    750
+   ],
+   "ladder": "down",
+   "stand": [
+    9,
+    2
+   ],
+   "to": "eng_lower",
+   "dir": "sw",
+   "label": "Ladder down to lower engineering"
+  }
+ ],
+ "npcs": [
+  {
+   "name": "Castellan",
+   "col": "#b69cf0",
+   "cell": [
+    12,
+    3
+   ],
+   "sheet": "castellan",
+   "sc": 0.648
+  }
+ ],
+ "lights": [
+  {
+   "p": [
+    480,
+    120
+   ],
+   "r": 30,
+   "c": [
+    255,
+    170,
+    70
+   ],
+   "a": 0.3,
+   "pat": "steady",
+   "seed": 61
+  },
+  {
+   "p": [
+    715,
+    180
+   ],
+   "r": 28,
+   "c": [
+    255,
+    170,
+    70
+   ],
+   "a": 0.3,
+   "pat": "fault",
+   "seed": 62
+  },
+  {
+   "p": [
+    930,
+    240
+   ],
+   "r": 28,
+   "c": [
+    255,
+    170,
+    70
+   ],
+   "a": 0.3,
+   "pat": "steady",
+   "seed": 63
+  },
+  {
+   "p": [
+    1220,
+    315
+   ],
+   "r": 26,
+   "c": [
+    255,
+    170,
+    70
+   ],
+   "a": 0.3,
+   "pat": "flicker",
+   "seed": 64
+  },
+  {
+   "p": [
+    180,
+    200
+   ],
+   "r": 16,
+   "c": [
+    111,
+    195,
+    208
+   ],
+   "a": 0.4,
+   "pat": "blink",
+   "seed": 65
+  },
+  {
+   "p": [
+    1265,
+    400
+   ],
+   "r": 16,
+   "c": [
+    111,
+    195,
+    208
+   ],
+   "a": 0.4,
+   "pat": "blink",
+   "seed": 66
+  }
+ ]
+}

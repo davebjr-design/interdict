@@ -1,0 +1,211 @@
+{
+ "id": "stateroom",
+ "name": "CAPTAIN'S STATEROOM",
+ "deck": "upper",
+ "file": "stateroom_v3.png",
+ "img_size": [
+  1321,
+  1081
+ ],
+ "quad": {
+  "t": [
+   655,
+   498
+  ],
+  "r": [
+   1290,
+   760
+  ],
+  "l": [
+   20,
+   725
+  ],
+  "b": [
+   693,
+   1135
+  ]
+ },
+ "Ni": 8,
+ "Nj": 8,
+ "hatch_h": 400,
+ "floor": [
+  [
+   660,
+   502
+  ],
+  [
+   1285,
+   758
+  ],
+  [
+   880,
+   1015
+  ],
+  [
+   500,
+   1015
+  ],
+  [
+   35,
+   730
+  ]
+ ],
+ "solids": [
+  {
+   "name": "bed",
+   "p": [
+    [
+     70,
+     640
+    ],
+    [
+     310,
+     500
+    ],
+    [
+     535,
+     545
+    ],
+    [
+     535,
+     600
+    ],
+    [
+     250,
+     745
+    ],
+    [
+     75,
+     700
+    ]
+   ],
+   "h": 100
+  },
+  {
+   "name": "locker",
+   "p": [
+    [
+     535,
+     610
+    ],
+    [
+     655,
+     580
+    ],
+    [
+     665,
+     510
+    ],
+    [
+     545,
+     525
+    ]
+   ],
+   "h": 450
+  },
+  {
+   "name": "stool",
+   "p": [
+    [
+     925,
+     800
+    ],
+    [
+     975,
+     780
+    ],
+    [
+     1035,
+     810
+    ],
+    [
+     990,
+     855
+    ]
+   ],
+   "h": 170
+  }
+ ],
+ "block": [],
+ "open": [],
+ "blurb": "Your stateroom, off the aft end of the control room. A bunk that folds out of the wall, a desk that folds down, a locker. The only door on the ship you can shut behind you.",
+ "doors": [
+  {
+   "id": "toControl",
+   "rc": [
+    750,
+    180,
+    955,
+    600
+   ],
+   "wall": "j",
+   "fade": true,
+   "to": "control",
+   "dir": "sw",
+   "label": "Door out to the control room"
+  }
+ ],
+ "npcs": [],
+ "lights": [
+  {
+   "p": [
+    175,
+    790
+   ],
+   "r": 26,
+   "c": [
+    255,
+    170,
+    70
+   ],
+   "a": 0.3,
+   "pat": "steady",
+   "seed": 111
+  },
+  {
+   "p": [
+    395,
+    700
+   ],
+   "r": 24,
+   "c": [
+    255,
+    170,
+    70
+   ],
+   "a": 0.3,
+   "pat": "flicker",
+   "seed": 112
+  },
+  {
+   "p": [
+    745,
+    795
+   ],
+   "r": 24,
+   "c": [
+    255,
+    170,
+    70
+   ],
+   "a": 0.3,
+   "pat": "steady",
+   "seed": 113
+  },
+  {
+   "p": [
+    815,
+    915
+   ],
+   "r": 16,
+   "c": [
+    111,
+    195,
+    208
+   ],
+   "a": 0.4,
+   "pat": "blink",
+   "seed": 114
+  }
+ ]
+}
