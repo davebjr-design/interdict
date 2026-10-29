@@ -2,6 +2,7 @@
 
 **Status:** first dialogue draft, for a voice read. Not in Ink yet. Outline: `scene_outlines.md` P3. Trade-off table: `storyboard.md`.
 **Where:** Corvane's bridge (the control room of the ship the player will inherit). **Reading time:** about 6-9 minutes, depending on the route.
+**POV sheets:** `pov_sheets.md` (Corvane, Dunne, Ames, Quill, Abara, Pell). Central mystery: "Something knew" (same file).
 **Format:** `NAME:` lines are spoken. *Italics* are narration. `→` is a player choice; [brackets] show the effect or where it goes. **R1-R6** are the rounds.
 **Rules for this scene:** one new visible tell every round. Corvane never raises her voice. Abara and Quill stay at their stations and say nothing, except Quill's one word in R3. Pell speaks calmly, and what it says is a little wrong.
 
@@ -17,7 +18,11 @@ CORVANE: Come in. Mind the lip of the hatch, it catches everyone. My crew won't 
 
 *She looks at each of you in turn, unhurried.*
 
-CORVANE: Dunne, who never liked me. Ostrow's new hand. And this one I don't know.
+CORVANE: Dunne. You made it to the boats. I'm glad.
+
+*Dunne says nothing.*
+
+CORVANE: Ostrow's new hand. Ostrow didn't come herself, of course. And this one I don't know.
 
 PELL: Ames. Twenty-two. Heart rate one hundred and eighteen. Dunne, eighty-one. The new hand, ninety-four, which is respectable.
 
@@ -121,8 +126,15 @@ PELL: Captain Corvane gave me a new window when I came aboard. I like the window
 
 CORVANE: I asked my last crew to help me. They refused. I gave them the lifeboats and four hours, and I scuttled the ship under them. Most of them made it.
 
-→ "How many didn't?"
-  CORVANE: Six. I know their names. Would you like them?
+*She looks at Dunne.*
+
+CORVANE: Dunne made it. Third boat.
+
+DUNNE: Six didn't.
+
+→ "Dunne?"
+  DUNNE: Two of them were mine.
+  CORVANE: I know all six names. I'd tell you, if you wanted them.
   [→ R5]
 
 → "You killed your own people."
@@ -178,7 +190,9 @@ CORVANE: My terms, and they're short. I keep my cabin. My crew are not punished 
 
 CORVANE: Especially when it's being strange.
 
-*At tactical, the silver-haired woman finally turns around. Her face holds grief and anger at once, and it's impossible to tell which is meant for whom. At sensors, Quill writes something down.*
+*For a moment, every screen on the bridge flickers. Nobody remarks on it.*
+
+*At tactical, the silver-haired woman finally turns around. Her face holds grief and anger at once, and it's impossible to tell which is meant for whom. At sensors, Quill glances at her console and writes something down.*
 
 [corvane = persuaded → P4]
 
@@ -201,7 +215,7 @@ DUNNE: She said hear her out. You didn't hear anything.
 
 DUNNE: I'll take the boy home. Don't come with us.
 
-*At tactical, the silver-haired woman is the last to look away from Corvane. At sensors, Quill writes something down.*
+*For a moment, every screen on the bridge flickers. At tactical, the silver-haired woman is the last to look away from Corvane. At sensors, Quill glances at her console and writes something down.*
 
 [corvane = killed, murdered = true, p3.round_shot = 1, ames unharmed. Dunne will not serve with you; Ostrow files a report. Trust: Abara -25, Quill -15, Dace -15, Castellan -10, Fenwick -10; Pell trust at its lowest. → P4]
 
@@ -222,7 +236,7 @@ DUNNE: Good. Fast.
 
 *He's already kneeling by Ames, pressing on the wound.*
 
-*At tactical, the silver-haired woman is the last to look away from Corvane. At sensors, Quill writes something down.*
+*For a moment, every screen on the bridge flickers. At tactical, the silver-haired woman is the last to look away from Corvane. At sensors, Quill glances at her console and writes something down.*
 
 [corvane = killed, p3.round_shot = 2, ames = wounded. Dunne respects the speed. Corvane said almost nothing; her case survives in Pell's logs. → P4]
 
@@ -240,7 +254,7 @@ DUNNE: Too late for him.
 
 *He doesn't say whether he means Ames or Corvane. He's looking at Ames.*
 
-*At tactical, the silver-haired woman is the last to look away from Corvane. At sensors, Quill writes something down.*
+*For a moment, every screen on the bridge flickers. At tactical, the silver-haired woman is the last to look away from Corvane. At sensors, Quill glances at her console and writes something down.*
 
 [corvane = killed, p3.round_shot = 3-5, ames = dead. The later the shot, the more of her case the player heard in her own words. → P4]
 
@@ -253,4 +267,5 @@ DUNNE: Too late for him.
 - **Quill** says one word. It should haunt her (and the player's view of her) for a long time.
 - **Abara** is never named here, only "the silver-haired woman" at tactical. The player learns her name aboard, in 1.1. (Same for Quill until Corvane names her.)
 - **The R5 callback** ("You asked Ostrow what happens if I'm right") only appears if the player asked it in P1. It's the first hint that Pell, and through Pell Corvane, hears more than it should.
-- **Open:** Corvane's six dead from the scuttled ship give Abara a possible hook. Was someone she knew among them?
+- **Dunne** was on the scuttled ship and made the boats; two of the six dead were his friends. Corvane knows, and is genuinely glad he lived. That's why he never liked her, and why he's in the room.
+- **The flicker and Quill's note** happen in every ending: something transmits at the moment of the shot or the surrender. Quill logs a time to the second and a frequency. Thread 2 of the central mystery; never explained here.

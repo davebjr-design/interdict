@@ -1,9 +1,13 @@
 clue_id,reveal,planted_in,form,independent_of,notes
 clue.patron.0,patron_agenda,P1,Ostrow answers "the patron's office" too fast,,host captain knows who ordered the hunt
-clue.patron.1,patron_agenda,P4,the blessing call arrives faster than it should,clue.patron.0,planned
+clue.patron.1,patron_agenda,P4,the blessing was sent 11 minutes before the choice it congratulates; only one message in the relay log,clue.patron.0,drafted
 clue.patron.2,patron_agenda,P4,the patron never asks what Corvane said (approves too readily if murdered),clue.patron.0,planned
 clue.patron.3,patron_agenda,1.7,first commission coordinates do not fit the stated job,clue.patron.1,planned
 clue.patron.4,patron_agenda,P3 R3,Corvane: why was a gleaner crew sent and not the CSRA?,clue.patron.0,planned
 clue.pell.0,pell_is_front,P3 R5,Pell heard the P1 briefing on another ship (only if the player asked "What if she's right?"),,planned
 clue.pell.1,pell_is_front,1.5,Pell says one true thing it has not been allowed to say and stops itself,,planned
 clue.pell.2,pell_is_front,1.9,Pell has seen Quill's signal before and is not allowed to say where,clue.pell.1,planned
+clue.patron.5,patron_agenda,P4,the return line has been open six weeks (since Corvane took the core) and closes for the first time,clue.patron.1,drafted
+clue.signal.0,unexplained_signals,P3 all endings,screens flicker at the moment of the shot or surrender; Quill logs a time and frequency,,drafted
+clue.signal.1,unexplained_signals,1.2,Quill mentions "noise" and changes the subject,clue.signal.0,planned
+clue.signal.2,unexplained_signals,1.9,Quill brings the signal she logged at the standoff; it matches months of earlier logs,clue.signal.1,planned

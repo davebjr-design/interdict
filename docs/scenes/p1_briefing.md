@@ -2,6 +2,7 @@
 
 **Status:** first dialogue draft, for a voice read. Not in Ink yet. Outline: `scene_outlines.md` P1.
 **Where:** briefing room of the *Tern*, a low-rated gleaner ship. **Reading time:** about 3-4 minutes.
+**POV sheets:** `pov_sheets.md` (Ostrow, Dunne, Ames).
 **Format:** `NAME:` lines are spoken. *Italics* are narration. `→` is a player choice, with its effect in [brackets].
 
 **Host-ship cast (mini cards)**
@@ -63,8 +64,10 @@ OSTROW: So naturally, I'm the one they sent.
 
 → "How good is her crew?"
   DUNNE: Small. Five, maybe. Corvane picks people nobody else would hire, and then they'd die for her.
-  OSTROW: And there's an AI aboard. She calls it Pell. Talks to it like it's crew.
-  DUNNE: Talks to it like it's family.
+  *A beat.*
+  DUNNE: Some of them have.
+  OSTROW: And there's an AI aboard now. She calls it Pell. Talks to it like it's crew.
+  DUNNE: She always did want someone who'd never tell her no.
   [knows.pell_name]
 
 → "Why bring me?"
@@ -76,6 +79,12 @@ OSTROW: So naturally, I'm the one they sent.
 → "That's enough."
 
 OSTROW: Here's how it goes. We find her first; that's the hunt, and you'll do what I tell you, when I tell you. Then we board. Three go across: Dunne, the new hand, and Ames.
+
+DUNNE: Not you.
+
+*Ostrow keeps her eyes on the chart.*
+
+OSTROW: Not me. She'd talk me round. She always could.
 
 *Ames looks up too quickly.*
 
@@ -138,7 +147,8 @@ AMES: Sorry. Habit.
 
 ---
 ## Notes for the voice read
-- Ostrow's tell: she says the hardest things while looking at the chart.
+- Ostrow's tell: she says the hardest things while looking at the chart. She isn't boarding because she knows Corvane could talk her round (POV sheet).
+- Dunne's slip ("Some of them have." / "someone who'd never tell her no") is his history leaking: he refused Corvane once and survived her scuttling. Paid off in P3 R4.
 - Dunne gets the ugly truths ("nobody's attached to you yet"), so Ostrow can stay sympathetic.
 - Ames gets one small, human question, asked away from the officers. Everything in P3 depends on the player having liked him.
 - Every question costs nothing. The only state that matters later is `ames.bond`, `knows.patron_exists`, and whether the player asked "What if she's right?"
