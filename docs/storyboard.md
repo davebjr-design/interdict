@@ -10,6 +10,9 @@ How a beat is written: `id | mode | where | who | what happens | choices → sta
 3. **Ink draft** from the outline. Claude writes it; Dave reads it in the prototype player with the state panel.
 4. **Revise** by reading aloud for voice (`pell_voice.md`, crew bible), then lock and log new variables/clues/callbacks in `data/narrative/`.
 
+## Design principle: agency over outcome [D]
+All routes may end in the same place, but the player must feel they can change the details, and must know a trade-off is coming. So tells are never hidden: each round adds one visible cue (holster, hand on gun, a glance), and the text always makes the choice to keep talking or shoot available. Cost and benefit are discoverable, not secret.
+
 ## Whole-campaign spine (12 beats)  [P unless tagged]
 | # | Beat | Mode | Act | One line |
 |---|---|---|---|---|
@@ -34,8 +37,8 @@ How a beat is written: `id | mode | where | who | what happens | choices → sta
 
 **P3 | TEXT with a pressure clock | Corvane's bridge | Corvane, Pell (voice), Abara, Quill; you, Dunne, Ames | The standoff. [D: persuasion is just a choice; attacking can cut it off at any point; the player's anxiety should grow]**
 Structure: a conversation in rounds (aim for 5-6). On each round the player picks a line that keeps talking, or **draws and fires**. There is no stated meter and no signal that Corvane will yield. Corvane stays amused, courteous and exact; her crew stay still.
-- **Round 1: calm.** Corvane greets you by name and offers tea. Her crew stand still. Pell speaks (below). No tension yet, so nobody would act; shooting here is possible but reads as murder to everyone, including Dunne. [D: tension has to build first]
-- **Round 2: tension rises (the early window).** She begins her case ("something worse is already awake"). Pell's lines get stranger. Ames's hand is shaking on his weapon and Dunne glances at you; the room tightens. **This is the last moment to cut it off while Ames is still steady.** Shooting here: Corvane draws on Ames and wings him as you fire.
+- **Round 1: calm.** Corvane greets you by name and offers tea. Her crew stand still. **Tells begin:** the narration notes her quick-draw holster, worn low and unclasped, and that Ames's hand has drifted to his holster. Pell speaks (below). No tension yet, so nobody would act; shooting here is possible but reads as murder to everyone, including Dunne. [D: tension has to build first]
+- **Round 2: tension rises (the early window).** She begins her case ("something worse is already awake"). Pell's lines get stranger. Ames's hand is now on the butt of his gun, shaking, Corvane's eyes have flicked to him once, Dunne glances at you; the room tightens. **This is the last moment to cut it off while Ames is still steady.** Shooting here: Corvane draws on Ames and wings him as you fire.
 - **Round 3: Ames panics.** He raises the weapon or says the wrong thing. **If you have not already shot, Corvane has him killed calmly, mid-sentence, then goes on talking.** The anxiety spike: you have just seen what she is. Dunne now watches whether you will shoot.
 - **Round 4-5:** her case in pieces, what the Tally has ever done about it, whether you would do what she did in her place. Keep talking or cut her off.
 - **Round 6:** if you never shot, she stands down on her own terms.
@@ -49,7 +52,7 @@ Structure: a conversation in rounds (aim for 5-6). On each round the player pick
 | **Persuade to the end** (rounds 4-6, never shoot) | Dead | She stands down on her terms and gives up her codes; the most truth, and the first "believe her or not" choice | Ames is dead; you let her live over a man who died for it |
 
 - Any resolution gets you the ship: no no-win state. Quill writes something down in all of them. Seed `clue.signals.1` in her behaviour.
-- **State:** `ames` (unset/wounded/dead), `corvane` (killed/persuaded), `p3.round_shot` (1-5 or 0). Round 2 shooting sets `ames=wounded`; Ames returns to the host ship and is a callback (see callbacks ledger: he turns up again in Act 2 at the captains' bar).
+- **State:** `ames` (unset/wounded/dead), `corvane` (killed/persuaded), `p3.round_shot` (1-5 or 0). Round 2 shooting sets `ames=wounded`; Ames returns to the host ship and is a callback (see callbacks ledger: he turns up again in Act 2 outside the captains' bar (he isn't a captain) to thank you).
 **Pell in the standoff [D: Pell speaks; Corvane trusts Pell; contents a little nuts].** Calm voice, wrong content. Examples to choose from or replace: Pell counts the boarders' heartbeats aloud and offers Corvane "a quieter rate"; says it has already begun the funeral log "for convenience, in either order"; thanks Corvane for the new window and says the ship's old name was a bad name; apologises to Ames before he is shot and does not say for what; addresses Corvane as the one who "keeps the light on". Corvane answers Pell fondly, as if to a colleague, never as a tool. The player should leave unsure whether Pell is loyal, insane, or three steps ahead.
 
 **P4 | TEXT | any private place | the Patron (voice) | The blessing.** A warm, patient voice approves you as captain "by the usual arrangements". It says it wants this ship quiet and the AI stopped. It tells you the crew will be difficult and that it will "see to it" you have what you need. *Seeds:* the call arrives faster than it should (`clue.patron.1`); it does not ask what happened (`clue.patron.2`). *Choice:* thank it / ask who it is (it deflects).
