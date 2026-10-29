@@ -8,6 +8,6 @@ clue.pell.0,pell_is_front,P3 R5,Pell heard the P1 briefing on another ship (only
 clue.pell.1,pell_is_front,1.5,Pell says one true thing it has not been allowed to say and stops itself,,planned
 clue.pell.2,pell_is_front,1.9,Pell has seen Quill's signal before and is not allowed to say where,clue.pell.1,planned
 clue.patron.5,patron_agenda,P4,the return line has been open six weeks (since Corvane took the core) and closes for the first time,clue.patron.1,drafted
-clue.signal.0,unexplained_signals,P3 all endings,screens flicker at the moment of the shot or surrender; Quill logs a time and frequency,,drafted
+clue.signal.0,unexplained_signals,P3 all endings,Pell repeats a line word for word without knowing it at the decisive moment; Quill logs the time,,drafted
 clue.signal.1,unexplained_signals,1.2,Quill mentions "noise" and changes the subject,clue.signal.0,planned
 clue.signal.2,unexplained_signals,1.9,Quill brings the signal she logged at the standoff; it matches months of earlier logs,clue.signal.1,planned

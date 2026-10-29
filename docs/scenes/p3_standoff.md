@@ -190,7 +190,17 @@ CORVANE: My terms, and they're short. I keep my cabin. My crew are not punished 
 
 CORVANE: Especially when it's being strange.
 
-*For a moment, every screen on the bridge flickers. Nobody remarks on it.*
+PELL: Captain Corvane. Your tea's gone cold. Shall I warm it?
+
+*A pause.*
+
+PELL: Captain Corvane. Your tea's gone cold. Shall I warm it?
+
+CORVANE: Pell?
+
+PELL: Yes, Captain?
+
+*It doesn't seem to know it said it twice.*
 
 *At tactical, the silver-haired woman finally turns around. Her face holds grief and anger at once, and it's impossible to tell which is meant for whom. At sensors, Quill glances at her console and writes something down.*
 
@@ -215,7 +225,15 @@ DUNNE: She said hear her out. You didn't hear anything.
 
 DUNNE: I'll take the boy home. Don't come with us.
 
-*For a moment, every screen on the bridge flickers. At tactical, the silver-haired woman is the last to look away from Corvane. At sensors, Quill glances at her console and writes something down.*
+*From the pedestal, calmly:*
+
+PELL: Captain Corvane. Your tea's gone cold. Shall I warm it?
+
+*A pause.*
+
+PELL: Captain Corvane. Your tea's gone cold. Shall I warm it?
+
+*Nobody answers it. At tactical, the silver-haired woman is the last to look away from Corvane. At sensors, Quill glances at her console and writes something down.*
 
 [corvane = killed, murdered = true, p3.round_shot = 1, ames unharmed. Dunne will not serve with you; Ostrow files a report. Trust: Abara -25, Quill -15, Dace -15, Castellan -10, Fenwick -10; Pell trust at its lowest. → P4]
 
@@ -236,7 +254,15 @@ DUNNE: Good. Fast.
 
 *He's already kneeling by Ames, pressing on the wound.*
 
-*For a moment, every screen on the bridge flickers. At tactical, the silver-haired woman is the last to look away from Corvane. At sensors, Quill glances at her console and writes something down.*
+*From the pedestal, calmly:*
+
+PELL: Captain Corvane. Your tea's gone cold. Shall I warm it?
+
+*A pause.*
+
+PELL: Captain Corvane. Your tea's gone cold. Shall I warm it?
+
+*Nobody answers it. At tactical, the silver-haired woman is the last to look away from Corvane. At sensors, Quill glances at her console and writes something down.*
 
 [corvane = killed, p3.round_shot = 2, ames = wounded. Dunne respects the speed. Corvane said almost nothing; her case survives in Pell's logs. → P4]
 
@@ -254,7 +280,15 @@ DUNNE: Too late for him.
 
 *He doesn't say whether he means Ames or Corvane. He's looking at Ames.*
 
-*For a moment, every screen on the bridge flickers. At tactical, the silver-haired woman is the last to look away from Corvane. At sensors, Quill glances at her console and writes something down.*
+*From the pedestal, calmly:*
+
+PELL: Captain Corvane. Your tea's gone cold. Shall I warm it?
+
+*A pause.*
+
+PELL: Captain Corvane. Your tea's gone cold. Shall I warm it?
+
+*Nobody answers it. At tactical, the silver-haired woman is the last to look away from Corvane. At sensors, Quill glances at her console and writes something down.*
 
 [corvane = killed, p3.round_shot = 3-5, ames = dead. The later the shot, the more of her case the player heard in her own words. → P4]
 
@@ -268,4 +302,4 @@ DUNNE: Too late for him.
 - **Abara** is never named here, only "the silver-haired woman" at tactical. The player learns her name aboard, in 1.1. (Same for Quill until Corvane names her.)
 - **The R5 callback** ("You asked Ostrow what happens if I'm right") only appears if the player asked it in P1. It's the first hint that Pell, and through Pell Corvane, hears more than it should.
 - **Dunne** was on the scuttled ship and made the boats; two of the six dead were his friends. Corvane knows, and is genuinely glad he lived. That's why he never liked her, and why he's in the room.
-- **The flicker and Quill's note** happen in every ending: something transmits at the moment of the shot or the surrender. Quill logs a time to the second and a frequency. Thread 2 of the central mystery; never explained here.
+- **Pell's repeated line and Quill's note** happen in every ending: at the decisive moment Pell says "Captain Corvane. Your tea's gone cold. Shall I warm it?" twice, word for word, and doesn't seem to know it did. (Said to a dead woman, it's chilling; said to a living one, it's just wrong.) Quill logs the time to the second. Something transmitted, and Pell lost a few seconds. Thread 2 of the central mystery; never explained here. It deliberately implicates Pell.

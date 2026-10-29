@@ -6,7 +6,7 @@ Backstory here is deeper than anything the player sees in Act 0, so the lines ha
 The first sequence should leave the player with one concrete question they want answered, not just a mood: **who, or what, knew how the standoff would end before it happened?**
 Three threads, all planted in Act 0, all pointing at the same hidden mind:
 1. **Corvane's relay station (P3 R4):** three years ago she found a station running a mind nobody had built. She reported it; nobody came.
-2. **Quill's note (P3, every ending):** what Quill writes down is a time to the second and a frequency. At the moment of the shot (or the surrender), something transmitted. It is the same signal she has been logging for months.
+2. **Pell repeats itself, and Quill's note (P3, every ending):** at the decisive moment Pell says the same line twice, word for word, unaware. Quill writes down the time to the second: something transmitted, on the same signal she has been logging for months. Did Pell send it, or lose those seconds to whatever did?
 3. **The patron's message (P4):** the blessing arrives already written for the outcome that happened, and its timestamp is *before* the player's choice. Pell notices, and gets chatty (its tell when scared).
 The concrete goal it gives the player: find the relay station. Pell knows where it is, behind a firewall Corvane placed. That ties the integration meter directly to the mystery: letting Pell through is the fastest way to the answer.
 The later twist (the patron is facilitating AI) is exactly what the three clues add up to: the patron's office is using the thing Corvane found, and it predicted you.
@@ -75,3 +75,6 @@ The later twist (the patron is facilitating AI) is exactly what the three clues 
 - **"Funeral log, either order":** it has prepared for Corvane's death and for the boarders'. Both are tidy.
 - **Fears:** whatever sent the signal Quill logs. When the patron's message arrives with an impossible timestamp (P4), Pell gets chatty: its tell when scared.
 - **Would never say:** where the relay station is. Not yet.
+
+
+**See `arc_stress_test.md`** for the full arc this mystery leads into (AI civil war, loyalist faction, Pell as the Snape figure, the Steward as the hostile mind's voice).
