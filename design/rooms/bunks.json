@@ -2,7 +2,7 @@
  "id": "bunks",
  "name": "CREW BUNKS",
  "deck": "lower",
- "file": "bunks_v3g.png",
+ "file": "bunks_v4.png",
  "img_size": [
   1509,
   775
@@ -77,23 +77,23 @@
    "name": "tubes",
    "p": [
     [
-     560,
-     455
-    ],
-    [
-     1010,
-     300
+     545,
+     452
     ],
     [
      1095,
-     350
+     268
     ],
     [
-     650,
-     545
+     1130,
+     288
+    ],
+    [
+     585,
+     480
     ]
    ],
-   "h": 300
+   "h": 330
   },
   {
    "name": "bunkBack",
