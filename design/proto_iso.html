@@ -201,9 +201,9 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   }
   const close = () => { $('ch').innerHTML = ''; dlg = false; };
   function talk(npc) {
-    if (npc.name === 'Abara') return say('Abara', 'Sit down, kid. Tea is getting cold. And do not touch the thermostat, Dace has opinions about it.', '', [{ t: 'Continue', fn: close }]);
-    if (npc.name === 'Dace') return say('Dace', 'That is not a heat problem, that is a people problem. Hold still. No, really, hold still, I am only checking your pulse. And the coolant lines. Mostly the coolant lines.', '', [{ t: 'Continue', fn: close }]);
-    if (npc.name === 'Quill') return say('Quill', 'That is not a ghost, Captain. Ghosts are consistent. That is something else. I am logging it.', '', [{ t: 'Continue', fn: close }]);
+    if (npc.name === 'Abara') return say('Abara', "Thirty years cleaning up after captains. Sit down, tea's hot. Let's find out what kind of mess you are.", '', [{ t: 'Continue', fn: close }]);
+    if (npc.name === 'Dace') return say('Dace', "Oh, that's fascinating. Sorry, no, it's terrible. But it's also fascinating. Hold still and let me look.", '', [{ t: 'Continue', fn: close }]);
+    if (npc.name === 'Quill') return say('Quill', "With respect, Captain, \"probably\" isn't a reading. Give me ten minutes and I'll have a real one.", '', [{ t: 'Continue', fn: close }]);
     if (npc.name === 'Castellan') {
       if (done) return say('Castellan', 'I will keep an eye on the reactor, Captain.', '', [{ t: 'Continue', fn: close }]);
       return say('Castellan', 'The coupling manifold is behind the tanks, Captain. Have a look when you have a moment.', '', [{ t: 'Continue', fn: close }]);

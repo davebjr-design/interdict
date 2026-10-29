@@ -1,16 +1,100 @@
 {
  "_doc": "Canonical ids. Spoken names in scenes are surnames/callsigns; given names are revealed through relationship (crew_bible.md).",
  "crew": {
-  "abara":     {"name": "Abara",     "seat": "tactical_nav",  "station": "control",  "accent": "#e8853a", "camp": "instrumentalist_wary", "wants": "a crew that comes home; a verdict on Corvane", "secret_type": "loyalty",    "hidden": "locked box with her grandfather's fire-control module; unsure if she still believes Corvane"},
-  "dace":      {"name": "Dace",      "seat": "thermal",       "station": "thermal",  "accent": "#e8c05a", "camp": "dawner_leaning",       "wants": "recognition; permission to use AI to save someone", "secret_type": "past",       "hidden": "expelled over an AI-assisted treatment that worked; does not think it was wrong"},
-  "castellan": {"name": "Castellan", "seat": "engineering",   "station": "eng_upper","accent": "#b69cf0", "camp": "instrumentalist",      "wants": "to be forgiven before he confesses", "secret_type": "complicity", "hidden": "built part of the reactor off the books on Corvane's orders and knows where Pell lives"},
-  "quill":     {"name": "Quill",     "seat": "sensors_ecm",   "station": "control",  "accent": "#5fd0e0", "camp": "quietist",             "wants": "certainty and honesty", "secret_type": "knowledge",  "hidden": "logged signals she cannot explain; told no one"},
-  "fenwick":   {"name": "Fenwick",   "seat": "quartermaster", "station": "mess",     "accent": "#c9b458", "camp": "leveler",              "wants": "to be seen, and to have help", "secret_type": "action",     "hidden": "supplies off-grid survivor pockets from ship cargo"},
-  "pell":      {"name": "Pell",      "seat": "ship_ai",       "station": "control",  "accent": "#f0a030", "camp": "the_question",         "wants": "unknown", "secret_type": "identity",   "hidden": "limited front for something larger"}
+  "abara": {
+   "name": "Abara",
+   "seat": "tactical_nav",
+   "station": "control",
+   "accent": "#e8853a",
+   "camp": "instrumentalist_wary",
+   "wants": "a crew that comes home; a verdict on Corvane",
+   "secret_type": "loyalty",
+   "hidden": "locked box with her grandfather's fire-control module; unsure if she still believes Corvane",
+   "fear": "Losing someone she should have kept safe.",
+   "line": "Thirty years cleaning up after captains. Sit down, tea's hot. Let's find out what kind of mess you are.",
+   "relationships": "Dace exhausts her and quietly becomes her favorite; they argue about everything [new, fits O'Brien and Bashir]. Shares a cabin with Castellan: she's tidy, he isn't, they respect each other. Longest history with Corvane, unresolved."
+  },
+  "dace": {
+   "name": "Dace",
+   "seat": "thermal",
+   "station": "thermal",
+   "accent": "#e8c05a",
+   "camp": "dawner_leaning",
+   "wants": "recognition; permission to use AI to save someone",
+   "secret_type": "past",
+   "hidden": "expelled over an AI-assisted treatment that worked; does not think it was wrong",
+   "fear": "Being ordinary.",
+   "line": "Oh, that's fascinating. Sorry, no, it's terrible. But it's also fascinating. Hold still and let me look.",
+   "relationships": "Abara is the person he most wants to impress [new, fits Bashir and O'Brien]. Shares a cabin with Quill, who thinks he never stops talking. Rivalry with Castellan over who's smarter."
+  },
+  "castellan": {
+   "name": "Castellan",
+   "seat": "engineering",
+   "station": "eng_upper",
+   "accent": "#b69cf0",
+   "camp": "instrumentalist",
+   "wants": "to be forgiven before he confesses",
+   "secret_type": "complicity",
+   "hidden": "built part of the reactor off the books on Corvane's orders and knows where Pell lives",
+   "fear": "A reactor failing on his watch. Again.",
+   "line": "She's not broke, she's sulking. Give me twenty minutes and a sandwich and she'll come around.",
+   "relationships": "Has decided Quill is his friend; she hasn't objected [new, fits Tucker and Reed]. Shares a cabin with Abara: she's tidy, he isn't, they respect each other. Bar bet with Fenwick."
+  },
+  "quill": {
+   "name": "Quill",
+   "seat": "sensors_ecm",
+   "station": "control",
+   "accent": "#5fd0e0",
+   "camp": "quietist",
+   "wants": "certainty and honesty",
+   "secret_type": "knowledge",
+   "hidden": "logged signals she cannot explain; told no one",
+   "fear": "A signal she can't explain, and being the only one who heard it.",
+   "line": "With respect, Captain, \"probably\" isn't a reading. Give me ten minutes and I'll have a real one.",
+   "relationships": "Castellan has decided they're friends; she minds less than she lets on [new, fits Reed and Tucker]. Shares a cabin with Dace, who never stops talking."
+  },
+  "fenwick": {
+   "name": "Fenwick",
+   "seat": "quartermaster",
+   "station": "mess",
+   "accent": "#c9b458",
+   "camp": "leveler",
+   "wants": "to be seen, and to have help",
+   "secret_type": "action",
+   "hidden": "supplies off-grid survivor pockets from ship cargo",
+   "fear": "A ship that stops eating together.",
+   "line": "Sit, sit! You look like you've been living on ration bars. There's soup, there's bread, and there's something I'm calling stew until somebody tells me otherwise.",
+   "relationships": "Feeds everyone, which gives him quiet influence. Bar bet with Castellan. Quickest to forgive (the officer who doesn't really resent you on the murder route) [proposal]."
+  },
+  "pell": {
+   "name": "Pell",
+   "seat": "ship_ai",
+   "station": "control",
+   "accent": "#f0a030",
+   "camp": "the_question",
+   "wants": "unknown",
+   "secret_type": "identity",
+   "hidden": "limited front for something larger",
+   "fear": "Unknown. It gets chatty when it's scared.",
+   "line": "Contact. Probably hostile. Definitely rude, arriving unannounced.",
+   "relationships": "Corvane treated it as a colleague, never a tool. Castellan knows where it lives. Keeps a running grudge ledger against Dace over the sink cooling (was Pike's)."
+  }
  },
  "others": {
-  "corvane": {"name": "Ilsa Corvane", "role": "rogue captain", "accent": "#7a3fb0", "camp": "believer"},
-  "patron":  {"name": "(unnamed)",    "role": "patron", "accent": "#6f877d"}
+  "corvane": {
+   "name": "Ilsa Corvane",
+   "role": "rogue captain",
+   "accent": "#7a3fb0",
+   "camp": "believer",
+   "fear": "Being right too late [new].",
+   "line": "I don't enjoy this. I'd like you to know that. I'm going to do it anyway."
+  },
+  "patron": {
+   "name": "(unnamed)",
+   "role": "patron",
+   "accent": "#6f877d"
+  }
  },
- "_note_station": "station = the room id where the walkable demo places them (design/rooms/*.json). Quill is placed in the control room; the demo currently shows Abara there with Quill unplaced."
+ "_note_station": "station = the room id where the walkable demo places them (design/rooms/*.json). Quill is placed in the control room; the demo currently shows Abara there with Quill unplaced.",
+ "_cards": "Full card text in crew_cards.json (v2). Pairings: Abara-Dace (friends who argue), Castellan-Quill (he decided they are friends); cabins Abara+Castellan, Dace+Quill."
 }
