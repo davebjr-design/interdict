@@ -159,7 +159,12 @@
   }
  ],
  "block": [],
- "open": [],
+ "open": [
+  [
+   10,
+   0
+  ]
+ ],
  "blurb": "The crew bunk compartment, wrapped around the bases of the missile tubes. Most racks are folded flat with crates strapped into them. Two are still made up, which is where visitors sleep.",
  "doors": [
   {
