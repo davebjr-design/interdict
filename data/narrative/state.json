@@ -1,34 +1,218 @@
 {
  "_doc": "The only state the story may read or write. Every change goes through a named effect in a storylet and is logged with that storylet's id. Add a variable here before using it anywhere; tools/narr_check.py rejects unknown names.",
  "vars": {
-  "integration":      {"type": "int", "min": 0, "max": 100, "default": 0, "oneway": true, "tiers": [25, 50, 75, 100], "doc": "How far the player has let Pell through its firewalls."},
-  "pell.trust":       {"type": "int", "min": 0, "max": 100, "default": 40, "doc": "Pell's trust in the captain (separate from integration)."},
-  "trust.abara":      {"type": "int", "min": 0, "max": 100, "default": 25, "doc": "Per-officer trust. Bands: 0-19 hostile, 20-39 guarded, 40-59 working, 60-79 loyal, 80+ devoted."},
-  "trust.dace":       {"type": "int", "min": 0, "max": 100, "default": 40},
-  "trust.castellan":  {"type": "int", "min": 0, "max": 100, "default": 50},
-  "trust.quill":      {"type": "int", "min": 0, "max": 100, "default": 25},
-  "trust.fenwick":    {"type": "int", "min": 0, "max": 100, "default": 55},
-  "arc.abara":        {"type": "int", "min": 0, "max": 5, "default": 0, "doc": "Personal arc stage."},
-  "arc.dace":         {"type": "int", "min": 0, "max": 5, "default": 0},
-  "arc.castellan":    {"type": "int", "min": 0, "max": 5, "default": 0},
-  "arc.quill":        {"type": "int", "min": 0, "max": 5, "default": 0},
-  "arc.fenwick":      {"type": "int", "min": 0, "max": 5, "default": 0},
-  "status.abara":     {"type": "enum", "values": ["steady", "shaken", "estranged", "mutinous", "transferred"], "default": "steady", "doc": "Crew consequence states. Nobody dies."},
-  "status.dace":      {"type": "enum", "values": ["steady", "shaken", "estranged", "mutinous", "transferred"], "default": "steady"},
-  "status.castellan": {"type": "enum", "values": ["steady", "shaken", "estranged", "mutinous", "transferred"], "default": "steady"},
-  "status.quill":     {"type": "enum", "values": ["steady", "shaken", "estranged", "mutinous", "transferred"], "default": "steady"},
-  "status.fenwick":   {"type": "enum", "values": ["steady", "shaken", "estranged", "mutinous", "transferred"], "default": "steady"},
-  "corvane":          {"type": "enum", "values": ["unset", "killed", "persuaded", "freed"], "default": "unset"},
-  "tally.declared":   {"type": "int", "min": 0, "max": 999, "default": 0},
-  "tally.hidden":     {"type": "int", "min": 0, "max": 999, "default": 0},
-  "tally.destroyed":  {"type": "int", "min": 0, "max": 999, "default": 0},
-  "patron.standing":  {"type": "int", "min": 0, "max": 100, "default": 50},
-  "patron.suspicion": {"type": "int", "min": 0, "max": 100, "default": 0, "doc": "Only what the player has actually found; never a hidden score."},
-  "act":              {"type": "int", "min": 0, "max": 4, "default": 0},
-  "leg":              {"type": "int", "min": 0, "max": 99, "default": 0}
+  "integration": {
+   "type": "int",
+   "min": 0,
+   "max": 100,
+   "default": 0,
+   "oneway": true,
+   "tiers": [
+    25,
+    50,
+    75,
+    100
+   ],
+   "doc": "How far the player has let Pell through its firewalls."
+  },
+  "pell.trust": {
+   "type": "int",
+   "min": 0,
+   "max": 100,
+   "default": 40,
+   "doc": "Pell's trust in the captain (separate from integration)."
+  },
+  "trust.abara": {
+   "type": "int",
+   "min": 0,
+   "max": 100,
+   "default": 25,
+   "doc": "Per-officer trust. Bands: 0-19 hostile, 20-39 guarded, 40-59 working, 60-79 loyal, 80+ devoted."
+  },
+  "trust.dace": {
+   "type": "int",
+   "min": 0,
+   "max": 100,
+   "default": 40
+  },
+  "trust.castellan": {
+   "type": "int",
+   "min": 0,
+   "max": 100,
+   "default": 50
+  },
+  "trust.quill": {
+   "type": "int",
+   "min": 0,
+   "max": 100,
+   "default": 25
+  },
+  "trust.fenwick": {
+   "type": "int",
+   "min": 0,
+   "max": 100,
+   "default": 55
+  },
+  "arc.abara": {
+   "type": "int",
+   "min": 0,
+   "max": 5,
+   "default": 0,
+   "doc": "Personal arc stage."
+  },
+  "arc.dace": {
+   "type": "int",
+   "min": 0,
+   "max": 5,
+   "default": 0
+  },
+  "arc.castellan": {
+   "type": "int",
+   "min": 0,
+   "max": 5,
+   "default": 0
+  },
+  "arc.quill": {
+   "type": "int",
+   "min": 0,
+   "max": 5,
+   "default": 0
+  },
+  "arc.fenwick": {
+   "type": "int",
+   "min": 0,
+   "max": 5,
+   "default": 0
+  },
+  "status.abara": {
+   "type": "enum",
+   "values": [
+    "steady",
+    "shaken",
+    "estranged",
+    "mutinous",
+    "transferred"
+   ],
+   "default": "steady",
+   "doc": "Crew consequence states. Nobody dies."
+  },
+  "status.dace": {
+   "type": "enum",
+   "values": [
+    "steady",
+    "shaken",
+    "estranged",
+    "mutinous",
+    "transferred"
+   ],
+   "default": "steady"
+  },
+  "status.castellan": {
+   "type": "enum",
+   "values": [
+    "steady",
+    "shaken",
+    "estranged",
+    "mutinous",
+    "transferred"
+   ],
+   "default": "steady"
+  },
+  "status.quill": {
+   "type": "enum",
+   "values": [
+    "steady",
+    "shaken",
+    "estranged",
+    "mutinous",
+    "transferred"
+   ],
+   "default": "steady"
+  },
+  "status.fenwick": {
+   "type": "enum",
+   "values": [
+    "steady",
+    "shaken",
+    "estranged",
+    "mutinous",
+    "transferred"
+   ],
+   "default": "steady"
+  },
+  "corvane": {
+   "type": "enum",
+   "values": [
+    "unset",
+    "killed",
+    "persuaded",
+    "freed"
+   ],
+   "default": "unset"
+  },
+  "tally.declared": {
+   "type": "int",
+   "min": 0,
+   "max": 999,
+   "default": 0
+  },
+  "tally.hidden": {
+   "type": "int",
+   "min": 0,
+   "max": 999,
+   "default": 0
+  },
+  "tally.destroyed": {
+   "type": "int",
+   "min": 0,
+   "max": 999,
+   "default": 0
+  },
+  "patron.standing": {
+   "type": "int",
+   "min": 0,
+   "max": 100,
+   "default": 50
+  },
+  "patron.suspicion": {
+   "type": "int",
+   "min": 0,
+   "max": 100,
+   "default": 0,
+   "doc": "Only what the player has actually found; never a hidden score."
+  },
+  "act": {
+   "type": "int",
+   "min": 0,
+   "max": 4,
+   "default": 0
+  },
+  "leg": {
+   "type": "int",
+   "min": 0,
+   "max": 99,
+   "default": 0
+  },
+  "ames": {
+   "type": "enum",
+   "values": [
+    "unset",
+    "wounded",
+    "dead"
+   ],
+   "default": "unset",
+   "doc": "Host-ship boarding hand; fate set in the standoff (P3)."
+  },
+  "p3.round_shot": {
+   "type": "int",
+   "min": 0,
+   "max": 5,
+   "default": 0,
+   "doc": "Round in which the player shot Corvane; 0 if never."
+  }
  },
  "patterns": {
-  "knows.<fact>":       "bool. fact must exist in knowledge.csv. The player has learned it.",
+  "knows.<fact>": "bool. fact must exist in knowledge.csv. The player has learned it.",
   "told.<fact>.<crew>": "bool. fact must exist in knowledge.csv; crew is an officer id or pell. That person was told.",
   "seen.<storylet_id>": "bool, set automatically when a storylet plays (powers once/cooldown)."
  }
