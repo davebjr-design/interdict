@@ -209,6 +209,18 @@
    "max": 6,
    "default": 0,
    "doc": "Round in which the player shot Corvane; 0 if never."
+  },
+  "murdered": {
+   "type": "bool",
+   "default": false,
+   "doc": "Player shot Corvane in P3 round 1, before any tension. Read by Act 1.2 lines, the patron, and the captains' bar."
+  },
+  "ames.bond": {
+   "type": "int",
+   "min": 0,
+   "max": 2,
+   "default": 0,
+   "doc": "How well the player bonded with Ames in P1."
   }
  },
  "patterns": {
