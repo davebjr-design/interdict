@@ -124,7 +124,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   // The other side of every hatch: arrive on the partner door's stand cell, facing away from its wall.
   Object.values(ROOMS).forEach(r => r.doors.forEach(d => { if (!d.to) return; const p = ROOMS[d.to].doors.find(x => x.to === r.id); d.arrive = p.stand; if (p.wall && !p.fade) d.dir = ({ i: 'se', j: 'sw', I: 'nw', J: 'ne' })[p.wall]; }));
   // A prop is a footprint polygon with a height. An entity standing behind it (inside its extruded hull but outside the footprint) is overdrawn by the prop's image.
-  const behind = (pr, o) => { if (pr.noOcc || !inPoly([o.x, o.y], pr.hull) || inPoly([o.x, o.y], pr.poly)) return false; const b = pr.cells; if (!b) return true; return o.i <= b[1] && o.j <= b[3] && (o.i < b[0] || o.j < b[2]); };
+  const behind = (pr, o) => { if (o === me && (me.steps.length || room.doors.some(d => d.stand[0] === o.i && d.stand[1] === o.j))) return false; if (pr.noOcc || !inPoly([o.x, o.y], pr.hull) || inPoly([o.x, o.y], pr.poly)) return false; const b = pr.cells; if (!b) return true; return o.i <= b[1] && o.j <= b[3] && (o.i < b[0] || o.j < b[2]); };
   const hash = x => { const v = Math.sin(x * 127.1 + 311.7) * 43758.5453; return v - Math.floor(v); };
   function lightF(l, t) {
     const s = l.seed;
