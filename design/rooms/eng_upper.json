@@ -105,7 +105,8 @@
      455
     ]
    ],
-   "h": 95
+   "h": 95,
+   "noBlock": true
   },
   {
    "name": "shelf",
@@ -127,7 +128,8 @@
      585
     ]
    ],
-   "h": 190
+   "h": 190,
+   "noBlock": true
   },
   {
    "name": "ladder cage",

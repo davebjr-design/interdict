@@ -89,14 +89,18 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     r.lights.forEach(l => { const w = W(l.p); l.x = w[0]; l.y = w[1]; });
     // floor outline and solid footprints are drawn in image pixels; a cell is blocked when it is mostly off the floor or mostly under a solid
     r.floorW = r.floor ? r.floor.map(W) : null;
-    r.props = (r.solids || []).map(s => { const poly = s.p.map(W), h = s.h * k; return { name: s.name, noOcc: !!s.noOcc, poly, h, hull: hull(poly.concat(poly.map(p => [p[0], p[1] - h]))) }; });
+    r.props = (r.solids || []).map(s => { const poly = s.p.map(W), h = s.h * k; return { name: s.name, noOcc: !!s.noOcc, noBlock: !!s.noBlock, poly, h, hull: hull(poly.concat(poly.map(p => [p[0], p[1] - h]))) }; });
     const B = new Set(), samp = [[.5, .5], [.2, .5], [.8, .5], [.5, .2], [.5, .8]];
     for (let i = 0; i < NI; i++) for (let j = 0; j < NJ; j++) {
       const pts = samp.map(([a, b]) => bil(r, (i + a) / NI, (j + b) / NJ));
       if ((r.floorW && pts.filter(p => inPoly(p, r.floorW)).length < 3) || r.props.some(s => pts.filter(p => inPoly(p, s.poly)).length >= 2)) B.add(i + ',' + j);
     }
     // each solid remembers the cell box it covers; an entity is only drawn behind it when it stands at or before that box in both axes
-    r.props.forEach(pr => { let i0 = 99, i1 = -1, j0 = 99, j1 = -1; for (let i = 0; i < NI; i++) for (let j = 0; j < NJ; j++) { const pts = samp.map(([a, b]) => bil(r, (i + a) / NI, (j + b) / NJ)); if (pts.filter(p => inPoly(p, pr.poly)).length >= 2) { i0 = Math.min(i0, i); i1 = Math.max(i1, i); j0 = Math.min(j0, j); j1 = Math.max(j1, j); } } pr.cells = i1 >= 0 ? [i0, i1, j0, j1] : null; });
+    r.props.forEach(pr => { let i0 = 99, i1 = -1, j0 = 99, j1 = -1; for (let i = 0; i < NI; i++) for (let j = 0; j < NJ; j++) { const pts = samp.map(([a, b]) => bil(r, (i + a) / NI, (j + b) / NJ)); if (pts.filter(p => inPoly(p, pr.poly)).length >= 2) { i0 = Math.min(i0, i); i1 = Math.max(i1, i); j0 = Math.min(j0, j); j1 = Math.max(j1, j); } } if (i1 < 0) { pr.fb = true; // thin or small solid: take the cells its footprint touches at all, else the cell nearest its centre
+        const cxp = pr.poly.reduce((a, q) => a + q[0], 0) / pr.poly.length, cyp = pr.poly.reduce((a, q) => a + q[1], 0) / pr.poly.length; let bd = 1e9;
+        for (let i = 0; i < NI; i++) for (let j = 0; j < NJ; j++) { const m = bil(r, (i + .5) / NI, (j + .5) / NJ), d = Math.hypot(m[0] - cxp, m[1] - cyp), touch = samp.some(([a, b]) => inPoly(bil(r, (i + a) / NI, (j + b) / NJ), pr.poly)); if (touch || d < bd) { if (touch) { i0 = Math.min(i0, i); i1 = Math.max(i1, i); j0 = Math.min(j0, j); j1 = Math.max(j1, j); } else if (i1 < 0 && d < bd) { bd = d; pr.near = [i, j]; } } }
+        if (i1 < 0 && pr.near) { i0 = i1 = pr.near[0]; j0 = j1 = pr.near[1]; } }
+      pr.cells = i1 >= 0 ? [i0, i1, j0, j1] : null; if (pr.cells && !pr.noBlock) for (let i = pr.cells[0]; i <= pr.cells[1]; i++) for (let j = pr.cells[2]; j <= pr.cells[3]; j++) if (pr.fb) B.add(i + ',' + j); });
     (r.block || []).forEach(c => B.add(c.join(',')));
     r.blocked = B;
     // wall hatches: the stand cell is the one on the wall edge nearest the hatch's floor contact

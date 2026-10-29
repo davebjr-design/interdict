@@ -97,7 +97,8 @@
      720
     ]
    ],
-   "h": 100
+   "h": 100,
+   "noBlock": true
   },
   {
    "name": "crate",
@@ -171,7 +172,8 @@
      585
     ]
    ],
-   "h": 80
+   "h": 80,
+   "noBlock": true
   },
   {
    "name": "cube",
@@ -193,7 +195,8 @@
      435
     ]
    ],
-   "h": 70
+   "h": 70,
+   "noBlock": true
   },
   {
    "name": "reactor",

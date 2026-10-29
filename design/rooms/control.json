@@ -105,7 +105,8 @@
      280
     ]
    ],
-   "h": 75
+   "h": 75,
+   "noBlock": true
   },
   {
    "name": "chairA",
@@ -231,7 +232,8 @@
      430
     ]
    ],
-   "h": 100
+   "h": 100,
+   "noBlock": true
   },
   {
    "name": "rackBack",
@@ -257,7 +259,8 @@
      460
     ]
    ],
-   "h": 80
+   "h": 80,
+   "noBlock": true
   },
   {
    "name": "chairC",

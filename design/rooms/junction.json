@@ -71,7 +71,8 @@
      628
     ]
    ],
-   "h": 280
+   "h": 280,
+   "noBlock": true
   },
   {
    "name": "table",
