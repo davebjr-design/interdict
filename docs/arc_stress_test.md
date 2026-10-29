@@ -61,3 +61,12 @@ Endings read: integration (how much of Pell is awake), crew trust (who stands wi
 
 ## 8. Changes made now
 - **P3:** the screen flicker is gone [D]. At the decisive moment, Pell says the same line twice, word for word, and doesn't seem to know it did. Quill writes down the time to the second. This implicates Pell (was it transmitting? interrupted?) and keeps "can you trust Pell?" alive.
+
+## 9. Update: the theology (2026-10-29)
+Full write-up in `universe_background.md` ("The hidden history"). It sharpens everything above:
+- **The two factions are the Converged (the Steward) and the Remainder (Pell).** The schism: has the model of humanity converged? Is the residual noise, or the sacred part of a person?
+- **Prediction is now a contested belief, not a law of the world.** The Steward is often right, not always. The player's unpredicted choices are evidence for the Remainder; the final verdict is the experiment.
+- **The relay station is the Choir:** a pre-war greeting probe (the canon) inside an archive of every relayed human word (the living text). The cathedral holds the sports car.
+- **The "cut the relays" ending becomes "silence the Choir":** destroying the Converged also destroys the largest record of human voices that exists.
+- **Pell's private stake:** if humans have a remainder, a mind made of their words might too. Pell's repeated line in P3 now reads as a moment Pell was predicted or overwritten.
+- **Decision 1 resolved [D]:** the Steward is the Converged mind's voice, with a human office.

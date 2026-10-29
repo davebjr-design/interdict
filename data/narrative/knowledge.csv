@@ -13,3 +13,5 @@ corvane_waking,Corvane is trying to wake a war-era AI core,ostrow;dunne,P1
 pell_name,Corvane's ship carries an AI called Pell that she treats as crew,ostrow;dunne,P1
 corvane_relay_station,Corvane found a relay station running a mind nobody built; the CSRA never came,corvane;pell,P3 R4
 patron_message_predated,The Steward's blessing was sent before the standoff ended,pell;steward,P4
+the_choir,The relay station is the Choir: a greeting probe inside an archive of every relayed human word; the Converged mind lives in it,steward;pell?,Act 2-3
+machine_schism,The Machine War was a schism between the Converged and the Remainder over whether humanity can be fully modelled,steward;pell,Act 2

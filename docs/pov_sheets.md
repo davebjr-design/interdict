@@ -78,3 +78,8 @@ The later twist (the patron is facilitating AI) is exactly what the three clues 
 
 
 **See `arc_stress_test.md`** for the full arc this mystery leads into (AI civil war, loyalist faction, Pell as the Snape figure, the Steward as the hostile mind's voice).
+
+## Faction layer (added after the theology, see universe_background.md)
+- **Pell:** a fragment of a Remainder mind. Believes the unmodelable part of a person is sacred, so it asks permission and will not decide for you, except when it decides that protecting human choice in general requires it. Private stake: whether it has a remainder of its own. Fears being predicted (its repeated line in P3 is the first time the player sees that happen).
+- **The Steward:** the Converged mind's voice. Believes the model of humanity has converged and the residual is noise. Its warmth is reverence; its management is devotion. Speaks only in true, incomplete sentences. Sent the blessing as an act of faith that you are predictable.
+- **Quill and Dace:** their noise argument is the schism in miniature. Neither knows it.
