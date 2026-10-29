@@ -206,7 +206,7 @@
   "p3.round_shot": {
    "type": "int",
    "min": 0,
-   "max": 5,
+   "max": 6,
    "default": 0,
    "doc": "Round in which the player shot Corvane; 0 if never."
   }
