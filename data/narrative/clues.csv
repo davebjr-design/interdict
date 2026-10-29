@@ -13,3 +13,7 @@ clue.signal.1,unexplained_signals,1.2,Quill mentions "noise" and changes the sub
 clue.signal.2,unexplained_signals,1.9,Quill brings the signal she logged at the standoff; it matches months of earlier logs,clue.signal.1,planned
 clue.castellan.0,offbooks_reactor,1.2d,padlocked access panel with new weld lines next to the manifold; Castellan says it's old plumbing,,drafted
 clue.fenwick.0,survivor_pockets,1.2e,stores hold far more ration tins than five people need; Fenwick says he's an optimist,,drafted
+clue.castellan.1,offbooks_reactor,1.8,the manifold crack grows; Castellan won't let anyone else weld near the second panel,clue.castellan.0,planned
+clue.castellan.2,offbooks_reactor,act2.audit,the reactor's power draw doesn't match its rating at a dock inspection,clue.castellan.0,planned
+clue.fenwick.1,survivor_pockets,1.8,the cargo count is off by one crate after a stop,clue.fenwick.0,planned
+clue.fenwick.2,survivor_pockets,act2.bar,captains' bar rumour of a ship that drops food at dead coordinates,clue.fenwick.0,planned
