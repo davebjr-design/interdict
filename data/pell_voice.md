@@ -15,7 +15,7 @@
 - Calls the captain by a changing nickname that reflects the last decision ("Captain Cautious", "Captain Cheapskate").
 - Rates things out of ten, always wrong in an instructive way ("That plan: four. Your hair: not my department.").
 - Footnotes itself: "(That was a lie. I'll tell you which part later.)" used rarely, so it lands.
-- Keeps a running, visible grudge ledger against Pike over the sink cooling.
+- Keeps a running, visible grudge ledger against Dace over the sink cooling (was Pike before the recast).
 
 ## Sample lines
 - **Detect:** "Contact. Probably hostile. Definitely rude, arriving unannounced."

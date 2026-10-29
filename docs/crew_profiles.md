@@ -2,6 +2,8 @@
 
 Companion to crew_bible.md (summary) and universe_background.md. All characters are original; temperament profiles only. Physical details, ethnicity, ages and names are PROPOSALS. "Meshy seed" lines follow the pipeline lessons in character_art_brief.md (style first, concrete exclusions, under 600 characters; add the standard wardrobe and palette line).
 
+**v2 (2026-10-29):** the crew reference cards (`docs/crew_reference_cards.pdf`, text in `data/narrative/crew_cards.json`) are now the current version of each character. They rewrite the voice samples, align clothes and look to the in-game models, and add a few details to fit the temperament references (marked [new] there): Abara and Dace as the O'Brien/Bashir pair, Castellan and Quill as the Tucker/Reed pair, Fenwick's lost town, Corvane's fear. Where this file and the cards disagree, the cards win. Pell follows `data/pell_voice.md`.
+
 Common wardrobe rule: scavenger, not military; mended, layered, practical; no capes, scarves, dangling straps or held tools (they clip when rigged).
 
 ---
@@ -15,7 +17,7 @@ Common wardrobe rule: scavenger, not military; mended, layered, practical; no ca
 - **Likes / dislikes:** strong tea, ledgers, honest mistakes; hates showmen and anyone who lies about a checklist.
 - **Family and history:** grandfather loaded munitions in the war and kept a fire-control module as a souvenir. Mother ran a sanctioned launch-pad crew until the bans closed it. Father fixed things quietly for gleaners. Abara trained as range-safety tech, drifted into fire control, and became Corvane's first hire.
 - **Fear:** losing someone she should have kept safe. **Secret:** the module box; she suspects it is more than a souvenir.
-- **Voice sample:** "I've shot at worse than you, kid. Mostly in the mirror. Sit down, tea's getting cold."
+- **Voice sample:** "Thirty years cleaning up after captains. Sit down, tea's hot. Let's find out what kind of mess you are."
 - **Meshy seed:** "Chunky stylized game character, big hands and boots, a 52-year-old broad-shouldered Black woman engineer, short graying cropped hair, bare head, rolled-sleeve burnt orange work shirt, patched canvas vest, gray cargo pants, resoled boots, reading glasses on a neck cord, neutral A-pose, no hood, no holsters, no straps, no belt pouches."
 
 ---
@@ -29,7 +31,7 @@ Common wardrobe rule: scavenger, not military; mended, layered, practical; no ca
 - **Likes / dislikes:** loud music in the thermal bay, books, proof; dislikes quiet, being managed and being called "the heat guy".
 - **Family and history:** parents were a nurse and a technician; an orbital-medicine course sat in the family past. Brilliant at medical school until he used an AI-assisted diagnostic outside the rules to save a patient and was expelled. Gleaners asked no questions.
 - **Fear:** being ordinary. **Secret:** he believes using AI to save lives is right and has not said so.
-- **Voice sample:** "That's not a heat problem, that's a people problem. Hold still. No, really, hold still."
+- **Voice sample:** "Oh, that's fascinating. Sorry, no, it's terrible. But it's also fascinating. Hold still and let me look."
 - **Meshy seed:** "Chunky stylized game character, big hands and boots, a lean 31-year-old man with curly dark hair, light brown skin, bare head, sleeves-pushed-up patched blue-and-white coverall, pens in a chest pocket, gray work pants, scuffed boots, neutral A-pose, no hood, no holsters, no straps, no belt pouches."
 
 ---
@@ -43,7 +45,7 @@ Common wardrobe rule: scavenger, not military; mended, layered, practical; no ca
 - **Likes / dislikes:** coffee with too much sugar, a quiet engine room; dislikes experts who have never held a wrench.
 - **Family and history:** father decommissioned reactors at a naval shipyard; Castellan apprenticed there until a mishap he took the blame for ended his license. Gleaners paid better.
 - **Fear:** a reactor failing on his watch. **Secret:** he built part of this ship's reactor off the books for Corvane and knows what it is meant to power.
-- **Voice sample:** "She's not broken, she's sulking. Give me twenty minutes and a sandwich."
+- **Voice sample:** "She's not broke, she's sulking. Give me twenty minutes and a sandwich and she'll come around."
 - **Meshy seed:** "Chunky stylized game character, big hands and boots, a stocky 46-year-old man with short gray-flecked beard, bare head, ruddy tan skin, grease-stained coverall tied at the waist over a faded red shirt, work boots, neutral A-pose, no hood, no holsters, no straps."
 
 ---
@@ -57,7 +59,7 @@ Common wardrobe rule: scavenger, not military; mended, layered, practical; no ca
 - **Likes / dislikes:** quiet, silence with a pattern in it, good calibration; dislikes improvisation and anyone touching her console.
 - **Family and history:** her parents ran a deep-space listening station; the CSRA closed it after the bans. She grew up listening for patterns in noise and joined gleaners to keep listening.
 - **Fear:** a signal she cannot explain. **Secret:** she has logged several she cannot, and they fit Corvane's warning.
-- **Voice sample:** "That's not a ghost, Captain. Ghosts are consistent. That is something else."
+- **Voice sample:** "With respect, Captain, "probably" isn't a reading. Give me ten minutes and I'll have a real one."
 - **Meshy seed:** "Chunky stylized game character, big hands and boots, a tall slim 38-year-old Korean-American woman, black hair in a tight low knot, bare head, buttoned dark teal coverall, headset around the neck, one silver ring, neat boots, neutral A-pose, no hood, no holsters, no straps."
 
 ---
@@ -71,7 +73,7 @@ Common wardrobe rule: scavenger, not military; mended, layered, practical; no ca
 - **Likes / dislikes:** crowded tables, bad puns, being thanked; hates waste and silence at meals.
 - **Family and history:** family ran a ship-chandlery supplying launch crews until the bans. He learned grey-market barter and the language of every dock.
 - **Fear:** a ship that stops eating together. **Secret:** he quietly resupplies off-grid survivor pockets from the ship's cargo.
-- **Voice sample:** "You look hungry. Don't argue, you look hungry. I'll bring a little of everything. A little."
+- **Voice sample:** "Sit, sit! You look like you've been living on ration bars. There's soup, there's bread, and there's something I'm calling stew until somebody tells me otherwise."
 - **Meshy seed:** "Chunky stylized game character, big hands and boots, a round-faced cheerful 44-year-old man with a thin mustache, bare head, faded green apron with many pockets over a patched shirt, tan work pants, scuffed shoes, neutral A-pose, no hood, no holsters, no straps."
 
 ---
@@ -89,7 +91,7 @@ Common wardrobe rule: scavenger, not military; mended, layered, practical; no ca
 - **Clothes:** a deep violet coat-like jacket kept tidy and a little more formal than her crew's, polished boots. Accent: deep violet.
 - **Voice and manner:** warm, cultured, quotes poetry and history, treats her crew like family and expects loyalty in return. Violence arrives as calm decisions and a pleasant tone.
 - **Conviction:** malevolent AI is already rising, so a bounded AI must be reawakened first and controlled this time. The cost she accepts is morally disturbing.
-- **Sample:** "I do not enjoy this. I do it anyway, and I will not insult you by pretending otherwise."
+- **Sample:** "I don't enjoy this. I'd like you to know that. I'm going to do it anyway."
 
 ## THE PATRON (shadowy)
 - Voice only, warm and patient. Title option "the Steward". Never shows a face. States the goal as ending AI development. The secret is the opposite.
