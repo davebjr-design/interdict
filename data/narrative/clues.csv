@@ -11,3 +11,5 @@ clue.patron.5,patron_agenda,P4,the return line has been open six weeks (since Co
 clue.signal.0,unexplained_signals,P3 all endings,Pell repeats a line word for word without knowing it at the decisive moment; Quill logs the time,,drafted
 clue.signal.1,unexplained_signals,1.2,Quill mentions "noise" and changes the subject,clue.signal.0,planned
 clue.signal.2,unexplained_signals,1.9,Quill brings the signal she logged at the standoff; it matches months of earlier logs,clue.signal.1,planned
+clue.castellan.0,offbooks_reactor,1.2d,padlocked access panel with new weld lines next to the manifold; Castellan says it's old plumbing,,drafted
+clue.fenwick.0,survivor_pockets,1.2e,stores hold far more ration tins than five people need; Fenwick says he's an optimist,,drafted
