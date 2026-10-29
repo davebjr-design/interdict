@@ -259,3 +259,29 @@ All twelve compartments generated from `tools/rooms_v3.py`, two variants each (t
 **Lesson.** The "unlit, dead black glass, no glow" wording still did not stop the generator lighting the Pell node cyan. It is a small fixture, so the practical fix is to accept a lit node in the art and either key it out in code or treat the painted one as the cleared state and draw the dark state over it. Decide when the firewall mechanic gets built.
 
 **Next:** fit walk grids. Each compartment needs its floor corners (T, R, L, and B for trapezoidal floors), cell counts from section 20, blocked cells, prop boxes with heights, door rects and stand cells. This is the serial part; generation was the fast part.
+
+## 23. First fitted compartments: control, junction, mess (2026-10-28)
+
+The junction loop is walkable: control room → junction → ladder down → mess → ladder up → junction → control. Tested headless; every walkable cell is reachable and the only exceptions are cells crew are standing on, which is correct.
+
+**Fitted grids** (floor quads measured by overlaying a labeled grid on the art and iterating):
+
+| Compartment | k | Cells | Floor quad T / R / L / B (image px) |
+|---|---|---|---|
+| Control room | 0.356 | 14 x 4 | (345,300) (1420,630) (45,395) (810,770) |
+| Junction | 0.226 | 7 x 7 | (690,460) (1400,665) (-20,665) (690,920) |
+| Mess and galley | 0.311 | 11 x 13 | (800,395) (1470,690) (25,700) (695,995) |
+
+**The art does not match the planned proportions.** The generator draws whatever it likes: the control room came out about 3.5:1 in plan where the schematic says 2.3:1, and the mess came out nearly square where the schematic says 2:1. Rather than regenerate until the numbers match, grids are fitted to the art and the cell counts recorded here. The schematic in `design/ship_schematic.html` stays canonical for the fiction and for which compartment connects to which; it is not a measurement of the art. Nobody sees the hull from outside, so the discrepancy never shows.
+
+**Engine additions:** `deck` tag per room; ladder doors (a door with `ladder` and no `wall` uses the plain fade rather than the step-through-a-hatch animation); the deck plan redrawn as two decks with link lines, the ladder shown as a vertical link between the junction and the mess.
+
+**Fitting lessons.**
+1. The generated floors are not true 2:1 isometric; they are flatter, roughly 3:1, and not perfect parallelograms. The bilinear quad (the `B` corner) is what makes them fit at all.
+2. Three iterations per room is typical: read the corners off a coordinate ruler, render a labeled grid, correct, re-render.
+3. **An NPC standing in a one-cell lane is a wall.** Fenwick at (1,6) sealed the galley aisle and cut the ladder's landing cell off from the rest of the mess. Always run the reachability check with crew placed, not just the blocked set.
+4. Door stand cells must be checked against the blocked set; the mess aft hatch stand was inside a furniture block.
+
+**Known rough edge:** the mess table prop hulls sit about a cell off the painted tables, so occlusion there will be slightly wrong until the strips are nudged.
+
+**Next:** the remaining nine compartments, then click-to-travel on the deck plan.

@@ -37,20 +37,20 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
 <div class="wrap">
   <header>
     <h1>Interdict Ship Walk</h1>
-    <span class="keys"><b>Click the floor</b> to walk &middot; <b>click a door</b> to change rooms &middot; <b>click a crew member</b> to talk &middot; <b>click the amber manifold</b> to inspect it</span>
+    <span class="keys"><b>Click the floor</b> to walk &middot; <b>click a hatch</b> to step through &middot; <b>click the ladder</b> to change deck &middot; <b>click a crew member</b> to talk</span>
   </header>
   <div id="stage">
     <canvas id="cv" width="1280" height="720"></canvas>
-    <div id="job" class="hud"><div class="lab">Mission tracker</div><div class="k">MECHANICAL</div><div class="t">Inspect the heat-sink coupling</div></div>
-    <div id="map" class="hud"><div class="lab">Deck plan</div><svg id="plan" width="330" height="76" viewBox="0 0 330 76"></svg></div>
-    <div id="tip" class="hud" hidden></div><div id="room" class="hud" style="left:50%;transform:translateX(-50%);top:12px;font:700 12px var(--disp);letter-spacing:.2em;color:var(--amber)">ENGINEERING</div>
+    <div id="job" class="hud"><div class="lab">Mission tracker</div><div class="k">MECHANICAL</div><div class="t">Walk the ship: control room, junction, mess</div></div>
+    <div id="map" class="hud"><div class="lab">Deck plan</div><svg id="plan" width="330" height="80" viewBox="0 0 330 80"></svg></div>
+    <div id="tip" class="hud" hidden></div><div id="room" class="hud" style="left:50%;transform:translateX(-50%);top:12px;font:700 12px var(--disp);letter-spacing:.2em;color:var(--amber)">CONTROL ROOM</div>
   </div>
   <div class="panel">
     <div id="por">&middot;</div>
-    <div><div id="nm">Ship log</div><div id="tx">You are in Engineering. Castellan is by the reactor. The coupling manifold is behind the tanks. The door on the right wall leads to the Mess.</div><div id="fx"></div><div id="ch"></div></div>
+    <div><div id="nm">Ship log</div><div id="tx">The control room, forward end of the upper deck. Navigation at the far end, the attack center amidships around the chart table, sensors and ECM aft. Pell's core is the pedestal on the centerline. The hatch aft leads to the junction.</div><div id="fx"></div><div id="ch"></div></div>
   </div>
   <div class="row"><button id="grid" type="button">Show walk grid</button><button id="reset" type="button">Reset</button></div>
-  <p class="note">Room art is generated (Engineering from the original source, the Mess from the lighting standard in docs/room_art_standard.md) and the Mess background is keyed from magenta. The captain is a Meshy-generated 3D model rendered into sprite frames from this camera angle. Light flicker is drawn in code on top of the still art. Castellan, Abara, Quill, Dace and Fenwick are Meshy models rendered the same way (standing poses only). Walk grids are fitted by hand; use Show walk grid to check them.</p>
+  <p class="note">Hull revision 2: compartments chain end to end through bulkhead hatches, with a ladder between decks at the junction. Three of twelve compartments are wired; the rest have art but no walk grid yet, and their hatches say so. Room art is generated from the submarine brief in docs/room_art_brief_v2.md and keyed from magenta. Crew are Meshy models rendered to sprite sheets, drawn at 90% of a hatch height. Light flicker is drawn in code over the still art. Walk grids are fitted by hand; use Show walk grid to check them.</p>
 </div>
 
 <script>
@@ -66,78 +66,68 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   const space = (w, h, k) => { const ox = (640 - w * k) / 2, oy = (360 - h * k) / 2, W = p => [ox + p[0] * k, oy + p[1] * k]; return { k, box: [ox, oy, w * k, h * k], W, r: (x0, y0, x1, y1) => [...W([x0, y0]), ...W([x1, y1])] }; };
   const SM = space(1489, 963, 0.362), SB = space(1427, 953, 0.235), SS = space(1485, 832, 0.29);
   const blockList = (arr) => { const s = new Set(); arr.forEach(([i0, i1, j0, j1]) => { for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) s.add(i + ',' + j); }); return s; };
+  // Hull revision 2 (docs/ship_inventory_and_art_plan.md sections 20-22). Each room carries its own
+  // image scale k, its floor quad (T, R, L and B) and its cell counts, all fitted by hand to the art.
+  const SCTL = space(1484, 829, 0.356), SJCT = space(1384, 956, 0.226), SMSS = space(1494, 953, 0.311);
   const ROOMS = {
-    eng: {
-      name: 'ENGINEERING', img: load('assets/engineering_room.png'), box: [0, 0, 640, 360],
-      T: [320, 131], R: [515, 230], L: [125, 230], N: 10,
-      blocked: blockList([[0, 1, 3, 6], [0, 2, 7, 9], [0, 4, 0, 1], [5, 6, 0, 0], [7, 9, 0, 0]]),
-      doors: [{ id: 'toMess', rect: [452, 120, 512, 212], stand: [8, 1], to: 'spine', wall: 'j', arrive: [0, 1], dir: 'se', label: 'Door to the spine corridor' }],
-      npcs: [{ name: 'Castellan', col: '#b69cf0', cell: [4, 4], sheet: 'castellan', sc: 0.648 }, { name: 'Dace', col: '#e8c05a', cell: [7, 4], sheet: 'dace', sc: 0.63 }],
-      props: [],
+    control: {
+      name: 'CONTROL ROOM', deck: 'upper', img: load('assets/rooms/control_v3.png'), sp: SCTL, k: SCTL.k, box: SCTL.box, zoom: 1.12,
+      T: SCTL.W([345, 300]), R: SCTL.W([1420, 630]), L: SCTL.W([45, 395]), B: SCTL.W([810, 770]), Ni: 14, Nj: 4,
+      blurb: 'The control room, forward end of the upper deck. Navigation at the far end, the attack center amidships around the chart table, sensors and ECM aft. Pell\'s core is the pedestal on the centerline. The hatch aft leads to the junction.',
+      blocked: blockList([[0, 0, 0, 1], [2, 2, 1, 1], [2, 4, 0, 0], [5, 5, 0, 1], [6, 7, 0, 0], [8, 10, 0, 0], [8, 9, 1, 1], [11, 11, 0, 0]]),
+      doors: [{ id: 'toJct', rect: SCTL.r(1285, 385, 1435, 615), stand: [13, 0], wall: 'j', to: 'junction', arrive: [2, 0], dir: 'sw', label: 'Hatch aft to the junction' }],
+      npcs: [{ name: 'Abara', col: '#e8853a', cell: [6, 2], sheet: 'abara', sc: 0.609 }, { name: 'Quill', col: '#5fd0e0', cell: [10, 2], sheet: 'quill', sc: 0.637 }],
+      props: [
+        { c: [0, 0, 0, 1], h: 85 }, { c: [1, 2, 1, 1], h: 55 }, { c: [2, 4, 0, 0], h: 60 }, { c: [5, 5, 0, 1], h: 70 },
+        { c: [6, 7, 0, 0], h: 70 }, { c: [8, 10, 0, 0], h: 95 }, { c: [8, 9, 1, 1], h: 80 }, { c: [11, 11, 0, 0], h: 60 }
+      ],
       lights: [
-        { x: 240, y: 125, r: 120, c: [255, 140, 60], a: 0.2, pat: 'reactor', seed: 1 },
-        { x: 137, y: 202, r: 40, c: [120, 255, 160], a: 0.35, pat: 'blink', seed: 2 },
-        { x: 387, y: 162, r: 40, c: [111, 195, 208], a: 0.35, pat: 'fault', seed: 3 },
-        { x: 509, y: 189, r: 44, c: [255, 180, 84], a: 0.3, pat: 'steady', seed: 4 },
-        { x: 452, y: 150, r: 36, c: [120, 255, 160], a: 0.3, pat: 'blink', seed: 5 }
+        { p: [170, 95], r: 34, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 1 }, { p: [428, 105], r: 30, c: [255, 170, 70], a: 0.3, pat: 'fault', seed: 2 },
+        { p: [827, 232], r: 30, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 3 }, { p: [297, 128], r: 18, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 4 },
+        { p: [1255, 428], r: 18, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 5 }, { p: [712, 440], r: 40, c: [111, 195, 208], a: 0.32, pat: 'pulse', seed: 6 }
+      ]
+    },
+    junction: {
+      name: 'JUNCTION', deck: 'upper', img: load('assets/rooms/junction_v3.png'), sp: SJCT, k: SJCT.k, box: SJCT.box, zoom: 1.75,
+      T: SJCT.W([690, 460]), R: SJCT.W([1400, 665]), L: SJCT.W([-20, 665]), B: SJCT.W([690, 920]), Ni: 7, Nj: 7,
+      blurb: 'The junction. The hatch to the right leads forward to the control room, the hatch to the left runs aft to the missile compartment. The ladder in the deck goes down to the mess, and the trunk overhead is the boarding airlock.',
+      blocked: blockList([[2, 4, 2, 4], [0, 0, 5, 6], [5, 6, 0, 0]]),
+      doors: [
+        { id: 'toControl', rect: SJCT.r(875, 195, 1035, 545), stand: [2, 0], wall: 'j', to: 'control', arrive: [13, 0], dir: 'nw', label: 'Hatch forward to the control room' },
+        { id: 'toMissile', rect: SJCT.r(325, 185, 525, 525), stand: [0, 2], wall: 'i', to: null, label: 'Hatch aft to the missile compartment (not wired yet)' },
+        { id: 'downToMess', rect: SJCT.r(555, 555, 865, 825), stand: [5, 3], ladder: 'down', to: 'mess', arrive: [1, 3], dir: 'sw', label: 'Ladder down to the mess' },
+        { id: 'upToAirlock', rect: SJCT.r(550, 80, 840, 220), stand: [1, 1], ladder: 'up', to: null, label: 'Trunk up to the boarding airlock (not wired yet)' }
+      ],
+      npcs: [],
+      props: [{ c: [0, 0, 5, 6], h: 150 }, { c: [5, 6, 0, 0], h: 120 }],
+      lights: [
+        { p: [392, 160], r: 30, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 11 }, { p: [988, 158], r: 30, c: [255, 170, 70], a: 0.3, pat: 'fault', seed: 12 },
+        { p: [684, 232], r: 26, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 13 }, { p: [163, 238], r: 26, c: [255, 170, 70], a: 0.3, pat: 'flicker', seed: 14 },
+        { p: [1222, 268], r: 26, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 15 },
+        { p: [511, 292], r: 16, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 16 }, { p: [1056, 352], r: 16, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 17 }
       ]
     },
     mess: {
-      name: 'MESS HALL', img: load('assets/mess_room.png'), sp: SM, k: SM.k, box: SM.box,
-      T: SM.W([752, 206]), R: SM.W([1452, 556]), L: SM.W([52, 556]), N: 13,
-      blurb: 'The Mess. Fenwick is at the galley. The door on the left wall leads out to the spine corridor. The door on the right wall leads to the stores (not built yet).',
-      blocked: blockList([[0, 8, 0, 1], [8, 8, 2, 2], [0, 0, 6, 12], [2, 3, 3, 6], [5, 7, 3, 6], [2, 3, 8, 11], [5, 7, 8, 11], [9, 11, 8, 10]]),
+      name: 'MESS AND GALLEY', deck: 'lower', img: load('assets/rooms/mess_v3.png'), sp: SMSS, k: SMSS.k, box: SMSS.box, zoom: 1.2,
+      T: SMSS.W([800, 395]), R: SMSS.W([1470, 690]), L: SMSS.W([25, 700]), B: SMSS.W([695, 995]), Ni: 11, Nj: 13,
+      blurb: 'The mess and galley, directly under the junction. Fenwick is at the counter. It seats twenty-five and there are six of you. The ladder goes back up to the junction; the hatches fore and aft are not wired yet.',
+      blocked: blockList([[0, 0, 0, 2], [0, 0, 4, 9], [0, 1, 0, 0], [2, 3, 1, 6], [4, 5, 2, 7], [6, 7, 3, 8], [8, 9, 4, 9], [7, 8, 0, 0]]),
       doors: [
-        { id: 'toEng', rect: SM.r(478, 145, 578, 312), stand: [0, 4], to: 'spine', wall: 'i', arrive: [4, 0], dir: 'sw', label: 'Door to the spine corridor' },
-        { id: 'toJct', rect: SM.r(1355, 345, 1450, 525), stand: [12, 1], to: null, wall: 'j', label: 'Door to the stores (not built yet)' }
+        { id: 'upToJct', rect: SMSS.r(590, 165, 710, 500), stand: [1, 3], ladder: 'up', to: 'junction', arrive: [5, 3], dir: 'se', label: 'Ladder up to the junction' },
+        { id: 'toBerths', rect: SMSS.r(55, 395, 205, 645), stand: [0, 11], wall: 'i', to: null, label: 'Hatch forward to the officer berths (not wired yet)' },
+        { id: 'toBunks', rect: SMSS.r(1265, 285, 1405, 565), stand: [9, 0], wall: 'j', to: null, label: 'Hatch aft to the crew bunks (not wired yet)' }
       ],
-      npcs: [{ name: 'Fenwick', col: '#c9b458', cell: [4, 2], sheet: 'fenwick', sc: 0.602 }, { name: 'Abara', col: '#e8853a', cell: [11, 5], sheet: 'abara', sc: 0.609 }, { name: 'Quill', col: '#5fd0e0', cell: [9, 3], sheet: 'quill', sc: 0.637 }],
+      npcs: [{ name: 'Fenwick', col: '#c9b458', cell: [1, 1], sheet: 'fenwick', sc: 0.602 }],
       props: [
-        { c: [2, 3, 3, 6], h: 60 }, { c: [5, 7, 3, 6], h: 60 }, { c: [2, 3, 8, 11], h: 60 }, { c: [5, 7, 8, 11], h: 60 },
-        { c: [9, 11, 8, 10], h: 70 }, { c: [0, 8, 0, 1], h: 110 }
+        { c: [0, 0, 0, 2], h: 115 }, { c: [0, 0, 4, 9], h: 115 }, { c: [0, 1, 0, 0], h: 95 }, { c: [7, 9, 0, 0], h: 70 },
+        { c: [2, 3, 1, 6], h: 58 }, { c: [4, 5, 2, 7], h: 58 }, { c: [6, 7, 3, 8], h: 58 }, { c: [8, 9, 4, 9], h: 58 }
       ],
       lights: [
-        { p: [100, 340], r: 56, c: [255, 170, 70], a: 0.3, pat: 'fault', seed: 11 }, { p: [535, 148], r: 56, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 12 },
-        { p: [917, 138], r: 56, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 13 }, { p: [1040, 193], r: 56, c: [255, 170, 70], a: 0.3, pat: 'fault', seed: 14 },
-        { p: [880, 297], r: 44, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 15 }, { p: [965, 335], r: 44, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 16 },
-        { p: [1082, 393], r: 44, c: [255, 170, 70], a: 0.3, pat: 'flicker', seed: 17 }, { p: [1400, 355], r: 56, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 18 },
-        { p: [595, 210], r: 30, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 19 }, { p: [1348, 410], r: 30, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 20 }, { p: [197, 408], r: 30, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 21 },
-        { p: [815, 745], r: 150, c: [255, 190, 100], a: 0.12, pat: 'pulse', seed: 22 }
-      ]
-    },
-    spine: {
-      name: 'SPINE CORRIDOR', img: load('assets/rooms/spine_v2.png'), sp: SS, k: SS.k, box: SS.box, zoom: 1.75, scroll: true,
-      T: SS.W([215, 285]), R: SS.W([1465, 722]), L: SS.W([45, 375]), B: SS.W([1055, 785]), Ni: 15, Nj: 3,
-      blurb: 'The spine corridor, the main passage down the length of the ship. Aft, the hatch at the left end leads to Engineering. Along the wall, from aft to fore: the Mess, the crew passage (not built yet), and the bridge at the forward end.',
-      blocked: blockList([[1, 2, 0, 0], [5, 7, 0, 0], [11, 11, 0, 0]]),
-      doors: [
-        { id: 'toEng', rect: SS.r(68, 92, 195, 335), stand: [0, 1], wall: 'i', to: 'eng', arrive: [8, 1], dir: 'sw', label: 'Hatch aft to Engineering' },
-        { id: 'toMess', rect: SS.r(495, 175, 640, 400), stand: [4, 0], wall: 'j', to: 'mess', arrive: [0, 4], dir: 'se', label: 'Hatch to the Mess' },
-        { id: 'toCrew', rect: SS.r(935, 330, 1090, 565), stand: [9, 0], wall: 'j', to: null, label: 'Crew passage: cabins, bunks, head (not built yet)' },
-        { id: 'toBridge', rect: SS.r(1325, 480, 1478, 725), stand: [14, 0], wall: 'j', to: 'bridge', arrive: [0, 3], dir: 'se', label: 'Hatch forward to the bridge' }
-      ],
-      npcs: [],
-      props: [{ c: [1, 2, 0, 0], h: 120 }, { c: [5, 7, 0, 0], h: 125 }, { c: [11, 11, 0, 0], h: 170 }],
-      lights: [
-        { p: [352, 140], r: 30, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 31 }, { p: [780, 275], r: 30, c: [255, 170, 70], a: 0.3, pat: 'fault', seed: 32 },
-        { p: [1240, 450], r: 30, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 33 }, { p: [125, 100], r: 26, c: [255, 170, 70], a: 0.3, pat: 'flicker', seed: 34 },
-        { p: [203, 172], r: 16, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 37 }, { p: [475, 240], r: 16, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 38 }, { p: [1316, 545], r: 16, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 39 }
-      ]
-    },
-    bridge: {
-      name: 'BRIDGE', zoom: 1.45, img: load('assets/rooms/bridge_v2.png'), sp: SB, k: SB.k, box: SB.box,
-      T: SB.W([700, 330]), R: SB.W([1340, 631]), L: SB.W([60, 631]), N: 8,
-      blurb: 'The bridge, the forward end of the ship. Tight on purpose. The door on the left wall leads out to the spine corridor. Sensors and weapons will connect from here later.',
-      blocked: blockList([[0, 1, 0, 1], [2, 5, 0, 0], [4, 4, 2, 2], [6, 7, 0, 1], [7, 7, 3, 3], [7, 7, 6, 6], [2, 2, 5, 5], [3, 4, 3, 4], [0, 0, 5, 7]]),
-      doors: [{ id: 'toJct', rect: SB.r(352, 190, 525, 470), stand: [0, 3], to: 'spine', wall: 'i', arrive: [14, 0], dir: 'sw', label: 'Door out to the spine corridor' }],
-      npcs: [],
-      props: [{ c: [0, 1, 0, 1], h: 120 }, { c: [2, 5, 0, 0], h: 180 }, { c: [4, 4, 2, 2], h: 170 }, { c: [6, 7, 0, 1], h: 170 }, { c: [7, 7, 3, 3], h: 190 }, { c: [7, 7, 6, 6], h: 190 }, { c: [2, 2, 5, 5], h: 190 }, { c: [3, 4, 3, 4], h: 130 }, { c: [0, 0, 5, 7], h: 120 }],
-      lights: [
-        { p: [555, 180], r: 32, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 41 }, { p: [415, 213], r: 26, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 42 },
-        { p: [800, 175], r: 30, c: [255, 170, 70], a: 0.3, pat: 'fault', seed: 43 }, { p: [195, 325], r: 28, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 44 },
-        { p: [1285, 385], r: 28, c: [255, 170, 70], a: 0.3, pat: 'flicker', seed: 45 }, { p: [160, 582], r: 22, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 46 },
-        { p: [315, 385], r: 16, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 47 }, { p: [538, 250], r: 16, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 48 }, { p: [1092, 433], r: 16, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 49 },
-        { p: [700, 520], r: 44, c: [111, 195, 208], a: 0.3, pat: 'pulse', seed: 50 }
+        { p: [128, 432], r: 32, c: [255, 170, 70], a: 0.3, pat: 'fault', seed: 21 }, { p: [305, 445], r: 32, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 22 },
+        { p: [420, 405], r: 28, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 23 }, { p: [545, 330], r: 28, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 24 },
+        { p: [672, 262], r: 26, c: [255, 170, 70], a: 0.3, pat: 'flicker', seed: 25 }, { p: [765, 120], r: 30, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 26 },
+        { p: [897, 100], r: 30, c: [255, 170, 70], a: 0.3, pat: 'steady', seed: 27 }, { p: [1310, 262], r: 30, c: [255, 170, 70], a: 0.3, pat: 'fault', seed: 28 },
+        { p: [200, 500], r: 16, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 29 }, { p: [1243, 345], r: 16, c: [111, 195, 208], a: 0.4, pat: 'blink', seed: 30 }
       ]
     }
   };
@@ -160,7 +150,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     return 1;
   }
 
-  let room = ROOMS.eng, blocked = room.blocked, NI = room.Ni || room.N, NJ = room.Nj || room.N;
+  let room = ROOMS.control, blocked = room.blocked, NI = room.Ni || room.N, NJ = room.Nj || room.N;
   // Floor mapping: a parallelogram from T, R, L, or (if room.B is set) a bilinear quad T, R, L, B for generated art whose floor is a trapezoid.
   const ptXY = (u, v) => room.B ? [0, 1].map(k => (1 - u) * (1 - v) * room.T[k] + u * (1 - v) * room.R[k] + (1 - u) * v * room.L[k] + u * v * room.B[k])
     : [room.T[0] + u * (room.R[0] - room.T[0]) + v * (room.L[0] - room.T[0]), room.T[1] + u * (room.R[1] - room.T[1]) + v * (room.L[1] - room.T[1])];
@@ -195,16 +185,20 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     npcs = room.npcs.map(n => { const o = Object.assign({ dir: 'sw' }, n), q = cellXY(...o.cell); o.x = q[0]; o.y = q[1]; o.i = o.cell[0]; o.j = o.cell[1]; o.img = n.sheet ? SHEET[n.sheet] : null; return o; });
   }
   // Deck plan: the ship is a long thin hull. Aft (left) to fore (right) the spine is Engineering, Mess, Junction, Bridge; dashed boxes are rooms that have art but are not wired in yet.
-  const PLAN = [['eng', 'ENG', 8, 26, 58, 26], ['spine', 'SPINE', 70, 30, 192, 18], ['mess', 'MESS', 98, 4, 64, 22], ['bridge', 'BRIDGE', 266, 26, 40, 26]],
-    PLAN_FUTURE = [['CREW', 172, 4, 64, 22], ['SENSORS', 242, 4, 40, 22], ['STORES', 98, 52, 64, 22], ['THERMAL', 172, 52, 64, 22]];
+  // Deck plan: upper deck on top, lower deck below, bow to the right. Solid boxes are wired up; dashed are art-only.
+  const PLAN = [['control', 'CONTROL', 246, 6, 70, 20], ['junction', 'JCT', 210, 6, 32, 20], ['mess', 'MESS', 214, 44, 64, 20]],
+    PLAN_FUTURE = [['ENG', 8, 6, 44, 20], ['THERM', 56, 6, 34, 20], ['MISSILE', 94, 6, 112, 20],
+                   ['ENG', 8, 44, 70, 20], ['BUNKS', 82, 44, 128, 20], ['BERTHS', 282, 44, 34, 20]],
+    PLAN_LINK = [[242, 16, 246, 16], [226, 26, 226, 44], [206, 16, 210, 16], [278, 54, 282, 54], [210, 54, 214, 54], [90, 16, 94, 16], [52, 16, 56, 16], [78, 54, 82, 54]];
   function drawPlan() {
-    let h = '<path d="M4 2 L4 76 L300 76 L326 40 L300 2 Z" fill="none" stroke="#2b3f37" stroke-width="1.5"/>';
-    PLAN_FUTURE.forEach(f => { h += '<rect x="' + f[1] + '" y="' + f[2] + '" width="' + f[3] + '" height="' + f[4] + '" fill="none" stroke="#2b3f37" stroke-dasharray="3 3"/><text x="' + (f[1] + f[3] / 2) + '" y="' + (f[2] + f[4] / 2 + 3) + '" fill="#56706a" font-size="8" text-anchor="middle" font-family="monospace">' + f[0] + '</text>'; });
-    PLAN.forEach(r => { const cur = ROOMS[r[0]] === room; h += '<rect x="' + r[2] + '" y="' + r[3] + '" width="' + r[4] + '" height="' + r[5] + '" fill="' + (cur ? 'rgba(255,180,84,.25)' : 'rgba(111,195,208,.08)') + '" stroke="' + (cur ? '#ffb454' : '#6fc3d0') + '"/><text x="' + (r[2] + r[4] / 2) + '" y="' + (r[3] + 14) + '" fill="' + (cur ? '#ffb454' : '#9fb9b0') + '" font-size="9" text-anchor="middle" font-family="monospace">' + r[1] + '</text>'; });
-    h += '<text x="4" y="72" fill="#56706a" font-size="8" font-family="monospace" dx="2">AFT</text><text x="300" y="73" fill="#56706a" font-size="8" font-family="monospace" text-anchor="end">FORE</text>';
+    let h = '<text x="2" y="13" fill="#56706a" font-size="7" font-family="monospace">UPPER</text><text x="2" y="51" fill="#56706a" font-size="7" font-family="monospace">LOWER</text>';
+    PLAN_LINK.forEach(l => { h += '<line x1="' + l[0] + '" y1="' + l[1] + '" x2="' + l[2] + '" y2="' + l[3] + '" stroke="#3a5a4c" stroke-width="1.5"/>'; });
+    PLAN_FUTURE.forEach(f => { h += '<rect x="' + f[1] + '" y="' + f[2] + '" width="' + f[3] + '" height="' + f[4] + '" fill="none" stroke="#2b3f37" stroke-dasharray="3 3"/><text x="' + (f[1] + f[3] / 2) + '" y="' + (f[2] + f[4] / 2 + 3) + '" fill="#56706a" font-size="7" text-anchor="middle" font-family="monospace">' + f[0] + '</text>'; });
+    PLAN.forEach(r => { const cur = ROOMS[r[0]] === room; h += '<rect x="' + r[2] + '" y="' + r[3] + '" width="' + r[4] + '" height="' + r[5] + '" fill="' + (cur ? 'rgba(255,180,84,.25)' : 'rgba(111,195,208,.08)') + '" stroke="' + (cur ? '#ffb454' : '#6fc3d0') + '"/><text x="' + (r[2] + r[4] / 2) + '" y="' + (r[3] + r[5] / 2 + 3) + '" fill="' + (cur ? '#ffb454' : '#9fb9b0') + '" font-size="8" text-anchor="middle" font-family="monospace">' + r[1] + '</text>'; });
+    h += '<text x="6" y="77" fill="#56706a" font-size="7" font-family="monospace">AFT</text><text x="324" y="77" fill="#56706a" font-size="7" font-family="monospace" text-anchor="end">FORE</text>';
     $('plan').innerHTML = h;
   }
-  setRoom('eng', [7, 7]);
+  setRoom('control', [12, 2]);
 
   function say(sp, text, fx, choices) {
     const c = ({ Castellan: '#b69cf0', Fenwick: '#c9b458', Abara: '#e8853a', Quill: '#5fd0e0', Dace: '#e8c05a' })[sp] || '#6f877d'; $('por').textContent = sp[0]; $('por').style.color = c; $('nm').textContent = sp; $('nm').style.color = c; $('tx').textContent = text; $('fx').textContent = fx ? 'EFFECT: ' + fx : '';
@@ -242,7 +236,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   const inRect = (x, y, r) => x > r[0] && x < r[2] && y > r[1] && y < r[3];
   const npcAt = (x, y) => npcs.find(n => Math.abs(x - n.x) < 14 && y > n.y - 56 && y < n.y + 6);
   const doorAt = (x, y) => room.doors.find(d => inRect(x, y, d.rect));
-  const manifoldHere = () => room === ROOMS.eng && !done;
+  const manifoldHere = () => false; // the coupling-manifold job moves to Engineering when that compartment is wired
   // Stepping through a hatch: the person walks to the wall plane and out through the opening (clipped to the opening and darkened), or the reverse on arrival.
   const doorGeom = d => { const [si, sj] = d.stand; return d.wall === 'i' ? { sill: ptXY(0, (sj + .5) / NJ), out: ptXY(-0.8 / NI, (sj + .5) / NJ), dirOut: 'nw', dirIn: 'se' } : { sill: ptXY((si + .5) / NI, 0), out: ptXY((si + .5) / NI, -0.8 / NJ), dirOut: 'ne', dirIn: 'sw' }; };
   function startExit(d) { const g = doorGeom(d); me.steps = [{ p: g.sill, clip: false }, { p: g.out, clip: true }]; me.stepDoor = d; me.sillP = g.sill; me.outP = g.out; me.dir = g.dirOut; me.path = []; me.then = null; }
@@ -257,7 +251,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     const c = pick(x, y); if (free(...c)) go(c, null);
   });
   $('grid').onclick = () => { show = !show; $('grid').textContent = show ? 'Hide walk grid' : 'Show walk grid'; };
-  $('reset').onclick = () => { done = false; insp = 0; setRoom('eng', [7, 7]); $('job').classList.remove('done'); say('Ship log', 'You are in Engineering. Castellan is by the reactor. The coupling manifold is behind the tanks. The door on the right wall leads to the Mess.', '', []); };
+  $('reset').onclick = () => { insp = 0; setRoom('control', [12, 2]); $('job').classList.remove('done'); say('Ship log', ROOMS.control.blurb, '', []); };
 
   function diamond(i, j, fill, stroke) { const c = [ptXY(i / NI, j / NJ), ptXY((i + 1) / NI, j / NJ), ptXY((i + 1) / NI, (j + 1) / NJ), ptXY(i / NI, (j + 1) / NJ)]; cx.beginPath(); c.forEach((p, k) => k ? cx.lineTo(p[0] * S, p[1] * S) : cx.moveTo(p[0] * S, p[1] * S)); cx.closePath(); if (fill) { cx.fillStyle = fill; cx.fill(); } if (stroke) { cx.strokeStyle = stroke; cx.lineWidth = 1; cx.stroke(); } }
   function person(o, t, walking) {
@@ -296,7 +290,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       if (f < 0.9) { const g = cx.createRadialGradient(x, y, 0, x, y, l.r * 0.8); g.addColorStop(0, 'rgba(0,0,0,' + (0.9 - f) * 0.55 + ')'); g.addColorStop(1, 'rgba(0,0,0,0)'); cx.fillStyle = g; cx.fillRect(x - l.r, y - l.r, l.r * 2, l.r * 2); }
       cx.save(); cx.globalCompositeOperation = 'lighter'; const g2 = cx.createRadialGradient(x, y, 1, x, y, l.r); g2.addColorStop(0, 'rgba(' + l.c.join(',') + ',' + (l.a * Math.min(1.3, f)) + ')'); g2.addColorStop(1, 'rgba(' + l.c.join(',') + ',0)'); cx.fillStyle = g2; cx.fillRect(x - l.r, y - l.r, l.r * 2, l.r * 2); cx.restore();
     });
-    if (room === ROOMS.eng && !done) { const hp = 0.1 + 0.08 * Math.sin(t * 3.4); cx.save(); cx.globalCompositeOperation = 'lighter'; const g = cx.createRadialGradient(770, 210, 2, 770, 210, 70); g.addColorStop(0, 'rgba(255,180,84,' + hp + ')'); g.addColorStop(1, 'rgba(255,180,84,0)'); cx.fillStyle = g; cx.fillRect(0, 0, 1280, 720); cx.restore(); }
+    if (false) { const hp = 0.1 + 0.08 * Math.sin(t * 3.4); cx.save(); cx.globalCompositeOperation = 'lighter'; const g = cx.createRadialGradient(770, 210, 2, 770, 210, 70); g.addColorStop(0, 'rgba(255,180,84,' + hp + ')'); g.addColorStop(1, 'rgba(255,180,84,0)'); cx.fillStyle = g; cx.fillRect(0, 0, 1280, 720); cx.restore(); }
     if (show) { for (let i = 0; i < NI; i++) for (let j = 0; j < NJ; j++) diamond(i, j, blocked.has(i + ',' + j) ? 'rgba(255,107,90,.28)' : 'rgba(111,195,208,.07)', 'rgba(111,195,208,.55)'); room.doors.forEach(d => { cx.strokeStyle = '#8fd694'; cx.lineWidth = 2; cx.strokeRect(d.rect[0] * S, d.rect[1] * S, (d.rect[2] - d.rect[0]) * S, (d.rect[3] - d.rect[1]) * S); }); }
     else if (hoverCell && !dlg && !fadeDir) diamond(hoverCell[0], hoverCell[1], 'rgba(255,180,84,.18)', 'rgba(255,180,84,.7)');
     if (hover && hover.rect) { cx.strokeStyle = '#8fd694'; cx.lineWidth = 2; cx.setLineDash([6, 5]); cx.strokeRect(hover.rect[0] * S, hover.rect[1] * S, (hover.rect[2] - hover.rect[0]) * S, (hover.rect[3] - hover.rect[1]) * S); cx.setLineDash([]); }
