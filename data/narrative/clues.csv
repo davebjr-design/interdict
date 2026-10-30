@@ -6,11 +6,11 @@ clue.patron.3,patron_agenda,1.7,the commission's cold-store has the mass of a wa
 clue.patron.4,patron_agenda,P3 R3,Corvane: why was a gleaner crew sent and not the CSRA?,clue.patron.0,drafted
 clue.pell.0,pell_is_front,P3 R5,Pell heard the P1 briefing on another ship (only if the player asked "What if she's right?"),,drafted
 clue.pell.1,pell_is_front,1.5,"I wasn't built for this ship. I was built for..." and Pell stops at the wall,,drafted
-clue.pell.2,pell_is_front,1.9,Pell has seen Quill's signal before and is not allowed to say where,clue.pell.1,planned
+clue.pell.2,pell_is_front,1.9,Pell has heard Quill's signal before and is not allowed to say where,clue.pell.1,drafted
 clue.patron.5,patron_agenda,P4,the return line has been open six weeks (since Corvane took the core) and closes for the first time,clue.patron.1,drafted
 clue.signal.0,unexplained_signals,P3 all endings,Pell repeats a line word for word without knowing it at the decisive moment; Quill logs the time,,drafted
 clue.signal.1,unexplained_signals,1.2,Quill mentions "noise" and changes the subject,clue.signal.0,planned
-clue.signal.2,unexplained_signals,1.9,Quill brings the signal she logged at the standoff; it matches months of earlier logs,clue.signal.1,planned
+clue.signal.2,unexplained_signals,1.9,Quill's logs: the signal fires when something is being decided; slowed down it sounds like voices,clue.signal.1,drafted
 clue.castellan.0,offbooks_reactor,1.2d,padlocked access panel with new weld lines next to the manifold; Castellan says it's old plumbing,,drafted
 clue.fenwick.0,survivor_pockets,1.2e,stores hold far more ration tins than five people need; Fenwick says he's an optimist,,drafted
 clue.castellan.1,offbooks_reactor,1.8,the manifold crack grows; Castellan won't let anyone else weld near the second panel,clue.castellan.0,drafted

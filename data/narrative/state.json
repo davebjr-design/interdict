@@ -339,6 +339,16 @@
    "type": "bool",
    "default": false,
    "doc": "This leg includes a resupply-buoy stop (set by the route)."
+  },
+  "tally.audit_pending": {
+   "type": "bool",
+   "default": false,
+   "doc": "A Tally audit awaits at Vesper (1.9)."
+  },
+  "quill.triangulate": {
+   "type": "bool",
+   "default": false,
+   "doc": "Captain asked Quill to find the signal's source; Act 2 goal (listen from Vesper)."
   }
  },
  "patterns": {
@@ -347,5 +357,5 @@
   "told.<fact>.<who>": "bool. fact must exist in knowledge.csv; who is an officer id, pell, or a cast 'others' id (corvane, steward).",
   "visitor.<id>": "enum aboard/gone/never. Visitors: corvane, ames, elder, inspector, believer (docs/command_model.md)."
  },
- "_timeline": "Corvane: 47. CSRA Tally enforcement for 11 years, then gleaner captain about 14 years (Abara from the start). Found the relay station 3 years ago; asked her last crew to help, they refused, she scuttled that ship (Dunne made the boats); took this ship after. Took the core and Pell came aboard 6 weeks ago. Standoff ends ~22:13 ship time; P4 ~23:15; 1.1 next morning (~10 hours aboard). Day 1: first morning, crew meeting, aftermath, Pell at night (1.1-1.5). Day 3: shakedown (1.6). Day 4: first commission (1.7). Legs after that: crew calls (1.8)."
+ "_timeline": "Corvane: 47. CSRA Tally enforcement for 11 years, then gleaner captain about 14 years (Abara from the start). Found the relay station 3 years ago; asked her last crew to help, they refused, she scuttled that ship (Dunne made the boats); took this ship after. Took the core and Pell came aboard 6 weeks ago. Standoff ends ~22:13 ship time; P4 ~23:15; 1.1 next morning (~10 hours aboard). Day 1: first morning, crew meeting, aftermath, Pell at night (1.1-1.5). Day 3: shakedown (1.6). Day 4: first commission (1.7). Legs after that: crew calls (1.8). Day ~7: Quill brings the signal (1.9); day 8: audit notice; Vesper in four days (Act 2)."
 }
