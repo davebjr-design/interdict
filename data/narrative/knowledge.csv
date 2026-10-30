@@ -21,3 +21,5 @@ quiet_hour_purpose,With internal comms off the quiet hour is the only hour the s
 station_walled_in_pell,The station's location is behind a wall Corvane built inside Pell,corvane;pell,1.4
 abara_grandfather_message,Corvane's message: tell Abara her grandfather wasn't lying,corvane,1.4
 line_closed,The Steward's return line closed after the blessing for the first time in six weeks,captain;pell,P4
+pell_repeated_itself,In P3 Pell said the same line twice without knowing it,quill;captain,P3/1.5
+pell_lost_time,Pell lost three seconds during the standoff and is afraid of it,pell,1.5

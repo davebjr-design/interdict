@@ -267,6 +267,18 @@
    ],
    "default": "sealed",
    "doc": "Corvane's personal logs (1.4B/C)."
+  },
+  "player.background": {
+   "type": "enum",
+   "values": [
+    "unset",
+    "launch_crew",
+    "orbital",
+    "port_authority",
+    "signals"
+   ],
+   "default": "unset",
+   "doc": "The player's past, chosen when Pell asks (1.5)."
   }
  },
  "patterns": {
