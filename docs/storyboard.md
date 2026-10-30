@@ -83,7 +83,7 @@ Structure: a conversation in rounds (aim for 5-6). On each round the player pick
 
 **1.8 | CALLS | one per officer, spread over legs 2-6 | Their hook, stage 1.** Quill: the signals. Dace: a crew injury and an AI-assisted fix on the table. Castellan: the manifold crack grows. Abara: she asks whether you will honor an old promise of Corvane's. Fenwick: the cargo count is off by one crate. Each is a storylet (`calls.csv`) with trust gates.
 
-**1.9 | TEXT | any | Pell, Quill | Act close.** Quill brings you one signal she cannot explain, and Pell, asked, says it has seen it before and is not allowed to say where. First on-record link between Pell, the signals and Corvane's warning. Tally notice arrives: audit in two legs. (`act = 2`)
+**1.9 | TEXT | any | Pell, Quill | Act close.** Quill brings you one signal she cannot explain, and Pell, asked, says it has seen it before and is not allowed to say where. First on-record link between Pell, the signals and Corvane's warning. Tally notice arrives: audit at Vesper. (`act = 2`) Drafted: `scenes/act1_close.md`.
 
 ## Act 2-4 (one line each; detail after Act 1 is playable)
 - **Act 2 Contracts:** commissions, dock cycles, captains' bar rumours, crew arcs to stage 2-3, the audit (S8), the midpoint job (S9). Reveals: survivor pockets, CSRA not neutral.

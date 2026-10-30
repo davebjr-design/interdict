@@ -147,7 +147,7 @@ FENWICK: Counting error! Mine. I can't count past twelve before lunch. Ask anyon
 → "Log it as missing on the ship's manifest."
   FENWICK: *(quietly)* Of course. That's the rules.
   *He doesn't make a joke for the rest of the day.*
-  [command.style −3; trust.fenwick −6; trust.quill +2; clue.fenwick.1]
+  [command.style −3; trust.fenwick −6; trust.quill +2; clue.fenwick.1; seen.fenwick.crate_logged]
 
 ---
 
@@ -155,7 +155,7 @@ FENWICK: Counting error! Mine. I can't count past twelve before lunch. Ask anyon
 ```
 speaker: quill   seat: sensors_ecm   needs: act>=1, leg>=2, trust.quill>=20   priority: 66   cooldown: 2   once (on approval)
 summary: Quill asks for a long passive listen during transit, "for calibration."
-effects: arc.quill=1, quill.listen_approved, trust.quill, transit (+6:00 unless kept_quill)
+effects: arc.quill=1, quill.listen_approved, trust.quill, transit (+6 hours unless kept_quill)
 callbacks: 1.9 (the act close needs quill.listen_approved)
 ```
 **POV.** *Quill:* the decoy's turn (1.6) showed up on the old deep-space band, under the relay traffic, where her signals live. *Wants:* eight unbroken hours listening there, without explaining why. *Fears:* explaining why. *Would never say:* "I think it's the same thing." *At low trust (20-39):* still asks, because she needs it, but by slate, not in person.
@@ -166,12 +166,12 @@ callbacks: 1.9 (the act close needs quill.listen_approved)
 - *(seen.shakedown.quill_assigned)* QUILL: You asked me to find out what happened with the drone. I'm finding out. I need listening time.
 - *(otherwise)* QUILL: Captain. I'd like eight hours of passive listening on the next transit. For calibration.
 
-QUILL: It adds six minutes to the leg. I've done the arithmetic.
+QUILL: It adds six hours to the leg. I've done the arithmetic.
 - *(quiet_hour kept_quill)* QUILL: Or I can do most of it in the quiet hour. The ship's quietest then.
 
 → "Approved."
   QUILL: Thank you, Captain.
-  [arc.quill=1; quill.listen_approved; trust.quill +4; hunt effect: transit +6:00 (none if kept_quill); → 1.9 can fire]
+  [arc.quill=1; quill.listen_approved; trust.quill +4; transit +6 hours (none if kept_quill); → 1.9 can fire]
 
 → "Calibration of what?"
   QUILL: Noise.
