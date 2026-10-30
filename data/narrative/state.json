@@ -287,6 +287,21 @@
    "max": 100,
    "default": 50,
    "doc": "0 tight .. 100 loose. Bands: very tight <15, tight 15-35, neutral 35-65, loose 65-85, very loose >85. See docs/command_model.md."
+  },
+  "shakedown.result": {
+   "type": "enum",
+   "values": [
+    "unset",
+    "clean",
+    "messy"
+   ],
+   "default": "unset",
+   "doc": "1.6 hunt result."
+  },
+  "watch.captain_third": {
+   "type": "bool",
+   "default": false,
+   "doc": "Abara gives the captain the third watch (1.6) if they asked in 1.1."
   }
  },
  "patterns": {
