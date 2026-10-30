@@ -66,7 +66,7 @@ The later twist (the patron is facilitating AI) is exactly what the three clues 
 - **Knows:** Corvane better than anyone aboard; knows she means it when she says "stand still".
 - **Wants in P3:** for Corvane to stop, without anyone dying. Gets neither, or only one.
 - **Why she's silent:** she was asked. Obedience is the last thing she can still give Corvane.
-- **Why she is last to look away:** twenty years.
+- **Why she is last to look away:** fourteen years.
 - **Would never say:** goodbye.
 
 ### Pell (P3)

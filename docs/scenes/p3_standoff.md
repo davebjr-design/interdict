@@ -4,13 +4,13 @@
 **Where:** Corvane's bridge (the control room of the ship the player will inherit). **Reading time:** about 6-9 minutes, depending on the route.
 **POV sheets:** `pov_sheets.md` (Corvane, Dunne, Ames, Quill, Abara, Pell). Central mystery: "Something knew" (same file).
 **Format:** `NAME:` lines are spoken. *Italics* are narration. `→` is a player choice; [brackets] show the effect or where it goes. **R1-R6** are the rounds.
-**Rules for this scene:** one new visible tell every round. Corvane never raises her voice. Abara and Quill stay at their stations and say nothing, except Quill's one word in R3. Pell speaks calmly, and what it says is a little wrong.
+**Rules for this scene:** one new visible tell every round. Corvane never raises her voice. Abara and Quill stay at their stations and say nothing, except Quill's two words in R3. Pell speaks calmly, and what it says is a little wrong.
 
 ---
 
 ## R1: Tea
 
-*The bridge is warm and dim, lit amber from a glass pedestal at its center. A small table has been set near it: a teapot, three cups, already poured. Captain Ilsa Corvane sits beside it as if she has been waiting a while and didn't mind.*
+*The bridge is warm and dim, lit amber from a glass pedestal at its center. A small table has been set near it: a teapot, four cups, already poured. Captain Ilsa Corvane sits beside it as if she has been waiting a while and didn't mind.*
 
 *Two of her crew are at their stations. A broad woman with silver hair at tactical. A tall, very straight woman at sensors. Neither turns around.*
 
@@ -97,6 +97,9 @@ QUILL: Yes, Captain.
 
 *Corvane draws and fires without getting up. Ames goes down. She holsters the gun.*
 
+*(ames.bond 2)* *An hour ago, in a corridor, he asked you what to do when his hands shake.*
+*(ames.bond 1)* *He'd checked his weapon twice, the way you told him to.*
+
 CORVANE: —wanted. So why send a gleaner?
 
 *Dunne hasn't moved. He's looking at you.*
@@ -159,11 +162,11 @@ PELL: I listen to a great many things.
 
 → "Maybe. I don't know."
   CORVANE: That's the first honest thing anyone's said to me in a month.
-  [told.corvane.honesty = true → R6]
+  [p3.answered_mirror = true → R6]
 
 → "No. There's always another way."
   CORVANE: There usually is. Right up until there isn't.
-  [told.corvane.honesty = true → R6]
+  [p3.answered_mirror = true → R6]
 
 → "I'm not answering that."
   CORVANE: That's an answer too.
@@ -233,16 +236,16 @@ PELL: Captain Corvane. Your tea's gone cold. Shall I warm it?
 
 PELL: Captain Corvane. Your tea's gone cold. Shall I warm it?
 
-*Nobody answers it. At tactical, the silver-haired woman is the last to look away from Corvane. At sensors, Quill glances at her console and writes something down.*
+*Nobody answers it. At tactical, the silver-haired woman is the last to look away from Corvane. At sensors, the tall woman glances at her console and writes something down.*
 
-[corvane = killed, murdered = true, p3.round_shot = 1, ames unharmed. Dunne will not serve with you; Ostrow files a report. Trust: Abara -25, Quill -15, Dace -15, Castellan -10, Fenwick -10; Pell trust at its lowest. → P4]
+[corvane = killed, murdered = true, p3.round_shot = 1, ames = unharmed. Dunne will not serve with you; Ostrow files a report. Trust: Abara -25, Quill -15, Dace -15, Castellan -10, Fenwick -10; Pell trust at its lowest. → P4]
 
 ### SHOT EARLY (shot in R2)
 *You draw. Corvane is faster than you, but she isn't drawing on you. Her shot takes Ames in the shoulder; yours takes her in the chest.*
 
 *Ames is on the deck, swearing, alive.*
 
-*Corvane looks down at herself, then up at you, and finishes what she was saying.*
+*Corvane looks down at herself, then up at you. She has one more thing to say.*
 
 CORVANE: ...and it isn't ours. Remember that, at least.
 
@@ -262,7 +265,7 @@ PELL: Captain Corvane. Your tea's gone cold. Shall I warm it?
 
 PELL: Captain Corvane. Your tea's gone cold. Shall I warm it?
 
-*Nobody answers it. At tactical, the silver-haired woman is the last to look away from Corvane. At sensors, Quill glances at her console and writes something down.*
+*Nobody answers it. At tactical, the silver-haired woman is the last to look away from Corvane. At sensors, the tall woman glances at her console and writes something down.*
 
 [corvane = killed, p3.round_shot = 2, ames = wounded. Dunne respects the speed. Corvane said almost nothing; her case survives in Pell's logs. → P4]
 
@@ -298,7 +301,7 @@ PELL: Captain Corvane. Your tea's gone cold. Shall I warm it?
 - **Corvane** gets one rhythm throughout: courteous statement, then a quiet blade. She never threatens; she just does. Her violence is in the stage directions, not in her lines.
 - **Pell** is always polite and always slightly wrong: heart rates, "a quieter rate", a funeral log "in either order", the new window, the bad name, rating her surrender nine out of ten. It's ambiguous on purpose: loyal, unhinged, or ahead of everyone.
 - **Ames's death** happens in a single beat with no music cue: Corvane asks, Quill answers, Corvane fires, Corvane finishes the sentence. The finished sentence is the horror.
-- **Quill** says one word. It should haunt her (and the player's view of her) for a long time.
+- **Quill** says two words. It should haunt her (and the player's view of her) for a long time.
 - **Abara** is never named here, only "the silver-haired woman" at tactical. The player learns her name aboard, in 1.1. (Same for Quill until Corvane names her.)
 - **The R5 callback** ("You asked Ostrow what happens if I'm right") only appears if the player asked it in P1. It's the first hint that Pell, and through Pell Corvane, hears more than it should.
 - **Dunne** was on the scuttled ship and made the boats; two of the six dead were his friends. Corvane knows, and is genuinely glad he lived. That's why he never liked her, and why he's in the room.

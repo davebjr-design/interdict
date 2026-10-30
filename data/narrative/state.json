@@ -197,6 +197,7 @@
    "type": "enum",
    "values": [
     "unset",
+    "unharmed",
     "wounded",
     "dead"
    ],
@@ -231,11 +232,17 @@
    ],
    "default": "kept_captain",
    "doc": "Corvane's nightly hour alone with Pell, decided at the first crew meeting (1.3)."
+  },
+  "p3.answered_mirror": {
+   "type": "bool",
+   "default": false,
+   "doc": "Player gave Corvane an honest answer to the R5 mirror question."
   }
  },
  "patterns": {
   "knows.<fact>": "bool. fact must exist in knowledge.csv. The player has learned it.",
   "told.<fact>.<crew>": "bool. fact must exist in knowledge.csv; crew is an officer id or pell. That person was told.",
-  "seen.<storylet_id>": "bool, set automatically when a storylet plays (powers once/cooldown)."
- }
+  "seen.<id>": "bool. Any dotted id (storylet id, or <scene>.<beat> such as seen.p1.what_if_right, seen.abara.hook1). Set when that beat plays; powers once/cooldown and later callbacks."
+ },
+ "_timeline": "Corvane: 47. CSRA Tally enforcement for 11 years, then gleaner captain about 14 years (Abara from the start). Found the relay station 3 years ago; asked her last crew to help, they refused, she scuttled that ship (Dunne made the boats); took this ship after. Took the core and Pell came aboard 6 weeks ago. Standoff ends ~22:13 ship time; P4 ~23:15; 1.1 next morning (~10 hours aboard)."
 }

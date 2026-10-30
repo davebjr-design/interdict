@@ -32,7 +32,7 @@ Each line says what an exchange must accomplish. Dialogue is written only after 
 **R6: decision.** If the player has not shot: she stands down on her terms, gives up her codes, asks to be left her cabin and her crew. Abara's face shows grief and anger at once. `corvane=persuaded`.
 
 **RESOLUTIONS (all lead to command of the ship):**
-- **SHOT-EARLY (R2):** Ames wounded, lives; Corvane dead; Dunne respects the speed; Abara cold. Pell is silent for a beat, then says it is "preserving continuity". Quill writes something down. Seed `clue.signals.1`.
+- **SHOT-EARLY (R2):** Ames wounded, lives; Corvane dead; Dunne respects the speed; Abara cold. Pell is silent for a beat, then says it is "preserving continuity". Quill writes something down. Seed `clue.signal.0`.
 - **SHOT-LATE (R3+):** Ames dead; Corvane dead; Dunne's grim respect; Abara colder; Pell logs everything.
 - **PERSUADED (R6):** Ames dead; Corvane alive; most truth; Abara conflicted.
 **State written:** `corvane`, `ames`, `p3.round_shot`, `trust.*` deltas per the storyboard, `ames.bond` read here (high bond = Ames's death hits harder in later lines; low = flatter).

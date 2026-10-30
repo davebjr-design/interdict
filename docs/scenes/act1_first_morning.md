@@ -3,11 +3,11 @@
 **Status:** first dialogue draft, for a voice read. Outline: `scene_outlines.md` 1.1 and 1.2. Cards: `crew_cards.md`. World: `universe_background.md`.
 **Where:** the ship the player now commands. 1.1 runs from the berths to the control room; 1.2 is five short conversations at the crew's stations, in WALK mode, in any order.
 **Reading time:** about 1-2 minutes per conversation.
-**Variant tags:** *(persuaded)*, *(killed)*, *(murdered)* = how the standoff ended. *(ames dead)* / *(ames wounded)*. Untagged lines play in every variant.
+**Variant tags:** *(persuaded)*; *(killed)* = shot in R2-R5, not murdered; *(murdered)* = shot in R1; *(shot)* = killed or murdered; *(ames dead)* / *(ames wounded)*. Untagged lines play in every variant. Where a line is tagged *(killed / murdered)* it plays on both.
 
 ## POV sheets: the morning after
 - **Pell.** *Knows:* the Steward's line closed last night for the first time in six weeks, and it lost three seconds yesterday (the repeated line) and doesn't know how. *Wants:* to know whether this captain will ask before deciding, or just decide. *Fears:* being predicted again. *Hiding:* the Choir, the station's location, what it is. *Thinks of the player:* a test case.
-- **Abara.** *Knows:* Corvane better than anyone alive; that she was asked to stand still and did. *Believes:* the crew will survive this captain only if she runs the ship until the captain proves otherwise. *Wants:* to find out fast whether the captain can read a plot and will listen. *Fears:* losing someone else. *Hiding:* the module box; that she doesn't know what she believes. *Would never say:* anything about Corvane to the person who replaced her.
+- **Abara.** *Knows:* Corvane better than anyone alive; that she was asked to stand still and did. *Believes:* the crew will survive this captain only if she runs the ship until the captain proves otherwise. *Wants:* to find out fast whether the captain can read a plot and will listen. *Fears:* losing someone else. *Hiding:* the module box; that she doesn't know what she believes. *Would never say:* anything about her grief, or who Corvane was to her, to the person who replaced her. (Facts about Corvane, yes; feelings, no.)
 - **Quill.** *Knows:* the time she logged yesterday (to the second), and that it matches months of logs. *Believes:* Corvane was probably right. *Wants:* to learn whether this captain can be told things. *Fears:* that she helped kill a boy for nothing *(ames dead)*. *Hiding:* the logs. *Would never say:* anything she isn't sure of.
 - **Dace.** *Knows:* only what he heard over the comm and saw at the airlock. He was in the thermal bay during the standoff. *Believes:* Corvane was a great captain and a frightening one; an AI-assisted fix is just medicine. *Wants:* the new captain to see he's the best thing aboard. *Fears:* being dismissed as "the heat guy." *Hiding:* the expulsion.
 - **Castellan.** *Knows:* what the off-books reactor work powers and where Pell lives. *Wants:* to be liked, fast, and for the captain never to look behind the second panel. *Fears:* the captain finding it before he's ready to confess. *Hiding:* the panel. *Would never say:* "No" to someone he's decided is family.
@@ -207,11 +207,11 @@ CASTELLAN: Coupling seats fine. But behind it there's a hairline crack in the ma
 
 → "Patch it now."
   CASTELLAN: Four minutes. I'll have it welded before the next jump.
-  [transit +4:00; trust.castellan +3]
+  [hunt effect: transit +4:00; trust.castellan +3]
 
 → "Leave it. Keep an eye on it."
   CASTELLAN: Aye. I won't enjoy it.
-  [heat sinks fill 8% faster this hunt; trust.castellan +1]
+  [hunt effect: heat sinks fill 8% faster this hunt; trust.castellan +1]
 
 *Next to the manifold, there's a second access panel. The weld lines on it are newer than anything else in the room, and it has a padlock.*
 
@@ -242,11 +242,11 @@ FENWICK: Captain! Sit, sit. You look like you've been living on ration bars. The
 
 → "Will you sit with me?"
   *He sits down so fast the bench rocks.*
-  FENWICK: I thought you'd never ask. I mean, you've been aboard eighteen hours. But still.
+  FENWICK: I thought you'd never ask. I mean, you've been aboard about ten hours. But still.
   [trust.fenwick +8]
 
 → "Just coffee."
-  FENWICK: Just coffee! Just coffee, he says. *(He brings soup anyway.)*
+  FENWICK: Just coffee! Just coffee. *(He brings soup anyway.)*
   [trust.fenwick +0]
 
 *Through the galley door you can see the stores: ration tins stacked to the ceiling. A lot of them.*
@@ -265,7 +265,7 @@ FENWICK: Captain! Sit, sit. You look like you've been living on ration bars. The
 - Each conversation has one test (what that person values), one hook (what they're hiding), and lines that change with the standoff outcome. None of the tests can be failed outright; they move trust a few points.
 - **Pell's nickname** comes from the standoff (the voice guide's habit). On the murder route it stops using one at all, which is how you know Pell's trust is at its lowest.
 - **"Comms log says you had a visitor last night"** sets up Abara's question at the crew meeting (1.3). She saw the incoming traffic on her board; she doesn't ask yet.
-- **"Who stood the third watch?" / "She did."** is Abara's grief in three words, and the only thing she'll say about Corvane.
+- **"Who stood the third watch?" / "She did."** is Abara's grief in two words, and as close as she'll come to saying what Corvane was to her.
 - **Quill's "He was nervous"** (ames dead) is the confession she can't make. She needs to say it, and she needs you not to answer.
 - **Dace** reads the standoff off your hand, which is what a brilliant doctor would do, and a showy one would say aloud.
 - **The hooks are physical:** a locked drawer, a time written down, a crest mug, a padlocked panel, too many ration tins. Each is logged as a clue or hook, and each pays off in that person's arc.

@@ -6,7 +6,7 @@ pell_location,Castellan knows where Pell physically lives in the ship,castellan;
 unexplained_signals,Quill has logged signals she cannot explain,quill,arc.quill
 survivor_pockets,Fenwick supplies off-grid survivor populations from the ship's cargo,fenwick,arc.fenwick
 pell_is_front,Pell is a limited front for something larger,pell;corvane?,integration
-corvane_scuttled_ship,Corvane scuttled a ship whose crew refused her,corvane,derelict/corvane
+corvane_scuttled_ship,Corvane scuttled a ship whose crew refused her,corvane;dunne;ostrow;abara,P3 R4
 patron_agenda,What the patron actually wants,patron,
 patron_exists,There is a patron whose office sanctions hunts,ostrow;dunne,P1
 corvane_waking,Corvane is trying to wake a war-era AI core,ostrow;dunne,P1

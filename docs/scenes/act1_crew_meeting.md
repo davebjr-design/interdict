@@ -3,16 +3,16 @@
 **Status:** first dialogue draft, for a voice read. Outline: `scene_outlines.md` 1.3. Follows 1.2; leads to 1.4 (the aftermath) and 1.5 (Pell at night).
 **Where:** the mess hall, after breakfast. Everyone is here; Pell is on the speaker. **Reading time:** about 4 minutes.
 **Purpose:** show the crew as a group under strain, with an argument that was already old before the player arrived; use the decision grammar (one proposer, one or two objectors, the captain decides); hand the player their first group choice.
-**Variant tags:** as in the first-morning file.
+**Variant tags:** as in the first-morning file (*(killed)* = shot in R2-R5, not murdered; *(murdered)* = shot in R1).
 
 ## The thing they argue about: the quiet hour [P]
-Every night, for one hour, Corvane sent everyone off the bridge, switched off the internal comms, and stayed alone with Pell. Nobody knows what she did in it. The crew has argued about it for months.
+Every night, for one hour, Corvane sent everyone off the bridge and switched off the internal comms. She has done it for years; nobody knows what she did in it. Six weeks ago, when Pell came aboard, it became an hour alone with Pell, and the argument got worse.
 - **What actually happened in it:** Corvane and Pell talking, and Pell thinking unobserved, where the Steward's open line couldn't hear. (Paid off later.)
 - **Castellan** also used the hour: it's the only time he could work on the second panel without anyone seeing.
 
 ## POV sheets: the meeting
 - **Dace (proposer):** wants to keep the quiet hour. *Why, in his world:* routine keeps a frightened crew steady; he's seen it in wards. And he admired Corvane and likes that she trusted the AI. *Wants:* to be the one who speaks first and sounds like a leader. *Fears:* Abara thinking he's naive.
-- **Quill (objector):** wants it ended. *Why:* it's the one hour of the day she can't log, and some of her signals fall inside it. She has objected before, to Corvane, and lost. *Wants:* the captain to hear that someone said it. *Would never say:* why the timing bothers her.
+- **Quill (objector):** wants it ended. *Why:* it's the one hour of the day she can't log, and some of her signals fall inside it. She objected to Corvane when it was just Corvane, and again when it became Corvane and Pell, and lost both times. *Wants:* the captain to hear that someone said it. *Would never say:* why the timing bothers her.
 - **Castellan (sides with Dace):** wants it kept. *Why:* the panel. He also really does think the crew needs a rest from each other. Both reasons are true, which makes it easier to say. *Fears:* that Quill is about to say something that makes the captain look at the reactor.
 - **Fenwick (peacemaker):** doesn't care about the hour; cares that they're all at one table. *Wants:* the argument to end before someone leaves the room.
 - **Abara (last word):** knows Corvane was talking to Pell in that hour, or suspects it. Has never said so. *Wants:* the captain to decide, so she doesn't have to.
@@ -20,7 +20,7 @@ Every night, for one hour, Corvane sent everyone off the bridge, switched off th
 
 ---
 
-*Fenwick has cleared the bowls and put the coffee pot in the middle of the table, like a peace offering. There are six seats. The one at the head of the table is Corvane's. Nobody is in it.*
+*Fenwick has cleared the bowls and put the coffee pot in the middle of the table, like a peace offering. There are six places set. The one at the head of the table is Corvane's. Nobody is in it.*
 
 → *Sit at the head of the table.*
   *Nobody says anything. Castellan looks at the table. Fenwick pours your coffee first.*
@@ -46,7 +46,7 @@ ABARA: Somebody say it, then.
 
 DACE: The quiet hour. We should talk about the quiet hour.
 
-*(to you)* DACE: Every night, she sent us all off the bridge for an hour. Comms down, doors shut. Just her and Pell. I think we should keep it.
+*(to you)* DACE: Every night, she sent us all off the bridge for an hour. Comms down, doors shut. Since Pell came aboard, it's been just her and Pell. I think we should keep it.
 
 → "Why?"
   DACE: Because routine is the only thing keeping this crew in one piece, Captain. You can see it in any ward. Take away the thing people do every night, and they stop sleeping. And she had reasons. She always did.
@@ -98,7 +98,7 @@ PELL: *(from the speaker)* I'd like it noted that I'm in the room.
 
 *Fenwick tops up the coffee, because somebody has to do something.*
 
-ABARA: There's something else. What did they say to you? Last night. The Steward's people.
+ABARA: There's something else. What did they say to you? Last night. The patron's office.
 
 *Everyone goes quiet in a different way.*
 
@@ -126,8 +126,8 @@ ABARA: There's something else. What did they say to you? Last night. The Steward
 
 *Abara gets up. She stops at the door.*
 
-- *(persuaded)* ABARA: She ran this ship for nine years. She never once asked us what we thought. Don't know if that makes you better than her. We'll find out.
-- *(killed)* ABARA: She ran this ship for nine years, and she never once asked us what we thought. You did. Remember you did that.
+- *(persuaded)* ABARA: She ran us for fourteen years. She never once asked us what we thought. Don't know if that makes you better than her. We'll find out.
+- *(killed)* ABARA: She ran us for fourteen years, and she never once asked us what we thought. You did. Remember you did that.
 - *(murdered)* ABARA: Watch starts in ten minutes. Captain.
 
 *She goes. One by one, the others follow, except Fenwick, who starts clearing the cups.*

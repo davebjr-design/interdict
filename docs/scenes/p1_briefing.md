@@ -110,7 +110,7 @@ OSTROW: Then do what you have to.
 → "What if she's right?"
   *A long pause.*
   OSTROW: Then she's right. And you still bring me her ship.
-  [seen.p1.what_if_right: Corvane's R5 mirror question can reference it]
+  [seen.p1.what_if_right = true: Corvane's R5 mirror question references it]
 
 → "Understood."
   OSTROW: Good.

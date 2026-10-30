@@ -1,7 +1,7 @@
 # P4: The Blessing (draft 1, dialogue)
 
 **Status:** first dialogue draft, for a voice read. Outline: `scene_outlines.md` P4. **POV sheets:** Pell (`pov_sheets.md`); the Steward below.
-**Where:** Corvane's bridge, now yours, an hour after the standoff. **Reading time:** about 3 minutes.
+**Where:** Corvane's bridge, now yours, about an hour after the standoff (the standoff ends around 22:13 ship time). **Reading time:** about 3 minutes.
 **Purpose:** give the player the authority to command, and hand them the opening's central mystery in concrete form: the blessing was sent *before* the choice it congratulates. Pell notices and gets chatty (its tell when scared).
 
 **The Steward (patron) POV sheet [P name]**
@@ -34,13 +34,13 @@ PELL: There's a message for you. It's addressed to "the captain of this vessel",
 *A voice fills the bridge: warm, unhurried, like someone settling into a chair across from you.*
 
 - *(killed)*
-  STEWARD: Captain. I'm sorry it came to that. Ilsa was a gifted officer, and she would not be turned. You did what was asked of you, and you did it well.
+  VOICE: Captain. I'm sorry it came to that. Ilsa was a gifted officer, and she would not be turned. You did what was asked of you, and you did it well.
 - *(persuaded)*
-  STEWARD: Captain. I'm told she listened to you. That's rare; she never listened to anyone. I'd have preferred her brought to us, but I won't quarrel with a result.
+  VOICE: Captain. She listened to you. That's rare; she never listened to anyone. I'd have preferred her brought to us, but I won't quarrel with a result.
 - *(murdered)*
-  STEWARD: Captain. Quick, and clean. That's a quality I value more than people think.
+  VOICE: Captain. Quick, and clean. That's a quality I value more than people think.
 
-STEWARD: The ship is yours, by the usual arrangements. Her crew will be difficult. They loved her, in their way. Give them time, and give them work. I'd like this ship to be quiet, and I'd like whatever she was waking to stay asleep. I'll see to it you have what you need. We'll speak again.
+VOICE: The ship is yours, by the usual arrangements. Her crew will be difficult. They loved her, in their way. Give them time, and give them work. I'd like this ship to be quiet, and I'd like whatever she was waking to stay asleep. I'll see to it you have what you need. We'll speak again.
 
 *The message ends.*
 
@@ -48,9 +48,9 @@ STEWARD: The ship is yours, by the usual arrangements. Her crew will be difficul
 
 PELL: Captain. Can I mention something? It isn't important. It's probably not important.
 
-PELL: That message was sent at fourteen-oh-two, ship time.
-- *(shot)* You fired at fourteen-thirteen.
-- *(persuaded)* She stood down at fourteen-thirteen.
+PELL: That message was sent at twenty-two-oh-two, ship time.
+- *(shot)* You fired at twenty-two-thirteen.
+- *(persuaded)* She stood down at twenty-two-thirteen.
 
 PELL: So it was sent eleven minutes before. Which is fine. People prepare. I prepare. I had two funeral logs ready. I'm talking quite a lot. I'll stop.
 
@@ -67,30 +67,31 @@ PELL: So it was sent eleven minutes before. Which is fine. People prepare. I pre
 → "Don't mention this to anyone."
   PELL: Mention what?
   PELL: (That was a joke. I won't.)
-  [told.patron_message_predated.* stays false; Pell trust +5]
+  [told.patron_message_predated.* stays false; pell.trust +5]
 
 *A small light comes on at the communications station.*
 
-STEWARD: Captain. You'll have questions. Ask one or two; it's late.
+VOICE: Captain. You'll have questions. Ask one or two.
 
 **[Live call: the player may ask up to two.]**
 
 → "Who are you?"
-  STEWARD: Someone who would like today to be the last time anyone has to do what you just did. If you need to call me something, the Steward will do.
+  VOICE: Someone who would like today to be the last time anyone has to do what you just did. If you need to call me something, the Steward will do.
+  *(From here on, the script labels this voice STEWARD.)*
 
 → "How did you know how it would end?"
-  STEWARD: I didn't. I hoped. Hope is most of what I do, Captain.
+  VOICE: I didn't. I hoped. Hope is most of what I do, Captain.
   PELL: ...
-  [patron.suspicion +10 if the player already heard about the timestamp]
+  [patron.suspicion +10]
 
 → "What happens to her crew?"
-  STEWARD: That's yours to decide. I'd only ask that you decide soon.
+  VOICE: That's yours to decide. I'd only ask that you decide soon.
 
 → "Thank you."
-  STEWARD: Don't thank me yet. But I'm glad you said it.
+  VOICE: Don't thank me yet. But I'm glad you said it.
   [patron.standing +5]
 
-STEWARD: Rest, Captain. The ship will look different in the morning.
+VOICE: Rest, Captain. The ship will look different in the morning.
 
 *The light goes out.*
 
@@ -108,4 +109,4 @@ PELL: It's never closed it before.
 - **The Steward** never lies in this scene. Every line is true and incomplete ("I didn't. I hoped."). That's the rule for the patron throughout.
 - **The murder variant** is the only one where the Steward sounds pleased. That's a clue for an attentive player, and a cost.
 - **"It's never closed it before"** tells the player the line has been open, listening, the whole time Corvane had the core.
-- **Name:** "the Steward" was on the bible's list of title options. Confirm or replace.
+- **Name:** "the Steward" (confirmed by Dave). The script labels the speaker VOICE until it names itself, because the player doesn't know the name yet. If the player never asks "Who are you?", they learn the name later.
