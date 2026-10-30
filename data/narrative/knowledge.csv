@@ -1,5 +1,5 @@
 fact,description,known_by_at_start,revealed_via
-module_box,Abara keeps her grandfather's fire-control module locked up,abara,arc.abara
+module_box,Abara keeps her grandfather's fire-control module locked up,abara;corvane,arc.abara
 dace_expulsion,Dace was expelled over an AI-assisted treatment that worked,dace,arc.dace
 offbooks_reactor,Castellan built part of the reactor off the books on Corvane's orders,castellan;corvane;patron?,arc.castellan
 pell_location,Castellan knows where Pell physically lives in the ship,castellan;corvane,arc.castellan
@@ -20,3 +20,4 @@ quiet_hour,Every night Corvane spent an hour alone on the bridge with Pell; nobo
 quiet_hour_purpose,With internal comms off the quiet hour is the only hour the ship can't be heard,corvane;pell,1.4
 station_walled_in_pell,The station's location is behind a wall Corvane built inside Pell,corvane;pell,1.4
 abara_grandfather_message,Corvane's message: tell Abara her grandfather wasn't lying,corvane,1.4
+line_closed,The Steward's return line closed after the blessing for the first time in six weeks,captain;pell,P4

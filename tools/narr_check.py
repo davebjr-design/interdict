@@ -13,7 +13,7 @@ def name_ok(n):
     m = re.fullmatch(r'knows\.(\w+)', n)
     if m: return m.group(1) in facts
     m = re.fullmatch(r'told\.(\w+)\.(\w+)', n)
-    if m: return m.group(1) in facts and (m.group(2) in crew)
+    if m: return m.group(1) in facts and (m.group(2) in crew or m.group(2) in cast.get('others', {}))
     m = re.fullmatch(r'seen\.([\w.]+)', n)
     return bool(m)
 ids = set()
