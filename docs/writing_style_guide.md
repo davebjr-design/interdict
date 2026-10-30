@@ -42,3 +42,6 @@ People rarely say the thing directly, especially under stress. Prefer the obliqu
 
 ## 7. Format
 Scenes are drafted as plain script (`docs/scenes/`), read for voice, then moved into Ink. Draft headers list status, location, reading time and the POV sheets used.
+
+## 8. Continuity check after every new scene [D]
+After drafting, check the new scene against everything already written: who is present and where, what each character can know at that point, the order of events (P1 to P4, then Act 1), names and roles, state variables and clue ids, and each variant (persuaded / killed / murdered, Ames wounded / dead). Prefer a fresh reviewer who hasn't seen the drafting. Log fixes in the scene's notes.

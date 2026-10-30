@@ -47,6 +47,10 @@ PELL: No messages overnight. The line is still closed.
 - *(killed)* ABARA: Captain.
 - *(murdered)* *Abara looks at you once, and then at the chart, and stays there.*
 
+ABARA: Comms log says you had a visitor last night.
+
+*She doesn't ask who. She waits, just long enough to see whether you'll tell her, and then moves on.*
+
 *She hands you a clipboard. Paper.*
 
 ABARA: Watch bill. We run three watches on five people, which means we run two and pretend. Quill and I have the bridge. Castellan has the reactor and won't give it up. Dace has the heat and the bandages. Fenwick has everything else.
@@ -260,6 +264,7 @@ FENWICK: Captain! Sit, sit. You look like you've been living on ration bars. The
 ## Notes for the voice read
 - Each conversation has one test (what that person values), one hook (what they're hiding), and lines that change with the standoff outcome. None of the tests can be failed outright; they move trust a few points.
 - **Pell's nickname** comes from the standoff (the voice guide's habit). On the murder route it stops using one at all, which is how you know Pell's trust is at its lowest.
+- **"Comms log says you had a visitor last night"** sets up Abara's question at the crew meeting (1.3). She saw the incoming traffic on her board; she doesn't ask yet.
 - **"Who stood the third watch?" / "She did."** is Abara's grief in three words, and the only thing she'll say about Corvane.
 - **Quill's "He was nervous"** (ames dead) is the confession she can't make. She needs to say it, and she needs you not to answer.
 - **Dace** reads the standoff off your hand, which is what a brilliant doctor would do, and a showy one would say aloud.
