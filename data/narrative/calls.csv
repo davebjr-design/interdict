@@ -1,1 +1,6 @@
 id,speaker,seat,needs,priority,cooldown_legs,once,summary,effects,callbacks,status
+call.dace.burn_1,dace,thermal,"act>=1, leg>=2",70,0,true,"Castellan's hurt; Dace wants Pell's help to treat him.","arc.dace=1, integration, trust.dace, trust.castellan",,drafted
+call.castellan.manifold_1,castellan,engineering,"act>=1, leg>=3",65,0,true,"The manifold crack is growing; Castellan won't let anyone near the second panel.","arc.castellan=1, trust.castellan, command.style",clue.castellan.1,drafted
+call.abara.six_1,abara,tactical_nav,"act>=1, leg>=2",68,0,true,"Corvane paid the families of the six every quarter; the payment is due.","arc.abara=1, trust.abara, knows.the_six",promise.abara_message,drafted
+call.fenwick.crate_1,fenwick,quartermaster,"act>=1, leg>=3",60,0,true,"After a resupply stop the cargo count is off by one crate.","arc.fenwick, trust.fenwick, command.style",clue.fenwick.1,drafted
+call.quill.listen_1,quill,sensors_ecm,"act>=1, leg>=2",66,2,true,"Quill asks for a long passive listen, for calibration.","arc.quill, trust.quill",1.9,drafted
