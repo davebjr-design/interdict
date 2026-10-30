@@ -78,6 +78,7 @@ VOICE: Captain. You'll have questions. Ask one or two.
 → "Who are you?"
   VOICE: Someone who would like today to be the last time anyone has to do what you just did. If you need to call me something, the Steward will do.
   *(From here on, the script labels this voice STEWARD.)*
+  [seen.p4.who_are_you]
 
 → "How did you know how it would end?"
   VOICE: I didn't. I hoped. Hope is most of what I do, Captain.

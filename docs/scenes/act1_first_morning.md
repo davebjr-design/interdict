@@ -63,7 +63,7 @@ ABARA: Watch bill. We run three watches on five people, which means we run two a
 → "Put me on it."
   *She looks at you over her glasses.*
   ABARA: We'll see.
-  [trust.abara +3]
+  [trust.abara +3; seen.abara.asked_third_watch]
 
 → "Fine."
   ABARA: Fine.

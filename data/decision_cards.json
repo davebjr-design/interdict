@@ -921,7 +921,8 @@
       }
      },
      "line": "Slow and passive. Boring, which is the point. Six out of ten for excitement, nine for staying alive.",
-     "style": "any"
+     "style": "any",
+     "line_murdered": "Slow and passive."
     },
     {
      "id": "fast_burn",
@@ -943,7 +944,7 @@
        "margin": 8
       }
      },
-     "line": "Light her up and get there. Decoy won't know what hit it.",
+     "line": "Light her up, darlin'. Decoy won't know what hit it.",
      "style": "any"
     },
     {
@@ -977,9 +978,14 @@
      "line": "A fast burn lights us up for anyone looking, Captain."
     },
     {
-     "by": "Castellan",
+     "by": "Dace",
      "lever": "slow_passive",
-     "line": "Fourteen minutes of heat we don't need. She'll cook."
+     "line": "Fourteen minutes of heat I'll have to dump. I'm just saying."
+    },
+    {
+     "by": "Fenwick",
+     "lever": "slow_passive",
+     "line": "Slow means an extra meal for everyone. Not complaining. Noting."
     }
    ],
    "voiced": "2026-10-29 new cast"
@@ -1001,7 +1007,7 @@
      "label": "Stay passive",
      "channel": "sensing",
      "proposer": "Quill",
-     "executor": "Castellan",
+     "executor": "Quill",
      "slots": 1,
      "stances": [
       "caution",
@@ -1036,7 +1042,7 @@
      "label": "A short active ping",
      "channel": "sensing",
      "proposer": "Castellan",
-     "executor": "Castellan",
+     "executor": "Quill",
      "slots": 1,
      "stances": [
       "speed"
@@ -1065,7 +1071,7 @@
        "exposure": 4
       }
      },
-     "line": "One short ping and we'll know. Quick and done.",
+     "line": "I've got a hunch. One short ping and we'll know.",
      "style": "loose"
     },
     {
@@ -1073,7 +1079,7 @@
      "label": "Change course for better geometry",
      "channel": "nav",
      "proposer": "Abara",
-     "executor": "Abara",
+     "executor": "Quill",
      "slots": 1,
      "stances": [
       "caution"
@@ -1118,15 +1124,15 @@
     {
      "by": "Quill",
      "lever": "ping",
-     "line": "A ping tells everyone we're here, Captain. Including the decoy."
-    },
-    {
-     "by": "Castellan",
-     "lever": "passive",
-     "line": "We're cooking while we listen."
+     "line": "A ping tells everyone we're here, Captain. Including anyone else out here."
     },
     {
      "by": "Dace",
+     "lever": "passive",
+     "line": "We're cooking while we listen. Literally. I'm the one cooking."
+    },
+    {
+     "by": "Abara",
      "lever": "ping",
      "line": "And if it isn't the decoy?"
     }
@@ -1152,7 +1158,7 @@
      "label": "Keep listening",
      "channel": "posture",
      "proposer": "Quill",
-     "executor": "Castellan",
+     "executor": "Quill",
      "slots": 1,
      "stances": [
       "caution",
@@ -1190,7 +1196,7 @@
      "label": "Go active to resolve it",
      "channel": "posture",
      "proposer": "Castellan",
-     "executor": "Castellan",
+     "executor": "Quill",
      "slots": 1,
      "stances": [
       "speed"
@@ -1219,7 +1225,7 @@
        "info": 1
       }
      },
-     "line": "Hit it with a ping and stop guessing.",
+     "line": "Ping it and stop guessing. My gut says it's nothing.",
      "style": "loose"
     },
     {
@@ -1284,15 +1290,16 @@
        }
       }
      ],
-     "line": "Let me check it against the seeker data. One minute. I promise not to enjoy it.",
-     "style": "any"
+     "line": "Let me check it against the decoy's patrol. One minute. I promise not to enjoy it.",
+     "style": "any",
+     "line_murdered": "Cross-check available."
     }
    ],
    "objections": [
     {
      "by": "Quill",
      "lever": "go_active",
-     "line": "If it's civilian, a ping tells the cutter too."
+     "line": "Pinging something we can't name tells everyone out here where we are."
     },
     {
      "by": "Castellan",
@@ -1804,5 +1811,5 @@
   "nav_skill": 3,
   "note": "Base rates. Refits, gear and crew competence modify these; levers with a 'scale' entry divide those deltas by the named stats."
  },
- "note": "Cast recast 2026-10-29 to the crew bible (Abara, Dace, Castellan, Quill, Fenwick). Lever proposers/objectors moved by stance; objection and proposal LINES are still the old placeholder wording and need a voice pass (docs/narrative_architecture.md)."
+ "note": "Cast recast 2026-10-29 to the crew bible. Cards 3, 4 and 5 have new-cast pitch lines (lever \"line\", \"line_murdered\") and objections; the other cards still carry placeholder wording and need a voice pass."
 }

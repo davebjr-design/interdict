@@ -135,13 +135,13 @@ FENWICK: Counting error! Mine. I can't count past twelve before lunch. Ask anyon
 ```
 speaker: quill   seat: sensors_ecm   needs: act>=1, leg>=2   priority: 66   once
 summary: Quill asks for a long passive listen during transit, "for calibration."
-effects: arc.quill (1, or 2 if already 1), trust.quill, sets up 1.9
+effects: arc.quill=1, trust.quill, sets up 1.9
 ```
 **POV.** *Quill:* the decoy's turn (1.6) happened on the same band her signals live on. *Wants:* eight unbroken hours listening on the old deep-space band, without explaining why. *Fears:* explaining why. *Would never say:* "I think it's the same thing."
 
 *Quill comes to you, which she doesn't do. She has a written request on a slate, which she does.*
 
-- *(arc.quill = 1, from "find out what happened" in 1.6)* QUILL: You asked me to find out what happened with the drone. I'm finding out. I need listening time.
+- *(seen.shakedown.quill_assigned, from "find out what happened" in 1.6)* QUILL: You asked me to find out what happened with the drone. I'm finding out. I need listening time.
 - *(otherwise)* QUILL: Captain. I'd like eight hours of passive listening on the next transit. For calibration.
 
 QUILL: It adds six minutes to the leg. I've done the arithmetic.
@@ -149,7 +149,7 @@ QUILL: It adds six minutes to the leg. I've done the arithmetic.
 
 → "Approved."
   QUILL: Thank you, Captain.
-  [arc.quill +1; trust.quill +4; transit +6:00 (or none, kept_quill); → 1.9 can fire]
+  [arc.quill=1; trust.quill +4; hunt effect: transit +6:00 (none if kept_quill); → 1.9 can fire]
 → "Calibration of what?"
   QUILL: Noise.
   *A pause.*

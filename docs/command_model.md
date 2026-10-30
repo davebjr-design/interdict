@@ -51,7 +51,12 @@ Visitors push style too: a CSRA inspector pushes tight; Corvane, aboard, pushes 
 | 1.3 | tell the crew everything / the job / nothing | +2 / 0 / −2 |
 | 1.2b | thank Quill for the safety correction / "I know" | −2 / +1 |
 | 1.2e | "Will you sit with me?" | +3 |
+| 1.6 | briefing: ask about the pool / "Quiet on the bridge" | +1 / −1 |
+| 1.6 | the turn: "Log it. Keep hunting." | −1 |
 | 1.6 | debrief: drill it again tomorrow / stand everyone a drink | −6 / +6 |
+| 1.7 | open the container before delivering | +2 |
+| 1.8 | Abara on shift by order / Castellan's way / Castellan chooses (Dace call) | −3 / 0 / +2 |
+| 1.8 | log Fenwick's missing crate | −3 |
 | 1.7 | log the commission in the Tally / leave it off the books | −4 / +4 |
 (Scene effect tags use `command.style ±n`.)
 
