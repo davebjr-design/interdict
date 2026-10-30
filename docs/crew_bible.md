@@ -16,7 +16,7 @@ AI attitude uses the five camps from universe_background.md. Cabin pairing: Abar
 | Corvane | Rogue captain | F, 47 | Khan: charming, intelligent, violent underneath | Believer | Evidence of AI already rising | Deep violet |
 
 ## Abara (Tactical and Navigation)
-- **Look:** 52, broad-shouldered, short gray-streaked hair under a faded cap-less look (no headwear), reading glasses on a cord that she is always losing, scarred forearms, rolled sleeves.
+- **Look:** 52, broad-shouldered, fair weathered skin, long silver hair worn loose (no headwear), reading glasses on a cord that she is always losing, scarred forearms, rolled sleeves.
 - **Voice:** dry, deadpan, tells long stories that end in a joke or a warning. Grumbles at everything she fixes.
 - **Backstory:** born in a Gulf Coast launch town. Her grandfather loaded munitions in the war. Her mother ran a sanctioned launch-pad crew until the bans shut it; her father fixed things quietly for gleaners. She trained as range-safety tech and learned fire control the hard way. Joined Corvane's first crew and stayed longest.
 - **Wants:** a crew that comes home. **Hides:** doesn't know if she still believes Corvane; keeps the module box locked.

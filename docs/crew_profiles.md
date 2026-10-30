@@ -8,9 +8,9 @@ Common wardrobe rule: scavenger, not military; mended, layered, practical; no ca
 
 ---
 ## ABARA (Tactical and Navigation, unstated second in command)
-- **Age/sex:** 52, woman. Born in a Gulf Coast launch town; Nigerian-American family.
+- **Age/sex:** 52, woman. Born in a Gulf Coast launch town. (Heritage open; updated 2026-10-29 to match the in-game model.)
 - **Body:** 5'8", solid and broad-shouldered, thick forearms with burn scars on the left, a slight limp in cold weather.
-- **Face:** warm brown skin, deep laugh lines, heavy-lidded observant eyes, a gap between her front teeth, hair cropped short and graying at the temples. Reading glasses on a cord that she keeps losing.
+- **Face:** fair, sun-weathered skin, deep laugh lines, heavy-lidded observant eyes, a gap between her front teeth, long silver hair worn loose (she keeps meaning to cut it). Reading glasses on a cord that she keeps losing.
 - **Clothes:** rolled-sleeve work shirt in faded orange-brown, patched canvas vest, gray cargo pants, resoled boots. Accent: burnt orange.
 - **Voice and manner:** low, dry and unhurried. Tells long stories that end in a joke or a warning. Grumbles while fixing things. Calls everyone "kid" until she decides she likes them. Goes very quiet and exact under pressure.
 - **Habits:** relabels drawers, checks every tube twice, hums old hymns when no one is listening, cleans her glasses when she is thinking.
@@ -18,7 +18,7 @@ Common wardrobe rule: scavenger, not military; mended, layered, practical; no ca
 - **Family and history:** grandfather loaded munitions in the war and kept a fire-control module as a souvenir. Mother ran a sanctioned launch-pad crew until the bans closed it. Father fixed things quietly for gleaners. Abara trained as range-safety tech, drifted into fire control, and became Corvane's first hire.
 - **Fear:** losing someone she should have kept safe. **Secret:** the module box; she suspects it is more than a souvenir.
 - **Voice sample:** "Thirty years cleaning up after captains. Sit down, tea's hot. Let's find out what kind of mess you are."
-- **Meshy seed:** "Chunky stylized game character, big hands and boots, a 52-year-old broad-shouldered Black woman engineer, short graying cropped hair, bare head, rolled-sleeve burnt orange work shirt, patched canvas vest, gray cargo pants, resoled boots, reading glasses on a neck cord, neutral A-pose, no hood, no holsters, no straps, no belt pouches."
+- **Meshy seed:** "Chunky stylized game character, big hands and boots, a 52-year-old broad-shouldered fair-skinned woman engineer, long loose silver hair (was: short graying cropped hair, bare head, rolled-sleeve burnt orange work shirt, patched canvas vest, gray cargo pants, resoled boots, reading glasses on a neck cord, neutral A-pose, no hood, no holsters, no straps, no belt pouches."
 
 ---
 ## DACE (Thermal Management, de facto ship's doctor)

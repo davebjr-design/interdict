@@ -6,8 +6,8 @@ Source: data/narrative/crew_cards.json; PDF: docs/crew_reference_cards.pdf. [new
 ## Abara (Tactical & Navigation, unstated second in command)
 > "Thirty years cleaning up after captains. Sit down, tea's hot. Let's find out what kind of mess you are."
 
-- **Background:** 52, woman. Gulf Coast launch town, Nigerian-American family. Grandfather loaded munitions in the war; mother ran a sanctioned launch-pad crew until the bans. Range-safety tech who learned fire control the hard way. Corvane's first hire, and the one who stayed longest.
-- **Look:** Broad-shouldered, thick forearms with old burn scars on the left, a slight limp in cold weather. Reading glasses on a cord she keeps losing.
+- **Background:** 52, woman. Gulf Coast launch town. Grandfather loaded munitions in the war; mother ran a sanctioned launch-pad crew until the bans. Range-safety tech who learned fire control the hard way. Corvane's first hire, and the one who stayed longest.
+- **Look:** Broad-shouldered, fair skin weathered by years of launch-pad sun, thick forearms with old burn scars on the left, a slight limp in cold weather. Long silver hair worn loose, which she keeps meaning to cut. Reading glasses on a cord she keeps losing.
 - **Clothes:** Burnt-orange work shirt, sleeves rolled, canvas suspenders, blue-gray work trousers, resoled boots.
 - **Voice and manner:** Plain-spoken and dry. Complains about everything she's about to fix, then fixes it properly. Tells long stories that end in a joke or a warning. Calls younger crew "kid" until she decides she likes them. Under pressure she goes quiet and very exact.
 - **Inspired by:** Miles O'Brien (TNG / DS9): the put-upon, deeply competent working professional. Grumbles, loves her people, distrusts the brass, carries an old war around with her.
@@ -19,7 +19,6 @@ Source: data/narrative/crew_cards.json; PDF: docs/crew_reference_cards.pdf. [new
 - **Habits:** Relabels drawers. Checks every tube twice. Hums old hymns when she thinks no one's listening. Cleans her glasses when she's thinking. Plays darts to win and blames the board.
 - **Likes / dislikes:** Strong tea, a clean ledger, honest mistakes. Can't stand showmen, or anyone who fudges a checklist.
 - **Relationships:** Dace exhausts her and quietly becomes her favorite; they argue about everything [new, fits O'Brien and Bashir]. Shares a cabin with Castellan: she's tidy, he isn't, they respect each other. Longest history with Corvane, unresolved.
-- **Model vs profile:** Model has long silver hair and lighter skin; profile says cropped gray hair, warm brown skin. Pick one (regen can wait).
 
 ## Dace (Thermal Management, the ship's de facto doctor)
 > "Oh, that's fascinating. Sorry, no, it's terrible. But it's also fascinating. Hold still and let me look."
