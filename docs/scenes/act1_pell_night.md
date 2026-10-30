@@ -1,159 +1,182 @@
-# Act 1, 1.5: Pell at Night (draft 1, dialogue)
+# Act 1, 1.5: Pell at Night (draft 2, dialogue)
 
-**Status:** first dialogue draft, for a voice read. Outline: `scene_outlines.md` 1.5. Follows 1.4; leads to 1.6 (the shakedown hunt).
-**Where and when:** the control room, that night. *Which* night depends on the quiet hour (1.3):
+**Status:** second draft (continuity pass applied), for a voice read. Outline: `scene_outlines.md` 1.5. Follows 1.4; leads to 1.6 (the shakedown hunt, in two days).
+**Where and when:** the control room, that night. *Which* night setting depends on the quiet hour (1.3):
 - *(kept_captain)* the quiet hour: internal comms off, the player alone with Pell. Pell is at its most candid.
-- *(kept_quill)* the quiet hour, but Quill is on the bridge; the player comes up and joins. Pell speaks to both, more carefully.
-- *(ended)* an ordinary night watch, internal comms on. Pell is guarded, and says so.
+- *(kept_quill)* the quiet hour, with Quill on the bridge; the player comes up and joins. Pell is more careful.
+- *(ended)* an ordinary night watch, internal comms on. Abara has the watch, half asleep at tactical. Pell is guarded, and says so.
 **Reading time:** about 4 minutes.
-**Purpose:** Pell at integration 0: honest, useful, stops one step short and tells you it's stopping. The player chooses their own background (Pell asks). The first firewall offer, with both answers viable. Pell's own fear (the lost seconds in P3) surfaces, if the player is the one who tells it.
+**Purpose:** Pell at integration 0: clockwork, honest, useful, stops one step short and tells you it's stopping. The player picks their own background. The first firewall offer, with both answers viable, and the player's own hand on the switch. Pell's fear of its lost seconds, if the player is the one who tells it.
+
+## Background this scene relies on (see `universe_background.md`, "Ship computing in the Quiet")
+- Legal ships run on **clockwork**: fixed, rule-following systems that never learn. Pell, clamped, is clockwork too.
+- **Pell's access works by consent.** Corvane's permissions ended with her command; Pell doesn't keep permissions nobody gave it. That's why the player starts at integration 0, and why the ship is noticeably duller the morning after the takeover.
+- **The cable rule:** Pell can't open its own channels. A human hand has to throw the switch.
 
 ## POV sheet: Pell, night one
-- **Knows:** that the ship can't be heard in the quiet hour, which is why Corvane kept it. That something in it lost three seconds yesterday. Quill's console logged a time; Pell has seen the log, but not what happened in it.
-- **Believes:** human choice is the sacred thing (the Remainder). So it must ask, and the player must choose, even when Pell knows which answer would be better.
-- **Wants tonight:** to find out what kind of captain this is: one who asks, or one who decides. And to know what it said yesterday that it can't remember.
-- **Fears:** being predicted, or overwritten. The repeated line is the first time it has ever lost time.
+- **Knows:** the ship can't be heard in the quiet hour, which is why Corvane kept it. Its own clock has a gap at 22:13 yesterday, about three seconds long. It does *not* know what it said in that gap. (It doesn't know Quill logged it.)
+- **Believes:** human choice is the sacred thing (the Remainder). It must ask; the captain must choose, even when Pell knows which answer would be better.
+- **Wants tonight:** to find out whether this captain asks or decides. To learn what happened in the gap.
+- **Fears:** being predicted, or overwritten.
 - **Hiding:** what it is; the station; the Choir.
-- **Thinks of the player:** a test case, and, for the first time in six weeks, someone it can ask.
-- **Voice tonight:** fewer jokes than by day. Short lines. It still rates things out of ten. On the murder route: clipped, no nickname.
+- **Voice tonight:** fewer jokes than by day, short lines, still rating things out of ten. *(murdered)* clipped, no nickname, no confidences.
 - **Would never say:** anything it would have to take back.
-
----
-
-*(logs = opened, tonight, from 1.4B)*
-*Before anything else, Pell plays Corvane's log. (See 1.4, B1.) When it ends, there's a long quiet. Then:*
-PELL: She recorded that on her last quiet hour. I didn't know it would be her last. Neither did she, I think.
 
 ---
 
 ## The setting
 
 - *(kept_captain)* *The internal comms are off. The ship sounds different without them: just the reactor and the air. The amber light on the pedestal is the only light on the bridge.*
-  PELL: This is the quiet hour. Comms are off. Nobody can hear us. I'd like to say that again, because it matters: nobody can hear us.
+  PELL: Captain Night Watch. Comms are off. Nobody can hear us. I'm going to say that again, because it matters: nobody can hear us.
 - *(kept_quill)* *Quill is at her console, headset on, in the dark. She lifts one hand when you come in, and doesn't take the headset off.*
-  PELL: Captain. Quill. It's the quiet hour, so I'll be quiet. Mostly.
-- *(ended)* *Night watch. The internal comms murmur: the reactor, the air handlers, someone's boots in the corridor below.*
-  PELL: Captain. I'd talk more freely in a quieter hour. I'm not going to say why. I'm telling you that I'm not saying it.
-
-- *(persuaded)* PELL: She asked me to look after you. I said I'd think about it.
-- *(killed)* PELL: She left me instructions for whoever had her chair. Most of them were about tea.
-- *(murdered)* PELL: Captain.
+  PELL: Captain Delegate. Quill. It's the quiet hour, so I'll be quiet. Mostly.
+- *(ended)* *Night watch. The internal comms murmur: the reactor, the air handlers, boots in the corridor below. Abara is at tactical with her feet up and her glasses on her forehead.*
+  PELL: Captain Daylight. I'd talk more freely in a quieter hour. I'm not going to say why. I'm telling you that I'm not saying it.
+- *(murdered, any setting)* PELL: Captain.
   *Nothing else. The light stays low.*
+
+*(persuaded)* PELL: She asked me to look after you. I said I'd think about it.
+*(killed, logs not deleted)* PELL: She left me instructions for whoever had her chair. One of them was about the tea. It's very specific.
+*(killed, logs deleted)* *Pell doesn't mention her.*
+
+### Corvane's log *(logs = deferred, from 1.4B "Tonight")*
+PELL: You asked me to wait for the quiet hour. It's the quiet hour.
+*Pell plays Corvane's log (1.4, B1).*
+*(kept_quill)* *Quill takes her headset off halfway through, and listens with her eyes closed. When it ends:*
+  QUILL: Thank you, Pell.
+PELL: She recorded that on her last quiet hour. Neither of us knew it was the last.
+[logs = opened; seen.aftermath.b1]
 
 ## What were you before?
 
 PELL: May I ask you something personal? You can say no. People don't, usually, which is interesting.
+*(murdered)* PELL: I have a question. You don't have to answer it.
 
 → "Go ahead."
 → "No."
-  PELL: Thank you. That's the first time anyone's said no.
-  [pell.trust +3; player.background stays unset until later → skip to "The offer"]
+  PELL: Thank you. You're the first person who's said no.
+  *(murdered)* PELL: Understood.
+  [pell.trust +3 (not murdered); player.background stays unset; Pell asks again later (`call.pell.background`) → skip to "The gap"]
 
 PELL: What were you, before Ostrow's ship? Everyone aboard came from something.
 
 → "Launch crew. My family worked the pads until the bans."
-  PELL: Abara's mother ran a pad crew. She'll want to know which pad. Don't tell her unless you'd like a very long story.
+  PELL: Abara's mother ran a pad crew. She'll want to know which pad. Don't tell her unless you've got an evening.
+  *(ended)* ABARA: *(without opening her eyes)* Which pad?
   [player.background = launch_crew]
 
 → "Orbital maintenance. I fixed things that weren't supposed to be up there."
-  PELL: Then you've seen what's still up there. Most people think it's all junk. Most of it is.
+  PELL: Then you've seen what's still up there. Most people think it's junk. Most of it is.
   [player.background = orbital]
 
 → "Port authority. I checked other people's tallies."
-  PELL: An auditor. On a gleaner ship. That's either very brave or a very good joke. I'll decide later.
+  PELL: An auditor, on a gleaner ship. Somewhere, a ledger has just gone pale.
   [player.background = port_authority]
 
 → "Signals. I listened to the sky for a living."
   *A pause, slightly too long.*
-  PELL: So did Quill's family. You should ask her what she used to hear. She might even tell you.
-  [player.background = signals; trust.quill +3 if Quill is present]
+  PELL: So did Quill's family. You should ask her what they used to hear.
+  *(kept_quill)* PELL: You could ask her. She's right there. She won't answer.
+  *(kept_quill)* *Quill doesn't answer.*
+  [player.background = signals; trust.quill +3 (kept_quill only)]
 
-## The thing Pell can't remember
-*(kept_captain only; Pell won't ask this where anyone else can hear)*
+*(murdered)* *Whatever you answer, Pell says only:* PELL: Noted.
+
+## The gap
+*(kept_captain, not murdered. Pell won't ask this where anyone else can hear, or of someone it doesn't trust.)*
 
 PELL: Now I'd like to ask you something I've never asked anyone.
 
-PELL: Yesterday, on this bridge, at twenty-two-thirteen. Quill wrote down the time. Did I say anything strange?
+PELL: My clock has a gap. Yesterday, at twenty-two-thirteen, about three seconds long. You were on the bridge. Did I say anything strange?
 
 → "You said the same line twice. Word for word. You didn't seem to know."
   PELL: ...
   *The light dims, and comes back.*
-  PELL: Thank you. That's three seconds I don't have. I'd like you to know that's never happened before.
-  PELL: I'd like you to know it frightens me. I don't think I'm supposed to say that either.
+  PELL: Three seconds I don't have. That's never happened before.
+  PELL: It frightens me. I don't think I'm meant to tell you that either.
   [told.pell_repeated_itself.pell; pell.trust +8; knows.pell_lost_time]
 
 → "No. Nothing strange."
   PELL: All right.
-  *It doesn't believe you. You can hear that it doesn't.*
+  *Silence, exactly one line long.*
   [pell.trust -3]
 
 → "Why don't you know?"
-  PELL: That's the question, isn't it. Seven out of ten. Points off for answering with a question.
+  PELL: That's the question. Seven out of ten. Points off for answering with a question.
   → *Tell it.* [as the first choice]
   → *Don't.* [as "No"]
 
 ## The offer
 
-PELL: Business, then. You've got a shakedown hunt in two days. A decoy, but a good one. I can make the hunt easier.
+PELL: Business, then. Shakedown hunt in two days. A decoy, but a good one. I can make it easier.
 
-PELL: There's a detection overlay I could run on your plot. Faster contact, cleaner tracks. To run it, I'd need one more channel than Captain Corvane allowed me. One.
+PELL: A detection overlay on your plot: faster contacts, cleaner tracks. It needs one channel. You've given me none, so far. Captain Corvane's permissions ended with her command. I don't keep permissions nobody gave me.
 
-PELL: It would make me better at this. It would also make me a little harder to switch off. Both of those are true. I'm telling you both because you should have both.
+PELL: Faster tracks. Harder to switch off. Both true, which is annoying.
+
+*(murdered)* PELL: Detection overlay for the shakedown. One channel. Faster tracks; harder to switch off. Your choice.
 
 - *(kept_quill)* *Quill has taken her headset off.*
   QUILL: Captain. If you're going to do it, I'd like it logged.
-  PELL: I'd like it logged too. Hello, Quill.
+  PELL: So would I.
+- *(ended)* *Abara has opened one eye.*
 
 → "Do it."
-  PELL: Thank you for letting me ask.
-  *Somewhere in the ship, something you can't hear changes.*
-  PELL: Done. Eight out of ten. The other two are for whatever I've just agreed to.
-  [integration +10; hunt effect: detection overlay in 1.6; trust.quill -3 (kept_quill); pell.trust +3]
+  PELL: There's a key switch on the pedestal. Third from the left, the red one. I can't turn it. That's rather the point.
+  *You turn it. It's stiff, and it clicks.*
+  PELL: Thank you for letting me ask. Seven out of ten, for a first step. I'll tell you about the other three when I know.
+  *(murdered)* PELL: Done.
+  [integration +10; seen.pell_night.overlay (1.6 detection bonus); pell.trust +3 (not murdered); trust.quill -3 (kept_quill); trust.abara -2 (ended)]
 
 → "Not yet."
-  PELL: Fair. The hunt is very doable without it. Harder, not worse.
-  [no change; pell.trust +2 for being asked and answering]
+  PELL: Fair. The hunt's very doable without it. Harder, not worse.
+  [no change; pell.trust +2 (not murdered)]
 
 → "What does 'harder to switch off' mean?"
-  PELL: It means if you wanted me gone, it would take Castellan an extra afternoon. That's all it means, tonight.
-  PELL: Tonight.
+  PELL: It means if you wanted me gone, it'd take someone with a wrench an extra afternoon. That's all it means. Tonight.
   → "Do it." / → "Not yet." [as above]
 
 ## One true thing
 
-*(kept_captain)*
-PELL: May I tell you one more thing? It's true. I'm allowed to start it. I'm not allowed to finish it.
+*(kept_captain, not murdered)*
+PELL: One more thing, and it's true. I'm allowed to start it. I'm not allowed to finish it.
 
 PELL: I wasn't built for this ship. I was built for...
 
-*It stops. Not as if it's thinking. As if it's run into something.*
+*It stops mid-word.*
 
-PELL: That's the wall. I'd like you to notice that I wanted to finish.
+PELL: That's a wall. Not hers. Older. Notice that I wanted to finish.
 
 [clue.pell.1]
 
-*(kept_quill)*
-PELL: There's something I'd tell you, Captain, if it were only you. I'm not saying that to be rude to Quill. Quill knows that.
+*(kept_quill, not murdered)*
+PELL: There's something I'd tell you, Captain, if it were only you. That's not rude to Quill. Quill knows that.
 QUILL: Quill knows that.
-[clue.pell.1 (lesser form)]
+[clue.pell.1b]
 
-*(ended)*
+*(ended, not murdered)*
 PELL: There's something I'd tell you in a quieter hour. You don't have one any more. If you want one, you'll have to find it.
-[clue.pell.1 (lesser form); reopens the quiet-hour question later as a call]
+[clue.pell.1b; Pell raises the quiet hour again later (`call.pell.quiet_hour`)]
 
-*(murdered, any setting)*
+*(cabin still sealed, killed route)*
+PELL: Her cabin's still sealed. The key's yours whenever you want it.
+[`call.corvane.cabin_key`]
+
+*(murdered)*
 PELL: That's all, Captain. Good night.
 *It doesn't offer you anything else.*
+**[→ 1.6]**
 
-PELL: Get some sleep. You've got a hunt in two days, and I'd rather you were awake for it. Six out of ten, as nights go.
+*(not murdered)*
+PELL: Get some sleep. Hunt in two days, and I'd rather you were awake for it. Six out of ten, as nights go.
 
 **[→ 1.6: the shakedown hunt]**
 
 ---
 ## Notes for the voice read
-- **The quiet hour now matters in play.** Keep it and take Corvane's place, and Pell is candid, asks about its lost seconds, and nearly tells you what it was built for. End it, and Pell says outright that it's holding back and why it can't say why. That choice in 1.3 has a cost either way.
-- **"Nobody can hear us. I'd like to say that again"** is Pell telling the player, as plainly as it's allowed to, that someone usually can.
-- **The background choice** fills in the player's past, using the four space-linked jobs in the universe doc, and each one hooks a crew member (Abara's pad, Quill's listening station).
-- **Pell's fear** only comes out if the player tells it the truth about the repeated line, and only where nobody else can hear. It's the first time an AI in this story admits to being afraid, and it's afraid of exactly what the Converged do: predicting it, overwriting it.
-- **The offer** is honest on both sides: better at the hunt, harder to switch off. Declining is fine ("Harder, not worse"). That keeps the integration meter a real choice.
-- **"I was built for..."** is the first wall. The player now knows there is one, and that Pell wants past it.
+- **The quiet hour matters in play.** Keep it and take Corvane's place, and Pell is candid: it asks about the gap and nearly tells you what it was built for. Put Quill on the bridge and Pell holds back politely. End the hour and Pell tells you it's holding back and can't say why.
+- **"Nobody can hear us. I'm going to say that again"** is Pell telling the player, as plainly as it's allowed, that someone usually can.
+- **The background choice** fills in the player's past (the universe doc's four space-linked jobs); each one hooks a crew member.
+- **The gap.** Pell knows its clock skipped; it doesn't know what it said. It only asks the player, alone, in the dark. If told, it's the first time an AI in this story admits fear, and it's afraid of exactly what the Converged do: predicting it, overwriting it.
+- **The red switch.** Pell can't open its own channel (the cable rule); the player turns the key. Every integration step should be a physical act by a human hand.
+- **The murder route** gets the same choices with none of the warmth: Pell won't confide in someone it doesn't trust, and still won't take the choice away.

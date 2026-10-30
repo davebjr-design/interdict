@@ -39,6 +39,12 @@ DUNNE: Before somebody with a bigger ship does it for us. And stops all of us wh
 
 OSTROW: Ilsa Corvane. Six weeks ago she pulled a full core out of a war-era hulk, and she didn't sell it. Since then her ship's been running quieter than any ship has a right to. And smarter.
 
+OSTROW: Everybody switches one on now and then, to see what it's worth. She's *running* hers.
+
+DUNNE: Sensors and ECM, at least. That's why she's quiet. Maybe her drives.
+
+OSTROW: Maybe more. We'll find out when we board.
+
 OSTROW: I sailed under her for four years. Best captain I ever had. She taught me half of what I know, and I'd have followed her into a sun if she'd asked.
 
 *A pause.*

@@ -4,3 +4,6 @@ scuttled_six,"Corvane's six dead from the scuttled ship; does one connect to Aba
 abara_message,Corvane's message for Abara (her grandfather wasn't lying),TBD,1.4,arc.abara,planted
 corvane_cabin_call,If the player refused to hear Corvane (1.4A) the three things come back as a later call,call.corvane.cabin,1.4A,act1 legs,planned
 pell_logs_call,If Corvane's logs were not opened Pell asks again; if deleted Pell offers the index,call.pell.logs,1.4B/C,act1 legs,planned
+pell_background_call,If the player declined Pell's question about their past Pell asks again,call.pell.background,1.5,act1 legs,planned
+pell_quiet_hour_call,If the quiet hour was ended Pell raises it again,call.pell.quiet_hour,1.5,act1 legs,planned
+cabin_key_call,If Corvane's cabin was left sealed Pell offers the key again,call.corvane.cabin_key,1.4B/1.5,act1 legs,planned

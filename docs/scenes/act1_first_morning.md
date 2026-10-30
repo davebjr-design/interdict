@@ -199,6 +199,8 @@ CASTELLAN: Come on, darlin'. There you go.
 - *(persuaded)* CASTELLAN: Captain. Hey. *(He doesn't quite meet your eyes.)* You did a thing, yesterday. Talking her down. I didn't think anybody could.
 - *(killed / murdered)* CASTELLAN: Captain! Glad it's you. I mean... I'm not glad. That's not... hell. You know what I mean.
 
+CASTELLAN: Ship's thick as a brick this morning, did you notice? Pell's gone back to clockwork. Won't touch a thing it hasn't been asked to. *(He pats the casing.)* She'll come round.
+
 CASTELLAN: Got something to show you, if you've got a minute. Behind the tanks.
 
 **[WALK: the coupling manifold, as in the current demo.]**

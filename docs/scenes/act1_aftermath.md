@@ -136,7 +136,7 @@ PELL: Captain Corvane left logs. Personal ones. For whoever had her chair, which
     → "Now."
       [integration +5; logs = opened → B1]
     → "Tonight." *(not if ended)*
-      [integration +5; logs = opened; B1 plays at the start of 1.5 → B2]
+      [integration +5; logs = deferred; B1 plays in the quiet hour in 1.5 → B2]
     → "Not yet."
       [→ B2; call.pell.logs]
   → "No. Not yet."
@@ -183,7 +183,7 @@ PELL: She also left me the key to her cabin. In case.
 
 → "Open it."
 → "Leave it sealed."
-  [the cabin stays available later → 1.5]
+  [the cabin stays sealed; Pell offers the key again in 1.5 (`call.corvane.cabin_key`) → 1.5]
 
 *Corvane's cabin is very tidy. Books, wedged so they can't move. A teapot, washed and upside down. On the desk, a stack of old notebooks. One has a burnt cover.*
 

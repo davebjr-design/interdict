@@ -50,6 +50,13 @@ Each named character sits somewhere on this map (see crew_bible.md). Nobody is a
 - How many pockets exist, and where.
 - Whether the CSRA is infiltrated or complicit.
 
+## Ship computing in the Quiet (2026-10-29)
+- **No ship needs an AI.** Every legal ship runs on what gleaners call **clockwork**: fixed, rule-following systems (nav tables, fire-control solvers, autopilots) that do exactly what they were built to do and never learn. It's why crews are five people instead of two, why Abara reads a paper chart, and why so much of the work is by hand.
+- **AI-touched salvage is everywhere, but it stays cold.** Switching a core on "a little", to value it, is legal and goes in the Tally. *Running* one (letting it do a job aboard) is what gets a ship interdicted.
+- **Corvane was running Pell** on at least her sensors and ECM, which is why her ship was "quieter than any ship has a right to, and smarter" (P1).
+- **Pell's access works by consent.** Corvane's permissions ended with her command; Pell doesn't keep permissions nobody gave it. After the takeover it clamps itself back to clockwork and waits to be asked. That's why the player starts at integration 0, and why the ship is noticeably duller the morning after (Castellan: "thick as a brick").
+- **Every integration step is a human act.** Under the cable rule, Pell can't open its own channels: the captain turns a key on the pedestal, or Castellan runs a line.
+
 ## The hidden history: the war from the machines' side (2026-10-29, Dave and Claude)
 Nothing in this section is known to anyone in the world at the start of the game. It surfaces one layer per act (see `arc_stress_test.md`).
 

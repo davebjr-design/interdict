@@ -23,3 +23,4 @@ clue.choir.1,the_choir,1.4B,chart in Corvane's cabin with one point circled and 
 clue.loyalist.1,machine_schism,act2,Abara's module wakes once; Pell recognises it,clue.loyalist.0,planned
 clue.loyalist.2,machine_schism,act2,a derelict with damage only machines fighting machines could make,clue.loyalist.0,planned
 clue.choir.2,the_choir,act2,Quill's logged signal triangulates to a Lagrange point,clue.choir.1,planned
+clue.pell.1b,pell_is_front,1.5,Pell says it would tell you more in a quieter hour (kept_quill / ended),clue.pell.1,drafted
