@@ -28,9 +28,10 @@ PELL: Incoming. The line's open again. It opened from their end.
 
 *The voice from the blessing: warm, unhurried.*
 
-STEWARD: Good morning, Captain. I hear the shakedown went well.
-- *(messy)* STEWARD: I hear the shakedown went well enough. The second pass was the right direction.
-*(Abara's head comes up. That was her phrase, last night, in the mess.)*
+- *(clean)* STEWARD: Good morning, Captain. I hear the shakedown went well. "That'll do," as someone put it.
+- *(messy)* STEWARD: Good morning, Captain. I hear the shakedown went well enough. The second pass was the right direction.
+- *(murdered, either)* STEWARD: Good morning, Captain. I hear the shakedown was logged.
+*Abara's head comes up. Those were her words, last night, in the mess.*
 
 - *(persuaded)* STEWARD: And Ilsa is comfortable, I hope. Please tell her I asked.
 - *(murdered)* STEWARD: You're efficient, Captain. I value that. So I've brought you something efficient.
@@ -125,7 +126,7 @@ PELL: I'd like it known that I didn't tell them.
 
 ---
 ## Notes
-- **The Steward overhears.** "The second pass was the right direction" is Abara's line from the debrief in the mess, the night before. Nobody on the call should have heard it. Abara notices. (It's the relays again: the mess was not in the quiet hour.) `clue.patron.6`.
+- **The Steward overhears.** It repeats Abara's exact words from the debrief in the mess the night before ("That'll do" / "the right direction" / "Logged"). Nobody on the call should have heard it. Abara notices. (It's the relays again: the mess was not in the quiet hour.) `clue.patron.6`.
 - **"I'll know your answer"** and **"I knew you would"** are the Converged faith: it isn't asking.
 - **The Steward never lies here:** a medical store, "of a kind"; it saved lives "once"; it belongs with people who will "put it to good use again." All true of a core.
 - **Castellan's slip** ("I'd know") only happens if he trusts you, which is the arc logic: he tells you things as trust grows, but not the whole thing until he's ready.
