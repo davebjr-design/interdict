@@ -237,6 +237,36 @@
    "type": "bool",
    "default": false,
    "doc": "Player gave Corvane an honest answer to the R5 mirror question."
+  },
+  "corvane.talked": {
+   "type": "bool",
+   "default": false,
+   "doc": "Persuaded route: the player heard Corvane out in her cabin (1.4A)."
+  },
+  "corvane.afraid": {
+   "type": "bool",
+   "default": false,
+   "doc": "Corvane learned the blessing was predated (1.4A)."
+  },
+  "corvane.lied_to": {
+   "type": "bool",
+   "default": false,
+   "doc": "Player told Corvane the blessing came after (1.4A)."
+  },
+  "promise.abara_message": {
+   "type": "bool",
+   "default": false,
+   "doc": "Player promised to pass Corvane's message to Abara."
+  },
+  "logs": {
+   "type": "enum",
+   "values": [
+    "sealed",
+    "opened",
+    "deleted"
+   ],
+   "default": "sealed",
+   "doc": "Corvane's personal logs (1.4B/C)."
   }
  },
  "patterns": {

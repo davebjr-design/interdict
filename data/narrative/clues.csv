@@ -17,3 +17,9 @@ clue.castellan.1,offbooks_reactor,1.8,the manifold crack grows; Castellan won't 
 clue.castellan.2,offbooks_reactor,act2.audit,the reactor's power draw doesn't match its rating at a dock inspection,clue.castellan.0,planned
 clue.fenwick.1,survivor_pockets,1.8,the cargo count is off by one crate after a stop,clue.fenwick.0,planned
 clue.fenwick.2,survivor_pockets,act2.bar,captains' bar rumour of a ship that drops food at dead coordinates,clue.fenwick.0,planned
+clue.loyalist.0,machine_schism,1.4B,grandmother's burnt notebook: the guns that never missed were not ours alone,,drafted
+clue.choir.0,the_choir,1.4B,Corvane's log stops mid-breath; the rest is behind a wall in Pell,,drafted
+clue.choir.1,the_choir,1.4B,chart in Corvane's cabin with one point circled and erased hard enough to tear,clue.choir.0,drafted
+clue.loyalist.1,machine_schism,act2,Abara's module wakes once; Pell recognises it,clue.loyalist.0,planned
+clue.loyalist.2,machine_schism,act2,a derelict with damage only machines fighting machines could make,clue.loyalist.0,planned
+clue.choir.2,the_choir,act2,Quill's logged signal triangulates to a Lagrange point,clue.choir.1,planned
