@@ -87,7 +87,7 @@ ABARA: Small thing. Humour me. Our drift. Chart says one point four. Plot says o
   [trust.abara +5]
 
 → "The plot. It's live."
-  ABARA: It's live, and it's fed by a sensor Castellan has been promising to recalibrate since spring. But you picked one and said why. That's something.
+  ABARA: It's live, and it's fed by a sensor Castellan has been promising to recalibrate for a month. But you picked one and said why. That's something.
   [trust.abara +3]
 
 → "Looks close enough."
@@ -217,7 +217,7 @@ CASTELLAN: Coupling seats fine. But behind it there's a hairline crack in the ma
 
 → "What's behind that one?"
   CASTELLAN: That? Old plumbing. Nothing you need to worry about.
-  *He smiles. It's a good smile. He's lying, and he isn't good at it.*
+  *He smiles. It's a good smile, and he holds it a beat too long.*
   [clue.castellan.0; seen.castellan.hook1]
 
 → *Leave it.*
@@ -237,7 +237,7 @@ FENWICK: Captain! Sit, sit. You look like you've been living on ration bars. The
   [the officer who doesn't hold it against you]
 
 → "Thanks, Fen."
-  FENWICK: Fen! Listen to that. A day aboard, and already a nickname. I knew I liked you.
+  FENWICK: Fen! Listen to that. Not even a day aboard, and you've given me a nickname. I knew I liked you.
   [trust.fenwick +5]
 
 → "Will you sit with me?"

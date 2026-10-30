@@ -31,7 +31,7 @@ OSTROW: You're late.
   *Ostrow watches you for a moment.*
   OSTROW: Good instinct.
 
-OSTROW: For the new hand, then. There's a rule out here, and it's older than any of us. Nobody can stop us salvaging the old machines. The CSRA would love to, but they can't be everywhere. So we police it ourselves. You can touch the AI. You can't wake it. And if one of us starts waking it, the rest of us go and stop them.
+OSTROW: For the new hand, then. There's a rule out here, older than any of us. The CSRA would stop us salvaging the old machines if it could, but it can't be everywhere. So we police ourselves. You can touch the AI. You can't wake it. And if one of us starts waking one, the rest of us go and stop them.
 
 DUNNE: Before somebody with a bigger ship does it for us. And stops all of us while they're at it.
 

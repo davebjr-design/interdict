@@ -66,7 +66,7 @@ DACE: To her. And she said no.
 
 QUILL: And now she isn't here to say it.
 
-*Silence. That landed somewhere.*
+*Nobody says anything. Dace looks at his hands.*
 
 CASTELLAN: Now hang on. *(gently)* Quill, honey, nobody's hiding anything. The crew needs an hour off from each other, that's all. Five people in a can this size, you need somewhere to put your elbows. I'm with Dace.
 
