@@ -2,7 +2,7 @@ clue_id,reveal,planted_in,form,independent_of,notes
 clue.patron.0,patron_agenda,P1,Ostrow answers "the patron's office" too fast,,host captain knows who ordered the hunt
 clue.patron.1,patron_agenda,P4,the blessing was sent 11 minutes before the choice it congratulates; only one message in the relay log,clue.patron.0,drafted
 clue.patron.2,patron_agenda,P4,the patron never asks what Corvane said (approves too readily if murdered),clue.patron.0,planned
-clue.patron.3,patron_agenda,1.7,first commission coordinates do not fit the stated job,clue.patron.1,planned
+clue.patron.3,patron_agenda,1.7,the commission's cold-store has the mass of a war-era core housing,clue.patron.1,drafted
 clue.patron.4,patron_agenda,P3 R3,Corvane: why was a gleaner crew sent and not the CSRA?,clue.patron.0,drafted
 clue.pell.0,pell_is_front,P3 R5,Pell heard the P1 briefing on another ship (only if the player asked "What if she's right?"),,drafted
 clue.pell.1,pell_is_front,1.5,"I wasn't built for this ship. I was built for..." and Pell stops at the wall,,drafted
@@ -25,3 +25,5 @@ clue.loyalist.2,machine_schism,act2,a derelict with damage only machines fightin
 clue.choir.2,the_choir,act2,Quill's logged signal triangulates to a Lagrange point,clue.choir.1,planned
 clue.pell.1b,pell_is_front,1.5,Pell says it would tell you more in a quieter hour (kept_quill / ended),clue.pell.1,drafted
 clue.choir.3,the_choir,1.6,the clockwork decoy turned while its relay transponder was talking to the relays; its log says it never turned,clue.choir.0,drafted
+clue.patron.6,patron_agenda,1.7,the Steward repeats Abara's words from the mess the night before,clue.patron.1,drafted
+clue.castellan.3,offbooks_reactor,1.7,Castellan knows what a core housing weighs ("I'd know"),clue.castellan.0,drafted

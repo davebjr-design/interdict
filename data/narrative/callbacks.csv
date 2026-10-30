@@ -7,3 +7,5 @@ pell_logs_call,If Corvane's logs were not opened Pell asks again; if deleted Pel
 pell_background_call,If the player declined Pell's question about their past Pell asks again,call.pell.background,1.5,act1 legs,planned
 pell_quiet_hour_call,If the quiet hour was ended Pell raises it again,call.pell.quiet_hour,1.5,act1 legs,planned
 cabin_key_call,If Corvane's cabin was left sealed Pell offers the key again,call.corvane.cabin_key,1.4B/1.5,act1 legs,planned
+commission_other_ship,If refused another captain at the Vesper bar has the container,TBD,1.7,act2.bar,planned
+commission_open,If the captain planned to open the container its contents become an Act 2 scene,TBD,1.7,act2,planned
