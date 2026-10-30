@@ -79,7 +79,7 @@ Structure: a conversation in rounds (aim for 5-6). On each round the player pick
 
 **1.6 | HUNT | shakedown | Abara/Quill/Castellan as voices on cards | Shakedown against a decoy.** Fully in your control. Two or three decision cards (`card3_route`, `card4_detection`, `card5_classification`) with the recast cast speaking. Aftermath: who did well, who was overruled.
 
-**1.7 | TEXT | control | the Patron | First commission.** A job, refusable, with a reasonable motive and an unusual detail (coordinates that do not fit). *Choice:* take / refuse / take and ask Pell to check (seed `clue.patron.3`). The patron's reaction to refusal is gracious and slightly colder.
+**1.7 | TEXT | control | the Steward | First commission.** A sealed "medical" store from a war-era hospital tender, to Vesper Dock, off the ledger. Its mass fits a core housing. *Choice:* log it / hide it / open it / refuse. Drafted: `scenes/act1_commission.md`.
 
 **1.8 | CALLS | one per officer, spread over legs 2-6 | Their hook, stage 1.** Quill: the signals. Dace: a crew injury and an AI-assisted fix on the table. Castellan: the manifold crack grows. Abara: she asks whether you will honor an old promise of Corvane's. Fenwick: the cargo count is off by one crate. Each is a storylet (`calls.csv`) with trust gates.
 

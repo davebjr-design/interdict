@@ -9,3 +9,4 @@ pell_quiet_hour_call,If the quiet hour was ended Pell raises it again,call.pell.
 cabin_key_call,If Corvane's cabin was left sealed Pell offers the key again,call.corvane.cabin_key,1.4B/1.5,act1 legs,planned
 commission_other_ship,If refused another captain at the Vesper bar has the container,TBD,1.7,act2.bar,planned
 commission_open,If the captain planned to open the container its contents become an Act 2 scene,TBD,1.7,act2,planned
+commission_logged_remark,If the commission was logged in the Tally the voice mentions it on its next call (graciously),TBD,1.7,next patron call,planned

@@ -90,7 +90,7 @@ Each is a short two- or three-exchange conversation. Each has a **test**, a **ho
 4. Close: Pell says one true thing it has not been allowed to say, and stops itself.
 
 ## 1.7 First commission (control)
-**Cast:** the Patron. A refusable job with a reasonable motive and an odd detail (coordinates that do not fit). *Choices:* take / refuse / take and ask Pell to check (seeds `clue.patron.3`). The patron's reaction to a refusal is gracious and slightly colder.
+**Cast:** the Patron. A refusable job with a reasonable motive and an odd detail (the cold-store's mass fits a core housing). *Choices:* take and log it / take it off the books / take it and open it / refuse; Pell can check the manifest (seeds `clue.patron.3`). Drafted: `scenes/act1_commission.md`. The patron's reaction to a refusal is gracious and slightly colder.
 
 ## 1.9 Act close
 **Cast:** Quill, Pell. Quill brings the signal she cannot explain. Pell, asked, says it has seen it before and is not allowed to say where. First on-record link between Pell, the signals and Corvane's warning. Tally audit notice arrives. `act = 2`.
