@@ -221,6 +221,16 @@
    "max": 2,
    "default": 0,
    "doc": "How well the player bonded with Ames in P1."
+  },
+  "quiet_hour": {
+   "type": "enum",
+   "values": [
+    "kept_captain",
+    "ended",
+    "kept_quill"
+   ],
+   "default": "kept_captain",
+   "doc": "Corvane's nightly hour alone with Pell, decided at the first crew meeting (1.3)."
   }
  },
  "patterns": {
