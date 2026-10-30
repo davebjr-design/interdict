@@ -36,3 +36,6 @@ Integration is a campaign-level meter, like a good/evil or trusted/untrusted tra
 
 ## After-action and crew report voice (Dave, 2026-10-24)
 Crew damage reports are professional and clinical: no damage for a miss, light hull damage for a light hit, possible systems damage for a moderate hit, hull destroyed for a kill.
+
+## Command style (2026-10-29)
+Ship-wide tight/loose dial (0 tight, 100 loose). Tight: faster procedure, steadier checks. Loose: more options, better judgment. Extremes cost something. See command_model.md.

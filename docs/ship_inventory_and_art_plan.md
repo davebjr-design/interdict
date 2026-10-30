@@ -338,3 +338,6 @@ The captain's stateroom is the exception: its door and control's are both on 'j'
 ## 26. Refit pass and lessons (2026-10-29)
 
 All twelve rooms were refitted from their true floor corners with spec files in `design/rooms/`, footprint polygons for solids, a fade (no clip mask) for hatch transitions, and constant hatch-height scaling. The crew bunks and lower engineering were regenerated; the missile compartment, mess, airlock and control room had hatch or furniture edits. Status: about 60% of the way to a finished ship model. What we learned for new locations is in `docs/location_generation_lessons.md`.
+
+## 27. Command style props (2026-10-29)
+Command style changes the ship through overlay props, not regenerated rooms: see docs/command_model.md section 7.

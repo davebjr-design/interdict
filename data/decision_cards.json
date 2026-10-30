@@ -919,7 +919,9 @@
        "exposure": 0,
        "margin": 0
       }
-     }
+     },
+     "line": "Slow and passive. Boring, which is the point. Six out of ten for excitement, nine for staying alive.",
+     "style": "any"
     },
     {
      "id": "fast_burn",
@@ -940,7 +942,9 @@
        "exposure": 3,
        "margin": 8
       }
-     }
+     },
+     "line": "Light her up and get there. Decoy won't know what hit it.",
+     "style": "any"
     },
     {
      "id": "burn_coast",
@@ -961,21 +965,24 @@
        "exposure": 1.0,
        "margin": 7
       }
-     }
+     },
+     "line": "Burn hard, then go dark and coast in. Old trick. Still works.",
+     "style": "loose"
     }
    ],
    "objections": [
     {
-     "by": "Castellan",
+     "by": "Quill",
      "lever": "fast_burn",
-     "line": "The old captain would have gone slow."
+     "line": "A fast burn lights us up for anyone looking, Captain."
     },
     {
      "by": "Castellan",
      "lever": "slow_passive",
-     "line": "Fourteen minutes of heat we do not need."
+     "line": "Fourteen minutes of heat we don't need. She'll cook."
     }
-   ]
+   ],
+   "voiced": "2026-10-29 new cast"
   },
   "card4_detection": {
    "tone": "pressure",
@@ -1020,7 +1027,9 @@
        "heat": 14,
        "exposure": 1
       }
-     }
+     },
+     "line": "Stay passive. Give me four minutes and I'll give you a track.",
+     "style": "any"
     },
     {
      "id": "ping",
@@ -1055,7 +1064,9 @@
        "heat": 4,
        "exposure": 4
       }
-     }
+     },
+     "line": "One short ping and we'll know. Quick and done.",
+     "style": "loose"
     },
     {
      "id": "reposition",
@@ -1098,26 +1109,29 @@
         "time": -1
        }
       }
-     ]
+     ],
+     "line": "Turn us twenty degrees. Better geometry, better track. Costs a little time.",
+     "style": "any"
     }
    ],
    "objections": [
     {
-     "by": "Castellan",
+     "by": "Quill",
      "lever": "ping",
-     "line": "Going active is a mistake."
+     "line": "A ping tells everyone we're here, Captain. Including the decoy."
     },
     {
      "by": "Castellan",
      "lever": "passive",
-     "line": "We are cooking while we listen."
+     "line": "We're cooking while we listen."
     },
     {
      "by": "Dace",
      "lever": "ping",
-     "line": "A ping tells everyone we are here."
+     "line": "And if it isn't the decoy?"
     }
-   ]
+   ],
+   "voiced": "2026-10-29 new cast"
   },
   "card5_classification": {
    "tone": "story",
@@ -1167,7 +1181,9 @@
        "heat": 4,
        "info": 0
       }
-     }
+     },
+     "line": "Keep listening. It'll tell us what it is if we let it.",
+     "style": "any"
     },
     {
      "id": "go_active",
@@ -1202,7 +1218,9 @@
        "exposure": 3,
        "info": 1
       }
-     }
+     },
+     "line": "Hit it with a ping and stop guessing.",
+     "style": "loose"
     },
     {
      "id": "break_off",
@@ -1221,7 +1239,9 @@
       "fixed": {
        "relay_risk": 0.35
       }
-     }
+     },
+     "line": "Break off. We don't know what that is, and we don't need to.",
+     "style": "any"
     },
     {
      "id": "cross_check",
@@ -1263,26 +1283,29 @@
         "info": 0.5
        }
       }
-     ]
+     ],
+     "line": "Let me check it against the seeker data. One minute. I promise not to enjoy it.",
+     "style": "any"
     }
    ],
    "objections": [
     {
      "by": "Quill",
      "lever": "go_active",
-     "line": "If it is civilian, a ping tells the cutter too."
+     "line": "If it's civilian, a ping tells the cutter too."
     },
     {
      "by": "Castellan",
      "lever": "break_off",
-     "line": "We came here to be paid."
+     "line": "We came out here to finish the job."
     },
     {
-     "by": "Castellan",
+     "by": "Abara",
      "lever": "go_active",
-     "line": "Going active is a mistake."
+     "line": "Going active on something we can't name is how people get hurt."
     }
-   ]
+   ],
+   "voiced": "2026-10-29 new cast"
   },
   "card7_waiting": {
    "tone": "breather",
