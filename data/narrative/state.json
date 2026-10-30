@@ -322,6 +322,23 @@
    "type": "bool",
    "default": false,
    "doc": "Captain plans to open the container before delivery."
+  },
+  "ship.funds": {
+   "type": "int",
+   "min": 0,
+   "max": 99999,
+   "default": 500,
+   "doc": "Ship's money, in ledger units."
+  },
+  "quill.listen_approved": {
+   "type": "bool",
+   "default": false,
+   "doc": "Captain approved Quill's long listen (1.8); 1.9 needs it."
+  },
+  "leg.resupply_stop": {
+   "type": "bool",
+   "default": false,
+   "doc": "This leg includes a resupply-buoy stop (set by the route)."
   }
  },
  "patterns": {

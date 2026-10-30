@@ -1,7 +1,7 @@
 callback_id,promise,owner_storylet,planted_in,payoff_in,status
 ames_return,"If Ames lived (wounded) he turns up in Act 2 outside the captains' bar to thank you; if dead his name is spoken by Dunne or Ostrow",TBD,P3,act2.bar,planted
 scuttled_six,"Corvane's six dead from the scuttled ship; does one connect to Abara?",TBD,P3 R4,,open
-abara_message,Corvane's message for Abara (her grandfather wasn't lying),TBD,1.4,arc.abara,planted
+abara_message,Corvane's message for Abara (her grandfather wasn't lying),call.abara.six_1,1.4,call.abara.six_1,paid
 corvane_cabin_call,If the player refused to hear Corvane (1.4A) the three things come back as a later call,call.corvane.cabin,1.4A,act1 legs,planned
 pell_logs_call,If Corvane's logs were not opened Pell asks again; if deleted Pell offers the index,call.pell.logs,1.4B/C,act1 legs,planned
 pell_background_call,If the player declined Pell's question about their past Pell asks again,call.pell.background,1.5,act1 legs,planned

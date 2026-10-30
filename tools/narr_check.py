@@ -5,6 +5,7 @@ D = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'narr
 st = json.load(open(os.path.join(D, 'state.json'))); cast = json.load(open(os.path.join(D, 'cast.json')))
 rows = lambda n: list(csv.DictReader(open(os.path.join(D, n))))
 facts = {r['fact'] for r in rows('knowledge.csv')}
+clue_ids = {r['clue_id'] for r in rows('clues.csv')}
 crew = set(cast['crew']); errs = []
 known = set(st['vars'])
 def name_ok(n):
@@ -14,6 +15,7 @@ def name_ok(n):
     if m: return m.group(1) in facts
     m = re.fullmatch(r'told\.(\w+)\.(\w+)', n)
     if m: return m.group(1) in facts and (m.group(2) in crew or m.group(2) in cast.get('others', {}))
+    if n.startswith('clue.'): return n in clue_ids
     m = re.fullmatch(r'seen\.([\w.]+)', n)
     return bool(m)
 ids = set()

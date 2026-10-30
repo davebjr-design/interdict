@@ -55,8 +55,9 @@ Visitors push style too: a CSRA inspector pushes tight; Corvane, aboard, pushes 
 | 1.6 | the turn: "Log it. Keep hunting." | −1 |
 | 1.6 | debrief: drill it again tomorrow / stand everyone a drink | −6 / +6 |
 | 1.7 | open the container before delivering | +2 |
-| 1.8 | Abara on shift by order / Castellan's way / Castellan chooses (Dace call) | −3 / 0 / +2 |
-| 1.8 | log Fenwick's missing crate | −3 |
+| 1.8 | Dace's call: let Castellan choose | +2 |
+| 1.8 | Castellan's call: order Abara onto a shift | −3 |
+| 1.8 | Fenwick's call: log the missing crate on the manifest | −3 |
 | 1.7 | log the commission in the Tally / leave it off the books | −4 / +4 |
 (Scene effect tags use `command.style ±n`.)
 

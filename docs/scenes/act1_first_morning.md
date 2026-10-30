@@ -209,7 +209,7 @@ CASTELLAN: Coupling seats fine. But behind it there's a hairline crack in the ma
 
 → "Patch it now."
   CASTELLAN: Four minutes. I'll have it welded before the next jump.
-  [hunt effect: transit +4:00; trust.castellan +3]
+  [hunt effect: transit +4:00; trust.castellan +3; seen.castellan.manifold_patched]
 
 → "Leave it. Keep an eye on it."
   CASTELLAN: Aye. I won't enjoy it.
