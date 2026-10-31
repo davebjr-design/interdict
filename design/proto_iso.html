@@ -41,15 +41,15 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   </header>
   <div id="stage">
     <canvas id="cv" width="1280" height="720"></canvas>
-    <div id="job" class="hud"><div class="lab">Mission tracker</div><div class="k">MECHANICAL</div><div class="t">Walk the ship, bow to stern, both decks</div></div>
+    <div id="job" class="hud"><div class="lab">Mission tracker</div><div class="k" id="jobk">BRIEFING</div><div class="t" id="jobt">Report to Captain Ostrow at the chart table</div></div>
     <div id="map" class="hud"><div class="lab">Deck plan</div><svg id="plan" width="300" height="118" viewBox="0 0 240 98"></svg></div>
     <div id="tip" class="hud" hidden></div><div id="room" class="hud" style="left:50%;transform:translateX(-50%);top:12px;font:700 12px var(--disp);letter-spacing:.2em;color:var(--amber)">CONTROL ROOM</div>
   </div>
   <div class="panel">
     <div id="por">&middot;</div>
-    <div><div id="nm">Ship log</div><div id="tx">The control room, forward end of the upper deck. Navigation at the far end, the attack center amidships around the chart table, sensors and ECM aft. Pell's core is the pedestal on the centerline. The hatch aft leads to the junction.</div><div id="fx"></div><div id="ch"></div></div>
+    <div><div id="nm">Ship log</div><div id="tx">The Tern's control room. Captain Ostrow keeps her ship painted, stowed and quiet. You're the probationary hand, and you're late for the briefing at the chart table.</div><div id="fx"></div><div id="ch"></div></div>
   </div>
-  <div class="row"><button id="grid" type="button">Show walk grid</button><button id="reset" type="button">Reset</button></div>
+  <div class="row"><button id="grid" type="button">Show walk grid</button><button id="reset" type="button">Restart at the Tern</button><button id="skip" type="button">Skip to Corvane's ship</button></div>
   <p class="note">Hull revision 2: all twelve compartments are walkable. They chain end to end through bulkhead hatches, with ladders between decks at the junction and in engineering. Every room is scaled to the same walk-cell size, so the captain stays the same size throughout and the view only zooms enough to fill the stage. Room art is generated from the submarine brief in docs/room_art_brief_v2.md and keyed from magenta. Crew are Meshy models rendered to sprite sheets, drawn at 90% of a hatch height. Light flicker is drawn in code over the still art. Walk grids are fitted by hand; use Show walk grid to check them.</p>
 </div>
 
@@ -185,22 +185,37 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     [60, 62, 62, 62], [136, 62, 138, 62], [186, 62, 188, 62],
     [163, 46, 163, 52], [30, 46, 30, 52], [163, 20, 163, 26], [205, 20, 205, 26], [155, 72, 155, 76]
   ];
+  const TERN_PLAN = [['tern_airlock', 'LOCK', 100, 6, 40, 18], ['tern_junction', 'JCT', 100, 30, 40, 22], ['tern_control', 'CONTROL', 142, 30, 70, 22]], TERN_LINK = [[120, 24, 120, 30], [140, 41, 142, 41]];
   function drawPlan() {
     let h = '';
+    if (room.ship === 'tern') { TERN_LINK.forEach(l => { h += '<line x1="' + l[0] + '" y1="' + l[1] + '" x2="' + l[2] + '" y2="' + l[3] + '" stroke="#8fd694" stroke-width="2"/>'; }); TERN_PLAN.forEach(r => { const cur = ROOMS[r[0]] === room; h += '<rect x="' + r[2] + '" y="' + r[3] + '" width="' + r[4] + '" height="' + r[5] + '" fill="' + (cur ? 'rgba(255,180,84,.25)' : 'rgba(111,195,208,.08)') + '" stroke="' + (cur ? '#ffb454' : '#6fc3d0') + '"/><text x="' + (r[2] + r[4] / 2) + '" y="' + (r[3] + r[5] / 2 + 3) + '" fill="' + (cur ? '#ffb454' : '#9fb9b0') + '" font-size="8" text-anchor="middle" font-family="monospace">' + r[1] + '</text>'; }); h += '<text x="4" y="14" fill="#9fb9b0" font-size="8" font-family="monospace">THE TERN (Ostrow)</text>'; $('plan').innerHTML = h; return; }
     PLAN_LINK.forEach(l => { const vert = l[0] === l[2]; h += '<line x1="' + l[0] + '" y1="' + l[1] + '" x2="' + l[2] + '" y2="' + l[3] + '" stroke="' + (vert ? '#8fd694' : '#3a5a4c') + '" stroke-width="' + (vert ? 2 : 1.5) + '"/>'; });
     PLAN_FUTURE.forEach(f => { h += '<rect x="' + f[1] + '" y="' + f[2] + '" width="' + f[3] + '" height="' + f[4] + '" fill="none" stroke="#2b3f37" stroke-dasharray="3 3"/><text x="' + (f[1] + f[3] / 2) + '" y="' + (f[2] + f[4] / 2 + 3) + '" fill="#56706a" font-size="7" text-anchor="middle" font-family="monospace">' + f[0] + '</text>'; });
     PLAN.forEach(r => { const cur = ROOMS[r[0]] === room; h += '<rect x="' + r[2] + '" y="' + r[3] + '" width="' + r[4] + '" height="' + r[5] + '" fill="' + (cur ? 'rgba(255,180,84,.25)' : 'rgba(111,195,208,.08)') + '" stroke="' + (cur ? '#ffb454' : '#6fc3d0') + '"/><text x="' + (r[2] + r[4] / 2) + '" y="' + (r[3] + r[5] / 2 + 3) + '" fill="' + (cur ? '#ffb454' : '#9fb9b0') + '" font-size="8" text-anchor="middle" font-family="monospace">' + r[1] + '</text>'; });
     h += '<text x="2" y="96" fill="#56706a" font-size="7" font-family="monospace">AFT</text><text x="236" y="96" fill="#56706a" font-size="7" font-family="monospace" text-anchor="end">FORE</text>';
     $('plan').innerHTML = h;
   }
-  setRoom('control', [12, 2]);
+  const setJob = (k, t, isDone) => { $('jobk').textContent = k; $('jobt').textContent = t; $('job').classList.toggle('done', !!isDone); };
+  let briefed = false;
+  setRoom('tern_control', [12, 2]);
 
   function say(sp, text, fx, choices) {
-    const c = ({ Castellan: '#b69cf0', Fenwick: '#c9b458', Abara: '#e8853a', Quill: '#5fd0e0', Dace: '#e8c05a' })[sp] || '#6f877d'; $('por').textContent = sp[0]; $('por').style.color = c; $('nm').textContent = sp; $('nm').style.color = c; $('tx').textContent = text; $('fx').textContent = fx ? 'EFFECT: ' + fx : '';
+    const c = ({ Ostrow: '#9fb7c8', Dunne: '#a8a08a', Ames: '#c7d9a8', Castellan: '#b69cf0', Fenwick: '#c9b458', Abara: '#e8853a', Quill: '#5fd0e0', Dace: '#e8c05a' })[sp] || '#6f877d'; $('por').textContent = sp[0]; $('por').style.color = c; $('nm').textContent = sp; $('nm').style.color = c; $('tx').textContent = text; $('fx').textContent = fx ? 'EFFECT: ' + fx : '';
     const ch = $('ch'); ch.innerHTML = ''; (choices || []).forEach(b0 => { const b = document.createElement('button'); b.type = 'button'; b.textContent = b0.t; b.onclick = b0.fn; ch.appendChild(b); }); dlg = !!(choices && choices.length);
   }
   const close = () => { $('ch').innerHTML = ''; dlg = false; };
   function talk(npc) {
+    if (npc.name === 'Ostrow') {
+      if (briefed) return say('Ostrow', 'Lock is aft and up. Hear her out. Then do what you have to.', '', [{ t: 'Continue', fn: close }]);
+      return say('Ostrow', "You're late. Sit. There's a rule out here, older than any of us. You can touch the AI. You can't wake it. And if one of us starts waking one, the rest of us go and stop them. Ilsa Corvane is running hers. I sailed under her four years. Best captain I ever had. So naturally, I'm the one they sent.", '', [
+        { t: 'Who sent you?', fn: () => say('Ostrow', "The patron's office.", "She says it before you've quite finished asking.", [{ t: 'Continue', fn: endBrief }]) },
+        { t: 'Why bring me?', fn: () => say('Dunne', "Because if it goes wrong, nobody's attached to you yet.", '', [{ t: 'Continue', fn: endBrief }]) },
+        { t: "That's enough.", fn: endBrief }]);
+    }
+    if (npc.name === 'Dunne') return say('Dunne', briefed ? "Lock's aft and up the trunk. Don't keep her waiting." : 'Captain wants you at the chart table.', '', [{ t: 'Continue', fn: close }]);
+    if (npc.name === 'Ames') return say('Ames', briefed ? 'Can I ask you something? What do you do when your hands shake?' : "First boarding. Well, first one that counts.", '', briefed ? [
+        { t: 'Mine shake too. You stop noticing.', fn: () => say('Ames', "That's a lie, isn't it. Thanks. Really.", '', [{ t: 'Continue', fn: close }]) },
+        { t: 'Check your weapon. Then check it again.', fn: () => say('Ames', 'Check it again. Okay. I can do that.', '', [{ t: 'Continue', fn: close }]) }] : [{ t: 'Continue', fn: close }]);
     if (npc.name === 'Abara') return say('Abara', "Thirty years cleaning up after captains. Sit down, tea's hot. Let's find out what kind of mess you are.", '', [{ t: 'Continue', fn: close }]);
     if (npc.name === 'Dace') return say('Dace', "Oh, that's fascinating. Sorry, no, it's terrible. But it's also fascinating. Hold still and let me look.", '', [{ t: 'Continue', fn: close }]);
     if (npc.name === 'Quill') return say('Quill', "With respect, Captain, \"probably\" isn't a reading. Give me ten minutes and I'll have a real one.", '', [{ t: 'Continue', fn: close }]);
@@ -212,6 +227,16 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       { t: 'Smells good, Fen.', fn: () => say('Fenwick', 'You are a gentleman and a scholar. Sit anywhere. Sit everywhere!', '', [{ t: 'Continue', fn: close }]) },
       { t: 'Not now.', fn: () => say('Fenwick', 'Of course, of course. I will just keep it warm. It is what I do. Warm things.', '', [{ t: 'Continue', fn: close }]) }]);
   }
+  function endBrief() {
+    briefed = true; setJob('MINI-MISSION', 'Report to the airlock (aft, then up the trunk)');
+    say('Ostrow', "Here's how it goes. We find her first: that's the hunt, and you'll do what I tell you. Then we board. Three go across: Dunne, the new hand, and Ames. Probation's over for the day. Stations.", '[Full game: the tutorial hunt (P2) runs from this chart table. In this demo it is skipped.]', [{ t: 'Continue', fn: close }]);
+  }
+  function boardPrompt() {
+    say('Ship log', "The outer hatch. Corvane's ship is docked on the other side; the seal light is green. Dunne and Ames are suited and waiting.", '', [
+      { t: 'Begin boarding', fn: () => { setJob('BOARDING', 'Board Corvane\'s ship', true); say('Ship log', "Dunne cycles the lock. The hatch opens onto a warm, dim bridge lit amber from a pedestal at its center, a teapot, four cups, already poured. [Full game: the standoff (P3) and the blessing (P4) play here.]", '', [{ t: 'Continue', fn: () => { close(); toCorvane(); } }]); } },
+      { t: 'Look around first', fn: () => say('Ship log', 'Suit lockers, a bench, the trunk down. Nothing here needs you. The hatch will wait; Dunne might not.', '', [{ t: 'Continue', fn: close }]) }]);
+  }
+  function toCorvane() { setRoom('control', [12, 2]); setJob('MECHANICAL', 'Walk the ship, bow to stern, both decks'); say('Ship log', ROOMS.control.blurb, '', []); }
   function afterInspect() {
     say('Castellan', 'The coupling seats fine. Behind it there is a hairline crack in the manifold. Patch it now and we lose four minutes at the next stop. Leave it and I will watch it.', '', [
       { t: 'Patch it now.', fn: () => { done = true; $('job').classList.add('done'); say('Castellan', 'Four minutes. I will have it welded before the next jump.', 'Transit +4:00. Heat sinks fill at the normal rate.', [{ t: 'Continue', fn: close }]); } },
@@ -237,7 +262,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   // Hatch transitions have no clipping: the person walks to the wall plane and fades out as he reaches it (a = 'out'), walks on unseen ('gone'); on arrival he walks in unseen, then fades up as he steps off the sill ('in').
   function startExit(d) { const g = doorGeom(d), c = cellXY(...d.stand); me.steps = [{ p: g.sill, a: 'out' }, { p: g.out, a: 'gone' }]; me.stepDoor = d; me.sillP = g.sill; me.fadeF = Math.hypot(c[0] - g.sill[0], c[1] - g.sill[1]) || 1; me.dir = g.dirOut; me.path = []; me.then = null; }
   function startEnter(arrive) { const d2 = room.doors.find(x => x.stand[0] === arrive[0] && x.stand[1] === arrive[1]); if (!d2 || !d2.wall || d2.fade) return; const g = doorGeom(d2), c = cellXY(...d2.stand); me.x = g.out[0]; me.y = g.out[1]; me.steps = [{ p: g.sill, a: 'gone' }, { p: c, a: 'in' }]; me.stepDoor = null; me.sillP = g.sill; me.fadeF = Math.hypot(c[0] - g.sill[0], c[1] - g.sill[1]) || 1; me.dir = g.dirIn; me.alpha = 0; }
-  function useDoor(d) { if (!d.to) { say('Ship log', d.label + '. The art exists but this part of the ship is not wired up yet.', '', [{ t: 'Continue', fn: close }]); return; } if (!d.wall || d.fade) { pending = d; fadeDir = 1; return; } startExit(d); }
+  function useDoor(d) { if (d.action === 'board') { if (!briefed) { say('Dunne', 'Not yet. Captain wants you at the chart table first.', '', [{ t: 'Continue', fn: close }]); return; } boardPrompt(); return; } if (d.locked) { say('Ship log', d.locked, '', [{ t: 'Continue', fn: close }]); return; } if (!d.to) { say('Ship log', d.label + '. The art exists but this part of the ship is not wired up yet.', '', [{ t: 'Continue', fn: close }]); return; } if (!d.wall || d.fade) { pending = d; fadeDir = 1; return; } startExit(d); }
   cv.addEventListener('pointermove', e => { if (fadeDir) return; const [x, y] = mpos(e); const d = doorAt(x, y); const nn = npcAt(x, y); hover = nn ? nn : d ? d : manifoldHere() && inRect(x, y, MANIFOLD.rect) ? 'man' : null; const c = pick(x, y); hoverCell = free(...c) ? c : null; cv.style.cursor = hover || hoverCell ? 'pointer' : 'default'; });
   cv.addEventListener('pointerdown', e => {
     if (dlg || insp > 0 || fadeDir || me.steps.length) return; const [x, y] = mpos(e); const d = doorAt(x, y);
@@ -247,7 +272,8 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     const c = pick(x, y); if (free(...c)) go(c, null);
   });
   $('grid').onclick = () => { show = !show; $('grid').textContent = show ? 'Hide walk grid' : 'Show walk grid'; };
-  $('reset').onclick = () => { insp = 0; setRoom('control', [12, 2]); $('job').classList.remove('done'); say('Ship log', ROOMS.control.blurb, '', []); };
+  $('reset').onclick = () => { insp = 0; briefed = false; setRoom('tern_control', [12, 2]); setJob('BRIEFING', 'Report to Captain Ostrow at the chart table'); say('Ship log', ROOMS.tern_control.blurb, '', []); };
+  $('skip').onclick = () => { insp = 0; briefed = true; toCorvane(); };
 
   function diamond(i, j, fill, stroke) { const c = [ptXY(i / NI, j / NJ), ptXY((i + 1) / NI, j / NJ), ptXY((i + 1) / NI, (j + 1) / NJ), ptXY(i / NI, (j + 1) / NJ)]; cx.beginPath(); c.forEach((p, k) => k ? cx.lineTo(p[0] * S, p[1] * S) : cx.moveTo(p[0] * S, p[1] * S)); cx.closePath(); if (fill) { cx.fillStyle = fill; cx.fill(); } if (stroke) { cx.strokeStyle = stroke; cx.lineWidth = 1; cx.stroke(); } }
   function person(o, t, walking) {

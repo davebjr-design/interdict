@@ -1,0 +1,17 @@
+<!doctype html><meta charset="utf-8"><title>Switch Sample</title>
+<style>
+:root{--bg:#0b1210;--panel:#101b17;--line:#23372f;--fg:#cfe3d8;--dim:#6f877d;--amber:#ffb454;color-scheme:dark}
+body{margin:0;background:var(--bg);color:var(--fg);font:13px/1.45 'IBM Plex Mono',ui-monospace,monospace;padding:16px}
+.row{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-end;max-width:900px}
+.sw{display:grid;justify-items:center;gap:6px;cursor:pointer;user-select:none;background:var(--panel);border:1px solid var(--line);padding:10px 12px}
+.sw img{width:110px;height:auto;display:block}.sw span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.sw.on span{color:var(--amber)} p{color:var(--dim);max-width:70ch}
+</style>
+<h3 style="font-weight:600;letter-spacing:.1em">SAMPLE HUNT SWITCHES (Meshy, 4-frame sprite)</h3>
+<p>Click a switch. It animates through the four frames (down, one third, two thirds, up with the lamp lit) in about 120 ms, and back.</p>
+<div class="row" id="row"></div>
+<script>
+const F=[0,1,2,3].map(i=>{const m=new Image();m.src='../web/assets/ui/switch_'+i+'.png';return m.src;});
+['Go quiet','Vent','Break contact'].forEach(n=>{const d=document.createElement('div');d.className='sw';d.innerHTML='<img src="'+F[0]+'" alt=""><span>'+n+'</span>';let on=false,busy=false;
+d.onclick=()=>{if(busy)return;busy=true;on=!on;d.classList.toggle('on',on);const seq=on?[1,2,3]:[2,1,0];seq.forEach((f,k)=>setTimeout(()=>{d.querySelector('img').src=F[f];if(k===seq.length-1)busy=false;},40*(k+1)));};document.getElementById('row').appendChild(d);});
+</script>

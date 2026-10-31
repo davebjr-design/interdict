@@ -1,0 +1,236 @@
+{
+ "id": "tern_airlock",
+ "name": "TERN: BOARDING AIRLOCK",
+ "deck": "upper",
+ "file": "airlock_v3g.png",
+ "img_size": [
+  1406,
+  1078
+ ],
+ "quad": {
+  "t": [
+   705,
+   545
+  ],
+  "r": [
+   1385,
+   790
+  ],
+  "l": [
+   25,
+   790
+  ],
+  "b": [
+   705,
+   1030
+  ]
+ },
+ "Ni": 8,
+ "Nj": 8,
+ "hatch_h": 430,
+ "floor": [
+  [
+   705,
+   548
+  ],
+  [
+   1380,
+   790
+  ],
+  [
+   705,
+   1025
+  ],
+  [
+   30,
+   790
+  ]
+ ],
+ "solids": [
+  {
+   "name": "lockers",
+   "p": [
+    [
+     130,
+     720
+    ],
+    [
+     420,
+     590
+    ],
+    [
+     530,
+     625
+    ],
+    [
+     530,
+     700
+    ],
+    [
+     285,
+     810
+    ],
+    [
+     160,
+     790
+    ]
+   ],
+   "h": 380
+  },
+  {
+   "name": "bench",
+   "p": [
+    [
+     545,
+     610
+    ],
+    [
+     730,
+     545
+    ],
+    [
+     765,
+     575
+    ],
+    [
+     765,
+     650
+    ],
+    [
+     640,
+     680
+    ],
+    [
+     545,
+     645
+    ]
+   ],
+   "h": 100
+  },
+  {
+   "name": "hatchHole",
+   "p": [
+    [
+     505,
+     815
+    ],
+    [
+     690,
+     745
+    ],
+    [
+     880,
+     830
+    ],
+    [
+     705,
+     935
+    ]
+   ],
+   "h": 30,
+   "noOcc": true
+  }
+ ],
+ "block": [],
+ "open": [],
+ "blurb": "The Tern's boarding airlock. Same pattern as every gleaner ship: the trunk down, the outer hatch to whatever is docked.",
+ "doors": [
+  {
+   "id": "downToJct",
+   "rc": [
+    540,
+    690,
+    900,
+    950
+   ],
+   "ladder": "down",
+   "stand": [
+    3,
+    6
+   ],
+   "to": "tern_junction",
+   "dir": "se",
+   "label": "Ladder down to the junction"
+  },
+  {
+   "id": "board",
+   "rc": [
+    830,
+    240,
+    1140,
+    700
+   ],
+   "stand": [
+    4,
+    0
+   ],
+   "action": "board",
+   "dir": "ne",
+   "label": "Outer hatch: Corvane's ship is docked on the other side"
+  }
+ ],
+ "npcs": [],
+ "lights": [
+  {
+   "p": [
+    265,
+    455
+   ],
+   "r": 26,
+   "c": [
+    255,
+    170,
+    70
+   ],
+   "a": 0.3,
+   "pat": "steady",
+   "seed": 121
+  },
+  {
+   "p": [
+    620,
+    455
+   ],
+   "r": 24,
+   "c": [
+    255,
+    170,
+    70
+   ],
+   "a": 0.3,
+   "pat": "steady",
+   "seed": 122
+  },
+  {
+   "p": [
+    75,
+    575
+   ],
+   "r": 16,
+   "c": [
+    111,
+    195,
+    208
+   ],
+   "a": 0.4,
+   "pat": "blink",
+   "seed": 123
+  },
+  {
+   "p": [
+    760,
+    700
+   ],
+   "r": 16,
+   "c": [
+    111,
+    195,
+    208
+   ],
+   "a": 0.4,
+   "pat": "blink",
+   "seed": 124
+  }
+ ],
+ "ship": "tern"
+}

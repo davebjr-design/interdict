@@ -1,0 +1,330 @@
+{
+ "id": "tern_junction",
+ "name": "TERN: JUNCTION",
+ "deck": "upper",
+ "file": "tern_junction_v1.png",
+ "img_size": [
+  1534,
+  1024
+ ],
+ "quad": {
+  "t": [
+   776,
+   471
+  ],
+  "r": [
+   1480,
+   739
+  ],
+  "l": [
+   55,
+   712
+  ],
+  "b": [
+   765,
+   1007
+  ]
+ },
+ "Ni": 7,
+ "Nj": 7,
+ "hatch_h": 353,
+ "floor": [
+  [
+   776,
+   477
+  ],
+  [
+   1469,
+   739
+  ],
+  [
+   1108,
+   991
+  ],
+  [
+   466,
+   991
+  ],
+  [
+   67,
+   718
+  ]
+ ],
+ "solids": [
+  {
+   "name": "locker",
+   "p": [
+    [
+     166,
+     605
+    ],
+    [
+     299,
+     573
+    ],
+    [
+     308,
+     643
+    ],
+    [
+     222,
+     673
+    ]
+   ],
+   "h": 280,
+   "noBlock": true
+  },
+  {
+   "name": "table",
+   "p": [
+    [
+     69,
+     600
+    ],
+    [
+     122,
+     584
+    ],
+    [
+     299,
+     653
+    ],
+    [
+     222,
+     766
+    ],
+    [
+     133,
+     707
+    ]
+   ],
+   "h": 95
+  },
+  {
+   "name": "cage",
+   "p": [
+    [
+     560,
+     728
+    ],
+    [
+     765,
+     637
+    ],
+    [
+     959,
+     728
+    ],
+    [
+     765,
+     852
+    ]
+   ],
+   "h": 110
+  },
+  {
+   "name": "crate",
+   "p": [
+    [
+     1275,
+     643
+    ],
+    [
+     1369,
+     600
+    ],
+    [
+     1452,
+     632
+    ],
+    [
+     1452,
+     728
+    ],
+    [
+     1369,
+     739
+    ],
+    [
+     1286,
+     696
+    ]
+   ],
+   "h": 100
+  }
+ ],
+ "block": [],
+ "open": [],
+ "blurb": "The Tern's junction. Ladder down to quarters, trunk up to the boarding airlock.",
+ "doors": [
+  {
+   "id": "toControl",
+   "rc": [
+    360,
+    193,
+    554,
+    573
+   ],
+   "wall": "i",
+   "to": "tern_control",
+   "label": "Hatch forward to the control room"
+  },
+  {
+   "id": "toMissile",
+   "rc": [
+    975,
+    204,
+    1169,
+    557
+   ],
+   "wall": "j",
+   "to": null,
+   "label": "Hatch aft to the missile compartment",
+   "locked": "Aft hatch: the Tern's crew spaces. Dunne said quarters are off-limits until probation is over."
+  },
+  {
+   "id": "downToMess",
+   "rc": [
+    560,
+    519,
+    959,
+    852
+   ],
+   "ladder": "down",
+   "stand": [
+    3,
+    5
+   ],
+   "to": null,
+   "dir": "sw",
+   "label": "Ladder down to the mess",
+   "locked": "Ladder down to the Tern's mess and berths. Not now: Ostrow wants the boarding party at the lock."
+  },
+  {
+   "id": "upToAirlock",
+   "rc": [
+    604,
+    91,
+    925,
+    214
+   ],
+   "ladder": "up",
+   "stand": [
+    1,
+    1
+   ],
+   "to": "tern_airlock",
+   "dir": "se",
+   "label": "Trunk up to the boarding airlock"
+  }
+ ],
+ "npcs": [],
+ "lights": [
+  {
+   "p": [
+    434,
+    171
+   ],
+   "r": 30,
+   "c": [
+    230,
+    240,
+    255
+   ],
+   "a": 0.3,
+   "pat": "steady",
+   "seed": 11
+  },
+  {
+   "p": [
+    1095,
+    169
+   ],
+   "r": 30,
+   "c": [
+    230,
+    240,
+    255
+   ],
+   "a": 0.3,
+   "pat": "fault",
+   "seed": 12
+  },
+  {
+   "p": [
+    758,
+    249
+   ],
+   "r": 26,
+   "c": [
+    230,
+    240,
+    255
+   ],
+   "a": 0.3,
+   "pat": "steady",
+   "seed": 13
+  },
+  {
+   "p": [
+    181,
+    255
+   ],
+   "r": 26,
+   "c": [
+    230,
+    240,
+    255
+   ],
+   "a": 0.3,
+   "pat": "flicker",
+   "seed": 14
+  },
+  {
+   "p": [
+    1354,
+    287
+   ],
+   "r": 26,
+   "c": [
+    230,
+    240,
+    255
+   ],
+   "a": 0.3,
+   "pat": "steady",
+   "seed": 15
+  },
+  {
+   "p": [
+    566,
+    313
+   ],
+   "r": 16,
+   "c": [
+    230,
+    240,
+    255
+   ],
+   "a": 0.4,
+   "pat": "blink",
+   "seed": 16
+  },
+  {
+   "p": [
+    1170,
+    377
+   ],
+   "r": 16,
+   "c": [
+    230,
+    240,
+    255
+   ],
+   "a": 0.4,
+   "pat": "blink",
+   "seed": 17
+  }
+ ],
+ "ship": "tern"
+}
