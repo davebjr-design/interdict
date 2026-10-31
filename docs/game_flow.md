@@ -41,3 +41,7 @@ Modes: underway (in route), hunt (battle arena), space dock, ground missions (la
 - Going where you are called opens that scene: bridge (arrival and briefing, then the briefing table starts the hunt), stations and rooms (talk to officers, make captaining decisions, narrative advances), dock (equipment, repairs).
 - Every dog-leg is a stopover arena; the next leg begins when the drive spools. Each leg should offer at least one captaining decision or crew moment so travel is not dead time.
 - Pell is consulted here too; integration only moves one way.
+
+## Mission flow and mutually exclusive mini-missions (Dave, 2026-10-31)
+- The basic loop, taught in Act 0 on the Tern: a tracker entry appears ("Report to the airlock"), the player walks there, and a prompt offers to commit ("Begin boarding") or look around first.
+- Later acts can offer two mini-missions that exclude each other (go here to side with X, or there to side with Y). Taking one closes the other and sets a branch flag. Common in this kind of game; first use in Act 2.
