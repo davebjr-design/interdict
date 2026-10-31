@@ -225,7 +225,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   const putTrims = v => { try { localStorage.setItem('interdict.trims', JSON.stringify(v)); } catch (e) {} };
   const jobById = id => (window.TRIM_SPEC ? window.TRIM_SPEC.jobs : []).find(j => j.id === id);
   function pitchList(name) {
-    const jobs = (window.TRIM_SPEC ? window.TRIM_SPEC.jobs : []).filter(j => j.officer === name.toLowerCase()); const on = getTrims();
+    const jobs = (window.TRIM_SPEC ? window.TRIM_SPEC.jobs : []).filter(j => j.officer === name.toLowerCase() && !j.shelved); const on = getTrims();
     if (!jobs.length) return say(name, 'Nothing I would change right now, Captain.', '', [{ t: 'Continue', fn: close }]);
     say(name, 'A few, Captain. Each one costs us something. Pick one, if you like.', '', jobs.map(j => ({ t: (on.includes(j.id) ? '[active] ' : '') + j.label, fn: () => pitch(name, j) })).concat([{ t: 'Not now.', fn: close }]));
   }

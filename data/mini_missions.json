@@ -298,7 +298,8 @@
     ]
    ],
    "difficulty": 1.5,
-   "watches": 1
+   "watches": 1,
+   "shelved": true
   },
   {
    "id": "nav.quiet_approach",
