@@ -36,7 +36,7 @@ How it plays: loose gives you a usable 70% answer early and far out, which wins 
 - The hunt is paused while the popup is up (the engine already has a pause hook: `emit()` with `s.holdEvents` sets `s.hold`). No timer.
 
 ### 1.3 Meter nudges
-- Normal moment: tight **-3**, loose **+3**. Big moments (M05 spool, M04 fire on old numbers): **-4 / +4**.
+- Normal moment: tight **-3**, loose **+3**. Big moments (M04 fire on old numbers): **-4 / +4**.
 - Cap: moments can move `command.style` at most **8 points per hunt** in total. Underway moments count toward the leg's scene total instead.
 - Scale check: one scene choice in Act 1 moves 1-8 points (`command_model.md` §4), so a full hunt of moments is worth about one strong scene choice. Moments flavour the meter; scenes still drive it.
 - Standing settings (§1.6) nudge **half** (±2, rounded up) once per hunt in which the moment would have fired.
@@ -62,9 +62,10 @@ Both options always show. At the ends of the meter a third option can join:
 - Underway standing settings apply every leg until dropped; they spend no watch.
 
 ### 1.7 Frequency rules
-- **At most 3 moments per hunt**, at most 1 per officer per hunt, and each moment at most once per hunt.
+- **At most 3 moments per hunt**, at most 1 per officer per hunt except **Abara, who may have 2** (tactical has the most decisions), and each moment at most once per hunt.
+- **No popup while a spool is ordered or running.** Escapes are never interrupted.
 - **4 game minutes** of cooldown between any two moments. Nothing in the first 1.5 minutes of a hunt.
-- If two triggers fire inside the cooldown, the one that protects the ship wins (M05 > M07 > M04 > M02 > M03 > M01 > M09); the other is dropped for this hunt, not queued.
+- If two triggers fire inside the cooldown, the one that protects the ship wins (M07 > M04 > M02 > M03 > M01 > M09); the other is dropped for this hunt, not queued.
 - Standing settings don't count toward the 3.
 - Underway: **at most 1 moment per leg**, and it uses one of the leg's ~3 free watches (`mini_missions.md` §1).
 - Tutorial (P2): none of the catalogue moments fire. At most one scripted teaching moment (Sato, M01's shape, no nudge). **Narrow ping (M02) never appears in the tutorial.**
@@ -81,7 +82,7 @@ Both options always show. At the ends of the meter a third option can join:
 
 ## 2. Catalogue (10 moments)
 
-Hunt moments: M01-M05, M07, M09. Underway moments: M06, M08, M10.
+Hunt moments: M01-M04, M07, M09 (M05 shelved). Underway moments (deferred): M06, M08, M10.
 
 ### M01 `sens.hunch_call`: "Call it now, or call it right"
 - **Officer:** Quill (Sensors and ECM). **Where:** hunt.
@@ -131,7 +132,9 @@ Hunt moments: M01-M05, M07, M09. Underway moments: M06, M08, M10.
 - **After action (Abara):** "[X] times now you've had a choice on a stale solution. Standing order? Or keep asking me? Keep asking. Old numbers are a thing you decide, not a habit."
 - **Replaces:** none (new; covers the "reuse vs recompute" case).
 
-### M05 `eng.short_spool`: "Spool her now"
+### M05 `eng.short_spool`: SHELVED as a popup (2026-10-31)
+No popup fires when a spool is ordered. The short-spool trade (spool ×0.75, louder, hotter, trip at 85% sink) is kept below as a candidate for an underway engineering setting (see Deferred underway moments). Original text for reference:
+
 - **Officer:** Castellan (Engineering). **Where:** hunt.
 - **Trigger:** the player orders the breach spool (`retreat()`) while a real hostile has `know >= 0.5` or a volley is inbound on us. Once per hunt.
 - **Line (Castellan):** "Captain, I can short-spool her. Skip a couple of the warm-up stages, she'll jump a quarter sooner. She'll run hot doing it, and if the sink tops out she'll trip and we start the back half over. Your call, darlin'. I mean Captain."
@@ -157,6 +160,7 @@ Hunt moments: M01-M05, M07, M09. Underway moments: M06, M08, M10.
 
 ### M07 `heat.vent_timing`: "Vent now or pick the moment"
 - **Officer:** Dace (Thermal). **Where:** hunt.
+- **Framing (revised):** this is a *recommendation*, not a handoff. The vent control stays in the player's hands; Dace says what she would do and the player can ignore her. The two options are labeled "Vent now (you do it)" and "Take Dace's advice: hold for a quieter moment". Taking the advice means the player agrees to wait for her call; the player can still override and vent at any time.
 - **Trigger:** the sink crosses 65% (`s.sink.h >= 0.65`) with no vent running and no volley inbound. Once per hunt.
 - **Line (Dace):** "Sink's at sixty-five, Captain. By the book we vent now. Fins out, every sensor sees them, done in a couple of minutes. Or you let me pick the moment, somewhere nobody's looking, and I dump it fast. I'm very good at picking moments."
 - **TIGHT: "Vent now, by the schedule."** Vent starts now at the standard rate (`ventFull` 4: about 2.6 min from 65%). Fins visible the whole time (`ventSig` 1).
@@ -205,13 +209,27 @@ Hunt moments: M01-M05, M07, M09. Underway moments: M06, M08, M10.
 
 ---
 
+## 2b. Deferred underway moments
+M06 (bearings), M08 (reserve tanks), M10 (leg plot) and the short-spool trade (old M05) wait for the underway buildout; the hunt popups ship first. Revisions for when they are built:
+- **Tight sides get a small real benefit**, so neither side is "no change": M06 tight = *run diagnostics*, redline burn costs 20% less heat; M08 tight = *keep the sink as rated*, venting 10% faster; M10 already has one (cold approach).
+- Short-spool (old M05) becomes an engineering prep option next to M06.
+- Needs: watches as a currency, briefing hints, the leg plot.
+
+### Underway material backlog (not tight/loose trims)
+- Distress call: trap or survivor.
+- Pell shifts: supervised or unsupervised (integration/trust trade).
+- Mice in the cargo hold (small comedy storylet).
+- From the dropped trims: *Feast night* (Fenwick storylet; already a scene-level style choice), *Ration the galley* (quartermaster setting at the dock), *Trade at the buoy* (Tally and patron storylet).
+
+---
+
 ## 3. Trim mapping
 Every non-shelved trim in `data/mini_missions.json`:
 
 | Trim | Goes to | Notes |
 |---|---|---|
 | `eng.quiet_bearings` | M06 (loose) | underway |
-| `eng.spool_tune` | M05 (loose) | adds the trip ceiling (the bot found it strictly better because it never spooled under fire) |
+| `eng.spool_tune` | deferred (underway) | adds the trip ceiling (the bot found it strictly better because it never spooled under fire) |
 | `heat.bigger_sink` | M08 (loose) | underway; adds the overpressure ceiling |
 | `heat.fast_fins` | M07 (loose) | fast fins happen after Dace's held vent |
 | `heat.cold_analysts` | M09 (tight) | loose side is new (flat out with a cut-out) |
@@ -222,8 +240,8 @@ Every non-shelved trim in `data/mini_missions.json`:
 | `tac.judgment_lead` | M03 (loose) | adds the overcorrection after a maneuver |
 | `nav.quiet_approach` | M10 (tight) | underway |
 | `nav.short_legs` | M10 (loose) | underway; `arrival_warning` becomes `darkWindow` plus unconfirmed briefing hints |
-| `qm.ration` | dropped | an economy and trust drain per leg with no consistency-vs-performance trade. Better as a quartermaster setting at the dock. |
-| `qm.feast` | dropped | already a scene-level style choice (the 1.6 debrief "stand everyone a drink", +6). Keep it as a Fenwick storylet. |
-| `qm.grey_trade` | dropped | a Tally and patron decision, not tight vs loose. Move it to the buoy and Tally storylets. |
+| `qm.ration` | storylet/dock setting | an economy and trust drain per leg with no consistency-vs-performance trade. Better as a quartermaster setting at the dock. |
+| `qm.feast` | Fenwick storylet | already a scene-level style choice (the 1.6 debrief "stand everyone a drink", +6). Keep it as a Fenwick storylet. |
+| `qm.grey_trade` | Tally storylet | a Tally and patron decision, not tight vs loose. Move it to the buoy and Tally storylets. |
 | `pell.assist_*` (3) | unchanged | not tight/loose trims. Pell's assists stay as integration offers. A natural home later is a third option on M01, M03 and M07 once the integration tier is reached, with no meter nudge (integration and trust are its cost). |
 | `eng.run_hot`, `tac.salvo_mix` | shelved | not used |
