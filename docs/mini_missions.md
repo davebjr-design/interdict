@@ -52,7 +52,28 @@ Once integration passes a tier, Pell offers an **assisted** version of some trim
 - **They're where the Tally bites** (Trade at the buoy) and where the audit will look.
 - **They can carry clues:** a job near the panel, a reading during Long ears that catches the signal, a buoy trader who mentions a ship that drops food at dead coordinates (Fenwick).
 
-## 6. To do
-- Wire `P.*` multipliers into the hunt engine as a `trims` layer (no art needed).
-- Run the hunt bot with each trim to check none is strictly better (every trim should lose in at least one arena type).
-- Add the tracker entries and a small trim panel to the ship view (shows active trims per department).
+## 6. Wired (2026-10-31)
+- **Engine:** `web/trims.js` maps each trim onto `HuntRT.P` and our loadout; five small hooks were added to the engine (`classNoise`, `pingRounds`, `noRedline`, `ventAfterglow`, `leadSpread`). The hunt page reads active trims from `?trims=` or localStorage `interdict.trims` and shows them in a corner badge.
+- **Walk demo:** officers pitch their department's trims when you talk to them; one trim per department, stored in localStorage; a button runs a hunt with them.
+- **Not wired yet:** *Mix the salvo* needs per-missile warheads (the console picks one warhead per volley today). Navigation and quartermaster trims are underway effects for the story layer.
+
+## 7. First bot check (`node tools/trim_bot.js 240`, 240 hunts per row: plain, redline-burning, and dog-leg spool arenas)
+```
+trim                       win  1-ship 2-ship  hull   time  wrong   verdict
+(none)                      88   94      82      71   25.4   0.03    
+eng.run_hot                 88   96      80      70   24.8   0.03    trade
+eng.quiet_bearings          86   93      78      73   25.5   0.04    trade
+eng.spool_tune              88   94      82      71   25.3   0.03    STRICTLY BETTER
+heat.bigger_sink            91   95      87      72   25.5   0.03    trade
+heat.fast_fins              88   96      79      70   25.5   0.03    strictly worse
+heat.cold_analysts          91   98      85      77   26.3   0.03    trade
+sens.long_ears              89   96      83      72   24.7   0.03    STRICTLY BETTER
+sens.snap_classifier        85   93      77      70   25.4   0.00    strictly worse
+sens.narrow_ping            88   94      83      71   25.3   0.03    STRICTLY BETTER
+tac.tight_drill             87   96      78      72   24.8   0.03    trade
+tac.judgment_lead           88   95      81      71   25.1   0.03    STRICTLY BETTER
+pell.assist_classifier      87   95      79      74   24.3   0.03    trade
+pell.assist_lead            89   94      83      72   25.1   0.03    STRICTLY BETTER
+pell.assist_heat            89   94      84      72   25.4   0.03    trade
+```
+**Reading it:** differences of 1-3 points are noise at this sample size, so no trim dominates yet. Three show as "strictly better" only because the bot never pays their cost. It rarely pings (*Narrow ping*), is never under fire while spooling (*Tune the breach spool*), and doesn't exploit stale solutions (*Lead from judgment*). The Pell assists are better by design: their cost is integration and trust, not performance. **Next:** teach the bot to ping and to spool under fire, then re-run after the hunt balance pass.

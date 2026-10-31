@@ -49,11 +49,12 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     <div id="por">&middot;</div>
     <div><div id="nm">Ship log</div><div id="tx">The Tern's control room. Captain Ostrow keeps her ship painted, stowed and quiet. You're the probationary hand, and you're late for the briefing at the chart table.</div><div id="fx"></div><div id="ch"></div></div>
   </div>
-  <div class="row"><button id="grid" type="button">Show walk grid</button><button id="reset" type="button">Restart at the Tern</button><button id="skip" type="button">Skip to Corvane's ship</button></div>
+  <div class="row"><button id="grid" type="button">Show walk grid</button><button id="reset" type="button">Restart at the Tern</button><button id="skip" type="button">Skip to Corvane's ship</button><button id="hunt" type="button">Run a hunt with these trims</button><span id="trimline" class="note"></span></div>
   <p class="note">Hull revision 2: all twelve compartments are walkable. They chain end to end through bulkhead hatches, with ladders between decks at the junction and in engineering. Every room is scaled to the same walk-cell size, so the captain stays the same size throughout and the view only zooms enough to fill the stage. Room art is generated from the submarine brief in docs/room_art_brief_v2.md and keyed from magenta. Crew are Meshy models rendered to sprite sheets, drawn at 90% of a hatch height. Light flicker is drawn in code over the still art. Walk grids are fitted by hand; use Show walk grid to check them.</p>
 </div>
 
 <script src="rooms_spec.js"></script>
+<script src="trims_spec.js"></script>
 <script>
 (function () {
   const $ = id => document.getElementById(id), cv = $('cv'), cx = cv.getContext('2d'), S = 2;
@@ -206,6 +207,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   const close = () => { $('ch').innerHTML = ''; dlg = false; };
   function talk(npc) {
     if (npc.name === 'Ostrow') {
+      if (briefed && !hunted) return say('Ostrow', 'Stations. We find her first.', '', [{ t: 'Begin the hunt', fn: () => { location.href = 'hunt.html?tutorial=tern&return=' + encodeURIComponent(page()); } }, { t: 'Skip the hunt (demo)', fn: afterHunt }]);
       if (briefed) return say('Ostrow', 'Lock is aft and up. Hear her out. Then do what you have to.', '', [{ t: 'Continue', fn: close }]);
       return say('Ostrow', "You're late. Sit. There's a rule out here, older than any of us. You can touch the AI. You can't wake it. And if one of us starts waking one, the rest of us go and stop them. Ilsa Corvane is running hers. I sailed under her four years. Best captain I ever had. So naturally, I'm the one they sent.", '', [
         { t: 'Who sent you?', fn: () => say('Ostrow', "The patron's office.", "She says it before you've quite finished asking.", [{ t: 'Continue', fn: endBrief }]) },
@@ -213,29 +215,61 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
         { t: "That's enough.", fn: endBrief }]);
     }
     if (npc.name === 'Dunne') return say('Dunne', briefed ? "Lock's aft and up the trunk. Don't keep her waiting." : 'Captain wants you at the chart table.', '', [{ t: 'Continue', fn: close }]);
-    if (npc.name === 'Ames') return say('Ames', briefed ? 'Can I ask you something? What do you do when your hands shake?' : "First boarding. Well, first one that counts.", '', briefed ? [
-        { t: 'Mine shake too. You stop noticing.', fn: () => say('Ames', "That's a lie, isn't it. Thanks. Really.", '', [{ t: 'Continue', fn: close }]) },
-        { t: 'Check your weapon. Then check it again.', fn: () => say('Ames', 'Check it again. Okay. I can do that.', '', [{ t: 'Continue', fn: close }]) }] : [{ t: 'Continue', fn: close }]);
-    if (npc.name === 'Abara') return say('Abara', "Thirty years cleaning up after captains. Sit down, tea's hot. Let's find out what kind of mess you are.", '', [{ t: 'Continue', fn: close }]);
-    if (npc.name === 'Dace') return say('Dace', "Oh, that's fascinating. Sorry, no, it's terrible. But it's also fascinating. Hold still and let me look.", '', [{ t: 'Continue', fn: close }]);
-    if (npc.name === 'Quill') return say('Quill', "With respect, Captain, \"probably\" isn't a reading. Give me ten minutes and I'll have a real one.", '', [{ t: 'Continue', fn: close }]);
-    if (npc.name === 'Castellan') {
-      if (done) return say('Castellan', 'I will keep an eye on the reactor, Captain.', '', [{ t: 'Continue', fn: close }]);
-      return say('Castellan', 'The coupling manifold is behind the tanks, Captain. Have a look when you have a moment.', '', [{ t: 'Continue', fn: close }]);
-    }
-    say('Fenwick', 'Captain! Soup is on. Well, soup is in the pot, which is nearly the same thing. This mess hall seats thirty and we are five. Do you know how much a ladle costs per empty seat? Nothing. It is a joke about nothing.', '', [
-      { t: 'Smells good, Fen.', fn: () => say('Fenwick', 'You are a gentleman and a scholar. Sit anywhere. Sit everywhere!', '', [{ t: 'Continue', fn: close }]) },
-      { t: 'Not now.', fn: () => say('Fenwick', 'Of course, of course. I will just keep it warm. It is what I do. Warm things.', '', [{ t: 'Continue', fn: close }]) }]);
+    if (npc.name === 'Ames') return amesBeat(false);
+    const LINES = { Abara: "Thirty years cleaning up after captains. Sit down, tea's hot. Let's find out what kind of mess you are.", Dace: "Oh, that's fascinating. Sorry, no, it's terrible. But it's also fascinating. Hold still and let me look.", Quill: "With respect, Captain, \"probably\" isn't a reading. Give me ten minutes and I'll have a real one.", Castellan: "She's not broke, she's sulking. Give me twenty minutes and a sandwich and she'll come around.", Fenwick: "Sit, sit! You look like you've been living on ration bars. There's soup, there's bread, and there's something I'm calling stew until somebody tells me otherwise." };
+    if (LINES[npc.name]) return say(npc.name, LINES[npc.name], '', [{ t: 'Any ideas for the ship?', fn: () => pitchList(npc.name) }, { t: 'Carry on.', fn: close }]);
   }
+  // ---------- mini-mission trims (data/mini_missions.json via trims_spec.js) ----------
+  const DEPT = { engineering: 'Engineering', thermal: 'Thermal', sensors_ecm: 'Sensors', tactical: 'Fire control', navigation: 'Navigation', quartermaster: 'Quartermaster' };
+  const getTrims = () => { try { const v = JSON.parse(localStorage.getItem('interdict.trims') || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } };
+  const putTrims = v => { try { localStorage.setItem('interdict.trims', JSON.stringify(v)); } catch (e) {} };
+  const jobById = id => (window.TRIM_SPEC ? window.TRIM_SPEC.jobs : []).find(j => j.id === id);
+  function pitchList(name) {
+    const jobs = (window.TRIM_SPEC ? window.TRIM_SPEC.jobs : []).filter(j => j.officer === name.toLowerCase()); const on = getTrims();
+    if (!jobs.length) return say(name, 'Nothing I would change right now, Captain.', '', [{ t: 'Continue', fn: close }]);
+    say(name, 'A few, Captain. Each one costs us something. Pick one, if you like.', '', jobs.map(j => ({ t: (on.includes(j.id) ? '[active] ' : '') + j.label, fn: () => pitch(name, j) })).concat([{ t: 'Not now.', fn: close }]));
+  }
+  function pitch(name, j) {
+    const ob = j.objector ? j.objector[0].toUpperCase() + j.objector.slice(1) : null;
+    say(name, j.pitch + (ob && ob !== name ? '   ' + ob + ': "' + j.objection + '"' : ''), (DEPT[j.dept] || j.dept) + ' trim, ' + (j.watches || 0) + ' watch' + (j.watches === 1 ? '' : 'es') + '. One trim per department; this replaces any other.', [
+      { t: 'Do it.', fn: () => { const on = getTrims().filter(id => { const o = jobById(id); return !o || o.dept !== j.dept; }); on.push(j.id); putTrims(on); showTrims(); say(name, 'Aye, Captain.', 'Active trims: ' + on.map(id => (jobById(id) || {}).label || id).join(' / '), [{ t: 'Continue', fn: close }]); } },
+      { t: 'Not this one.', fn: () => pitchList(name) }]);
+  }
+  function showTrims() { const on = getTrims(); $('trimline').textContent = on.length ? 'Trims: ' + on.map(id => (jobById(id) || {}).label || id).join(' / ') : 'No trims set. Talk to an officer: "Any ideas for the ship?"'; }
+  // ---------- Ames before boarding ----------
+  let amesTalked = false;
+  function amesBeat(atHatch) {
+    if (!briefed) return say('Ames', 'First boarding. Well, first one that counts.', '', [{ t: 'Continue', fn: close }]);
+    if (amesTalked && !atHatch) return say('Ames', 'Check it again. Right.', 'He checks his weapon. Then he checks it again.', [{ t: 'Continue', fn: close }]);
+    const after = atHatch ? () => { close(); startBoarding(); } : close;
+    say('Ames', (atHatch ? '(Ames climbs up the trunk behind you, a little out of breath.) ' : '') + 'Can I ask you something? What do you do when your hands shake?', '', [
+      { t: 'Mine shake too. You stop noticing after the first minute.', fn: () => { amesTalked = true; say('Ames', "That's a lie, isn't it.   ...Thanks. Really.", 'Ames: bond 2', [{ t: 'Continue', fn: after }]); } },
+      { t: 'Keep them busy. Check your weapon. Then check it again.', fn: () => { amesTalked = true; say('Ames', 'Check it again. Okay. I can do that.', 'Ames: bond 1', [{ t: 'Continue', fn: after }]); } },
+      { t: 'Ask Dunne.', fn: () => { amesTalked = true; say('Ames', 'Right. Sorry.', 'He does not ask Dunne. Ames: bond 0', [{ t: 'Continue', fn: after }]); } }]);
+  }
+  function moveAmes() {
+    ROOMS.tern_control.npcs = ROOMS.tern_control.npcs.filter(n => n.name !== 'Ames');
+    if (!ROOMS.tern_junction.npcs.some(n => n.name === 'Ames')) { const J = ROOMS.tern_junction, c = [[5, 4], [5, 3], [6, 3], [1, 5], [4, 6]].find(q => !J.blocked.has(q.join(','))) || [5, 4]; J.npcs.push({ name: 'Ames', col: '#c7d9a8', cell: c }); }
+    if (room === ROOMS.tern_control) npcs = npcs.filter(n => n.name !== 'Ames');
+  }
+  let hunted = false;
+  const page = () => (location.pathname.split('/').pop() || 'index.html');
   function endBrief() {
-    briefed = true; setJob('MINI-MISSION', 'Report to the airlock (aft, then up the trunk)');
-    say('Ostrow', "Here's how it goes. We find her first: that's the hunt, and you'll do what I tell you. Then we board. Three go across: Dunne, the new hand, and Ames. Probation's over for the day. Stations.", '[Full game: the tutorial hunt (P2) runs from this chart table. In this demo it is skipped.]', [{ t: 'Continue', fn: close }]);
+    briefed = true; moveAmes(); setJob('HUNT', 'Take your station: the hunt for Corvane');
+    say('Ostrow', "Here's how it goes. We find her first: that's the hunt, and you'll do what I tell you. Then we board. Three go across: Dunne, the new hand, and Ames. Probation's over for the day. Stations.", '', [
+      { t: 'Begin the hunt', fn: () => { location.href = 'hunt.html?tutorial=tern&return=' + encodeURIComponent(page()); } },
+      { t: 'Skip the hunt (demo)', fn: afterHunt }]);
+  }
+  function afterHunt() {
+    hunted = true; briefed = true; moveAmes(); setJob('MINI-MISSION', 'Report to the airlock (aft, then up the trunk)');
+    say('Ostrow', "She's holding still and her guns are cold. She asked for you, by name. I don't like that. Get to the airlock. Dunne and Ames are suiting up.", '', [{ t: 'Continue', fn: close }]);
   }
   function boardPrompt() {
     say('Ship log', "The outer hatch. Corvane's ship is docked on the other side; the seal light is green. Dunne and Ames are suited and waiting.", '', [
-      { t: 'Begin boarding', fn: () => { setJob('BOARDING', 'Board Corvane\'s ship', true); say('Ship log', "Dunne cycles the lock. The hatch opens onto a warm, dim bridge lit amber from a pedestal at its center, a teapot, four cups, already poured. [Full game: the standoff (P3) and the blessing (P4) play here.]", '', [{ t: 'Continue', fn: () => { close(); toCorvane(); } }]); } },
+      { t: 'Begin boarding', fn: startBoarding },
       { t: 'Look around first', fn: () => say('Ship log', 'Suit lockers, a bench, the trunk down. Nothing here needs you. The hatch will wait; Dunne might not.', '', [{ t: 'Continue', fn: close }]) }]);
   }
+  function startBoarding() { setJob('BOARDING', 'Board Corvane\'s ship', true); say('Ship log', "Dunne cycles the lock. The hatch opens onto a warm, dim bridge lit amber from a pedestal at its center, a teapot, four cups, already poured. [Full game: the standoff (P3) and the blessing (P4) play here.]", '', [{ t: 'Continue', fn: () => { close(); toCorvane(); } }]); }
   function toCorvane() { setRoom('control', [12, 2]); setJob('MECHANICAL', 'Walk the ship, bow to stern, both decks'); say('Ship log', ROOMS.control.blurb, '', []); }
   function afterInspect() {
     say('Castellan', 'The coupling seats fine. Behind it there is a hairline crack in the manifold. Patch it now and we lose four minutes at the next stop. Leave it and I will watch it.', '', [
@@ -262,7 +296,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   // Hatch transitions have no clipping: the person walks to the wall plane and fades out as he reaches it (a = 'out'), walks on unseen ('gone'); on arrival he walks in unseen, then fades up as he steps off the sill ('in').
   function startExit(d) { const g = doorGeom(d), c = cellXY(...d.stand); me.steps = [{ p: g.sill, a: 'out' }, { p: g.out, a: 'gone' }]; me.stepDoor = d; me.sillP = g.sill; me.fadeF = Math.hypot(c[0] - g.sill[0], c[1] - g.sill[1]) || 1; me.dir = g.dirOut; me.path = []; me.then = null; }
   function startEnter(arrive) { const d2 = room.doors.find(x => x.stand[0] === arrive[0] && x.stand[1] === arrive[1]); if (!d2 || !d2.wall || d2.fade) return; const g = doorGeom(d2), c = cellXY(...d2.stand); me.x = g.out[0]; me.y = g.out[1]; me.steps = [{ p: g.sill, a: 'gone' }, { p: c, a: 'in' }]; me.stepDoor = null; me.sillP = g.sill; me.fadeF = Math.hypot(c[0] - g.sill[0], c[1] - g.sill[1]) || 1; me.dir = g.dirIn; me.alpha = 0; }
-  function useDoor(d) { if (d.action === 'board') { if (!briefed) { say('Dunne', 'Not yet. Captain wants you at the chart table first.', '', [{ t: 'Continue', fn: close }]); return; } boardPrompt(); return; } if (d.locked) { say('Ship log', d.locked, '', [{ t: 'Continue', fn: close }]); return; } if (!d.to) { say('Ship log', d.label + '. The art exists but this part of the ship is not wired up yet.', '', [{ t: 'Continue', fn: close }]); return; } if (!d.wall || d.fade) { pending = d; fadeDir = 1; return; } startExit(d); }
+  function useDoor(d) { if (d.action === 'board') { if (!briefed || !hunted) { say('Dunne', briefed ? 'Not yet. We have to find her first.' : 'Not yet. Captain wants you at the chart table first.', '', [{ t: 'Continue', fn: close }]); return; } if (!amesTalked) { amesBeat(true); return; } boardPrompt(); return; } if (d.locked) { say('Ship log', d.locked, '', [{ t: 'Continue', fn: close }]); return; } if (!d.to) { say('Ship log', d.label + '. The art exists but this part of the ship is not wired up yet.', '', [{ t: 'Continue', fn: close }]); return; } if (!d.wall || d.fade) { pending = d; fadeDir = 1; return; } startExit(d); }
   cv.addEventListener('pointermove', e => { if (fadeDir) return; const [x, y] = mpos(e); const d = doorAt(x, y); const nn = npcAt(x, y); hover = nn ? nn : d ? d : manifoldHere() && inRect(x, y, MANIFOLD.rect) ? 'man' : null; const c = pick(x, y); hoverCell = free(...c) ? c : null; cv.style.cursor = hover || hoverCell ? 'pointer' : 'default'; });
   cv.addEventListener('pointerdown', e => {
     if (dlg || insp > 0 || fadeDir || me.steps.length) return; const [x, y] = mpos(e); const d = doorAt(x, y);
@@ -272,8 +306,11 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     const c = pick(x, y); if (free(...c)) go(c, null);
   });
   $('grid').onclick = () => { show = !show; $('grid').textContent = show ? 'Hide walk grid' : 'Show walk grid'; };
-  $('reset').onclick = () => { insp = 0; briefed = false; setRoom('tern_control', [12, 2]); setJob('BRIEFING', 'Report to Captain Ostrow at the chart table'); say('Ship log', ROOMS.tern_control.blurb, '', []); };
-  $('skip').onclick = () => { insp = 0; briefed = true; toCorvane(); };
+  $('reset').onclick = () => { insp = 0; briefed = false; hunted = false; amesTalked = false; ROOMS.tern_junction.npcs = ROOMS.tern_junction.npcs.filter(n => n.name !== 'Ames'); if (!ROOMS.tern_control.npcs.some(n => n.name === 'Ames')) ROOMS.tern_control.npcs.push({ name: 'Ames', col: '#c7d9a8', cell: [7, 4] }); setRoom('tern_control', [12, 2]); setJob('BRIEFING', 'Report to Captain Ostrow at the chart table'); say('Ship log', ROOMS.tern_control.blurb, '', []); };
+  $('skip').onclick = () => { insp = 0; briefed = true; hunted = true; moveAmes(); toCorvane(); };
+  if (location.hash === '#after_hunt') { setTimeout(afterHunt, 50); }
+  $('hunt').onclick = () => { const t = getTrims(); window.open('hunt.html' + (t.length ? '?trims=' + t.join(',') : ''), '_blank'); };
+  showTrims();
 
   function diamond(i, j, fill, stroke) { const c = [ptXY(i / NI, j / NJ), ptXY((i + 1) / NI, j / NJ), ptXY((i + 1) / NI, (j + 1) / NJ), ptXY(i / NI, (j + 1) / NJ)]; cx.beginPath(); c.forEach((p, k) => k ? cx.lineTo(p[0] * S, p[1] * S) : cx.moveTo(p[0] * S, p[1] * S)); cx.closePath(); if (fill) { cx.fillStyle = fill; cx.fill(); } if (stroke) { cx.strokeStyle = stroke; cx.lineWidth = 1; cx.stroke(); } }
   function person(o, t, walking) {
@@ -343,6 +380,6 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     [['T', r.T], ['R', r.R], ['L', r.L], ['B', r.B]].forEach(([n, w]) => { const q = I(w); g.fillStyle = '#ff0'; g.beginPath(); g.arc(q[0], q[1], 6, 0, 7); g.fill(); g.fillStyle = '#000'; g.textAlign = 'center'; g.fillText(n, q[0], q[1] + 4); });
     return c.toDataURL('image/png');
   }
-  window.__iso = { me, go, bfs, ROOMS, setRoom, devRender, get room() { return room; }, useDoor, get npcs() { return npcs; } };
+  window.__iso = { me, go, bfs, ROOMS, setRoom, talk, devRender, get room() { return room; }, useDoor, get npcs() { return npcs; } };
 })();
 </script>

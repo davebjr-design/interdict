@@ -12,14 +12,14 @@
 ## Left to do, in order
 ### A. Make the hunt interface 100% playable (no credits)
 1. Hunt balance pass (the open items in `game_flow.md`: spool vs. clear, ~68% win baseline).
-2. **Trims layer:** wire `data/mini_missions.json` multipliers into `P.*`; run the bot per trim so none is strictly better.
+2. ~~**Trims layer**~~ **wired** (`web/trims.js`, officers pitch trims in the walk demo, `tools/trim_bot.js`). Bot needs to learn to ping and spool under fire before the trims can be judged.
 3. **Decision cards in the hunt:** cards 3-5 fire during the shakedown with their voiced lines.
-4. **Tutorial director (P2):** fixed seed, scripted enemy track, step gating, highlighted controls, Ostrow's one-line instructions. Needs a short script (writing, below).
+4. ~~**Tutorial director (P2)**~~ **built** (`web/tutorial.js`, `docs/scenes/p2_tutorial_hunt.md`): Ostrow's seven steps, highlighted controls, Corvane surrenders by laser.
 5. **The shakedown's scripted event:** the decoy's forty-second turn (1.6).
 6. Only then: switch art for the final control set (see C).
 
 ### B. Writing still needed (no credits)
-1. **P2 tutorial script:** Ostrow's instruction line per step (about 12-15 lines).
+1. ~~**P2 tutorial script**~~ done (7 steps plus the surrender).
 2. **The standoff as a playable text scene:** P3 is written; it needs its round structure and tells laid out for the dialogue runner.
 3. **Return calls** promised by earlier scenes: `call.corvane.cabin`, `call.pell.logs`, `call.pell.background`, `call.pell.quiet_hour`, `call.corvane.cabin_key` (short, 5 small storylets).
 4. **Ambient banter:** 3-4 state-aware lines per officer per station, so a second visit says something new.
