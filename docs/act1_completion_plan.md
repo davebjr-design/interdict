@@ -48,3 +48,5 @@
 
 ## Design note: mutually exclusive mini-missions [D]
 The tracker can offer two missions that exclude each other ("go here to side with X / go there to side with Y"). Taking one closes the other and sets a branch flag. First use: Act 2 (Vesper). Act 0's airlock teaches the basic flow (tracker entry → walk there → prompt → commit or look around) without a branch.
+
+- Tutorial polish: hide the integration meter on the Tern (cosmetic gap in web/tutorial.js hidePell()).
