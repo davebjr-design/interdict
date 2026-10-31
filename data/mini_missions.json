@@ -22,7 +22,8 @@
     ]
    ],
    "difficulty": 2.5,
-   "watches": 1
+   "watches": 1,
+   "shelved": true
   },
   {
    "id": "eng.quiet_bearings",
