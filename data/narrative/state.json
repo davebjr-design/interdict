@@ -211,6 +211,32 @@
    "default": 0,
    "doc": "Round in which the player shot Corvane; 0 if never."
   },
+  "clock.decision": {
+   "type": "time",
+   "min": "22:08",
+   "max": "22:13",
+   "default": "unset",
+   "doc": "Ship time (night of day 0) of the player's decisive act in P3: 22:07 (standoff start, the hatch) + the round of the act, one minute per round. Murder R1 22:08, shot early R2 22:09, shot late R3-R5 22:10-22:12, persuaded R6 22:13. Stored once, never changed. Render with {clock.decision} (22:13) or {clock.decision.spoken} (twenty-two-thirteen); never hard-code a time.",
+   "writer": "p3_standoff",
+   "readers": [
+    "p4_blessing",
+    "act1_pell_night",
+    "act1_close",
+    "plot_so_far"
+   ]
+  },
+  "clock.blessing_sent": {
+   "type": "time",
+   "min": "21:57",
+   "max": "22:02",
+   "default": "unset",
+   "doc": "Ship time the Steward's blessing was sent: always clock.decision - 11 min (21:57-22:02), so always before the standoff began. Derived, written by the runtime in the same step as clock.decision. Render with {clock.blessing_sent} or {clock.blessing_sent.spoken}. The fixed eleven minutes is the 'Something knew' device: the Steward knew the act and the minute.",
+   "writer": "p3_standoff",
+   "readers": [
+    "p4_blessing",
+    "plot_so_far"
+   ]
+  },
   "murdered": {
    "type": "bool",
    "default": false,
@@ -389,5 +415,5 @@
   "seen.shakedown.debrief": "bool. Set at the end of 1.6's debrief; 1.6b needs it.",
   "seen.pedestal.asked": "bool. The captain examined the kick plate in the walk demo after a decline; read by call.castellan.wiring_again."
  },
- "_timeline": "Corvane: 47. CSRA Tally enforcement for 11 years, then gleaner captain about 14 years (Abara from the start). Found the relay station 3 years ago; asked her last crew to help, they refused, she scuttled that ship (Dunne made the boats); took this ship after. Took the core and Pell came aboard 6 weeks ago. Standoff ends ~22:13 ship time; P4 ~23:15; 1.1 next morning (~10 hours aboard). Day 1: first morning, crew meeting, aftermath, Pell at night (1.1-1.5). Day 3: shakedown (1.6); night 3: the wiring (1.6b). Day 4: first commission (1.7). Legs after that: crew calls (1.8). Days 4-6: crew calls (1.8). Night 6: Quill brings the signal (1.9); day 7: audit notice; day 8: arrive at Vesper (Act 2)."
+ "_timeline": "Corvane: 47. CSRA Tally enforcement for 11 years, then gleaner captain about 14 years (Abara from the start). Found the relay station 3 years ago; asked her last crew to help, they refused, she scuttled that ship (Dunne made the boats); took this ship after. Took the core and Pell came aboard 6 weeks ago. Standoff starts 22:07 ship time and ends at clock.decision (22:08-22:13 by round; blessing sent at clock.blessing_sent, 11 min earlier); P4 ~23:15; 1.1 next morning (~10 hours aboard). Day 1: first morning, crew meeting, aftermath, Pell at night (1.1-1.5). Day 3: shakedown (1.6); night 3: the wiring (1.6b). Day 4: first commission (1.7). Legs after that: crew calls (1.8). Days 4-6: crew calls (1.8). Night 6: Quill brings the signal (1.9); day 7: audit notice; day 8: arrive at Vesper (Act 2)."
 }

@@ -9,7 +9,7 @@
 **Purpose:** Quill's secret, given to the captain by choice (her arc to stage 2); the player *hears* the signal; Pell has heard it before and can't say where (`clue.pell.2`); the question sharpens from "who knew?" to "what is that, and where is it?"; the Tally audit sets the stakes for Act 2.
 
 ## POV sheets
-- **Quill.** *Knows:* she has logged this signal for about eight months, long before Corvane brought the core aboard. It was there at 22:13 on the night of the standoff, during the decoy's turn on day 3, and *(if the crew were told the timestamp in 1.3, so she was watching)* when the voice's line opened on day 4. Slowed down, it has structure. *Believes:* Corvane was right. *Wants:* to give it to someone who'll take it seriously, and to stop carrying it alone. *Fears:* being the only one who heard it; *(ames dead)* what she was really doing when Corvane asked her. *Would never say:* anything she can't show on paper.
+- **Quill.** *Knows:* she has logged this signal for about eight months, long before Corvane brought the core aboard. It was there at the moment of the decision on the night of the standoff (`clock.decision`; she wrote it down on the bridge), during the decoy's turn on day 3, and *(if the crew were told the timestamp in 1.3, so she was watching)* when the voice's line opened on day 4. Slowed down, it has structure. *Believes:* Corvane was right. *Wants:* to give it to someone who'll take it seriously, and to stop carrying it alone. *Fears:* being the only one who heard it; *(ames dead)* what she was really doing when Corvane asked her. *Would never say:* anything she can't show on paper.
 - **Pell.** *Knows:* the signal; it has heard it before; where is behind the wall. *Wants:* the captain to hear it with their own ears and decide what it means. Tell: silent for exactly one line.
 - **Abara** (coda). Reads the audit notice. *Knows:* what's in the hold and what's in the ledger. *Wants:* the captain thinking about both before Vesper.
 
@@ -42,7 +42,9 @@ QUILL: There's a signal on the old deep-space band. Under the relay traffic, whe
 
 *She taps the underlined lines, one at a time.*
 
-QUILL: Twenty-two-thirteen, the night you came aboard. That one I wrote down on the bridge.
+QUILL: {clock.decision.spoken}, the night you came aboard. That one I wrote down on the bridge.
+*(Renders: murder "Twenty-two-oh-eight"; shot early "Twenty-two-oh-nine"; shot late "Twenty-two-ten" / "Twenty-two-eleven" / "Twenty-two-twelve"; persuaded "Twenty-two-thirteen". Capitalise the token at the start of a line.)*
+*(crew told the timestamp in 1.3)* QUILL: Eleven minutes after the message was sent. Not ten. Not twelve.
 QUILL: Day three. The forty seconds the drone turned.
 *(crew told the timestamp in 1.3)* QUILL: Day four. When the line opened, before anyone said a word.
 

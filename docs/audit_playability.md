@@ -138,6 +138,7 @@ Fix: fold `scene_names.py` into `narr_check.py` so it keeps passing once the Ink
 **26. The standoff's clock is the same in every route.** *Polish / open question.*
 Evidence: P4: "You fired at twenty-two-thirteen" (any shot) / "She stood down at twenty-two-thirteen". Quill logs 22:13 in all endings, and 1.5 and 1.9 key off it. A round-1 murder happens several minutes before a round-6 stand-down (the reading time is 6-9 minutes). If the time is meant to be fixed, that's a strong clue (something chose the moment), but no doc says so.
 Fix: either state it as intended (add it to `clues.csv` as a "Something knew" clue), or compute the time from the round (22:07 + round) and keep "eleven minutes" by moving the send time.
+**Resolved (2026-11-02):** the second option. `clock.decision` = 22:07 + the round of the player's act (R1 murder 22:08 ... R6 stand-down 22:13) and `clock.blessing_sent` = `clock.decision` - 11 min, declared in `state.json` (writer P3, readers listed) and explained in `narrative_architecture.md` §2.2 "Derived time variables". P4, 1.5, 1.9 and `plot_so_far.md` read `{clock.*}` tokens with per-route renderings; `narr_check.py` rejects hard-coded standoff times in scenes. The send is always before the hatch (22:07), so the device is stronger: the Steward knew the act and the minute.
 
 **27. Planning docs are out of date.** *Polish.*
 Evidence:
@@ -150,9 +151,9 @@ Fix: one pass marking superseded sections.
 ### Checked and consistent (no finding)
 - The timeline holds:
   - Corvane: 11 years with the Tally, about 14 as a gleaner. The relay station was 3 years ago, the scuttling after it, the core 6 weeks ago.
-  - Standoff ~22:13, P4 ~23:15, 1.1 the next morning.
+  - Standoff ~22:13, P4 ~23:15, 1.1 the next morning. (Now `clock.decision`, 22:08-22:13; finding 26.)
   - The shakedown is day 3, the commission day 4 ("the morning after"), the calls days 4-6, 1.9 night 6, Vesper day 8.
-  - Pell's three-second gap is "22:13 yesterday" in 1.5.
+  - Pell's three-second gap is "22:13 yesterday" in 1.5. (Now `{clock.decision.spoken}`; finding 26.)
 - Who knows what holds:
   - Abara and Quill stay unnamed until Corvane names Quill in R3 (persuaded and late-shot endings say "Quill"; the R2 ending correctly says "the tall woman").
   - Pell is named to the player in P1 only if asked.
@@ -174,7 +175,7 @@ Fix: one pass marking superseded sections.
 ## Open design questions (not resolved here)
 1. **Trims or decision moments?** `decision_moments.md` (2026-10-31) says to replace "pick a trim at the officer" with in-hunt tight/loose popups and make trims "standing settings" earned after repeats. The demo shipped the opposite the same day. Should "Any ideas for the ship?" stay as the underway entry point for M06/M08/M10 (the deferred underway moments), or be retired?
 2. **When does PELL ASSIST exist?** From the first hunt (as built), from the 1.5 overlay, or from integration 25? (Superseded by 1.6b: from the wiring scene, after the shakedown.) This decides whether the hunt is a back door around the firewall story.
-3. **Is 22:13 fixed on purpose?** (finding 26) If yes, it's a fourth "Something knew" clue and should be logged.
+3. **Is 22:13 fixed on purpose?** (finding 26) If yes, it's a fourth "Something knew" clue and should be logged. (Resolved 2026-11-02: not fixed; derived from the round, see finding 26.)
 4. **Where does the Ames question happen?** On the way to stations (P1 canon; needs a non-modal post-briefing step), or at the airlock (current demo; needs P3 R3's narration changed)?
 5. **Should the tutorial let you fail?** Today every path ends in surrender, including running away and being shot to 44% hull. If running should be possible, Ostrow needs a line; if not, BREACH should be hidden.
 6. **What does the probationer's label become, and when?** "Captain" over the sprite from Act 0 undercuts P4's handover. "You" until P4, then "Captain"?

@@ -18,9 +18,9 @@ A probationary hand on a poor gleaner ship joins a hunt for Captain Ilsa Corvane
 | **Shot early** | R2 | wounded, lives | Dunne's respect; Ames alive | Corvane dies saying almost nothing; her case survives only in logs |
 | **Shot late** | R3-R5 | dead (Corvane shoots him after Quill says "Yes, Captain") | more of her case in her own words | you watched it happen |
 | **Persuaded** | never | dead | she stands down, alive and confined; the most truth | Ames died for it |
-At the decisive moment Pell says "Your tea's gone cold" twice and doesn't know it. Quill writes down 22:13.
+At the decisive moment Pell says "Your tea's gone cold" twice and doesn't know it. Quill writes down the time: `clock.decision`, 22:07 plus the round of your act (22:08 for a round-1 murder, 22:13 for a stand-down).
 
-**P4 The blessing** (same night). The Steward's message congratulates the outcome you chose, sent **eleven minutes before** you chose it. Only one message in the log. Pell gets chatty (scared). The line, open six weeks, closes for the first time. *Sets:* `patron.suspicion`, and whether you learned the name "the Steward".
+**P4 The blessing** (same night). The Steward's message congratulates the outcome you chose, sent **eleven minutes before** you chose it (`clock.blessing_sent`), whichever round you acted in, and before you came through the hatch. Only one message in the log. Pell gets chatty (scared). The line, open six weeks, closes for the first time. *Sets:* `patron.suspicion`, and whether you learned the name "the Steward".
 
 ## Act 1: the first week aboard (days 1-7)
 **1.1 Stepping aboard** (day 1). The ship is "thick as a brick": Pell has clamped itself back to clockwork, because Corvane's permissions ended with her. Pell's nickname for you comes from the standoff. Abara: "Comms log says you had a visitor last night."
@@ -38,7 +38,7 @@ At the decisive moment Pell says "Your tea's gone cold" twice and doesn't know i
 **1.7 The first commission** (day 4). The Steward quotes Abara's words from the mess the night before. A sealed "medical" store from a war hospital ship, to Vesper Dock, off the books. Its mass fits a core housing. Abara: "That's how she started."
 - *Fork:* log it / hide it / take it and open it / refuse. Moves Tally standing, patron standing and command style together.
 **1.8 Crew calls** (days 4-6, any order). Dace wants Pell's help with Castellan's burn. Castellan won't let anyone near the panel ("I'll tell you. Not today."). Abara's quarterly payments to the six families, and Corvane's message about her grandfather ("I'll show you the box. Not tonight."). Fenwick's missing crate ("Somewhere it was needed"). Quill asks to listen "for calibration".
-**1.9 The signal** (night 6, coda day 7). Quill brings eight months of logs. The signal was there at 22:13, at the drone's turn, and (if she was watching) when the line opened. You hear it: under the hiss, something with shape, many at once. Pell has heard it before and can't say where. Tally audit at Vesper; Abara lists what they'll find.
+**1.9 The signal** (night 6, coda day 7). Quill brings eight months of logs. The signal was there at the moment you decided (`clock.decision`), at the drone's turn, and (if she was watching) when the line opened. You hear it: under the hiss, something with shape, many at once. Pell has heard it before and can't say where. Tally audit at Vesper; Abara lists what they'll find.
 
 ## Where every thread stands at the end of Act 1
 | Thread | Planted | Status |

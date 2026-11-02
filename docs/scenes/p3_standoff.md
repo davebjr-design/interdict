@@ -4,6 +4,7 @@
 **Where:** Corvane's bridge (the control room of the ship the player will inherit). **Reading time:** about 6-9 minutes, depending on the route.
 **POV sheets:** `pov_sheets.md` (Corvane, Dunne, Ames, Quill, Abara, Pell). Central mystery: "Something knew" (same file).
 **Format:** `NAME:` lines are spoken. *Italics* are narration. `→` is a player choice; [brackets] show the effect or where it goes. **R1-R6** are the rounds.
+**Clock:** the standoff starts at 22:07 ship time, as the boarding party comes through the hatch; each round is one minute. The round of the player's decisive act sets `clock.decision` and `clock.blessing_sent` (table under "Derived time" at the end).
 **Rules for this scene:** one new visible tell every round. Corvane never raises her voice. Abara and Quill stay at their stations and say nothing, except Quill's two words in R3. Pell speaks calmly, and what it says is a little wrong.
 
 ---
@@ -207,7 +208,7 @@ PELL: Yes, Captain?
 
 *At tactical, the silver-haired woman finally turns around. Her face holds grief and anger at once, and it's impossible to tell which is meant for whom. At sensors, Quill glances at her console and writes something down.*
 
-[corvane = persuaded → P4]
+[corvane = persuaded, clock.decision = 22:13 → P4]
 
 ---
 
@@ -238,7 +239,7 @@ PELL: Captain Corvane. Your tea's gone cold. Shall I warm it?
 
 *Nobody answers it. At tactical, the silver-haired woman is the last to look away from Corvane. At sensors, the tall woman glances at her console and writes something down.*
 
-[corvane = killed, murdered = true, p3.round_shot = 1, ames = unharmed. Dunne will not serve with you; Ostrow files a report. Trust: Abara -25, Quill -15, Dace -15, Castellan -10, Fenwick -10; Pell trust at its lowest. → P4]
+[corvane = killed, murdered = true, p3.round_shot = 1, clock.decision = 22:08, ames = unharmed. Dunne will not serve with you; Ostrow files a report. Trust: Abara -25, Quill -15, Dace -15, Castellan -10, Fenwick -10; Pell trust at its lowest. → P4]
 
 ### SHOT EARLY (shot in R2)
 *You draw. Corvane is faster than you, but she isn't drawing on you. Her shot takes Ames in the shoulder; yours takes her in the chest.*
@@ -267,7 +268,7 @@ PELL: Captain Corvane. Your tea's gone cold. Shall I warm it?
 
 *Nobody answers it. At tactical, the silver-haired woman is the last to look away from Corvane. At sensors, the tall woman glances at her console and writes something down.*
 
-[corvane = killed, p3.round_shot = 2, ames = wounded. Dunne respects the speed. Corvane said almost nothing; her case survives in Pell's logs. → P4]
+[corvane = killed, p3.round_shot = 2, clock.decision = 22:09, ames = wounded. Dunne respects the speed. Corvane said almost nothing; her case survives in Pell's logs. → P4]
 
 ### SHOT LATE (shot in R3, R4 or R5)
 *You fire. She's slower this time. Or she doesn't try.*
@@ -293,7 +294,7 @@ PELL: Captain Corvane. Your tea's gone cold. Shall I warm it?
 
 *Nobody answers it. At tactical, the silver-haired woman is the last to look away from Corvane. At sensors, Quill glances at her console and writes something down.*
 
-[corvane = killed, p3.round_shot = 3-5, ames = dead. The later the shot, the more of her case the player heard in her own words. → P4]
+[corvane = killed, p3.round_shot = 3-5, clock.decision = 22:07 + p3.round_shot (22:10 / 22:11 / 22:12), ames = dead. The later the shot, the more of her case the player heard in her own words. → P4]
 
 ---
 
@@ -305,4 +306,18 @@ PELL: Captain Corvane. Your tea's gone cold. Shall I warm it?
 - **Abara** is never named here, only "the silver-haired woman" at tactical. The player learns her name aboard, in 1.1. (Same for Quill until Corvane names her.)
 - **The R5 callback** ("You asked Ostrow what happens if I'm right") only appears if the player asked it in P1. It's the first hint that Pell, and through Pell Corvane, hears more than it should.
 - **Dunne** was on the scuttled ship and made the boats; two of the six dead were his friends. Corvane knows, and is genuinely glad he lived. That's why he never liked her, and why he's in the room.
-- **Pell's repeated line and Quill's note** happen in every ending: at the decisive moment Pell says "Captain Corvane. Your tea's gone cold. Shall I warm it?" twice, word for word, and doesn't seem to know it did. (Said to a dead woman, it's chilling; said to a living one, it's just wrong.) Quill logs the time to the second. Something transmitted, and Pell lost a few seconds. Thread 2 of the central mystery; never explained here. It deliberately implicates Pell.
+- **Pell's repeated line and Quill's note** happen in every ending: at the decisive moment Pell says "Captain Corvane. Your tea's gone cold. Shall I warm it?" twice, word for word, and doesn't seem to know it did. (Said to a dead woman, it's chilling; said to a living one, it's just wrong.) Quill logs the time to the second: `clock.decision`, which is the moment of the player's act, so it differs by route. Something transmitted, and Pell lost a few seconds. Thread 2 of the central mystery; never explained here. It deliberately implicates Pell.
+
+## Derived time
+The runtime writes both variables once, when the decisive act resolves (the shot, or Corvane's "Pell, give them the ship."): `clock.decision = 22:07 + round`, `clock.blessing_sent = clock.decision - 11 min`. Ames's death in R3 is not the decisive act; only the player's is. Later scenes read the variables (tokens `{clock.decision}`, `{clock.decision.spoken}`, `{clock.blessing_sent}`, `{clock.blessing_sent.spoken}`) and never a fixed time.
+
+| Route | Round | `clock.decision` | spoken | `clock.blessing_sent` | spoken |
+|---|---|---|---|---|---|
+| Murder | R1 | 22:08 | twenty-two-oh-eight | 21:57 | twenty-one-fifty-seven |
+| Shot early | R2 | 22:09 | twenty-two-oh-nine | 21:58 | twenty-one-fifty-eight |
+| Shot late | R3 | 22:10 | twenty-two-ten | 21:59 | twenty-one-fifty-nine |
+| Shot late | R4 | 22:11 | twenty-two-eleven | 22:00 | twenty-two hundred |
+| Shot late | R5 | 22:12 | twenty-two-twelve | 22:01 | twenty-two-oh-one |
+| Persuaded | R6 | 22:13 | twenty-two-thirteen | 22:02 | twenty-two-oh-two |
+
+Every send time is before 22:07: on every route the blessing left before the player came through the hatch, and it is always exactly eleven minutes ahead of whichever act the player chose, in whichever round. That is the "Something knew" device: the Steward knew the act *and* the minute.

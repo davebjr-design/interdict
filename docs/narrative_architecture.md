@@ -58,8 +58,15 @@ This matches the concept doc: scripted content for the dilemmas and backstory, s
 | `knows.<fact>` | boolean | What the player has learned (reveals ladder). Facts are named once in a ledger. |
 | `told.<fact>.<officer>` | boolean | What the crew have been told. Drives the "trust drops when they find out you hid it" rule. |
 | `leg`, `act` | counters | Position, for pacing storylets. |
+| `clock.decision`, `clock.blessing_sent` | ship time (HH:MM), written once in P3 | When the player's decisive act happened, and when the Steward's blessing was sent (always 11 minutes earlier). Derived; see below. |
 
 Rules: trust and integration only move through named effects in storylets, each logged with its source id. Nothing else writes state. No officer dies (decided Oct 22); consequences are **states** instead: shaken, estranged, leaves the bridge team, requests a transfer, mutinies, comes back.
+
+**Derived time variables.** Some story state is a time, not a score. The runtime computes it once and stores it; scenes only read it.
+- `clock.decision` = standoff start (22:07 ship time, the boarding party through the hatch) + the round of the player's decisive act, one minute per round: R1 murder 22:08, R2 22:09, R3-R5 22:10-22:12, R6 stand-down 22:13. Written when the act resolves (P3), with `p3.round_shot` (or 6 if persuaded).
+- `clock.blessing_sent` = `clock.decision` - 11 min (21:57-22:02). Written in the same step. It is always before the standoff began, so on every route the Steward's message left before the player came through the hatch and named the act they would choose, to the minute.
+- Scenes render them with template tokens: `{clock.decision}` gives "22:13", `{clock.decision.spoken}` gives "twenty-two-thirteen" (hour words, then "oh-" for minutes 1-9, "hundred" for :00; capitalise at line start). Where prose can avoid the number ("the moment of the decision"), it does. Each scene that names a time gives one example rendering per route.
+- `state.json` declares each with `writer` and `readers` (scene file stems); `tools/narr_check.py` checks that every `{clock.*}` token names a declared variable, that every file using one is a listed reader, and that no scene hard-codes a decision or send time outside a rendering example or table.
 
 ### 2.3 A storylet record
 

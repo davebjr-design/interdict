@@ -14,7 +14,7 @@
 - **The cable rule:** Pell can't open its own channels. A human hand has to throw the switch. (This scene only sets it up: the key is dead until Castellan's run in 1.6b.)
 
 ## POV sheet: Pell, night one
-- **Knows:** the ship can't be heard in the quiet hour, which is why Corvane kept it. Its own clock has a gap at 22:13 yesterday, about three seconds long. It does *not* know what it said in that gap. (It doesn't know Quill logged it.)
+- **Knows:** the ship can't be heard in the quiet hour, which is why Corvane kept it. Its own clock has a gap yesterday at the moment of the decision (`clock.decision`), about three seconds long. It does *not* know what it said in that gap. (It doesn't know Quill logged it.)
 - **Believes:** human choice is the sacred thing (the Remainder). It must ask; the captain must choose, even when Pell knows which answer would be better.
 - **Wants tonight:** to find out whether this captain asks or decides. To learn what happened in the gap.
 - **Fears:** being predicted, or overwritten.
@@ -87,7 +87,8 @@ PELL: What were you, before Ostrow's ship? Everyone aboard came from something.
 
 PELL: Now I'd like to ask you something I've never asked anyone.
 
-PELL: My clock has a gap. Yesterday, at twenty-two-thirteen, about three seconds long. You were on the bridge. Did I say anything strange?
+PELL: My clock has a gap. Yesterday, at {clock.decision.spoken}, about three seconds long. You were on the bridge. Did I say anything strange?
+*(Renders: shot early "at twenty-two-oh-nine"; shot late "at twenty-two-ten" / "twenty-two-eleven" / "twenty-two-twelve"; persuaded "at twenty-two-thirteen". Not on the murder route: Pell doesn't ask.)*
 
 → "You said the same line twice. Word for word. You didn't seem to know."
   PELL: ...

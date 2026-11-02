@@ -49,6 +49,38 @@ for k, v in reveals.items():
     if len(v) < 3: errs.append('reveal %s has only %d clues (rule: at least 3 independent)' % (k, len(v)))
 for r in rows('callbacks.csv'):
     if r['status'] == 'planted' and not r['payoff_in']: errs.append('callback %s planted with no payoff' % r['callback_id'])
-print('calls %d, facts %d, reveals %d' % (len(ids), len(facts), len(reveals)))
+# Derived time variables (type "time", e.g. clock.decision): tokens {clock.x} / {clock.x.spoken} in docs must
+# name a declared time var, each using file must be a listed reader, the writer must assign it, and no scene
+# may hard-code a decision or send time except in a rendering example (line with "Renders"), a table, or a clock.* line.
+DOCS = os.path.join(D, '..', '..', 'docs')
+doc_files = {os.path.splitext(f)[0]: os.path.join(DOCS, f) for f in os.listdir(DOCS) if f.endswith('.md')}
+doc_files.update({os.path.splitext(f)[0]: os.path.join(DOCS, 'scenes', f) for f in os.listdir(os.path.join(DOCS, 'scenes')) if f.endswith('.md')})
+tvars = {k: v for k, v in st['vars'].items() if v.get('type') == 'time'}
+for k, v in tvars.items():
+    w = v.get('writer')
+    if w not in doc_files: errs.append('%s: writer %s is not a doc' % (k, w))
+    elif not re.search(re.escape(k) + r'\s*=', open(doc_files[w]).read()): errs.append('%s: writer %s never assigns it' % (k, w))
+    for r in v.get('readers', []):
+        if r not in doc_files: errs.append('%s: reader %s is not a doc' % (k, r))
+        elif k not in open(doc_files[r]).read(): errs.append('%s: reader %s never reads it' % (k, r))
+def spoken(hm):
+    n = 'zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen'.split()
+    t = {2: 'twenty', 3: 'thirty', 4: 'forty', 5: 'fifty'}
+    w = lambda x: n[x] if x < 20 else t[x // 10] + ('-' + n[x % 10] if x % 10 else '')
+    h, m = hm // 60, hm % 60
+    return w(h) + (' hundred' if m == 0 else '-oh-' + n[m] if m < 10 else '-' + w(m))
+fixed = set()
+for start, end in ((22 * 60 + 8, 22 * 60 + 13), (21 * 60 + 57, 22 * 60 + 2)):
+    for hm in range(start, end + 1): fixed |= {'%d:%02d' % (hm // 60, hm % 60), spoken(hm)}
+hard = re.compile(r'(?<![\d:])(' + '|'.join(sorted(map(re.escape, fixed), key=len, reverse=True)) + r')(?![\d-])', re.I)
+for stem, path in doc_files.items():
+    is_scene = os.sep + 'scenes' + os.sep in path or stem == 'plot_so_far'
+    for ln, line in enumerate(open(path), 1):
+        for m in re.finditer(r'\{(clock\.\w+?)(\.spoken)?\}', re.sub(r'`[^`]*`', '', line)):  # backticked tokens are documentation
+            if m.group(1) not in tvars: errs.append('%s:%d: token {%s} is not a declared time var' % (stem, ln, m.group(1)))
+            elif stem not in tvars[m.group(1)].get('readers', []): errs.append('%s:%d: reads %s but is not in its readers' % (stem, ln, m.group(1)))
+        if is_scene and 'Renders' not in line and not line.startswith('|') and 'clock.' not in line:
+            for m in hard.finditer(line): errs.append('%s:%d: hard-coded standoff time %r (use {clock.*})' % (stem, ln, m.group(1)))
+print('calls %d, facts %d, reveals %d, time vars %d' % (len(ids), len(facts), len(reveals), len(tvars)))
 if errs: print('\n'.join(errs)); sys.exit(1)
 print('OK')
