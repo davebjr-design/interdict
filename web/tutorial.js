@@ -13,7 +13,7 @@
   E.newHunt = (seed, opts) => {
     const s = oNew(4242, Object.assign({}, opts, { nreal: 1, friendly: false, N: 4, nlure: 1 }));   // the field is set per hunt, never on the shared rules
     s.analysts.forEach(w => { if (NAMES[w.name]) w.name = NAMES[w.name]; });
-    C = s.an.find(a => a.kind === 'real'); C.load = Object.assign({}, E.LOADOUTS.find(l => l.id === 'shade'), { dmg: 0.35 }); C.hpMax = C.hp = 110; C.corvane = true;
+    C = s.an.find(a => a.kind === 'real'); C.load = Object.assign({}, E.LOADOUTS.find(l => l.id === 'shade'), { dmg: 0.35 }); C.hpMax = C.hp = 110; C.hpFloor = 0.4 * C.hpMax; C.corvane = true;   // she surrenders at 60%; the floor keeps a lucky volley from crippling her first
     step = 0; shown = -1; return s;
   };
   E.tick = (s, dt) => { oTick(s, dt); remap(s); director(s); };

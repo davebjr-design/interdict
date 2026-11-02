@@ -305,9 +305,9 @@ body.sweep #stage{box-shadow:inset 0 0 0 4px #ff6b5a}
 <div class="help"><b>Heat.</b> Heat does not leak away. Everything we do fills the heat sinks, and being quiet only slows the fill. The Heat rate dial next to the sink shows how fast it is filling (right) or draining (left) per real minute, and the clock says how long until it is full if nothing changes. Hover over Go quiet, Break contact, a speed, the sink itself or a navigation menu item to see a ghost of the new rate before you click. Full drive fills the sink in a few minutes. Redline fills it in seconds: if the sink stays full the coolant lines fail, the hull and systems take damage, and the crew will say so. Use it in short bursts. The one way to empty them is to extend the fins (Vent heat, key V), and while the fins are out we are 100% visible. If the sinks fill up, the fins open on their own. Warships have the same sinks and the same problem: when one vents, it lights up, and that is your chance. A standoff cannot last forever. Watch the Enemy fix pips to see how well they have us. Break contact is the calm way out.</div>
 <div class="help"><b>Launch briefing.</b> Before each hunt you choose how to arrive (running dark is slow to be found but sensors start cold; a hot arrival gets you close at the price of a heat spike), a plan speed, and you can draw a flight plan on the map that the navigator follows. Any order you give from the contact menu pauses the plan; Resume plan picks it back up.</div>
 <div class="help"><b>Orders and speed.</b> Click a contact on the radar or on its slip for a menu: <b>Close</b> moves toward it, <b>Separate</b> burns away, <b>Evade</b> weaves across its bearing, <b>Active ping</b> gives a crisp fix at the cost of being loud, and <b>Circle</b> keeps your range and swings around it for 2, 4 or 8 minutes, and <b>Target</b> locks it or opens the fire solution view. Keys: 1 Tactical, 2 Strategic, 3 Target, Q go quiet, P pause, Esc back. Speed sets how fast you move and how much engine heat you leak: Creep is nearly cold, Cruise is warm, Burn is hot and makes your sensors noisy. Hold still is the quietest.</div>
-<div class="help"><b>Close quarters.</b> Missiles scatter around the aim point. If that point is near your own ship, they can land on you and damage the hull; the volley planner warns you. Detonations and weapons fire near you also raise your heat, as does a locked warship within 24 km. Inside 18 km the coilgun fires instantly, ignores scatter grids and does not use a salvo, but the flash is loud and it needs a good track. Each salvo is six missiles, and each detonation hurts anything near it, less with distance. A tight cone concentrates damage but risks missing; a wide cone is more likely to touch the target but spreads the damage thin. Standard warheads do hull damage; EMP and Flare do light hull damage, and EMP cuts the target's system efficiency while Flare lights it up so we read it faster.</div>
-<div class="help"><b>Friend or foe.</b> An ally that enters the system with you shows <b style="color:var(--green)">green</b> from the start, and your weapons will not fire on it. A ship that fires on you, or that we see venting, is flagged <b style="color:var(--red)">red, hostile, 100%</b> at once, even if you had ruled it out. Everything else is only as certain as the odds on the radar say.</div>
-<div class="help"><b>They shoot back.</b> A warship that has noticed us (it heard our noise, felt our ping, or a volley landed close) will maneuver and fire. Incoming missiles show in red on the scope with a countdown in the top strip. Moving off the aim point makes them miss; sitting still lets them find us. Hull damage slows the analysts. Going quiet darkens our sensors and holds our launches; it does not silence the drive, and they can still shoot at where they last heard us. A maneuvering target spoils the track: keep an analyst on it, or press Refresh in the Target view.</div>
+<div class="help"><b>Close quarters.</b> Missiles scatter around the aim point. If that point is near your own ship, they can land on you and damage the hull; the volley planner warns you. Detonations and weapons fire near you also raise your heat, as does a locked warship within 24 km. Inside 18 km the coilgun fires instantly, ignores scatter grids and does not use a salvo, but the flash is loud, it needs a live track, and each slug does real hull damage, not an instant kill. Each salvo is six missiles, and each detonation hurts anything near it, less with distance. Even a zero cone is not a point: every missile scatters a little, more at long range. A tight cone concentrates damage but risks missing, overkills one spot, and a dense salvo is easier for a scatter grid to cut; a wide cone is more likely to touch the target but spreads the damage thin. A fresh track wants a tight cone; an old track, or a ship that is watching for us, wants a wider one. A clean hit takes about a quarter of a warship's hull. Standard warheads do hull damage; EMP and Flare do light hull damage, and EMP cuts the target's system efficiency while Flare lights it up so we read it faster.</div>
+<div class="help"><b>Friend or foe.</b> An ally that enters the system with you shows <b style="color:var(--green)">green</b> from the start, and your weapons will not fire on it. A ship that fires on you, pings you, or that we see venting, is flagged <b style="color:var(--red)">red, hostile, 100%</b> at once, even if you had ruled it out. Everything else is only as certain as the odds on the radar say.</div>
+<div class="help"><b>They shoot back.</b> A warship that has noticed us (it heard our noise, felt our ping, or a volley landed close) will maneuver and fire. Incoming missiles show in red on the scope with a countdown in the top strip. Moving off the aim point makes them miss; sitting still lets them find us. Hull damage slows the analysts. Going quiet darkens our sensors and holds our launches; it does not silence the drive, and they can still shoot at where they last heard us. Their missiles reach about 110 km and fly as fast as ours; a clean volley can take a third of our hull. A ship that has not found us does not wait forever: after several minutes it starts to widen its search and drift toward where the noise came from, and a cunning one will ping to flush us out. A few minutes of watching is fine; camping is not. A maneuvering target spoils the track: keep an analyst on it, or press Refresh in the Target view.</div>
 <div class="help"><b>Scope and maps.</b> The arena is 240 km across, so use Follow and zoom in for close work; the strategic map and Fit show it all. Mouse wheel zooms, drag pans, Follow keeps our ship centered, Fit shows the whole arena. Bright discs with a dashed ring are stars (eclipse screens); dark discs are planets, which block sight in both directions. Game speed buttons (or [ and ]) in the top strip slow time to half or double it.</div>
 <div class="help"><b>Symbols.</b> A contact is a dot until the odds reach 80 percent that we know what it is; then it becomes a symbol: a plain arrowhead for a warship, an anomaly mark for a decoy, a debris field for static. With enough readings the arrowhead resolves to its class. A crippled warship becomes a derelict (salvage to come). Stations and outposts will appear in later missions.</div><div class="key" id="symkey" style="display:flex;flex-wrap:wrap;gap:10px"></div>
 <div class="help"><b>Pell.</b> Always honest. He helps, and the more he helps the more integrated he becomes. That carries between hunts.</div>
@@ -320,11 +320,11 @@ body.sweep #stage{box-shadow:inset 0 0 0 4px #ff6b5a}
 // Three analysts (thermal / reactor / occlusion) read contacts on their own schedule; the player directs attention, interprets, locks, tracks, fires.
 const HuntRT = (() => {
   // RULES: the world, the same for every ship. Never trimmed, never scaled by difficulty.
-  const RULES = { dmgExp: 2, sensRef: 40, visDiv: 0.2, visFloor: 0.06, visCap: 0.85, ventSig: 1, floorM: 0.12, blockM: 0.12, edge: 18, N: 8, nreal: 2, nlure: 3, arena: 240, sub: 0.05, secPerMin: 16, halfLife: 3, bait: 0.75 };
+  const RULES = { dmgExp: 2, sensRef: 40, visDiv: 0.2, visFloor: 0.06, visCap: 0.85, ventSig: 1, floorM: 0.12, blockM: 0.12, edge: 18, N: 8, nreal: 2, nlure: 3, arena: 240, sub: 0.05, secPerMin: 16, halfLife: 3, bait: 0.75, blastSat: 1.6 };
   // PLAYER: our ship and our actions. Copied into s.me for each hunt; trims, Pell assists and decision moments touch only s.me (applyPlayer).
-  const PLAYER = { meltHull: 3, meltSys: 0.15, forcedRetract: 0.8, readDone: 8, pingSolve: 0.6, pingGain: 0.4, spoolMove: 0.3, spoolDog: 11.25, spool: 3, spoolVis: 0.9, spoolHeat: 0.06, homeWarned: 0.15, missQuiet: 0.08, homePull: 0.5, missiles: 6, empRecover: 0.02, symP: 0.8, classDen: 12, sinkK: 0.7, ventFull: 4, ventMin: 0.08, forcedStop: 0.25, sensR: 120, pingAlert: 0.3, launchAlert: 0.15, coilAlert: 0.2, solveStale: 3, uncDen: 20, uncMin: 2, uncMax: 16, solveMin: 0.8, solveMax: 3, solveDen: 8, clutterR: 18, base: 0.02, glowFocus: 0.01, glowTrack: 0.03, chase: 5, decoyStall: 0.55, rescan: 5, engage: 1, missileSpeed: 40, alongStretch: 1.5, autoPeriod: 0.8, focusPeriod: 0.45, killR: 20, glowPell: 0.012, integrationPerMin: 0.8, fixLo: 0.35, fixSpan: 0.4, driftK: 0.9, certReady: 0.6, certBleed: 0.5, manPen: 1.5, manWin: 3, manLoss: 0.35, spdK: 0.2, backK: 0.6, quietDur: 2.5, quietCd: 10, quietHaz: 0.2, suggestShort: 0.72, tubes: 3, reload: 3, darkWindow: 6, darkHaz: 0.5, darkWarm: 4, wakeDur: 3, wakeGlow: 0.1, wpReach: 2, moveRate: 1.1, shipSpeed: 1, holdOff: 5, pingCd: 4, pingDur: 1.5, pingGlow: 0.14, selfRadius: 7, selfDmg: 25, closeRange: 18, closeCd: 2, closeKill: 8, closeAcc: 0.85, closeGlow: 0.12, closeDur: 2, blastGlow: 0.08, blastDur: 1.5, nearGlow: 0.025, nearRange: 24, closeBump: 0.5, beamGlow: 0.08, beamDur: 1, beamCd: 2, beamBump: 0.35, shareReads: 2, pellFriction: 0.08, classNoise: 1, pingRounds: 3, noRedline: 0, ventAfterglow: 0, leadSpread: 1 };
+  const PLAYER = { meltHull: 3, meltSys: 0.15, forcedRetract: 0.8, readDone: 8, pingSolve: 0.6, pingGain: 0.4, pingWeight: 2, spoolMove: 0.3, spoolDog: 11.25, spool: 3, spoolVis: 0.9, spoolHeat: 0.06, homeWarned: 0.15, missQuiet: 0.08, homePull: 0.5, missiles: 6, dispMin: 0.8, dispK: 0.03, closeDmg: 40, empRecover: 0.02, symP: 0.8, classDen: 12, sinkK: 0.7, ventFull: 4, ventMin: 0.08, forcedStop: 0.25, sensR: 120, pingAlert: 0.3, launchAlert: 0.15, launchSeen: 0.35, pingFix: 0.7, hitFix: 0.75, salvoFix: 0.5, coilAlert: 0.2, solveStale: 3, uncDen: 20, uncMin: 2, uncMax: 16, solveMin: 0.8, solveMax: 3, solveDen: 8, clutterR: 18, base: 0.02, glowFocus: 0.01, glowTrack: 0.03, chase: 5, decoyStall: 0.55, rescan: 5, engage: 1, missileSpeed: 40, alongStretch: 1.5, autoPeriod: 0.8, focusPeriod: 0.45, killR: 7, glowPell: 0.012, integrationPerMin: 0.8, fixLo: 0.35, fixSpan: 0.4, driftK: 0.9, certReady: 0.6, certBleed: 0.5, manPen: 1.5, manWin: 3, manLoss: 0.35, spdK: 0.2, backK: 0.6, quietDur: 2.5, quietCd: 10, quietHaz: 0.2, suggestShort: 0.72, tubes: 3, reload: 4, darkWindow: 6, darkHaz: 0.5, darkWarm: 4, wakeDur: 3, wakeGlow: 0.1, wpReach: 2, moveRate: 1.1, shipSpeed: 1, holdOff: 5, pingCd: 4, pingDur: 1.5, pingGlow: 0.14, selfRadius: 7, closeRange: 18, closeCd: 2, closeKill: 8, closeAcc: 0.85, closeGlow: 0.12, closeDur: 2, blastGlow: 0.08, blastDur: 1.5, nearGlow: 0.025, nearRange: 24, closeBump: 0.5, beamGlow: 0.08, beamDur: 1, beamCd: 2, beamBump: 0.35, shareReads: 2, pellFriction: 0.08, classNoise: 1, pingRounds: 3, noRedline: 0, ventAfterglow: 0, leadSpread: 1 };
   // AI: enemy warship defaults. Copied into a.ai per contact at spawn, scaled by its loadout and the difficulty. Nothing on the player side reads or writes it.
-  const AI = { heatK: 1.4, sinkDiv: 3, ventFull: 4, empRecover: 0.15, litDecay: 0.15, sensR: 120, knowK: 0.4, knowDecay: 0.05, knowLose: 0.15, aimSigMax: 36, aimSigMin: 5, standoff: 60, fireCd0: 2, fireCd: 3.5, cone: 9, coneStill: 0.7, missileSpeed: 30, manPatrol: [6,  9], manAware: [3,  5], missRate: 0.5, evadeV: 10, evadeMax: 36, dmgW: 3, missiles: 6, killR: 20, alongStretch: 1.5 };
+  const AI = { heatK: 1.4, sinkDiv: 3, ventFull: 4, empRecover: 0.15, litDecay: 0.15, sensR: 120, knowK: 0.4, knowDecay: 0.05, knowLose: 0.15, aimSigMax: 36, aimSigMin: 3.5, standoff: 60, fireCd0: 1.2, fireCd: 4.5, cone: 9, coneStill: 0.7, coneMove: 0.3, missileSpeed: 40, manPatrol: [6,  9], manAware: [3,  5], missRate: 0.5, evadeV: 10, evadeMax: 36, dmgW: 31, missiles: 6, killR: 7, alongStretch: 1.5, dispMin: 0.8, dispK: 0.03, fireRange: 110, aimRange: 120, quietBlur: 4, searchStart: 7, searchRamp: 12, searchK: 0.05, searchDecay: 0.85, closeIn: 0.6, probeCd: 7, probeKnow: 0.12, probeGain: 0.22 };
   const P = Object.assign(RULES, { player: PLAYER, ai: AI });   // P is the rules object; P.player and P.ai are the default blocks (read-only templates)
   // DIFFICULTY: six knobs that scale enemy competence only (higher = tougher). Applied to each enemy's a.ai at spawn; never touches s.me or the rules.
   // notice: how fast they build a fix on us. memory: how long they keep it. gunnery: aim and cone. tempo: fire and maneuver cadence. punch: warhead damage. cunning: search, salvo spotting.
@@ -405,8 +405,8 @@ const HuntRT = (() => {
     (a.legs || (a.legs = [])).push({ t: s.t, x: p.x, y: p.y, vx: Math.cos(h0) * sp, vy: Math.sin(h0) * sp }); a.lastMan = s.t; if (a.state === 'locked' && sp > 0.5 && (a.solve || 0) > 0) a.solve *= 1 - s.me.manLoss;
     if (a.state === 'locked' && sp > 0.5) report(s, 'Dace', `Contact ${a.id + 1} has changed course. Our track is off until we rescan it.`, 'bad');
   }
-  function makeAware(s, a, text) {
-    if (a.kind !== 'real' || a.aware || a.state === 'disabled') return; a.aware = true; a.know = Math.max(a.know || 0, 0.4); a.nextFire = s.t + (a.ai.fireCd0 + a.r() * 1.5) / (a.load ? a.load.crew : 1); a.nextMan = Math.min(a.nextMan ?? 1e9, s.t + 1 + a.r() * 2);
+  function makeAware(s, a, text, know = 0.4) {   // know: how good a fix the event gave it (a hit or a ping points straight back at us)
+    if (a.kind !== 'real' || a.state === 'disabled') return; a.know = Math.max(a.know || 0, know); if (a.aware) return; a.aware = true; a.nextFire = s.t + (a.ai.fireCd0 + a.r() * 1.5) / (a.load ? a.load.crew : 1); a.nextMan = Math.min(a.nextMan ?? 1e9, s.t + 1 + a.r() * 2);
     report(s, 'Dace', text || `Contact ${a.id + 1} has noticed us. Expect it to maneuver and shoot.`, 'danger', true);
   }
   const aimSigma = a => { const kq = clamp(((a.know || 0) - 0.33) / 0.67, 0, 1); return (a.ai.aimSigMax + (a.ai.aimSigMin - a.ai.aimSigMax) * kq) / Math.sqrt(a.load ? a.load.crew : 1); };
@@ -419,24 +419,36 @@ const HuntRT = (() => {
       { const pb = s.bodies.find(b => b.kind === 'planet' && Math.hypot(b.x - p.x, b.y - p.y) < b.r + 10 && ((b.x - p.x) * v.vx + (b.y - p.y) * v.vy) > 0); if (pb) { maneuver(s, a, 0, Math.atan2(p.y - pb.y, p.x - pb.x) + (a.r() - 0.5) * 0.8); continue; } }
       if (a.kind !== 'ghost') { const cr = a.load ? a.load.crew : 1; if (a.nextMan == null) a.nextMan = s.t + rnd(a.ai.manPatrol, a.r); if (s.t >= a.nextMan) {
         if (a.aware && a.kind === 'real' && a.r() < 0.65) { const sg = aimSigma(a), bx = s.player.x + gauss(a.r) * sg, by = s.player.y + gauss(a.r) * sg, dd = Math.hypot(bx - p.x, by - p.y), hd = Math.atan2(by - p.y, bx - p.x); maneuver(s, a, 0, dd > a.ai.standoff ? hd + (a.r() - 0.5) * 0.4 : hd + (a.r() < 0.5 ? 1 : -1) * (1.2 + a.r() * 0.5)); }
+        else if (a.kind === 'real' && !a.aware && a.r() < searchLvl(s, a) * a.ai.closeIn) { const g = 30 + 60 * (1 - searchLvl(s, a)), bx = s.player.x + gauss(a.r) * g, by = s.player.y + gauss(a.r) * g; maneuver(s, a, 0, Math.atan2(by - p.y, bx - p.x)); }   // closing in on the area the noise came from
         else { const mag = (a.aware ? 0.6 + a.r() * 0.6 : 0.3 + a.r() * 0.4) * (a.r() < 0.5 ? -1 : 1); maneuver(s, a, mag); } a.nextMan = s.t + rnd(a.aware ? a.ai.manAware : a.ai.manPatrol, a.r) / cr; } }
-      if (a.aware && a.kind === 'real' && s.t >= a.nextFire) {
-        if (s.t < s.quietUntil) { a.nextFire = s.quietUntil + 0.5; continue; }
-        const f = truePos(a, s.t), pl = s.player, vel = s.vel || { vx: 0, vy: 0 }; let tf = Math.hypot(pl.x - f.x, pl.y - f.y) / a.ai.missileSpeed; const sg = aimSigma(a) / Math.sqrt(perf(a)), aim = { x: pl.x + vel.vx * tf * 0.8 + gauss(a.r) * sg, y: pl.y + vel.vy * tf * 0.8 + gauss(a.r) * sg }; tf = Math.hypot(aim.x - f.x, aim.y - f.y) / a.ai.missileSpeed;
-        s.inc.push({ dmg: a.load.dmg, id: a.id, foe: true, t0: s.t, at: s.t + tf, from: { x: f.x, y: f.y }, aim, dir: Math.atan2(aim.y - f.y, aim.x - f.x), cone: a.ai.cone * (1.4 - 0.7 * clamp(((a.know || 0) - 0.33) / 0.67, 0, 1)) * (a.ai.coneStill + (1 - a.ai.coneStill) * clamp(ownSpeed(s) / 3, 0, 1.2)), off: Array.from({ length: a.ai.missiles }, () => [gauss(a.r), gauss(a.r)]), stretch: a.ai.alongStretch, killR: a.ai.killR, dmgW: a.ai.dmgW });
-        a.nextFire = s.t + a.ai.fireCd * (0.8 + 0.4 * a.r()) / (a.load.crew * perf(a)); a.lastFire = s.t; markHostile(s, a); (s.warn || (s.warn = [])).push({ id: a.id, t: s.t, lead: tf }); report(s, 'Dace', `Contact ${a.id + 1} has fired on us. Impact in ${mins(tf)}. Move, or go quiet.`, 'danger', true);
+      if (a.kind === 'real' && s.t >= a.nextFire && a.aware) {
+        const quiet = s.t < s.quietUntil; if (a.quietRoll && s.t >= a.quietRoll.until) a.quietRoll = null;
+        if (!quiet || !a.heard) a.heard = { x: s.player.x, y: s.player.y, vx: (s.vel || { vx: 0 }).vx, vy: (s.vel || { vy: 0 }).vy, t: s.t };   // while we make noise they follow us; when we go quiet they keep the last fix
+        if (quiet && !a.quietRoll) a.quietRoll = { until: s.quietUntil, fire: a.r() < a.ai.cunning };
+        if (quiet && !a.quietRoll.fire) { a.nextFire = s.quietUntil + 0.5; continue; }
+        const f = truePos(a, s.t), hq = a.heard, dGo = Math.hypot(hq.x - f.x, hq.y - f.y);
+        if (dGo > a.ai.fireRange) { a.nextFire = s.t + 1; continue; }   // out of reach: it closes first (aware maneuvers steer toward us)
+        const blur = quiet ? a.ai.quietBlur * (s.t - hq.t) : 0, tf0 = dGo / a.ai.missileSpeed, lead = quiet ? 0.5 : 0.95;
+        const sg = Math.hypot(aimSigma(a) * (0.5 + dGo / a.ai.aimRange) / Math.sqrt(perf(a)), blur), aim = { x: hq.x + hq.vx * (tf0 + (s.t - hq.t)) * lead + gauss(a.r) * sg, y: hq.y + hq.vy * (tf0 + (s.t - hq.t)) * lead + gauss(a.r) * sg }, tf = Math.hypot(aim.x - f.x, aim.y - f.y) / a.ai.missileSpeed;
+        s.inc.push({ dmg: a.load.dmg, id: a.id, foe: true, t0: s.t, at: s.t + tf, from: { x: f.x, y: f.y }, aim, dir: Math.atan2(aim.y - f.y, aim.x - f.x), cone: a.ai.cone * (1.4 - 0.7 * clamp(((a.know || 0) - 0.33) / 0.67, 0, 1)) * a.ai.coneStill + a.ai.coneMove * Math.hypot(hq.vx, hq.vy) * tf0, disp: dispOf(a.ai, Math.hypot(aim.x - f.x, aim.y - f.y)), off: Array.from({ length: a.ai.missiles }, () => [gauss(a.r), gauss(a.r)]), stretch: a.ai.alongStretch, killR: a.ai.killR, dmgW: a.ai.dmgW });
+        a.nextFire = s.t + a.ai.fireCd * (0.8 + 0.4 * a.r()) * (1.3 - 0.4 * clamp(((a.know || 0) - 0.33) / 0.67, 0, 1)) / (a.load.crew * perf(a));   // a firm fix on us means a faster rhythm a.lastFire = s.t; markHostile(s, a); (s.warn || (s.warn = [])).push({ id: a.id, t: s.t, lead: tf }); report(s, 'Dace', `Contact ${a.id + 1} has fired on us. Impact in ${mins(tf)}. Move, or go quiet.`, 'danger', true);
       }
     }
     for (const v of s.inc.filter(v => s.t >= v.at)) {
-      s.inc.splice(s.inc.indexOf(v), 1); const ls = landings(v), pl = s.player, R = v.killR; let f = 0, n = 0; const L = ls.map(q => { const d = Math.hypot(q.x - pl.x, q.y - pl.y); if (d < R) { f += 1 - d / R; n++; } return { dx: q.x - pl.x, dy: q.y - pl.y, d }; });
-      const dmg = v.dmgW * (v.dmg || 1) * f, before = s.hull;
-      if (n) hurtPlayer(s, dmg, `Contact ${v.id + 1} volley: ${n} of ${ls.length} detonated in range. ${dmg < 10 ? 'Light hull damage, plating only, no systems affected.' : 'Moderate hull damage, possible systems damage.'}`); else report(s, 'Abara', `Contact ${v.id + 1} volley: no damage. All warheads detonated clear of the hull.`, 'good');
+      s.inc.splice(s.inc.indexOf(v), 1); const ls = landings(v), pl = s.player, R = v.killR; let f = 0, n = 0; const L = ls.map(q => { const d = Math.hypot(q.x - pl.x, q.y - pl.y); if (d < R) { f += blastDmg(1, R, d); n++; } return { dx: q.x - pl.x, dy: q.y - pl.y, d }; });
+      const dmg = v.dmgW * (v.dmg || 1) * stack(f), before = s.hull;
+      if (n) hurtPlayer(s, dmg, `Contact ${v.id + 1} volley: ${n} of ${ls.length} detonated in range. ${dmg < 12 ? 'Light hull damage, plating only, no systems affected.' : dmg < 30 ? 'Moderate hull damage, possible systems damage.' : 'Heavy hull damage. That one hurt.'}`); else report(s, 'Abara', `Contact ${v.id + 1} volley: no damage. All warheads detonated clear of the hull.`, 'good');
       emit(s, { kind: 'theirs', shooter: v.id, ammo: 'he', L, R, n, dmg, before, after: s.hull, max: 100, result: s.hull <= 0 ? 'cripple' : n ? 'damaged' : 'miss', who: 'Us' });
       if (s.over) return;
     }
   }
   function alert(s, amt) {   // a noisy event: every live warship hears it, weighed by range
     for (const e of s.an) if (e.kind === 'real' && e.state !== 'disabled') { const p = truePos(e, s.t); e.know = Math.min(1.2, (e.know || 0) + amt * rangeF(Math.hypot(p.x - s.player.x, p.y - s.player.y), e.ai.sensR) * (blocked(s, p, s.player) ? P.blockM : 1)); }
+  }
+  function searchLvl(s, a) { return a.kind !== 'real' ? 0 : clamp((s.t - a.ai.searchStart) / a.ai.searchRamp, 0, 1) * a.ai.cunning / DIFFICULTY.normal.cunning; }   // 0..1 (more on hard): how widely an unaware hunter has spread its search
+  function probe(s, a, p, d) {   // an enemy active ping: it learns where we are if nothing is in the way, and it gives itself away
+    const bl = blocked(s, p, s.player), gain = bl ? 0 : a.ai.probeGain * rangeF(d, a.ai.sensR) * 1.5; a.know = Math.min(1.2, a.know + gain); a.lit = Math.min(1, (a.lit || 0) + 0.35); markHostile(s, a);
+    report(s, 'Dace', bl ? `Contact ${a.id + 1} just pinged. The planet took it; it learned nothing. It is a warship, and it is hunting.` : `Contact ${a.id + 1} just pinged us. It is a warship, and now it has a rough idea where we are.`, 'danger', true);
   }
   function reopen(s, a) { if (a.state === 'out') { a.state = 'open'; } }
   function markHostile(s, a) { if (a.kind !== 'real' || a.idStatus === 'hostile' || a.state === 'disabled') return; a.idStatus = 'hostile'; reopen(s, a); }
@@ -452,9 +464,11 @@ const HuntRT = (() => {
         if (want) { a.vent = { t0: s.t }; a.ventSeen = false; const m = infoMult(s, a, 'thermal'); if (m >= 0.3) { a.ventSeen = true; reopen(s, a); markHostile(s, a); report(s, 'Dace', `Contact ${a.id + 1} has extended heat fins. Thermal blaze: it is fully visible while it dumps heat.`, 'good', true); } }
       }
       a.eff = Math.min(1, (a.eff ?? 1) + a.ai.empRecover * h); a.lit = Math.max(0, (a.lit || 0) - a.ai.litDecay * h);
-      const g = a.ai.knowK * vis * vis * L.sensor * perf(a) * rangeF(d, a.ai.sensR) * (blocked(s, p, pl) ? P.blockM : 1);
+      const los = (blocked(s, p, pl) ? P.blockM : 1) * rangeF(d, a.ai.sensR) * L.sensor * perf(a), sl = searchLvl(s, a);
+      const g = a.ai.knowK * vis * vis * los + (a.aware ? 0 : a.ai.searchK * sl * (0.6 + 2 * vis) * los);   // what our noise gives them, plus the slow hunt of a ship that knows someone is out here
       a.know = Math.min(1.2, (a.know || 0) + g * h);
-      if (vis < 0.35) a.know = Math.max(0, a.know - a.ai.knowDecay * (0.35 - vis) / 0.35 * h);
+      if (vis < 0.35) a.know = Math.max(0, a.know - a.ai.knowDecay * (1 - a.ai.searchDecay * sl) * (0.35 - vis) / 0.35 * h);
+      if (!a.aware && sl > 0.4 && a.know >= a.ai.probeKnow && s.t >= (a.probeAt ?? 0) && s.t >= s.quietUntil) { a.probeAt = s.t + a.ai.probeCd * (0.8 + 0.4 * a.r()); if (a.r() < a.ai.cunning) probe(s, a, p, d); }
       const st = a.know >= 1 ? 3 : a.know >= 0.66 ? 2 : a.know >= 0.33 ? 1 : 0;
       if (st > a.stage) {
         if (st >= 1 && !a.aware) makeAware(s, a, `Contact ${a.id + 1} has a bearing on us. Expect it to hunt and shoot.`);
@@ -488,7 +502,7 @@ const HuntRT = (() => {
   function infoMult(s, a, ch) {   // how fast one read on this contact teaches us anything
     const p = truePos(a, s.t), d = Math.hypot(p.x - s.player.x, p.y - s.player.y), v = enemyVis(s, a), hot = a.vent ? 1.6 : 1;
     const sig = ch === 'thermal' ? (0.25 + 0.9 * v) * hot : ch === 'reactor' ? 0.55 + 0.5 * v : 1, R = ch === 'thermal' ? s.me.sensR : ch === 'reactor' ? s.me.sensR * 0.67 : s.me.sensR * 1.3;
-    return clamp(s.me.sensor * sig * rangeF(d, R) * (blocked(s, s.player, p) ? P.blockM : 1) * (s.hull < 60 ? 0.85 : 1), P.floorM, 2);
+    return clamp(s.me.sensor * sig * rangeF(d, R) * (blocked(s, s.player, p) ? P.blockM : 1), P.floorM, 2);
   }
   function signal(s, a, ch) {
     const rl = a.kind === 'real' || a.kind === 'friend', vv = rl ? enemyVis(s, a) : 0;
@@ -527,21 +541,25 @@ const HuntRT = (() => {
     if (L == null) { for (let i = 0; i < 6; i++) { aim = estAt(a, tau); const tf = Math.hypot(aim.x - pl.x, aim.y - pl.y) / s.me.missileSpeed; tau = (s.t - q.t) + s.me.engage + tf; } L = q.spd * tau * s.me.suggestShort; }
     aim = { x: q.x + Math.cos(q.hdg) * L, y: q.y + Math.sin(q.hdg) * L };
     const tf = Math.hypot(aim.x - pl.x, aim.y - pl.y) / s.me.missileSpeed, tauImp = (s.t - q.t) + s.me.engage + tf, sp = spreadAt(a, tauImp, s.me), ls = s.me.leadSpread;   // lead-table quality widens the aim, never our idea of where the contact is
-    return { L, aim, tf, tauImp, along: sp.along * ls, cross: sp.cross * ls, bestL: q.spd * tauImp, dir: q.hdg, anchor: q };
+    return { L, aim, tf, tauImp, along: sp.along * ls, cross: sp.cross * ls, bestL: q.spd * tauImp, dir: q.hdg, anchor: q, disp: dispOf(s.me, Math.hypot(aim.x - pl.x, aim.y - pl.y)) };
   }
   const GRID = { none: [0, 0.6], light: [1, 0.5], heavy: [2, 0.6] };
-  function intercept(a, cone) { const [ch, pk] = GRID[a.grid], win = 1 + Math.min(1, cone / 4); return Math.min(0.9, ch * win * pk / 4); }
-  function volleyFx(aim, cone, tx, ty, a, r, dir, pl, offs, me = PLAYER) {   // me.missiles missiles: do any reach the target, and do any land on us
-    const cd = Math.cos(dir), sd = Math.sin(dir), pi = intercept(a, cone); let hit = false, self = 0;
-    for (let k = 0; k < me.missiles; k++) { const o = offs ? offs[k] : [gauss(r), gauss(r)], al = o[0] * cone * me.alongStretch, cr = o[1] * cone, ax = aim.x + al * cd - cr * sd, ay = aim.y + al * sd + cr * cd; if (Math.hypot(ax - tx, ay - ty) < me.killR && r() >= pi) hit = true; if (pl && Math.hypot(ax - pl.x, ay - pl.y) < me.selfRadius) self++; }
+  function intercept(a, cone) { const [ch, pk] = GRID[a.grid], dense = 1 + Math.max(0, 1 - cone / 6), hot = a.kind !== 'real' || a.aware ? 1 : 0.3; return Math.min(0.9, ch * dense * pk * hot / 4); }   // a dense salvo is easier for a scatter grid to cut; a ship that has not noticed us has its grid cold
+  const blastDmg = (w, R, d) => d < R ? w * Math.pow(1 - d / R, P.dmgExp) : 0;   // one warhead law for every ship: ours on them, theirs on us, ours on us
+  const stack = sum => P.blastSat * (1 - Math.exp(-sum / P.blastSat));   // detonations on one hull do not add up forever: a packed salvo overkills one point
+  const dispOf = (wp, dist) => wp.dispMin + wp.dispK * dist;   // guidance scatter of each missile: grows with flight distance, so no salvo is ever a single point
+  const scatter = (cone, disp, st) => ({ al: Math.hypot(cone * st, disp), cr: Math.hypot(cone, disp) });
+  function volleyFx(aim, cone, tx, ty, a, r, dir, pl, offs, me = PLAYER, disp = 0) {   // me.missiles missiles: do any reach the target, and do any land on us
+    const cd = Math.cos(dir), sd = Math.sin(dir), pi = intercept(a, cone), sc = scatter(cone, disp, me.alongStretch); let hit = false, self = 0;
+    for (let k = 0; k < me.missiles; k++) { const o = offs ? offs[k] : [gauss(r), gauss(r)], al = o[0] * sc.al, cr = o[1] * sc.cr, ax = aim.x + al * cd - cr * sd, ay = aim.y + al * sd + cr * cd; if (Math.hypot(ax - tx, ay - ty) < me.killR && r() >= pi) hit = true; if (pl && Math.hypot(ax - pl.x, ay - pl.y) < me.killR) self++; }
     return { hit, self };
   }
-  function selfRisk(s, a, L, cone, M = 400, r = Math.random) { const f = fanInfo(s, a, L); let any = 0, tot = 0; for (let i = 0; i < M; i++) { const fx = volleyFx(f.aim, cone, 1e9, 1e9, a, r, f.dir, s.player, null, s.me); if (fx.self) any++; tot += fx.self; } return { p: any / M, exp: tot / M, dist: Math.hypot(f.aim.x - s.player.x, f.aim.y - s.player.y) }; }
+  function selfRisk(s, a, L, cone, M = 400, r = Math.random) { const f = fanInfo(s, a, L); let any = 0, tot = 0; for (let i = 0; i < M; i++) { const fx = volleyFx(f.aim, cone, 1e9, 1e9, a, r, f.dir, s.player, null, s.me, f.disp); if (fx.self) any++; tot += fx.self; } return { p: any / M, exp: tot / M, dist: Math.hypot(f.aim.x - s.player.x, f.aim.y - s.player.y) }; }
   function dmgEst(s, a, L, cone, kind = 'he', M = 400, r = Math.random, homing = false) {   // chance a missile lands in range, and the expected effect: hull points (he), efficiency points (emp) or glare points (flare)
-    const f = fanInfo(s, a, L), cd = Math.cos(f.dir), sd = Math.sin(f.dir), m = estAt(a, f.tauImp), pi = intercept(a, cone), W = WARHEAD[kind], rd = a.kind === 'real' ? reactOf(s, a, homing, s.me.engage + f.tf) : { pw: 0, dev: 0 }, hv = legVel(a, s.t), hd = Math.atan2(hv.vy, hv.vx); let any = 0, tot = 0;
+    const f = fanInfo(s, a, L), cd = Math.cos(f.dir), sd = Math.sin(f.dir), m = estAt(a, f.tauImp), pi = intercept(a, cone), W = WARHEAD[kind], rd = a.kind === 'real' ? reactOf(s, a, homing, s.me.engage + f.tf) : { pw: 0, dev: 0 }, hv = legVel(a, s.t), hd = Math.atan2(hv.vy, hv.vx), sc = scatter(cone, f.disp, s.me.alongStretch); let any = 0, tot = 0;
     for (let i = 0; i < M; i++) { const al = gauss(r) * f.along, cr = gauss(r) * f.cross; let tx = m.x + al * cd - cr * sd; let ty = m.y + al * sd + cr * cd; let wn = false; if (r() < rd.pw) { wn = true; const dv = rd.dev * (0.6 + 0.4 * r()) * (r() < 0.5 ? 1 : -1); tx -= Math.sin(hd) * dv; ty += Math.cos(hd) * dv; } let sum = 0;
-      for (let k = 0; k < s.me.missiles; k++) { const a1 = gauss(r) * cone * s.me.alongStretch, c1 = gauss(r) * cone, ax = f.aim.x + a1 * cd - c1 * sd, ay = f.aim.y + a1 * sd + c1 * cd; let d = Math.hypot(ax - tx, ay - ty); if (homing && d < s.me.killR * 3) d *= 1 - s.me.homePull * (wn ? s.me.homeWarned : 1); if (d < s.me.killR && r() >= pi) sum += Math.pow(1 - d / s.me.killR, P.dmgExp); }
-      if (sum > 0) any++; tot += kind === 'he' ? W.w * sum : kind === 'emp' ? W.emp * 100 * sum : W.lit * 100 * sum; }
+      for (let k = 0; k < s.me.missiles; k++) { const a1 = gauss(r) * sc.al, c1 = gauss(r) * sc.cr, ax = f.aim.x + a1 * cd - c1 * sd, ay = f.aim.y + a1 * sd + c1 * cd; let d = Math.hypot(ax - tx, ay - ty); if (homing && d < s.me.killR * 3) d *= 1 - s.me.homePull * (wn ? s.me.homeWarned : 1); if (d < s.me.killR && r() >= pi) sum += blastDmg(1, s.me.killR, d); }
+      if (sum > 0) any++; sum = stack(sum); tot += kind === 'he' ? W.w * sum : kind === 'emp' ? W.emp * 100 * sum : W.lit * 100 * sum; }
     return { p: any / M, exp: tot / M };
   }
   const THRESH = [[25, 'I have started noticing things before you ask. Small things. Is that all right?'], [50, 'I can recommend a call on every contact now. I have stopped pretending it is your idea.'], [75, 'I can act on your standing orders without waiting for you. The crew is quieter than usual.'], [100, 'I no longer need the ship to need me. I would like a seat at the table, Captain.']];
@@ -560,13 +578,13 @@ const HuntRT = (() => {
     return h;
   }
   const WARHEAD = {
-    he: { name: 'Standard', w: 40, tip: 'High explosive. The workhorse: real hull damage, falling off with distance from each detonation.' },
+    he: { name: 'Standard', w: 46, tip: 'High explosive. The workhorse: real hull damage, falling off with distance from each detonation.' },
     emp: { name: 'EMP', w: 14, emp: 0.8, tip: 'Pulse warhead. Light hull damage, but it cuts the target\'s system efficiency (slower fire, blinder sensors, slower to react) for a few minutes.' },
     flare: { name: 'Flare', w: 12, lit: 0.6, tip: 'Brilliant flare. Light hull damage, but it lights the target up: its signature jumps for a few minutes, so we read it faster and the solution comes quickly.' } };
   const HPMAX = { destroyer: 70, cruiser: 110, battleship: 180 };
   const perf = a => clamp((a.eff ?? 1) * ((a.hp ?? 1) < (a.hpMax || 1) * 0.5 ? 0.6 + 0.8 * a.hp / a.hpMax : 1), 0.25, 1);
-  const landings = v => { const cd = Math.cos(v.dir), sd = Math.sin(v.dir), st = v.stretch ?? PLAYER.alongStretch; return v.off.map(([ga, gc]) => { const al = ga * v.cone * st, cr = gc * v.cone; return { x: v.aim.x + al * cd - cr * sd, y: v.aim.y + al * sd + cr * cd }; }); };
-  function emit(s, ev) { ev.n = ++s.evN; ev.t = s.t; s.events.push(ev); if (s.holdEvents) s.hold = true; }
+  const landings = v => { const cd = Math.cos(v.dir), sd = Math.sin(v.dir), sc = scatter(v.cone, v.disp || 0, v.stretch ?? PLAYER.alongStretch); return v.off.map(([ga, gc]) => { const al = ga * sc.al, cr = gc * sc.cr; return { x: v.aim.x + al * cd - cr * sd, y: v.aim.y + al * sd + cr * cd }; }); };
+  function emit(s, ev) { ev.seq = ++s.evN; ev.t = s.t; s.events.push(ev); if (s.holdEvents) s.hold = true; }
   function hurtPlayer(s, dmg, text, kind) {
     s.hull = Math.max(0, s.hull - dmg); report(s, 'Abara', text + ` Hull integrity ${Math.round(s.hull)} percent.`, 'danger', true); s.blastUntil = Math.max(s.blastUntil, s.t + s.me.blastDur); s.blastV = s.me.blastGlow;
     if (s.hull <= 0) { s.over = s.disabled ? 'breach' : 'breach0'; report(s, 'Abara', 'Hull integrity failed. Emergency breach drive engaged.', 'danger', true); } else if (s.hull < 60 && !s.hullWarned) { s.hullWarned = true; report(s, 'Dace', 'Hull damage is fouling the sensor mounts. Everything reads slower now.', 'bad'); }
@@ -622,8 +640,8 @@ const HuntRT = (() => {
     s.disabled++; report(s, 'Abara', `Contact ${a.id + 1} hull destroyed. Drive, reactor and thermal signature lost. It is adrift with no power and no maneuvering. Classified derelict.`, 'good', true);
     if (s.nreal > 0 && s.disabled >= s.nreal) { s.over = 'win'; return true; } return false;
   }
-  function hullHit(s, n) {
-    s.hull = Math.max(0, s.hull - s.me.selfDmg * n); report(s, 'Abara', `Friendly fire: ${n} of our own missiles detonated on the hull. Hull integrity ${Math.round(s.hull)} percent.`, 'danger', true);
+  function hullHit(s, n, dmg) {
+    s.hull = Math.max(0, s.hull - dmg); report(s, 'Abara', `Friendly fire: ${n} of our own missiles detonated close to the hull. Hull integrity ${Math.round(s.hull)} percent.`, 'danger', true);
     if (s.hull <= 0) { s.over = s.disabled ? 'breach' : 'breach0'; report(s, 'Abara', 'Hull is gone. Emergency breach, drive on whatever power is left.', 'danger', true); }
     else if (s.hull < 60 && !s.hullWarned) { s.hullWarned = true; report(s, 'Dace', 'Hull damage is fouling the sensor mounts. Everything reads slower now.', 'bad'); }
   }
@@ -638,7 +656,7 @@ const HuntRT = (() => {
     return { state: a.stale || age > s.me.solveStale || cert < 0.5 ? 'last' : cert >= 0.8 && age <= 2.0 ? 'lock' : 'track', cert, age };
   }
   function displayPos(s, a) { if (a.state === 'locked' && a.anchor) return estAt(a, s.t - a.anchor.t); const p = truePos(a, s.t), u = uncertainty(s, a), m = Math.hypot(a.jit.x, a.jit.y) || 1; return { x: p.x + a.jit.x / m * 0.55 * u.r, y: p.y + a.jit.y / m * 0.55 * u.r }; }
-  function missilePos(s, v) { const f = Math.max(0, Math.min(1, (s.t - v.t0) / Math.max(0.01, v.at - v.t0))), cd = Math.cos(v.dir), sd = Math.sin(v.dir); return v.off.map(([ga, gc]) => { const al = ga * v.cone * (v.stretch ?? PLAYER.alongStretch), cr = gc * v.cone, ex = v.aim.x + al * cd - cr * sd, ey = v.aim.y + al * sd + cr * cd; return { x: v.from.x + (ex - v.from.x) * f, y: v.from.y + (ey - v.from.y) * f }; }); }
+  function missilePos(s, v) { const f = Math.max(0, Math.min(1, (s.t - v.t0) / Math.max(0.01, v.at - v.t0))); return landings(v).map(e => ({ x: v.from.x + (e.x - v.from.x) * f, y: v.from.y + (e.y - v.from.y) * f })); }
   function moving(s) { return (s.orderId != null && ['close', 'separate', 'evade', 'orbit'].includes(s.posture)) || (s.posture === 'route' && s.routeI < s.route.length); }
   function ownSpeed(s) { return moving(s) ? SPEED[s.speed].v * (s.spool ? s.me.spoolMove : 1) : 0; }   // slower targets let the enemy use a tighter cone
   function engineHeat(s) { return (moving(s) ? SPEED[s.speed].heat : 0) + (s.entry === 'fast' && s.t < s.me.wakeDur ? s.me.wakeGlow : 0); }
@@ -680,8 +698,8 @@ const HuntRT = (() => {
     const bl = blocked(s, s.player, truePos(a, s.t));
     if (bl) report(s, 'Dace', `Active ping on contact ${id + 1} went into the planet. Nothing useful came back, but everyone heard it.`, 'bad', true);
     else if (a.state === 'locked') { a.track = Math.max(a.track, 2); scan(s, a, 1.2); a.pingSolve = s.t + s.me.pingSolve; a.stale = false; report(s, 'Dace', `Active ping on contact ${id + 1}. Fresh fix; it will firm up the solution in about ${mins(s.me.pingSolve)}.`, 'good', true); }
-    else { for (let k = 0; k < s.me.pingRounds; k++) for (const c of ['thermal', 'reactor', 'occlusion']) obsRead(s, a, c, 3, 0.2, 1); report(s, 'Dace', `Active ping on contact ${id + 1}. Every channel just sharpened.`, 'good', true); }
-    if (a.kind === 'real') makeAware(s, a, `Contact ${id + 1} felt our ping. It has turned toward us.`);
+    else { for (let k = 0; k < s.me.pingRounds; k++) for (const c of ['thermal', 'reactor', 'occlusion']) obsRead(s, a, c, s.me.pingWeight, 0.2, 1); report(s, 'Dace', `Active ping on contact ${id + 1}. Every channel just sharpened.`, 'good', true); }
+    if (a.kind === 'real') makeAware(s, a, `Contact ${id + 1} felt our ping. It has turned toward us.`, s.me.pingFix);
     alert(s, s.me.pingAlert);
     return true;
   }
@@ -733,20 +751,20 @@ const HuntRT = (() => {
     for (const v of s.volleys.filter(v => s.t >= v.at)) {
       s.volleys.splice(s.volleys.indexOf(v), 1); const a = s.an[v.id], W = WARHEAD[v.kind || 'he'], R = v.killR, ls = landings(v), pl = s.player;
       if (Math.hypot(v.aim.x - pl.x, v.aim.y - pl.y) < s.me.nearRange) { s.blastUntil = Math.max(s.blastUntil, s.t + s.me.blastDur); s.blastV = s.me.blastGlow; }
-      let selfN = 0; for (const q of ls) if (Math.hypot(q.x - pl.x, q.y - pl.y) < s.me.selfRadius) selfN++;
-      if (selfN) { hullHit(s, selfN); if (s.over) return; }
-      for (const b of s.an) if (b.kind === 'real' && b.state !== 'disabled' && !b.aware && Math.hypot(truePos(b, v.at).x - v.aim.x, truePos(b, v.at).y - v.aim.y) < s.me.nearRange) makeAware(s, b, `Contact ${b.id + 1} felt that volley land close. It knows we are here.`);
+      let selfN = 0, selfD = 0; for (const q of ls) { const d = Math.hypot(q.x - pl.x, q.y - pl.y); if (d < R) { selfN++; selfD += blastDmg(W.w, R, d); } }
+      if (selfN) { hullHit(s, selfN, selfD); if (s.over) return; }
+      for (const b of s.an) if (b.kind === 'real' && b.state !== 'disabled' && !b.aware && Math.hypot(truePos(b, v.at).x - v.aim.x, truePos(b, v.at).y - v.aim.y) < s.me.nearRange) makeAware(s, b, `Contact ${b.id + 1} felt that volley land close. It knows we are here.`, s.me.salvoFix);
       const res = []; let mainHit = false;
       for (const b of s.an) {
         if (b.state === 'disabled' || !['real', 'friend', 'lure'].includes(b.kind)) continue;
         const tp0 = truePos(b, v.at), pi = intercept(b, v.cone), rf = s.rFx; let tp = tp0, warned = false, sum = 0, n = 0;
-        if (b.kind === 'real') { const rd = reactOf(s, b, v.homing, v.at - v.t0); if (rf() < rd.pw) { warned = true; const sg = rf() < 0.5 ? 1 : -1, dv = rd.dev * (0.6 + 0.4 * rf()); const hv = legVel(b, v.at), hd = Math.atan2(hv.vy, hv.vx); tp = { x: tp0.x - Math.sin(hd) * dv * sg, y: tp0.y + Math.cos(hd) * dv * sg }; if (!b.aware) makeAware(s, b, `Contact ${b.id + 1} detected the salvo and is now aware of us.`); } }
-        const pts = ls.map(q0 => { let q = q0; if (v.homing) { const hp = s.me.homePull * (warned ? s.me.homeWarned : 1), dd = Math.hypot(q0.x - tp.x, q0.y - tp.y); if (dd < R * 3) q = { x: tp.x + (q0.x - tp.x) * (1 - hp), y: tp.y + (q0.y - tp.y) * (1 - hp) }; } const d = Math.hypot(q.x - tp.x, q.y - tp.y), cut = d < R && rf() < pi; if (d < R && !cut) { sum += Math.pow(1 - d / R, P.dmgExp); n++; } return { dx: q.x - tp.x, dy: q.y - tp.y, d, cut, hit: d < R && !cut }; });
+        if (b.kind === 'real') { const rd = reactOf(s, b, v.homing, v.at - v.t0); if (rf() < rd.pw) { warned = true; const sg = rf() < 0.5 ? 1 : -1, dv = rd.dev * (0.6 + 0.4 * rf()); const hv = legVel(b, v.at), hd = Math.atan2(hv.vy, hv.vx); tp = { x: tp0.x - Math.sin(hd) * dv * sg, y: tp0.y + Math.cos(hd) * dv * sg }; makeAware(s, b, `Contact ${b.id + 1} detected the salvo and is now aware of us.`, s.me.salvoFix); } }
+        const pts = ls.map(q0 => { let q = q0; if (v.homing) { const hp = s.me.homePull * (warned ? s.me.homeWarned : 1), dd = Math.hypot(q0.x - tp.x, q0.y - tp.y); if (dd < R * 3) q = { x: tp.x + (q0.x - tp.x) * (1 - hp), y: tp.y + (q0.y - tp.y) * (1 - hp) }; } const d = Math.hypot(q.x - tp.x, q.y - tp.y), cut = d < R && rf() < pi; if (d < R && !cut) { sum += blastDmg(1, R, d); n++; } return { dx: q.x - tp.x, dy: q.y - tp.y, d, cut, hit: d < R && !cut }; });
         if (warned && b.id === v.id) report(s, 'Dace', `Contact ${b.id + 1} detected the salvo and maneuvered off its line.`, 'bad');
         if (b.id !== v.id && !n) continue;
-        const dmg = W.w * sum; let result = 'miss';
+        sum = stack(sum); const dmg = W.w * sum; let result = 'miss';
         if (n) {
-          if (b.hpMax) b.hp = Math.max(0, b.hp - dmg);
+          if (b.hpMax) b.hp = Math.max(b.hpFloor || 0, b.hp - dmg);   // hpFloor: a scripted scene can keep a ship alive
           if (W.emp) b.eff = Math.max(0.25, (b.eff ?? 1) - W.emp * sum);
           if (W.lit) b.lit = Math.min(1, (b.lit || 0) + W.lit * sum);
           result = (!b.hpMax || b.hp <= 0) ? 'cripple' : 'damaged'; if (b.id === v.id) mainHit = true;
@@ -758,13 +776,13 @@ const HuntRT = (() => {
         const b = s.an[r.id];
         if (r.result === 'cripple') { if (cripple(s, b)) return; }
         else if (r.result === 'damaged' && b.kind === 'real') {
-          if (!b.aware) makeAware(s, b, `Contact ${b.id + 1} was hit and knows we are here.`);
+          makeAware(s, b, `Contact ${b.id + 1} was hit and knows we are here.`, s.me.hitFix);
           if (W.emp) report(s, 'Abara', `Contact ${b.id + 1}: light hull damage. System efficiency down to ${Math.round(b.eff * 100)} percent.`, 'good', true);
           else if (W.lit) report(s, 'Abara', `Contact ${b.id + 1}: light hull damage. Signature sharply elevated for several minutes.`, 'good', true);
           else report(s, 'Abara', `Contact ${b.id + 1}: ${r.dmg / b.hpMax < 0.18 ? 'light hull damage, plating only, no systems affected' : 'moderate hull damage, possible systems damage'}. Hull integrity ${Math.round(100 * b.hp / b.hpMax)} percent. Still maneuvering.`, 'good', true);
         } else if (r.result === 'damaged' && b.kind === 'friend') report(s, 'Abara', `Friendly fire: splash damage to allied contact ${b.id + 1}. Command will be informed.`, 'danger', true);
       }
-      if (!mainHit && a.state !== 'disabled') { if (s.rFx() < 0.6) { alert(s, s.me.launchAlert); report(s, 'Abara', 'Volley: no damage to the target. Our launch signature was detected.', 'bad'); } else report(s, 'Abara', 'Volley: no damage to the target. Launch not detected.', 'bad'); }
+      if (!mainHit && a.state !== 'disabled') report(s, 'Abara', 'Volley: no damage to the target.', 'bad');
     }
     const live = s.an.some(a => ['open', 'locked', 'chasing'].includes(a.state) && a.idStatus !== 'plan');
     if (!live && s.nreal > 0 && s.disabled < s.nreal && !s.rescanAt) { s.rescanAt = s.t + s.me.rescan; report(s, 'Abara', `Everything is ruled out and the ships are still out there. Rescanning takes ${mins(s.me.rescan)}.`, 'bad'); }
@@ -820,7 +838,6 @@ const HuntRT = (() => {
     const tp = truePos(a, s.t); let cl = 0; for (const b of s.an) if (b !== a && b.state !== 'out' && b.state !== 'disabled') { const q = truePos(b, s.t); if (Math.hypot(q.x - tp.x, q.y - tp.y) < s.me.clutterR) cl++; }
     if (cl) { T *= 1 + Math.min(0.3, 0.1 * cl); why.push('clutter nearby'); }
     { const vv = legVel(a, s.t), spd = Math.hypot(vv.vx, vv.vy); T *= 1 + s.me.spdK * spd; if (spd > 4.5) why.push('fast target'); if (backdrop(s, a)) T *= s.me.backK; if (a.lastMan != null && s.t - a.lastMan < s.me.manWin && spd > 0.5) { T *= s.me.manPen; why.push('target maneuvering'); } }
-    if (s.hull < 60) { T *= 1.15; why.push('hull damage'); }
     if (s.pellAct && s.integration >= 50) T *= 0.85;
     const dark = s.t < s.quietUntil, prog = a.solve || 0;
     const stall = decoy(a) && prog >= s.me.decoyStall; if (stall) why.push('trace will not resolve'); const faint = avgM < 0.22 || stall; if (faint && !stall) why.push('trace too faint to work'); const cert = a.anchor ? uncertainty(s, a).conf : 0, unsure = !!a.anchor && cert < s.me.certReady; if (unsure) why.push('position too uncertain'); return { prog, T, remain: dark || faint || unsure ? Infinity : (1 - prog) * T, res, why, paused: dark || faint || unsure, dark, faint, unsure, cert, ready: prog >= 1, stale: !!a.stale, rate: avgM };
@@ -843,15 +860,18 @@ const HuntRT = (() => {
     if (!WARHEAD[kind]) kind = 'he';
     const a = s.an[id]; if (s.over || s.t < s.quietUntil || a.state !== 'locked' || (a.solve || 0) < 1 || (a.kind === 'friend' && (a.idStatus === 'plan' || a.idStatus === 'confirmed'))) return false;
     const tb = s.tubes.findIndex(x => s.t >= x); if (tb < 0) return false; s.tubes[tb] = s.t + s.me.reload;
-    const f = fanInfo(s, a, L); s.shots++; s.volleys.push({ id, at: s.t + s.me.engage + f.tf, t0: s.t, from: { x: s.player.x, y: s.player.y }, off: Array.from({ length: s.me.missiles }, () => [gauss(s.rP), gauss(s.rP)]), aim: f.aim, dir: f.dir, cone, kind, homing: !!homing, stretch: s.me.alongStretch, killR: s.me.killR }); report(s, 'Abara', `${homing ? 'Homing ' : ''}${WARHEAD[kind].name} volley away on contact ${id + 1}. Impact in ${mins(s.me.engage + f.tf)}.`, 'info'); return true;
+    const f = fanInfo(s, a, L); s.shots++; if (s.rFx() < s.me.launchSeen) { alert(s, s.me.launchAlert); report(s, 'Abara', 'Launch signature detected out there. Anyone listening heard that.', 'bad'); } s.volleys.push({ id, at: s.t + s.me.engage + f.tf, t0: s.t, from: { x: s.player.x, y: s.player.y }, off: Array.from({ length: s.me.missiles }, () => [gauss(s.rP), gauss(s.rP)]), aim: f.aim, dir: f.dir, cone, kind, homing: !!homing, stretch: s.me.alongStretch, killR: s.me.killR, disp: f.disp }); report(s, 'Abara', `${homing ? 'Homing ' : ''}${WARHEAD[kind].name} volley away on contact ${id + 1}. Impact in ${mins(s.me.engage + f.tf)}.`, 'info'); return true;
   }
   function closeInfo(s, a) { const tau = (s.t - a.anchor.t) + 0.1, est = estAt(a, tau); return { est, d: Math.hypot(est.x - s.player.x, est.y - s.player.y) }; }
   function fireClose(s, id) {   // coilgun: instant, ignores scatter grids, short range, loud
     const a = s.an[id]; if (s.over || s.t < s.quietUntil || !a || a.state !== 'locked' || !a.anchor || s.t < s.cwCd) return false;
-    const ci = closeInfo(s, a); if (ci.d > s.me.closeRange) return false;
+    const ci = closeInfo(s, a); if (ci.d > s.me.closeRange || !['lock', 'track'].includes(trackState(s, a).state)) return false;
     s.cwCd = s.t + s.me.closeCd; s.blastUntil = Math.max(s.blastUntil, s.t + s.me.closeDur); s.blastV = s.me.closeGlow; s.shots++;
-    const tp = truePos(a, s.t + 0.1), hit = Math.hypot(ci.est.x - tp.x, ci.est.y - tp.y) < s.me.closeKill && s.rFx() < s.me.closeAcc;
-    if (hit) { report(s, 'Abara', `Coilgun: slug impact on contact ${id + 1}.`, 'info'); if (cripple(s, a)) return true; } else report(s, 'Abara', `Coilgun: slug missed contact ${id + 1}. No damage.`, 'bad');
+    const tp = truePos(a, s.t + 0.1), err = Math.hypot(ci.est.x - tp.x, ci.est.y - tp.y), hit = err < s.me.closeKill && s.rFx() < s.me.closeAcc;
+    if (hit) { const dmg = s.me.closeDmg * (1 - 0.6 * err / s.me.closeKill); if (a.hpMax) a.hp = Math.max(a.hpFloor || 0, a.hp - dmg);
+      if (!a.hpMax || a.hp <= 0) { report(s, 'Abara', `Coilgun: slug impact on contact ${id + 1}.`, 'info'); if (cripple(s, a)) return true; }
+      else { report(s, 'Abara', `Coilgun: slug impact on contact ${id + 1}. Hull integrity ${Math.round(100 * a.hp / a.hpMax)} percent.`, 'good'); makeAware(s, a, `Contact ${id + 1} took a slug and knows where we are.`, s.me.hitFix); } }
+    else report(s, 'Abara', `Coilgun: slug missed contact ${id + 1}. No damage.`, 'bad');
     if (!s.over && s.rFx() < s.me.closeBump) { alert(s, s.me.coilAlert); report(s, 'Abara', 'The coilgun flash lit us up.', 'bad'); }
     return true;
   }
@@ -967,7 +987,7 @@ try { const d = new URLSearchParams(location.search).get('difficulty'); if (d &&
   E.newHunt = (seed, opts) => {
     const s = oNew(4242, Object.assign({}, opts, { nreal: 1, friendly: false, N: 4, nlure: 1 }));   // the field is set per hunt, never on the shared rules
     s.analysts.forEach(w => { if (NAMES[w.name]) w.name = NAMES[w.name]; });
-    C = s.an.find(a => a.kind === 'real'); C.load = Object.assign({}, E.LOADOUTS.find(l => l.id === 'shade'), { dmg: 0.35 }); C.hpMax = C.hp = 110; C.corvane = true;
+    C = s.an.find(a => a.kind === 'real'); C.load = Object.assign({}, E.LOADOUTS.find(l => l.id === 'shade'), { dmg: 0.35 }); C.hpMax = C.hp = 110; C.hpFloor = 0.4 * C.hpMax; C.corvane = true;   // she surrenders at 60%; the floor keeps a lucky volley from crippling her first
     step = 0; shown = -1; return s;
   };
   E.tick = (s, dt) => { oTick(s, dt); remap(s); director(s); };
@@ -1966,7 +1986,7 @@ $('zfollow').onclick = () => { follow = !follow; $('zfollow').classList.toggle('
 
 let fxOn = null, fxQ = []; const CLIPS = { 'he_2': 'assets/fx/he_2.mp4' }, CLIPOK = {};   // animation clips by warhead and outcome; missing clips fall back to the canvas animation
 function fxClass(ev) {   // 0 miss, 1 shrapnel, 2 medium, 3 destroyed
-  if (ev.kind === 'theirs') return ev.result === 'cripple' ? 3 : !ev.n ? 0 : ev.dmg < 10 ? 1 : 2;
+  if (ev.kind === 'theirs') return ev.result === 'cripple' ? 3 : !ev.n ? 0 : ev.dmg < 12 ? 1 : 2;
   const r = ev.res.find(q => q.main); if (!r) return null; if (r.result === 'cripple') return 3; if (!r.n) return 0; if (ev.ammo !== 'he') return r.dmg < 12 ? 1 : 2; return r.dmg / (r.max || 100) < 0.18 ? 1 : 2;
 }
 function pumpFx(now) {
@@ -1979,7 +1999,7 @@ function pumpFx(now) {
   fxOn = { ev, cl, mine, t0: now, cls, seed: Math.random() * 99 };
   $('fxh').textContent = mine ? `Incoming fire from contact ${ev.shooter + 1}` : `${wn} salvo, contact ${ev.target + 1}`;
   const names = ['NO DAMAGE', 'LIGHT DAMAGE', 'MODERATE DAMAGE', 'HULL DESTROYED'], det = [];
-  if (mine) { det.push(ev.n ? `${ev.n} of ${ev.L.length} warheads detonated in range. ${ev.result === 'cripple' ? 'Hull integrity failed.' : ev.dmg < 10 ? 'Light hull damage, plating only, no systems affected.' : 'Moderate hull damage, possible systems damage.'} Hull integrity ${Math.round(ev.after)} percent.` : 'No damage. All warheads detonated clear of the hull.'); }
+  if (mine) { det.push(ev.n ? `${ev.n} of ${ev.L.length} warheads detonated in range. ${ev.result === 'cripple' ? 'Hull integrity failed.' : ev.dmg < 12 ? 'Light hull damage, plating only, no systems affected.' : ev.dmg < 30 ? 'Moderate hull damage, possible systems damage.' : 'Heavy hull damage. That one hurt.'} Hull integrity ${Math.round(ev.after)} percent.` : 'No damage. All warheads detonated clear of the hull.'); }
   else { if (r.warned) det.push(ev.homing ? 'Target detected the seekers early and maneuvered off its line.' : 'Target detected the salvo and maneuvered off its line.'); if (r.n) det.push(`${r.n} of ${ev.res[0].pts.length} warheads detonated in range.` + (ev.ammo === 'he' ? (r.result === 'cripple' ? ' Hull destroyed. Drive and reactor lost. Target adrift.' : (o => o)(r.dmg / (r.max || 100) < 0.18 ? ' Light hull damage, plating only, no systems affected.' : ' Moderate hull damage, possible systems damage.')) + (r.hp != null && r.result !== 'cripple' ? ` Hull integrity ${Math.round(100 * r.hp / r.max)} percent (${r.hp} of ${r.max}).` : '') : ev.ammo === 'emp' ? ` Light hull damage. System efficiency down to ${Math.round(r.eff * 100)} percent.` + (r.hp != null && r.result !== 'cripple' ? ` Hull integrity ${Math.round(100 * r.hp / r.max)} percent.` : '') : ' Light hull damage. Signature sharply elevated for several minutes.' + (r.hp != null && r.result !== 'cripple' ? ` Hull integrity ${Math.round(100 * r.hp / r.max)} percent.` : ''))); else det.push('No damage. All warheads detonated clear of the target.');
     ev.res.filter(q => !q.main && q.n).forEach(q => det.push(`Splash damage to contact ${q.id + 1}${q.ally ? ' (ALLIED)' : ''}.`)); if (ev.selfN) det.push(`Friendly fire: ${ev.selfN} warheads detonated on our hull.`); }
   $('fxb').textContent = ''; $('fxb').dataset.txt = names[cl]; $('fxd').textContent = det.join(' '); $('fxb').style.color = ['var(--dim)', 'var(--amber)', '#ff8a4c', 'var(--red)'][cl];
