@@ -1,9 +1,9 @@
 # Act 1, 1.6: The Shakedown (draft 2, dialogue)
 
-**Status:** second draft (continuity pass applied). Outline: `scene_outlines.md` 1.6; storyboard S6. Follows 1.5 (two days later); leads to 1.7 (the first commission).
+**Status:** third draft (overlay removed: Pell's help now arrives in 1.6b, per `review_act1_wiring.md` finding 37). Outline: `scene_outlines.md` 1.6; storyboard S6. Follows 1.5 (two days later); leads to 1.6b (the wiring), then 1.7 (the first commission).
 **Mode:** TEXT briefing → HUNT (player in full control, cards 3, 4 and 5 with new-cast lines in `data/decision_cards.json`) → one scripted oddity mid-hunt → TEXT debrief.
 **Reading time:** briefing 2 minutes, debrief 3 minutes, plus the hunt.
-**Variant tags:** as before; also *(overlay)* = the player accepted Pell's detection overlay in 1.5 (`seen.pell_night.overlay`); *(clean)* / *(messy)* = hunt result; quiet_hour values from 1.3.
+**Variant tags:** as before; also *(clean)* / *(messy)* = hunt result; quiet_hour values from 1.3.
 **Purpose:** the first real hunt; the crew working for the new captain; Abara's competence test resolved; one concrete oddity that can't be true; a command-style choice in the debrief.
 
 ## The decoy [P]
@@ -16,7 +16,7 @@ Corvane's tradition: every new officer gets a decoy hunt. Abara keeps it going f
 - **Castellan.** *Wants:* a clean hunt and a happy reactor. *After the turn:* calls it a ghost, because ghosts are explainable.
 - **Dace.** Runs heat like a showman. *Wants:* to be useful in a hunt with no patients in it.
 - **Fenwick.** Runs a betting pool on the new captain's time. *Wants:* everyone laughing at dinner.
-- **Pell.** *(overlay)* sees the turn first; it can see the drone isn't flying a loop, though it hasn't read Abara's code. *Fears:* what it's looking at. Tell: silent for exactly one line. *(murdered)* clipped throughout.
+- **Pell.** No channel: it hears Quill call the turn like everyone else. *Fears:* what it's looking at. Tell: silent for exactly one line. *(murdered)* clipped throughout.
 - **Corvane** *(persuaded)*: confined to her cabin; she knows the tradition and will want to hear. She had nothing to do with the turn.
 
 ---
@@ -44,14 +44,6 @@ FENWICK: *(not looking up)* An hour and ten. I've got an hour and ten. Quill's g
 
 QUILL: It's arithmetic.
 
-*(overlay, not murdered)* PELL: For the record, there's a detection overlay running. I'll let the captain say how it got there.
-→ "I gave it a channel."
-  *Quill looks up. Abara doesn't.*
-  [trust.quill −2 (unless kept_quill: she already knew); trust.dace +1]
-→ *Say nothing.*
-  PELL: The captain prefers mystery. Noted.
-*(overlay, murdered)* PELL: Overlay's running.
-
 → "Let's go hunting."
 → "What's the pool at?"
   FENWICK: Three tins of peaches and Castellan's good socks.
@@ -61,15 +53,13 @@ QUILL: It's arithmetic.
   *They go. Fenwick takes the slate with him.*
   [command.style −1]
 
-**[→ HUNT. Cards 3 (route), 4 (detection) and 5 (classification) fire with the new-cast pitch and objection lines. (Command style can't reach the very-tight or loose bands yet this early, so all levers show.)]**
+**[→ HUNT. Cards 3 (route), 4 (detection) and 5 (classification) fire with the new-cast pitch and objection lines. (Command style can't reach the very-tight or loose bands yet this early, so all levers show.) The shakedown is always unassisted: no PELL zone, no integration gauge (`web/tutorial.js` `hidePell()` must be extended to cover it; Pell's help arrives in 1.6b).]**
 
 ## The turn (scripted, mid-hunt, after card 4)
 
 *The drone's track is clean on the plot: a slow loop through the Shoal, exactly as Abara wrote it.*
 
-- *(overlay, not murdered)* PELL: Contact's turning. That's not a loop.
-- *(overlay, murdered)* PELL: Contact turning.
-- *(no overlay)* QUILL: Contact's turning. Toward us.
+QUILL: Contact's turning. Toward us.
 
 ABARA: It can't. I wrote its program. It goes round in a loop.
 *(if the player pinged on card 4)* ABARA: And before you ask, it's got no ears. It didn't hear your ping.
@@ -78,7 +68,7 @@ QUILL: It's turning, Abara. Passive plot and transponder both.
 
 *It is. For forty seconds the drone comes about, nose toward you, the way a ship does when it's looking at something. Then it swings back onto its loop as if nothing happened.*
 
-*(overlay)* *Pell says nothing, for exactly one line.*
+*(not murdered)* *Pell says nothing, for exactly one line.*
 
 → "Log it. Keep hunting."
   QUILL: In the log.
@@ -163,13 +153,15 @@ ABARA: I wrote that program. It can't do what it did.
 → "Good work. Get some rest."
   [no change]
 
-**[→ 1.7: the first commission]**
+[seen.shakedown.debrief]
+
+**[→ 1.6b: the wiring]**
 
 ---
 ## Notes
 - **The oddity is concrete and impossible,** and it now obeys the cable rule: a clockwork drone turned toward the ship for forty seconds, its own log says it didn't, and the only way anything could have steered it is the relay box Abara wired into its guidance with her own hands. She realises that in the debrief, out loud, which is a weight she'll carry.
 - **Everyone's position comes from their world:** Abara trusts her code, Quill her plot, Castellan the explainable, Dace the in-between.
 - **Abara's test resolves:** clean earns "That'll do", messy still earns direction, murder gets "Logged." The Steward quotes whichever one she said (1.7). If the player asked for the third watch on the first morning, they get it.
-- **Pell asks before outing the overlay** ("I'll let the captain say how it got there"): consent, even about itself.
+- **Pell has no channel in this hunt.** It hears the turn when Quill calls it, and its one-line silence is its only reaction (not murdered). Consent, even about itself, moved to 1.6b option 4.
 - **Fenwick reads the actual hunt time** ({minutes}); his and Quill's guesses (an hour and ten, fifty-five) bracket a normal hunt.
 - **Retired line:** Quill's old placeholder "That's not a ghost, Captain. Ghosts are consistent." becomes "Ghosts don't turn toward you and turn back."

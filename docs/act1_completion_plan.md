@@ -49,7 +49,7 @@
 ## Design note: mutually exclusive mini-missions [D]
 The tracker can offer two missions that exclude each other ("go here to side with X / go there to side with Y"). Taking one closes the other and sets a branch flag. First use: Act 2 (Vesper). Act 0's airlock teaches the basic flow (tracker entry → walk there → prompt → commit or look around) without a branch.
 
-- Tutorial polish: hide the integration meter on the Tern (cosmetic gap in web/tutorial.js hidePell()).
+- Tutorial polish: hide the integration meter on the Tern (cosmetic gap in web/tutorial.js hidePell()). Extend hidePell() to the 1.6 shakedown too: the 1.5 overlay is gone, so the shakedown is always unassisted and the PELL zone first appears after 1.6b.
 
 - 2026-11-02 decisions: officer pitches are seed material (not live); Pell assist is introduced by the wiring scene (act1_wiring) after the shakedown hunt; Ames beat happens on the way to stations (junction) with the hatch as fallback; tutorial cannot be failed (breach/quiet hidden, surrender also after 8 shots); player enters a name (12 chars), "Cptn." is prefixed from the handover.
 

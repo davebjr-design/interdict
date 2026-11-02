@@ -93,6 +93,12 @@
    "name": "(unnamed)",
    "role": "patron",
    "accent": "#6f877d"
+  },
+  "steward": {
+   "name": "the Steward",
+   "role": "the patron's voice (P4, 1.7); overhears the ship outside the quiet hour",
+   "accent": "#6f877d",
+   "_note": "used for told.<fact>.steward, the overhearing case; the Steward is never told anything"
   }
  },
  "_note_station": "station = the room id where the walkable demo places them (design/rooms/*.json). Quill is placed in the control room; the demo currently shows Abara there with Quill unplaced.",

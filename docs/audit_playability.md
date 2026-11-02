@@ -124,8 +124,8 @@ Fix: at integration < 25, make these levers answers to a question the captain as
 **23. The hunt's Pell contradicts the story's Pell.** *Should-fix (design call).*
 Evidence:
 - **Pronoun:** the console uses "he" for Pell ("Pell assists: he speeds the analysts...", "Rises while he assists"; engine comment "he does not want to be destroyed"). Every scene uses "it".
-- **How integration rises:** the PELL ASSIST key raises integration continuously while toggled on, available from the first hunt. Command model §1: integration moves only by "firewall steps (always a human act: the red switch, a cable)". Act 1 makes the first +5 and +10 explicit scene choices (logs, the overlay).
-Fix: change the console copy to "it". Decide whether the assist key exists before the 1.5 overlay. If it does, frame it as the red key ("each press is a firewall step").
+- **How integration rises:** the PELL ASSIST key raises integration continuously while toggled on, available from the first hunt. Command model §1: integration moves only by "firewall steps (always a human act: the red switch, a cable)". Act 1 makes the first +5 and +10 explicit scene choices (logs, the overlay (superseded by 1.6b: the red key in the wiring scene)).
+Fix: change the console copy to "it". Decide whether the assist key exists before the 1.5 overlay (superseded by 1.6b: assists exist only after the wiring scene). If it does, frame it as the red key ("each press is a firewall step").
 
 **24. `cast.json` is missing the Act 0 cast and the Steward.** *Should-fix.*
 Evidence: `others` has only `corvane` and `patron` (name "(unnamed)"). Ostrow, Dunne and Ames speak in P1-P4, and Riggs, Okafor and Sato speak in P2. The Steward's name is confirmed in P4. `state.json`'s `told.<fact>.<who>` pattern says `who` may be "a cast 'others' id (corvane, steward)", but `steward` doesn't exist, so `told.x.steward` or `told.x.dunne` would fail `narr_check.py`. `knowledge.csv` already lists `ostrow`, `dunne` and `steward` as knowers.
@@ -173,7 +173,7 @@ Fix: one pass marking superseded sections.
 
 ## Open design questions (not resolved here)
 1. **Trims or decision moments?** `decision_moments.md` (2026-10-31) says to replace "pick a trim at the officer" with in-hunt tight/loose popups and make trims "standing settings" earned after repeats. The demo shipped the opposite the same day. Should "Any ideas for the ship?" stay as the underway entry point for M06/M08/M10 (the deferred underway moments), or be retired?
-2. **When does PELL ASSIST exist?** From the first hunt (as built), from the 1.5 overlay, or from integration 25? This decides whether the hunt is a back door around the firewall story.
+2. **When does PELL ASSIST exist?** From the first hunt (as built), from the 1.5 overlay, or from integration 25? (Superseded by 1.6b: from the wiring scene, after the shakedown.) This decides whether the hunt is a back door around the firewall story.
 3. **Is 22:13 fixed on purpose?** (finding 26) If yes, it's a fourth "Something knew" clue and should be logged.
 4. **Where does the Ames question happen?** On the way to stations (P1 canon; needs a non-modal post-briefing step), or at the airlock (current demo; needs P3 R3's narration changed)?
 5. **Should the tutorial let you fail?** Today every path ends in surrender, including running away and being shot to 44% hull. If running should be possible, Ostrow needs a line; if not, BREACH should be hidden.

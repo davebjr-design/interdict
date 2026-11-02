@@ -56,17 +56,20 @@ Visitors push style too: a CSRA inspector pushes tight; Corvane, aboard, pushes 
 | 1.6 | briefing: ask about the pool / "Quiet on the bridge" | +1 / −1 |
 | 1.6 | the turn: "Log it. Keep hunting." | −1 |
 | 1.6 | debrief: drill it again tomorrow / stand everyone a drink | −6 / +6 |
+| 1.6b | wiring: turn the key off the log / let Pell choose | +2 / 0 |
+| 1.6b | wiring declined: by the book (tight) / improvise (loose) / not tonight (neutral) | −2 / +1 / 0 |
+| 1.6b | wiring: turn it on the record | −3 |
 | 1.7 | open the container before delivering | +2 |
 | 1.8 | Dace's call: let Castellan choose | +2 |
 | 1.8 | Castellan's call: order Abara onto a shift | −3 |
 | 1.8 | Fenwick's call: log the missing crate on the manifest | −3 |
 | 1.7 | log the commission in the Tally / leave it off the books | −4 / +4 |
-(Scene effect tags use `command.style ±n`.)
+(Scene effect tags use `command.style ±n`. Band-flavoured options, like 1.6b's declines, read the committed band, with hysteresis per `act1_completion_plan.md` 11-02.)
 
 ## 5. Trust, arcs and Pell as modifiers
 - **Trust** changes steadiness, not size: loyal (60+) officers get noise −0.4; estranged or shaken officers get noise +0.6. Trust mostly unlocks options and scenes. This keeps "please everyone" from being the dominant strategy (the decision sim's appeasement test watches it).
 - **Arc completion** gives one permanent change per officer: Castellan's confession (engineering +1 and a new option on heat cards), Dace allowed AI-assisted medicine (medical checks much better, integration +5), Quill's signals shared (sensors +1), Abara's module resolved (a fire-control option), Fenwick's network revealed (resupply anywhere).
-- **Pell's tiers** add capability field by field: sensors first (the detection overlay in 1.5), then fire control, then drives. This makes the AI dial the strongest path to power, which is exactly the trade the game is about.
+- **Pell's tiers** add capability field by field: sensors first (the classifier link Castellan seats in 1.6b), then fire control, then drives. This makes the AI dial the strongest path to power, which is exactly the trade the game is about.
 
 ## 6. Visitors
 Same crew all game; visitors come and go. A visitor brings a temporary bonus, a few storylets of their own, and a complication. One or two at a time (berths are limited).

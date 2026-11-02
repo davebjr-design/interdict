@@ -83,11 +83,18 @@ Each is a short two- or three-exchange conversation. Each has a **test**, a **ho
 - **murdered:** the cabin is sealed. Nobody in the crew will talk about her. Pell offers the logs more carefully, and asks why.
 
 ## 1.5 Pell's first conversation (control room, night)
-**Cast:** Pell, player. **Goals:** show Pell at integration 0 (honest, stops one step short and says so); present the first firewall trade.
+**Cast:** Pell, player. **Goals:** show Pell at integration 0 (honest, stops one step short and says so); plant the red key.
 1. Pell asks a question about the player (what they were before).
-2. It offers a faster detection overlay for the shakedown in exchange for one more channel.
-3. *Choice:* accept (`integration +10`, hunt bonus) / decline (no change). Both are viable.
+2. It shows the red key and says it's dead: no channel, and it can't open one. (The firewall trade itself moved to 1.6b.)
+3. *Choice* (kept_captain only): ask who would finish it / leave it.
 4. Close: Pell says one true thing it has not been allowed to say, and stops itself.
+
+## 1.6b The wiring (control room, night of day 3)
+**Cast:** Castellan, Pell, player (Quill on kept_quill; Abara briefly on ended). **Goals:** introduce the Pell-assist mechanic, the integration gauge and the red key; Castellan's small confession instead of the big one. Drafted: `scenes/act1_wiring.md`.
+1. Castellan opens the kick plate under the pedestal: Corvane's wiring, dead since the takeover, and one half-done run into the classifier that would pass for a bodge.
+2. One oddity: tags for tubes the ship doesn't have, "for later". Pell is silent for one line.
+3. *Choice:* turn the key (Pell consents, `integration +10`) / let Pell choose (answers after the next hunt) / not tonight / turn it on the record (the crew hears at breakfast). Both on and off are viable.
+4. Close: the trunk goes down and aft; "old plumbing".
 
 ## 1.7 First commission (control)
 **Cast:** the Patron. A refusable job with a reasonable motive and an odd detail (the cold-store's mass fits a core housing). *Choices:* take and log it / take it off the books / take it and open it / refuse; Pell can check the manifest (seeds `clue.patron.3`). Drafted: `scenes/act1_commission.md`. The patron's reaction to a refusal is gracious and slightly colder.

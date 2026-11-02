@@ -18,11 +18,27 @@ def name_ok(n):
     if n.startswith('clue.'): return n in clue_ids
     m = re.fullmatch(r'seen\.([\w.]+)', n)
     return bool(m)
+CMP = re.compile(r'([A-Za-z_][\w.]*)\s*(==|!=|>=|<=|>|<|=)\s*([A-Za-z_][\w.]*|-?\d+)')
+def check_needs(cid, txt):
+    """needs is a condition, not prose: every identifier must be known (dotted or not).
+    For name OP value, the value is checked too: a number, a known name, or one of the var's enum values."""
+    rest = txt
+    for m in CMP.finditer(txt):
+        name, val = m.group(1), m.group(3)
+        if not name_ok(name): errs.append('%s: unknown state name %s (needs)' % (cid, name))
+        if not re.fullmatch(r'-?\d+', val) and not name_ok(val):
+            vals = st['vars'].get(name, {}).get('values', [])
+            if val not in vals: errs.append('%s: %s compared with unknown value %s (needs)' % (cid, name, val))
+        rest = rest.replace(m.group(0), ' ', 1)
+    for tok in re.findall(r'[A-Za-z_][\w.]*', rest):
+        if tok in ('not', 'and', 'or'): continue
+        if not name_ok(tok): errs.append('%s: unknown state name %s (needs)' % (cid, tok))
 ids = set()
 for r in rows('calls.csv'):
     ids.add(r['id'])
     if r['speaker'] not in crew | {'pell', 'corvane', 'patron'}: errs.append('%s: unknown speaker %s' % (r['id'], r['speaker']))
-    for fld in ('needs', 'effects'):
+    check_needs(r['id'], r['needs'] or '')
+    for fld in ('effects',):
         for tok in re.findall(r'(?:not\s+)?([A-Za-z_][\w.]*)\s*(?:==|>=|<=|>|<|=)?', r[fld] or ''):
             if tok in ('not', 'and', 'or') or tok.isdigit(): continue
             if '.' in tok or tok in known:

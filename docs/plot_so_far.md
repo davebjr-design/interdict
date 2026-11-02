@@ -31,8 +31,10 @@ At the decisive moment Pell says "Your tea's gone cold" twice and doesn't know i
 **1.4 The aftermath.** Corvane's three things, available on every route: the quiet hour is the one hour the ship can't be heard; the station's location is walled inside Pell; "tell Abara her grandfather wasn't lying."
 - *Persuaded:* from Corvane in her cabin. You can refuse to listen. If you tell her about the eleven minutes, she's afraid for the first time ("further along than I thought").
 - *Killed / murdered:* from her logs, which Pell won't open without asking (first +5 integration). Her cabin: her grandmother's burnt notebook ("the guns that never missed were not ours alone") and a chart with a point erased hard enough to tear. On the murder route Pell first asks why you fired.
-**1.5 Pell at night.** You choose your past (launch crew / orbital / port authority / signals). The first firewall offer: a detection overlay for one channel; you turn the red key yourself (+10 integration) or decline. In the quiet hour Pell asks about its three-second gap, admits fear, and nearly says what it was built for ("That's a wall. Not hers. Older.").
+**1.5 Pell at night.** You choose your past (launch crew / orbital / port authority / signals). Pell shows you the red key on the pedestal and says it's connected to nothing (in the quiet hour it adds that somebody would have to finish what's behind it). In the quiet hour Pell asks about its three-second gap, admits fear, and nearly says what it was built for ("That's a wall. Not hers. Older.").
 **1.6 The shakedown** (day 3). Abara's decoy drone. Mid-hunt it **turns toward the ship** for forty seconds; its log says it never did. Abara realises she wired its relay box into its guidance herself. *Sets:* `shakedown.result`, the third watch, whether Quill is assigned to find out, and the first big command-style choice (drill again / stand a round).
+**1.6b The wiring** (night of day 3). Castellan opens the kick plate under the pedestal: the wiring Corvane had him run, dead since the takeover, and one half-done run into the classifier. The tube tags run past the ship's twenty-four tubes ("for later"). Pell's three rules: the captain's hand on the key, and Pell can say no.
+- *Fork:* turn the key (+10 integration; Pell asks to be told if it drops out) / let Pell choose (it answers after the next hunt) / not tonight / turn it and put it in the log (the crew hears at breakfast, and so does the mess). *Sets:* `seen.wiring.*`, `told.pell_link.*`, the hidden `tally.trace`, and whether Pell can help in hunts.
 **1.7 The first commission** (day 4). The Steward quotes Abara's words from the mess the night before. A sealed "medical" store from a war hospital ship, to Vesper Dock, off the books. Its mass fits a core housing. Abara: "That's how she started."
 - *Fork:* log it / hide it / take it and open it / refuse. Moves Tally standing, patron standing and command style together.
 **1.8 Crew calls** (days 4-6, any order). Dace wants Pell's help with Castellan's burn. Castellan won't let anyone near the panel ("I'll tell you. Not today."). Abara's quarterly payments to the six families, and Corvane's message about her grandfather ("I'll show you the box. Not tonight."). Fenwick's missing crate ("Somewhere it was needed"). Quill asks to listen "for calibration".
@@ -43,7 +45,7 @@ At the decisive moment Pell says "Your tea's gone cold" twice and doesn't know i
 |---|---|---|
 | **Something knew** (the predated blessing) | P4, 1.7 (the Steward overhears the mess) | player knows; crew know if told |
 | **The signal** (the Choir, unnamed) | P3, 1.6, 1.9 | heard; source unknown; Quill can triangulate from Vesper |
-| **Pell is a front** | P3 R5, 1.5, 1.9 | three clues: it heard the briefing, it hit a wall, it has heard the signal |
+| **Pell is a front** | P3 R5, 1.5, 1.6b, 1.9 | four clues: it heard the briefing, it hit a wall, Corvane wired ends for tubes the ship doesn't have, it has heard the signal |
 | **The station** (the Choir's location) | 1.4 (wall in Pell, the erased chart) | behind Corvane's wall |
 | **Loyalist machines** | 1.4 (grandmother's notebook), 1.8 (Abara's grandfather) | Abara will show the box |
 | **Castellan's reactor** | 1.2, 1.7, 1.8 | three clues; confession promised if trusted |
@@ -54,10 +56,10 @@ At the decisive moment Pell says "Your tea's gone cold" twice and doesn't know i
 ## The state that most changes Act 2
 - **Standoff route:** Corvane alive (and a possible visitor) or only in logs; Pell's warmth; how the crew sees you.
 - **Quiet hour:** whether Pell can ever speak freely.
-- **Integration:** 0, 5, 10 or 13 by now (logs, overlay, Dace's line).
+- **Integration:** 0, 3, 5, 8, 10, 13, 15 or 18 by now (logs +5, the red key in 1.6b +10, Dace's line +3). Pell assists add more from the first Act 2 hunt, capped at 24 on the shallow link.
 - **Command style:** tight or loose, and the ship's props with it.
 - **Trust per officer** and arc stages (Quill 2, Abara 1-2, others 0-1).
-- **Tally and the commission:** what the audit will find.
+- **Tally and the commission:** what the audit will find, including the wiring behind the pedestal (hidden; read only at the audit).
 
 ## Act 2 opens at Vesper Dock
 The audit; the captains' bar (where gleaners call the signal "the Choir"); Ames outside the door if he lived; a second listening point for Quill; the box delivered, opened, or held; and the first derelict that shows machines fought machines.

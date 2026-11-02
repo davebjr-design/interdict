@@ -349,13 +349,45 @@
    "type": "bool",
    "default": false,
    "doc": "Captain asked Quill to find the signal's source; Act 2 goal (listen from Vesper)."
+  },
+  "tally.trace": {
+   "type": "int",
+   "min": 0,
+   "max": 100,
+   "default": 10,
+   "hidden": true,
+   "doc": "What a Tally audit could physically find of Pell's integration aboard. Hidden: read only at audits, never shown as a meter. Default 10 = Corvane's dead sensor/ECM runs and taped ends already behind the pedestal on every route (1.6b). Writers: 1.6b (+2 run seated; +4 more if it is in writing: the ship's log, or Quill's watch log), call.castellan.wiring_again (same), future deep runs (+8 each, unwritten). Readers: the Act 2 audit only (wiring_audit, owner act2.audit). Not 1.9, not any HUD. Logging meaning is PROVISIONAL (act1_wiring.md writer's notes)."
+  },
+  "hunts": {
+   "type": "int",
+   "min": 0,
+   "max": 999,
+   "default": 0,
+   "doc": "Completed hunts. Written only by the hunt layer at each after-action (the P2 tutorial counts). Read by calls that wait for 'the next hunt'."
+  },
+  "last_hunt.hull": {
+   "type": "int",
+   "min": 0,
+   "max": 100,
+   "default": 100,
+   "doc": "Hull percent at the end of the most recent hunt. Written by the hunt layer at the after-action. Read by call.castellan.wiring_again (<60)."
+  },
+  "wiring.hunt_at": {
+   "type": "int",
+   "min": 0,
+   "max": 999,
+   "default": 0,
+   "doc": "Value of hunts when 1.6b played (written by 1.6b on every route). 'The next hunt after the wiring' is hunts > wiring.hunt_at. Read by call.pell.wiring_answer and call.castellan.wiring_again."
   }
  },
  "patterns": {
   "knows.<fact>": "bool. fact must exist in knowledge.csv. The player has learned it.",
   "seen.<id>": "bool. Any dotted id (storylet id, or <scene>.<beat> such as seen.p1.what_if_right, seen.abara.hook1). Set when that beat plays; powers once/cooldown and later callbacks.",
-  "told.<fact>.<who>": "bool. fact must exist in knowledge.csv; who is an officer id, pell, or a cast 'others' id (corvane, steward).",
-  "visitor.<id>": "enum aboard/gone/never. Visitors: corvane, ames, elder, inspector, believer (docs/command_model.md)."
+  "told.<fact>.<who>": "bool. fact must exist in knowledge.csv; who is an officer id, pell, or a cast 'others' id (corvane, patron, steward). The steward is never told anything: told.*.steward is the overhearing case (open comms, the mess).",
+  "visitor.<id>": "enum aboard/gone/never. Visitors: corvane, ames, elder, inspector, believer (docs/command_model.md).",
+  "seen.wiring.<beat>": "bool. 1.6b beats (writer 1.6b unless noted): key_turned (options 1/4; also call.pell.wiring_answer on yes and call.castellan.wiring_again; gate for every pell.assist_*; read by 1.8 call.dace.burn_1 and 1.9 coda), pell_asked (option 2; read by call.pell.wiring_answer), pell_refused (call.pell.wiring_answer on no), declined (option 3; read by call.castellan.wiring_again), logged (option 4; read by 1.7, the breakfast beat, act2.audit), logged_by_quill (option 1 kept_quill; read by act2.audit), promise_hedged (option 1 'If there's time'; read by the hunt after-action gap line), labels_asked (asked about the tube tags; callback hook only).",
+  "seen.shakedown.debrief": "bool. Set at the end of 1.6's debrief; 1.6b needs it.",
+  "seen.pedestal.asked": "bool. The captain examined the kick plate in the walk demo after a decline; read by call.castellan.wiring_again."
  },
- "_timeline": "Corvane: 47. CSRA Tally enforcement for 11 years, then gleaner captain about 14 years (Abara from the start). Found the relay station 3 years ago; asked her last crew to help, they refused, she scuttled that ship (Dunne made the boats); took this ship after. Took the core and Pell came aboard 6 weeks ago. Standoff ends ~22:13 ship time; P4 ~23:15; 1.1 next morning (~10 hours aboard). Day 1: first morning, crew meeting, aftermath, Pell at night (1.1-1.5). Day 3: shakedown (1.6). Day 4: first commission (1.7). Legs after that: crew calls (1.8). Days 4-6: crew calls (1.8). Night 6: Quill brings the signal (1.9); day 7: audit notice; day 8: arrive at Vesper (Act 2)."
+ "_timeline": "Corvane: 47. CSRA Tally enforcement for 11 years, then gleaner captain about 14 years (Abara from the start). Found the relay station 3 years ago; asked her last crew to help, they refused, she scuttled that ship (Dunne made the boats); took this ship after. Took the core and Pell came aboard 6 weeks ago. Standoff ends ~22:13 ship time; P4 ~23:15; 1.1 next morning (~10 hours aboard). Day 1: first morning, crew meeting, aftermath, Pell at night (1.1-1.5). Day 3: shakedown (1.6); night 3: the wiring (1.6b). Day 4: first commission (1.7). Legs after that: crew calls (1.8). Days 4-6: crew calls (1.8). Night 6: Quill brings the signal (1.9); day 7: audit notice; day 8: arrive at Vesper (Act 2)."
 }

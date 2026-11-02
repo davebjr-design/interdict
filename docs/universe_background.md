@@ -14,7 +14,7 @@
   - Each crew keeps a tally of AI-touched salvage found, used, sold or destroyed. Crews audit each other at docks and swap tallies like sheaf counts.
   - A ship whose tally does not balance is flagged. A patron then issues an interdict and other gleaners are tasked to deal with it.
   - It works like arms accounting for missing warheads. Everyone fears the unaccounted, so the unaccounted is where trust breaks.
-  - Game hooks: loot choices (declare or hide AI-touched finds), Pell and integration as a tally matter, dock inspections. Whether inspectors can see integration is open, and should not become a stress mechanic.
+  - Game hooks: loot choices (declare or hide AI-touched finds), Pell and integration as a tally matter, dock inspections. Inspectors can see integration physically, through a hidden trace read only at audits (`tally.trace`, 2026-11-02); it is never shown as a meter and should not become a stress mechanic.
 - **Interdict**: the Tally's sanction. A flagged ship is "interdicted", and other gleaners are tasked to take it out, usually through a patron. The game's name.
 - **CSRA** (Cislunar Security and Recovery Administration): the government space police, based on the moon. Official, limited, and tolerant of gleaners because it needs them. Gleaners say "the Sera". (Alternatives: CSEA, OSPA.) Earlier drafts called it "the Watch".
 - **The Quiet**: the post-war era of enforced AI silence, and a kind of technological dark age. When AI was shut off, everything that depended on it rolled back: logistics, medicine, networks, manufacturing and expertise. Standard of living dropped a little everywhere and has only partly recovered. It explains the world's look: mended clothes, repair over replacement, paper records, analog instruments and patched machines. The networks also went silent, hence the name.
@@ -45,7 +45,7 @@ Each named character sits somewhere on this map (see crew_bible.md). Nobody is a
 4. Late: the patron's real work; believers across the world; who in the crew believed what.
 
 ## Open questions
-- Whether inspectors can see a ship's integration.
+- ~~Whether inspectors can see a ship's integration.~~ Answered 2026-11-02: physically, via a hidden trace (`tally.trace`) read only at audits. Still open: whether a logged shallow link is an interdict offence or a declarable bodge (`act1_wiring.md` logging ruling, provisional).
 - Names for the war and the cutoff.
 - How many pockets exist, and where.
 - Whether the CSRA is infiltrated or complicit.

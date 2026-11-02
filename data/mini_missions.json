@@ -434,7 +434,9 @@
    "officer": "pell",
    "label": "Let Pell trim the classifier",
    "pitch": "I can make the classifier faster and not wrong. That's the whole pitch. Also it's me.",
-   "needs": "integration>=10",
+   "pitch_murdered": "Classifier. Faster. Your hand.",
+   "needs": "seen.wiring.key_turned, integration>=10",
+   "integration_cap": 24,
    "benefit": [
     [
      "readDone",
@@ -460,7 +462,8 @@
    "officer": "pell",
    "label": "Let Pell take the lead tables",
    "pitch": "Better leads, and they won't go stale. Abara will hate it. I'd hate it too, in her place.",
-   "needs": "integration>=25",
+   "pitch_murdered": "Lead tables. Better leads. Abara won't like it.",
+   "needs": "seen.wiring.key_turned, integration>=25",
    "benefit": [
     [
      "lead_error",
@@ -486,7 +489,8 @@
    "officer": "pell",
    "label": "Let Pell run the sink",
    "pitch": "I'd keep the sink a little emptier, all the time. Dace would have less to do. He'd mind.",
-   "needs": "integration>=25",
+   "pitch_murdered": "The sink. Emptier. Dace will mind.",
+   "needs": "seen.wiring.key_turned, integration>=25",
    "benefit": [
     [
      "sinkK",
@@ -507,5 +511,5 @@
    "watches": 0
   }
  ],
- "status": "SEED MATERIAL (2026-11-02): officers' ship pitches are not live in the demo; reserved for the underway buildout. Hunt-side choices are now decision moments (docs/decision_moments.md). Pell assists unlock via the wiring scene (docs/scenes/act1_wiring.md)."
+ "status": "SEED MATERIAL (2026-11-02): officers' ship pitches are not live in the demo; reserved for the underway buildout. Hunt-side choices are now decision moments (docs/decision_moments.md). Pell assists unlock via the wiring scene (docs/scenes/act1_wiring.md): every assist needs seen.wiring.key_turned; integration_cap 24 = assists on the shallow 1.6b link cannot raise integration above 24."
 }

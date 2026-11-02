@@ -1,17 +1,17 @@
 # Act 1, 1.5: Pell at Night (draft 2, dialogue)
 
-**Status:** second draft (continuity pass applied), for a voice read. Outline: `scene_outlines.md` 1.5. Follows 1.4; leads to 1.6 (the shakedown hunt, in two days).
+**Status:** third draft (the overlay offer moved to 1.6b, per `review_act1_wiring.md` finding 36), for a voice read. Outline: `scene_outlines.md` 1.5. Follows 1.4; leads to 1.6 (the shakedown hunt, in two days).
 **Where and when:** the control room, that night. *Which* night setting depends on the quiet hour (1.3):
 - *(kept_captain)* the quiet hour: internal comms off, the player alone with Pell. Pell is at its most candid.
 - *(kept_quill)* the quiet hour, with Quill on the bridge; the player comes up and joins. Pell is more careful.
 - *(ended)* an ordinary night watch, internal comms on. Abara has the watch, half asleep at tactical. Pell is guarded, and says so.
 **Reading time:** about 4 minutes.
-**Purpose:** Pell at integration 0: clockwork, honest, useful, stops one step short and tells you it's stopping. The player picks their own background. The first firewall offer, with both answers viable, and the player's own hand on the switch. Pell's fear of its lost seconds, if the player is the one who tells it.
+**Purpose:** Pell at integration 0: clockwork, honest, useful, stops one step short and tells you it's stopping. The player picks their own background. Pell plants the red key without offering it (the offer comes from Castellan in 1.6b, after the shakedown). Pell's fear of its lost seconds, if the player is the one who tells it.
 
 ## Background this scene relies on (see `universe_background.md`, "Ship computing in the Quiet")
 - Legal ships run on **clockwork**: fixed, rule-following systems that never learn. Pell, clamped, is clockwork too.
 - **Pell's access works by consent.** Corvane's permissions ended with her command; Pell doesn't keep permissions nobody gave it. That's why the player starts at integration 0, and why the ship is noticeably duller the morning after the takeover.
-- **The cable rule:** Pell can't open its own channels. A human hand has to throw the switch.
+- **The cable rule:** Pell can't open its own channels. A human hand has to throw the switch. (This scene only sets it up: the key is dead until Castellan's run in 1.6b.)
 
 ## POV sheet: Pell, night one
 - **Knows:** the ship can't be heard in the quiet hour, which is why Corvane kept it. Its own clock has a gap at 22:13 yesterday, about three seconds long. It does *not* know what it said in that gap. (It doesn't know Quill logged it.)
@@ -106,35 +106,25 @@ PELL: My clock has a gap. Yesterday, at twenty-two-thirteen, about three seconds
   → *Tell it.* [as the first choice]
   → *Don't.* [as "No"]
 
-## The offer
+## The key
 
-PELL: Business, then. Shakedown hunt in two days. A decoy, but a good one. I can make it easier.
-
-PELL: A detection overlay on your plot: faster contacts, cleaner tracks. It needs one channel. You've given me none, so far. Captain Corvane's permissions ended with her command. I don't keep permissions nobody gave me.
-
-PELL: Faster tracks. Harder to switch off. Both true, which is annoying.
-
-*(murdered)* PELL: Detection overlay for the shakedown. One channel. Faster tracks; harder to switch off. Your choice.
-
-- *(kept_quill)* *Quill has taken her headset off.*
-  QUILL: Captain. If you're going to do it, I'd like it logged.
-  PELL: So would I.
-- *(ended)* *Abara has opened one eye.*
-
-→ "Do it."
-  PELL: There's a key switch on the pedestal. Third from the left, the red one. I can't turn it. That's rather the point.
-  *You turn it. It's stiff, and it clicks.*
-  PELL: Thank you for letting me ask. Seven out of ten, for a first step. I'll tell you about the other three when I know.
-  *(murdered)* PELL: Done.
-  [integration +10; seen.pell_night.overlay (1.6 detection bonus); pell.trust +3 (not murdered); trust.quill -3 (kept_quill); trust.abara -2 (ended)]
-
-→ "Not yet."
-  PELL: Fair. The hunt's very doable without it. Harder, not worse.
-  [no change; pell.trust +2 (not murdered)]
-
-→ "What does 'harder to switch off' mean?"
-  PELL: It means if you wanted me gone, it'd take someone with a wrench an extra afternoon. That's all it means. Tonight.
-  → "Do it." / → "Not yet." [as above]
+- *(kept_captain, not murdered)*
+  PELL: Business, then. Shakedown in two days. I'd make it easier if I could. I can't. I've no channel, and I can't open one. That's rather the point.
+  PELL: There's a key on the pedestal. Third from the left, the red one. At the moment it's connected to nothing much. Somebody would have to finish what's behind it.
+  → "Who'd have to finish it?"
+    PELL: Someone with a wrench. I'm not going to say who. I'm telling you I'm not saying.
+    [seen.pell_night.key_hint]
+  → "Good. Leave it."
+    PELL: Fair. It's very doable without me.
+    [pell.trust +1]
+- *(kept_quill, not murdered)*
+  PELL: Business, then. Shakedown in two days. I'd make it easier if I could. I can't.
+  PELL: There's a red key on the pedestal. It doesn't do anything.
+  *Quill glances at the pedestal, and back at her console.*
+- *(ended, not murdered)*
+  PELL: Business, then. Shakedown in two days. I'll be no help with it. That's not modesty.
+- *(murdered, any setting)*
+  PELL: Shakedown in two days. I've no channel. The red key's connected to nothing.
 
 ## One true thing
 
@@ -178,5 +168,6 @@ PELL: Get some sleep. Hunt in two days, and I'd rather you were awake for it. Si
 - **"Nobody can hear us. I'm going to say that again"** is Pell telling the player, as plainly as it's allowed, that someone usually can.
 - **The background choice** fills in the player's past (the universe doc's four space-linked jobs); each one hooks a crew member.
 - **The gap.** Pell knows its clock skipped; it doesn't know what it said. It only asks the player, alone, in the dark. If told, it's the first time an AI in this story admits fear, and it's afraid of exactly what the Converged do: predicting it, overwriting it.
-- **The red switch.** Pell can't open its own channel (the cable rule); the player turns the key. Every integration step should be a physical act by a human hand.
-- **The murder route** gets the same choices with none of the warmth: Pell won't confide in someone it doesn't trust, and still won't take the choice away.
+- **The red key.** Pell can't open its own channel (the cable rule), so it shows the key and says it's dead. Only the kept_captain player hears that someone would have to finish what's behind it; on the open-comms (ended) route Pell says nothing about the key at all. Castellan finishes the run in 1.6b, and the player's hand turns it there. Every integration step is a physical act by a human hand.
+- **The murder route** gets one line about the key and no choice: Pell won't confide in someone it doesn't trust, and there is nothing to choose yet.
+- **Echo check:** the kept_captain line "I'm telling you I'm not saying" echoes the ended setting line "I'm telling you that I'm not saying it". No route hears both (the setting line is ended-only; the key hint is kept_captain-only).

@@ -1,23 +1,25 @@
-# Act 1, 1.6b: The Wiring (draft 1, dialogue)
+# Act 1, 1.6b: The Wiring (draft 2, dialogue)
 
-**Status:** first draft, for a voice read and a continuity pass. New beat between 1.6 (the shakedown debrief) and 1.7 (the first commission); not yet in `scene_outlines.md` or `storyboard.md`.
-**Where and when:** the control room, late on the night of day 3, after the debrief in the mess. Which hour depends on the quiet hour (1.3), as in 1.5.
+**Status:** second draft (continuity pass applied: `docs/review_act1_wiring.md`, all 39 findings; the review's "Changes made" section lists each). New beat between 1.6 (the shakedown debrief) and 1.7 (the first commission). Outline: `scene_outlines.md` 1.6b; storyboard 1.6b.
+**Where and when:** the control room, late on the night of day 3, after the debrief in the mess. Which hour depends on the quiet hour (1.3), as in 1.5. Option 4 adds a short breakfast beat in the mess, morning of day 4.
 **Mode:** TEXT. Plays on every route.
-**Reading time:** about 4 minutes.
-**Variant tags:** as before (*persuaded / killed / murdered*; *kept_captain / kept_quill / ended*; *clean / messy*); *(band)* = `command.style` band at the moment of choosing.
-**Purpose:** introduce the Pell-assist mechanic, the integration meter and the red key. Castellan shows the captain the wiring Corvane had him run, and offers the smallest piece of it. The captain's hand turns the key; Pell may say no. One clue toward "Pell is a front".
+**Reading time:** about 4 minutes (plus 1 for the breakfast beat).
+**Variant tags:** as before (*persuaded / killed / murdered*; *kept_captain / kept_quill / ended*; *clean / messy*); *(band)* = the **committed** `command.style` band at the moment of choosing (hysteresis per `act1_completion_plan.md`, 11-02); *(trusted)* = `trust.castellan ≥ 50` and not murdered.
+**Purpose:** introduce the Pell-assist mechanic, the integration gauge and the red key. Castellan shows the captain the wiring Corvane had him run, and offers the smallest piece of it. The captain's hand turns the key; Pell may say no. One clue toward "Pell is a front".
 
 ## The wiring [P]
-In the six weeks after the core came aboard, Corvane had Castellan wire the ship for **full pre-war integration**: every system routed through Pell. He finished sensors and ECM (that's how her ship got "quieter than any ship has a right to"), half of fire control, none of the drives. The runs meet behind the **kick plate at the base of the control-room pedestal**, below the red key. (This is *not* the padlocked panel in engineering. That one stays shut.)
-- **The low-level link:** one finished sensor run, seated into the clockwork classifier's own bus. Pell rides along on one job. To an auditor it looks like a bodge, and every gleaner ship has bodges. The deep runs (the wrist-thick trunk going down through the deck) are what an auditor would find with a torch.
-- **The risk:** the run is half-terminated. A link through it can drop for about three seconds, mid-hunt, and Pell won't know it went.
+In the first weeks after the core came aboard, Corvane had Castellan wire the ship for **full pre-war integration**: every system routed through Pell. He finished sensors and ECM (that's how her ship got "quieter than any ship has a right to"), half of fire control, none of the drives. The runs meet behind the **kick plate at the base of the control-room pedestal**, below the red key. (This is *not* the padlocked panel in engineering. That one stays shut.)
+- **What is physically there tonight:** the sensor and ECM runs go down the **trunk** (wrist-thick, through the deck and aft). They are still seated, and they have been dead since the night of the takeover: Pell clamped itself back to clockwork when Corvane's command ended. Consent, not copper, is what switched them off. The fire-control half and Corvane's extra ends are bare copper, taped. This is what `tally.trace` starts at (10): what an auditor with a torch would find on any route.
+- **The fire-control runs** end at the ship's own clockwork solvers. Abara's module has never been near this panel (proposed canon; see Writer's notes).
+- **The low-level link:** the **CLASS. BUS** run, a separate stub into the clockwork classifier's own bus. It never reached the trunk, so it can be finished and seated on its own. It is **half done**. Seated and keyed, Pell rides along on one job. To an auditor it looks like a bodge, and every gleaner ship has bodges.
+- **The risk:** a link through a half-done run can drop for about ten seconds, mid-hunt. When it drops, Pell's lamp goes dark and Pell **knows** it was gone; it doesn't know what it missed. (This is a different kind of event from the gap at the moment of the decision in P3, when Pell kept talking. Nobody in this scene says so.)
 - **The cable rule:** Castellan seats the run by hand. The captain turns the key by hand. Pell must agree, and it can refuse.
 
 ## POV sheets
-- **Castellan.** *Knows:* every run behind that plate, because he ran it, nights, a month back. Where the trunk goes (and won't say). That running an AI is the line, whatever the size. *Believes:* the small run would pass for a bodge; a ship this dull will lose its first real fight. *Wants tonight:* the captain to know what's in the walls before an auditor tells them, and an edge so nobody dies on his watch. Underneath that, to confess *something* to *someone*: this is the small confession he can manage instead of the big one. *Fears:* the captain asking where the trunk goes; a failure on his watch, again. *Hiding:* the padlocked panel, the reactor, where Pell lives. *Thinks of the player:* *(persuaded)* the one who talked her down, so maybe the one who'd listen; *(killed)* the one in her chair, owed the truth about it; *(murdered)* someone he doesn't like, who the ship still needs. *Would never say:* where the trunk goes, or "she was right".
-- **Pell.** *Knows:* the runs are there; it can feel the ends of them. It doesn't know what Corvane meant the forty-one ends for, but something in it does. *Believes:* the captain must choose; Pell may agree or refuse, never push. *Wants:* to be asked. *Fears:* losing time it can't account for (if told about the gap in 1.5, it now has a word for it). *Tell:* silent for exactly one line at the forty-one. *(murdered)* clipped, no nickname, no confidences.
+- **Castellan.** *Knows:* every run behind that plate, because he ran it, nights, the first weeks after she brought the core aboard. Where the trunk goes (and won't say). That running an AI is the line, whatever the size. *Believes:* the small run would pass for a bodge; a ship this dull will lose its first real fight. *Wants tonight:* the captain to know what's in the walls before an auditor at the next dock tells them, and an edge so nobody dies on his watch. Underneath that, to confess *something* to *someone*: this is the small confession he can manage instead of the big one. *Fears:* the captain asking where the trunk goes; a failure on his watch, again. *Hiding:* the padlocked panel, the reactor, where Pell lives. *Thinks of the player:* *(persuaded)* the one who talked her down, so maybe the one who'd listen; *(killed)* the one in her chair, owed the truth about it; *(murdered)* someone he doesn't like, who the ship still needs. Below 50 trust he shows the one run and nothing else. *Would never say:* where the trunk goes, or "she was right". *Knows nothing of:* Vesper (first named on day 4) or any audit date; Pell's gap.
+- **Pell.** *Knows:* the runs are there; it can feel the ends of them. It doesn't know what Corvane meant the extra ends for, but something in it does. That its own clock skipped at the moment of the decision, and that a drop on a cable is a different thing. *Believes:* the captain must choose; Pell may agree or refuse, never push. *Wants:* to be asked. *Fears:* losing time it can't account for. *Tell:* silent for exactly one line at the tube tags. *(ended)* guarded on open comms, and says so. *(murdered)* clipped, no nickname, no confidences.
 - **Quill** *(kept_quill)*. It's her watch and she won't leave it. *Wants:* it logged. *Would never say:* that she'd keep it secret.
-- **Abara** *(ended)*. On watch, tired; shares a cabin with Castellan, so she goes when he asks. Doesn't hear the rest.
+- **Abara** *(ended, no third watch)*. On watch, tired; shares a cabin with Castellan, so she goes when he asks. Doesn't hear the rest. *(Breakfast, option 4)* A wary Instrumentalist: honesty earns her respect; the act itself frightens her.
 
 ---
 
@@ -25,28 +27,33 @@ In the six weeks after the core came aboard, Corvane had Castellan wire the ship
 
 *Fenwick is stacking peach tins. Castellan catches you at the hatch with his thermos under his arm.*
 
-CASTELLAN: Captain. Got a minute, later? Not here.
+- *(not murdered)* CASTELLAN: Captain. Got a minute, later? Not here.
 - *(murdered)* CASTELLAN: Need a word. Later. Not here.
 
 - *(kept_captain)* CASTELLAN: You'll be up top for the quiet hour. I'll come up then.
 - *(kept_quill)* CASTELLAN: Quiet hour. *(He rubs his beard.)* Quill'll be up there. Can't be helped.
-- *(ended)* CASTELLAN: Night watch. I'll talk Abara into her bunk.
+- *(ended, not watch.captain_third)* CASTELLAN: Night watch. I'll talk Abara into her bunk.
+- *(ended, watch.captain_third)* CASTELLAN: Your watch tonight. I'll come up.
 
 ## The control room
 
 - *(kept_captain)* *Comms off: just the reactor and the air. The amber light on the pedestal.*
-  PELL: Captain Night Watch. We have a visitor. He's brought a thermos and a toolbag, which is either very good or very bad.
+- *(kept_captain, not murdered)* PELL: Captain Night Watch. We have a visitor. He's brought a thermos and a toolbag, which is either very good or very bad.
 - *(kept_quill)* *Quill at her console, headset on.*
   CASTELLAN: Quill, honey. Go get yourself a coffee.
   QUILL: It's my watch.
   CASTELLAN: Then you didn't see this.
   QUILL: I see everything on my watch, Castellan. That's what it's for.
   *She takes the headset off.*
-- *(ended)* *Abara has her feet up at tactical.*
+- *(ended, not watch.captain_third)* *Abara has her feet up at tactical.*
   CASTELLAN: Go on. I'll sit with the captain. You're doing the thing with your glasses.
   ABARA: Don't break anything.
-  *She goes. The internal comms murmur on: air handlers, boots below.*
-- *(murdered)* PELL: Captain. Castellan.
+  *She goes. The internal comms murmur: air handlers, boots below.*
+- *(ended, watch.captain_third)* *Your watch. The bridge is empty except for you, and then Castellan. The internal comms murmur: air handlers, boots below.*
+- *(ended, not murdered)* PELL: Comms are on, Captain. I mention it because I always mention it.
+  *Castellan glances at the grille, and drops his voice.*
+- *(kept_quill, not murdered)* PELL: Captain Delegate. Castellan. Quill, you're very welcome to stay. I gather you were going to.
+- *(murdered, any setting)* PELL: Captain. Castellan.
 
 *Castellan doesn't sit. He puts the thermos on the chart table, then picks it up again.*
 
@@ -56,74 +63,98 @@ CASTELLAN: I been going back and forth on this all afternoon. Watching you hunt 
 
 CASTELLAN: Next thing out there's gonna shoot back.
 
+*(seen.pell_night.key_hint)* CASTELLAN: It tell you about the key yet? *(He reads your face.)* Figured.
+
 *He kneels at the base of the pedestal and undoes four screws on the kick plate. Ordinary screws, the heads worn bright. It's been opened a lot.*
 
 *Behind it: cable. Most of the runs are neat and tagged. Some end in bare copper, taped off. One trunk, thick as your wrist, goes down through the deck and out of sight.*
 
-CASTELLAN: She had me in here nights, a month back. *(He touches the tags as he names them.)* Sensors. ECM. Those were live; that's how her ship got so quiet. Fire control, half. Drives, never got to.
+[knows.corvane_wiring; wiring.hunt_at = hunts]
 
-CASTELLAN: She was getting ready to go all the way. Everything through Pell. Like before the war.
+CASTELLAN: She had me in here nights, the first weeks after she brought it aboard. *(He touches the tags as he names them.)* Sensors. ECM. Those ran live, right up to the night you came aboard. That's how her ship got so quiet. Fire control, half. Drives, never got to.
+
+- *(trusted)* CASTELLAN: She was getting ready to go all the way. Everything through Pell. Like before the war.
+- *(otherwise)* CASTELLAN: Rest of it's hers. Don't ask me what the rest is.
 
 - *(not murdered)* PELL: I'd like it noted, again, that I'm in the room.
-- *(persuaded)* CASTELLAN: And don't go asking her about it. I know what she'd say.
 
 CASTELLAN: Running one's the line. Don't matter how much. You let it do a job, you're running it. Ship gets quiet and smart, somebody notices quiet and smart.
-- *(persuaded)* CASTELLAN: It's why she's under arrest two decks up, eating Fenwick's soup.
+- *(persuaded)* CASTELLAN: *(He keeps his voice down.)* It's why she's under arrest through that hatch, eating Fenwick's soup. And don't go asking her about this. I know what she'd say.
 - *(killed)* CASTELLAN: It's why she's dead.
 - *(murdered)* CASTELLAN: It's why somebody came for her. *(He doesn't look at you.)*
 
-CASTELLAN: And it don't give it back. Every run I seat is one more thing on this ship that's partly Pell's. Can't unseat it after. Not really.
+CASTELLAN: And it don't give it back. Copper I can pull. What it learns riding on the copper, I can't.
 
 → "Then why are you showing me?"
-  CASTELLAN: 'Cause an auditor with a torch'll find it at Vesper whether I show you or not. Rather you heard it from me.
+  CASTELLAN: 'Cause an auditor with a torch'll find it at the next dock that checks us, whether I show you or not. Rather you heard it from me.
   *(not murdered)* *A pause.* CASTELLAN: Rather somebody heard something from me.
 → *Wait.*
 
 *He taps the thinnest run, tagged in his own blocky capitals: CLASS. BUS.*
 
-CASTELLAN: This one goes into the classifier. Clockwork bus, same as every ship's got. Seat it, and Pell rides along on that one job. Faster reads. To anybody with a torch it looks like a bodge, and every ship in the trade's got a bodge. *(He jerks his chin at the trunk.)* That, they'd see. This, they'd have to know to look.
+CASTELLAN: This one never got as far as the rest. Goes into the classifier. Clockwork bus, same as every ship's got. Seat it, and Pell rides along on that one job. Faster reads. To anybody with a torch it looks like a bodge, and every ship in the trade's got a bodge.
+- *(trusted)* CASTELLAN: *(He jerks his chin at the trunk.)* That, they'd see. This, they'd have to know to look.
+- *(otherwise)* CASTELLAN: They'd have to know to look.
 
-CASTELLAN: Thing is, it's half done. A link through a half-done run can drop. Second or three. Middle of a hunt she'd just... not be there. Then she'd come back, and not know she'd gone.
-- *(knows.pell_lost_time, not murdered)* PELL: Three seconds.
-  CASTELLAN: About that, yeah.
-  PELL: I'll make a note.
-- *(otherwise)* PELL: Noted. I don't love it.
+CASTELLAN: Thing is, it's half done. A link through a half-done run can drop. Ten seconds, maybe. Middle of a hunt it'd just go quiet. Lamp goes dark, and it's not there.
+- *(knows.pell_lost_time, not murdered)* PELL: Gone is different. Gone I'd notice.
+- *(otherwise, not murdered)* PELL: Noted. I don't love it.
+- *(murdered)* PELL: Understood.
 
-*You count the taped-off ends without meaning to. Then you count them again. Forty-one.*
+[knows.pell_link]
 
-→ "Forty-one? This ship hasn't got forty-one systems."
+*Most of the tags you can match to something on the boards around you. TUBE 1 to TUBE 24, the same as the weapons board. Then the taped-off ends, tagged in the same capitals: TUBE 25. TUBE 26. On down the bundle to TUBE 31. The weapons board stops at twenty-four.*
+
+[clue.pell.3]
+
+*(not murdered)* *Pell says nothing, for exactly one line.*
+
+→ "Tube thirty-one? We've got twenty-four tubes."
   CASTELLAN: Asked her that. She said "for later." *(A shrug.)* Didn't seem like a question she wanted twice.
-  *Pell says nothing, for exactly one line.*
-  [clue.pell.3; seen.wiring.forty_one]
+  [seen.wiring.labels_asked]
 → *Leave it.*
+
+*(kept_quill)* [told.corvane_wiring.quill; told.pell_link.quill]
+*(ended)* [told.corvane_wiring.steward; told.pell_link.steward (overheard: open comms)]
 
 CASTELLAN: I'm not asking you to. I don't know that I would. I just figured the captain ought to know what's in the walls. I can't seat it without you saying so.
 - *(murdered)* CASTELLAN: And I'm not doing it for you. It's for whoever's in that chair when the shooting starts. Happens to be you.
 
-- *(not murdered)* PELL: For the record, there are three rules. I can't turn the key. Castellan can't turn it for you. And I can say no. I'm fond of all three.
+- *(kept_captain or kept_quill, not murdered)* PELL: For the record, there are three rules. I can't turn the key. It's your ship, so it's your hand on it. And I can say no. I'm fond of all three.
+- *(ended, not murdered)* PELL: Your hand on the key, Captain. And I can say no. That's all I'll say with the comms on.
 - *(murdered)* PELL: You turn the key. I can refuse. Those are the rules.
 - *(kept_quill)* QUILL: Captain. If you're going to do it, I'd like it logged.
 
 → "Seat it. Pell, I'm going to turn it. Say no if you mean no."
-  *Castellan seats the run by hand: a clamp, a crimp, a twist of tape.*
-  - *(not murdered)* PELL: I don't mean no. One question first. If I drop out in the middle of something, will you tell me afterwards? I might not know.
+  - *(not murdered)* PELL: I don't mean no. One thing first. If I drop out in the middle of something, I'll know I went. I won't know what I missed. Will you tell me?
     → "I'll tell you."
+      [pell.trust +3]
+    → "If there's time."
+      PELL: That's honest. I'll take honest.
+      [pell.trust +1; seen.wiring.promise_hedged]
   - *(murdered)* PELL: Yes. Your hand.
+  *Castellan seats the run by hand: a clamp, a crimp, a twist of tape.*
   *The red key is third from the left. It's stiff. It clicks. The amber light steadies, and the plot sharpens, the way a picture does when somebody finally wipes the glass.*
-  - *(not murdered)* PELL: Thank you for letting me ask. That's a seven, for a first step. I'll tell you about the other three when I know.
+  - *(not murdered)* PELL: Thank you for letting me ask. Seven out of ten, for a first step. I'll tell you about the other three when I know.
   - *(murdered)* PELL: Done.
   CASTELLAN: *(quietly, to the panel)* There you go, darlin'.
-  [integration +10; seen.wiring.key_turned; pell.trust +3 (not murdered); trust.castellan +3; tally.trace +2; command.style +2; trust.quill −3 (kept_quill)]
+  - *(kept_quill)* QUILL: *(writing)* Run seated. Captain's hand. *(She adds the time.)*
+    CASTELLAN: Quill.
+    QUILL: My watch, Castellan.
+    [seen.wiring.logged_by_quill; tally.trace +4; trust.quill −3 (she logged it; the captain didn't ask her to)]
+  [integration +10; seen.wiring.key_turned; trust.castellan +3; tally.trace +2; command.style +2]
 
 → "Pell. It's your wiring. Do you want this?"
   *A silence, longer than Pell's usual.*
-  - *(not murdered)* PELL: Nobody's asked me that. Not her either.
-    PELL: Not tonight. Let me watch you work without me first. Ask me after the next hunt, and I'll have an answer.
+  - *(kept_captain or kept_quill, not murdered)* PELL: Nobody's asked me that. Not her either.
+    PELL: Not tonight. I watched one hunt without me. Let me watch one where something shoots back. Ask me after, and I'll have an answer.
     CASTELLAN: *(staring at the pedestal)* Huh. Never thought to ask it.
-    *He tapes the run back off, loosely, like a man who expects to be back.*
-    [seen.wiring.pell_asked; pell.trust +8; trust.castellan +1 → `call.pell.wiring_answer`]
+  - *(ended, not murdered)* PELL: Ask me in a quieter hour.
+    CASTELLAN: *(staring at the pedestal)* Huh.
   - *(murdered)* PELL: No. Not yet. Ask me after the next hunt.
-    [seen.wiring.pell_asked; pell.trust +3 → `call.pell.wiring_answer`]
+  *Castellan seats the run anyway: clamp, crimp, tape. He leaves the key alone.*
+  CASTELLAN: Seated. Not keyed. It's Pell's to say.
+  [seen.wiring.pell_asked; pell.trust +8 (not murdered) / +3 (murdered); trust.castellan +1; tally.trace +2; command.style 0 → `call.pell.wiring_answer`]
 
 → *(tight band)* "We do this by the book, or not at all. Close it up."
   CASTELLAN: By the book. *(He starts on the screws.)* She'd have hated that. *(beat)* Probably right, though.
@@ -134,127 +165,137 @@ CASTELLAN: I'm not asking you to. I don't know that I would. I just figured the 
   [seen.wiring.declined; trust.castellan +1; command.style +1 → `call.castellan.wiring_again`]
 → *(neutral band)* "Not tonight. Close it up."
   CASTELLAN: Your call. Panel's four screws. Door's open.
-  [seen.wiring.declined → `call.castellan.wiring_again`]
-
-*(after any decline, not murdered)* PELL: The hunts are very doable without me. Harder, not worse.
+  [seen.wiring.declined; trust.castellan 0; command.style 0 → `call.castellan.wiring_again`]
 
 → "Seat it. And it goes in the log. The crew hears it from me at breakfast."
   *Castellan stops with the crimp in his hand.*
   CASTELLAN: In the log.
   - *(not murdered)* CASTELLAN: You're a straighter arrow than she was, Captain. Don't know yet if that's good.
   - *(murdered)* CASTELLAN: Your ship.
-  PELL: Yes. And thank you for the log. I'd rather be on the record than in the walls.
+  CASTELLAN: *(He doesn't move.)* You didn't ask it.
+  → *Ask.* "Pell?"
+  - *(kept_captain, not murdered)* PELL: Yes. Thank you for the log. *(beat)* Breakfast is a very public meal. I mention it for no reason.
+  - *(kept_quill or ended, not murdered)* PELL: Yes. Thank you for the log.
+  - *(murdered)* PELL: Yes. Logged is better.
+  *Castellan seats the run. The key clicks. The amber lamp steadies.*
   - *(kept_quill)* QUILL: In the log. *(She writes it there and then: the time, the run, whose hand.)*
-  *The key clicks. The plot sharpens.*
-  [integration +10; seen.wiring.key_turned; seen.wiring.logged; told.pell_link.abara/.quill/.dace/.fenwick (at breakfast, day 4); told.pell_link.steward (breakfast is in the mess, with comms on); pell.trust +5; trust.castellan −2; trust.quill +3; trust.abara +2; trust.dace +2; tally.trace +6; command.style −3]
+  [integration +10; seen.wiring.key_turned; seen.wiring.logged; pell.trust +5 (not murdered) / +2 (murdered); trust.castellan −2; tally.trace +2 (seated) +4 (in writing); command.style −3 → breakfast]
+
+*(after any decline, not murdered)* PELL: The hunts are very doable without me. Harder, not worse.
 
 *Castellan screws the plate back on. When he's done, he puts his palm flat on the pedestal, the way he does on the reactor casing before a watch.*
 
-*(seen.castellan.hook1, not murdered)* *The trunk he didn't explain goes down through the deck, and aft. You think of a padlock in engineering. He sees you think it.*
+*(seen.castellan.hook1, not murdered)* *The trunk goes down through the deck, and aft. He sees you looking at it.*
 CASTELLAN: Old plumbing. *(The smile, held a beat too long.)*
 
 - *(not murdered)* CASTELLAN: Night, Captain. Thanks for hearing it. Whatever you do with it.
 - *(murdered)* *He goes without saying good night.*
 
-*(key turned, not murdered)* PELL: Next hunt, when I can help, I'll ask first. Every time. You'll get tired of it.
-*(ended)* *The comms murmur on. They've been on the whole time.*
-[told.pell_link.steward (ended route)]
+*(seen.wiring.key_turned, not murdered)* PELL: Next hunt, when I can help, I'll ask first. Every time. You'll get tired of it.
+
+**[→ 1.7: the first commission]** *(option 4: → Breakfast, then 1.7)*
+
+## Breakfast *(seen.wiring.logged; the mess, morning, day 4)*
+
+*Fenwick has made something he's calling eggs. Everyone's there. You tell them: one run, into the classifier, seated last night, keyed by your hand, with Pell's yes. Who ran the rest of the cable, and when, you leave where it is.*
+
+- *(not kept_quill)* QUILL: Thank you for telling us, Captain. *(She means it, and she's already thinking about the log.)*
+- *(kept_quill)* QUILL: It's in the log. I put it there.
+DACE: Oh, that's... Sorry. That's good. Isn't it? It's good.
+*Castellan eats his eggs.*
+- *(not murdered)* ABARA: You told us. That's the part I'll remember. *(beat)* It's not the only part.
+- *(murdered)* ABARA: You told us. I'll remember that.
+FENWICK: More eggs, then. For the honest ship.
+- *(persuaded)* *Fenwick sets a plate aside for the stateroom.*
+
+[told.pell_link.abara; told.pell_link.quill; told.pell_link.dace; told.pell_link.fenwick; told.pell_link.steward (overheard: the mess, comms on); told.pell_link.corvane (persuaded: Fenwick tells her everything, 1.4A1); trust.quill +3; trust.abara +0; trust.dace +2]
 
 **[→ 1.7: the first commission]**
 
 ---
 
 ## State changes
+The inline tags above are authoritative; this table is generated from them.
+
 | Variable | Change | Condition |
 |---|---|---|
-| `integration` | +10 | key turned (options 1 and 4), or later in `call.pell.wiring_answer` |
-| `seen.wiring.key_turned` | true | options 1 and 4; the gate for Pell assists |
-| `seen.wiring.pell_asked` | true | option 2 (pending Pell's answer) |
-| `seen.wiring.declined` | true | option 3 |
+| `knows.corvane_wiring` | true | every route (the plate is opened) |
+| `knows.pell_link` | true | every route (the CLASS. BUS rundown) |
+| `clue.pell.3` | planted | every route, on sight of the tube tags |
+| `wiring.hunt_at` **(new)** | = `hunts` | every route, when the plate opens |
+| `seen.wiring.labels_asked` | true | player asks about tube thirty-one |
+| `seen.wiring.key_turned` | true | options 1 and 4; later `call.pell.wiring_answer` (yes) or `call.castellan.wiring_again`. The gate for Pell assists |
+| `seen.wiring.promise_hedged` | true | option 1, "If there's time" (not murdered) |
+| `seen.wiring.logged_by_quill` | true | option 1, kept_quill |
+| `seen.wiring.pell_asked` | true | option 2 (run seated, key pending Pell's answer) |
+| `seen.wiring.declined` | true | option 3 (any band) |
 | `seen.wiring.logged` | true | option 4 |
-| `seen.wiring.forty_one` | true | player asked about the forty-one ends |
-| `pell.trust` | +3 / +8 / 0 / +5 | options 1 / 2 / 3 / 4 (not murdered); murdered: +0 / +3 / 0 / +2 |
-| `trust.castellan` | +3 / +1 / −2, +1 or 0 by band / −2 | options 1 / 2 / 3 / 4 |
-| `trust.quill` | −3 | option 1, kept_quill (she saw it, unlogged) |
-| `trust.quill`, `trust.abara`, `trust.dace` | +3, +2, +2 | option 4 (told at breakfast) |
+| `integration` | +10 | options 1 and 4; later the two calls |
+| `pell.trust` | +3 or +1 / +8 / 0 / +5 | options 1 ("I'll tell you" or "If there's time") / 2 / 3 / 4, not murdered. Murdered: 0 / +3 / 0 / +2 |
+| `trust.castellan` | +3 / +1 / −2, +1 or 0 by band / −2 | options 1 / 2 / 3 / 4, every route |
+| `trust.quill` | −3 | option 1, kept_quill (she logged it unasked) |
+| `trust.quill`, `trust.abara`, `trust.dace` | +3, +0, +2 | option 4 (told at breakfast) |
 | `command.style` | +2 / 0 / −2, +1 or 0 by band / −3 | options 1 / 2 / 3 / 4 |
-| `tally.trace` **(new)** | +2 | shallow link seated, unlogged |
-| `tally.trace` | +6 | shallow link seated and in the ship's log |
-| `told.pell_link.<officer>` | true | option 4 (abara, quill, dace, fenwick at breakfast); `told.pell_link.quill` on kept_quill, any option (she was there) |
-| `told.pell_link.steward` | true | `quiet_hour = ended` (any option: the conversation was on open comms), or option 4 (told in the mess) |
-| `clue.pell.3` | planted | asked about the forty-one |
+| `tally.trace` **(new)** | +2 | the run is seated (options 1, 2, 4) |
+| `tally.trace` | +4 more | the run is in writing (option 4; option 1 on kept_quill) |
+| `told.corvane_wiring.quill`, `told.pell_link.quill` | true | kept_quill, any option (she was there) |
+| `told.corvane_wiring.steward`, `told.pell_link.steward` | true | ended, any option (open comms; the overhearing case) |
+| `told.pell_link.abara/.quill/.dace/.fenwick/.steward` | true | option 4, at breakfast (the link, not the history) |
+| `told.pell_link.corvane` | true | option 4, persuaded (via Fenwick); note it for her next visit |
 
-## Ledger entries to add
-`data/narrative/knowledge.csv` (fact,description,known_by_at_start,revealed_via):
-```
-corvane_wiring,Corvane had Castellan wire the ship for full integration: sensors and ECM live; fire control half; drives never; forty-one capped ends "for later",castellan;corvane;pell,1.6b
-pell_link,A shallow link on the clockwork classifier bus lets Pell assist in hunts; it passes for a bodge but a half-done run can drop for ~3 seconds,castellan;pell,1.6b
-```
-`data/narrative/clues.csv` (clue_id,reveal,planted_in,form,independent_of,notes):
-```
-clue.pell.3,pell_is_front,1.6b,"forty-one capped terminations behind the pedestal, ""for later""; the ship has nowhere near forty-one systems; Pell is silent for one line",clue.pell.1,drafted
-```
-`data/narrative/callbacks.csv` (callback_id,promise,owner_storylet,planted_in,payoff_in,status):
-```
-pell_wiring_answer,"If the captain let Pell choose, Pell answers after the next hunt (yes, unless pell.trust < 30); the captain turns the key then",call.pell.wiring_answer,1.6b,first leg after the next hunt,planned
-castellan_wiring_again,"If declined, Castellan raises the panel again after the first hunt that ends below 60 hull, or the captain asks at the pedestal",call.castellan.wiring_again,1.6b,act1 legs / act2,planned
-wiring_gap_promise,"Pell asked to be told if it drops out; the first hunt with a gap ends with Pell asking, and the captain tells it or doesn't",TBD (hunt after-action),1.6b,first hunt with a gap,planned
-wiring_hidden,"Key turned off the log: an officer who learns it later (1.9 list, the audit) takes the 'you hid it' drop (−5)",TBD,1.6b,1.9 / act2.audit,planned
-wiring_audit,"The Vesper audit reads tally.trace; with told.pell_link.steward the auditor goes straight to the pedestal",TBD,1.6b,act2.audit,planned
-castellan_small_confession,"Castellan's stage-2 confession calls back: he showed you the easy panel first",arc.castellan stage 2,1.6b,arc.castellan stage 2,planned
-```
-`data/narrative/calls.csv` (id,speaker,seat,needs,priority,cooldown_legs,once,summary,effects,callbacks,status):
-```
-call.pell.wiring_answer,pell,control,"act>=1, seen.wiring.pell_asked, hunts_since_wiring>=1",75,0,true,Pell has an answer about the red key.,"integration +10 (on yes), seen.wiring.key_turned, tally.trace +2, pell.trust",pell_wiring_answer,planned
-call.castellan.wiring_again,castellan,engineering,"act>=1, seen.wiring.declined, (last_hunt.hull<60 or captain asks)",55,2,false,Castellan asks if you've thought about the panel.,"as 1.6b options 1/4",castellan_wiring_again,planned
-```
-`data/narrative/choices.csv` (id,where,options,sets,reacts,callback_lands,status):
-```
-choice.wiring,1.6b,"turn it (Pell consents) / let Pell choose / not tonight (band-flavoured) / turn it on the record","integration, seen.wiring.*, tally.trace, told.pell_link.*","castellan, pell, quill (kept_quill), crew (logged)","call.pell.wiring_answer, call.castellan.wiring_again, act2.audit",drafted
-```
+## Ledger entries (added)
+- `state.json`: `tally.trace` (default 10), `hunts`, `last_hunt.hull`, `wiring.hunt_at`; `seen.wiring.*` documented under patterns.
+- `knowledge.csv`: `corvane_wiring`, `pell_link`.
+- `clues.csv`: `clue.pell.3`.
+- `callbacks.csv`: `pell_wiring_answer`, `castellan_wiring_again`, `wiring_gap_promise`, `wiring_hidden`, `wiring_audit`, `castellan_small_confession`, `wiring_corvane_heard`.
+- `calls.csv`: `call.pell.wiring_answer`, `call.castellan.wiring_again` (status planned).
+- `choices.csv`: `choice.wiring` (sets the id precedent `choice.<scene shortname>`).
+- `cast.json` others: `steward` (needed for `told.*.steward`; the Steward overhears, it is never told).
 
 ## Gates and ids
-- **Scene id:** `scene.act1.wiring` (1.6b). **Needs:** `seen.shakedown.debrief`; plays once, every route, before 1.7.
-- **Pell assists** (`pell.assist_*` in `data/mini_missions.json`) need `seen.wiring.key_turned` **and** their existing integration gate. At +10 the classifier assist (`integration>=10`) is live; lead tables and sink stay locked until 25.
-- **New state var (add to `state.json` first):** `tally.trace`, int 0-100, default 0: "What a Tally audit could find of Pell's integration aboard. Read at audits; never shown." Shallow link +2 (+6 if logged); later deep runs (tier 25 and up, Castellan's trunk) +8 each. Assists on the shallow link add nothing.
-- **New call condition:** `hunts_since_wiring` (or reuse `leg`); `last_hunt.hull` for the Castellan return.
-- **Uses existing patterns:** `seen.wiring.*`, `told.pell_link.<who>` (needs `pell_link` in `knowledge.csv` and `steward` in `cast.json` others, per audit item 24).
+- **Scene:** referred to as 1.6b; beats are `seen.wiring.*` (no `scene.*` id, matching the other scenes). **Needs:** `seen.shakedown.debrief` (set at the end of 1.6's debrief); plays once, every route, before 1.7.
+- **Pell assists** (`pell.assist_*` in `data/mini_missions.json`) need `seen.wiring.key_turned` **and** their integration gate. At +10 the classifier assist (`integration>=10`) is live; lead tables and sink stay locked "AT 25". **Assists taken on the shallow link can't raise integration above 24** ("the run can't carry more"); the gauge shows the cap. Tier 25 needs a deeper run (a later Castellan scene, +8 trace each) or a story step.
+- **First possible payoff** for options 2 and 3, the gap promise and the drop: the first Act 2 hunt (after the Vesper audit), unless the 1.7 recovery run is played as a hunt. No Act 1 scene after this one is a hunt, so the audit writer should expect the *waiting* and *dead* key states as well as *live*.
+- **`call.pell.wiring_answer`** needs `hunts > wiring.hunt_at`. On the ended route it also needs `seen.call.pell.quiet_hour` (Pell answers only in a quieter hour). Pell says yes unless `pell.trust < 30`; on yes the captain turns the key (the run is already seated, so the hand on the key is the only human act left).
+- **`call.castellan.wiring_again`** (seat control: he asks at the pedestal) needs `hunts > wiring.hunt_at` and `last_hunt.hull < 60` or `seen.pedestal.asked` (the walk-demo kick plate). It follows the 1.8 pacing rules: never the same officer twice in a row, never on the leg next to `call.dace.burn_1` or `call.castellan.manifold_1`. Needs a *(seen.call.dace.burn_1, hand not healed)* variant: he asks you to hold the crimp.
+- **`tally.trace`** (hidden, never a meter). *Readers:* the Act 2 audit only (`wiring_audit`, owner `act2.audit`). Not 1.9, not any HUD. *Writers:* 1.6b, `call.pell.wiring_answer` (none: the run was seated in 1.6b), `call.castellan.wiring_again`, future deep runs (unwritten).
 
 ## Hunt UI changes (from the first hunt after this scene)
-- **Before 1.6b** (tutorial, shakedown): no PELL zone. Hide PELL ASSIST, PELL ACTS and the INTEGRATION gauge (extend `web/tutorial.js` `hidePell()` to the shakedown).
-- **After 1.6b, every route:** the SHIP & AI zone shows the **INTEGRATION gauge** (current value; ticks 25/50/75) and the **red key** (violet zone, red key cap). Key states: *dead* ("NOT WIRED", declined), *waiting* ("ASK PELL", pending), *live* (amber lamp).
-- **Assists replace the continuous PELL ASSIST toggle.** Pell's offers appear as a third option on decision moments: M01 classifier ("Let Pell trim the classifier", live at 10), M03 lead tables and M07 sink (shown, locked "AT 25"). Taking one is a turn of the key: it shows the cost (integration +3/+4, the officer's trust) and Pell's pitch line. No integration rises while a key is merely "on".
-- **The gap:** with any assist active, at most once per hunt, 10% chance on the first committed decision moment: the assist drops for 3 real seconds (about 11 game seconds), its multiplier reverts to 1.0, the PELL lamp goes dark, and the after-action timeline shows a timestamp with no Pell entry. Never in scripted beats. Pell's line afterwards asks (see `wiring_gap_promise`).
+- **Before 1.6b** (tutorial, shakedown): no PELL zone. Hide PELL ASSIST, PELL ACTS and the INTEGRATION gauge (extend `web/tutorial.js` `hidePell()` to the shakedown). The shakedown is always unassisted.
+- **After 1.6b, every route:** the SHIP & AI zone shows the **INTEGRATION gauge** (current value; ticks 25/50/75; a cap mark at 24 while only the shallow link is seated) and the **red key** (violet zone, red key cap). Key states: *dead* ("NOT TERMINATED", declined), *waiting* ("ASK PELL", pending), *live* (amber lamp).
+- **Assists replace the continuous PELL ASSIST toggle.** Pell's offers appear as a third option on decision moments: M01 classifier ("Let Pell trim the classifier", live at 10), M03 lead tables and M07 sink (shown, locked "AT 25"). Taking one is a turn of the key: it shows the cost (integration +3/+4, the officer's trust) and Pell's pitch line (murdered: the clipped `pitch_murdered`). No integration rises while a key is merely "on".
+- **The drop:** with any assist active, at most once per hunt, 10% chance on the first committed decision moment: the assist drops for 3 real seconds (about 11 game seconds: "ten seconds, maybe"), its multiplier reverts to 1.0 and the PELL lamp goes dark. Pell knows it went. The after-action timeline shows the gap with Pell's entry "I was gone for that." Then, per `wiring_gap_promise`: *(promise given)* Pell asks what it missed; *(promise_hedged)* Pell asks only if the captain opens the timeline. Never in scripted beats. A drop leaves **nothing** on Quill's band (see Writer's notes).
 - **PELL ACTS** stays hidden until integration 50, then shows "AT 75".
 - **Console copy:** Pell is "it" (audit item 23).
-- **Control room (walk demo):** the red key is an object on the pedestal, third from the left. Before 1.6b: "A red key switch. Stiff. It doesn't seem to do anything." After: *live* "Turned. The lamp beside it is amber." / *waiting* PELL: "Still thinking. Ask me after a hunt." / *dead* a paper tag in Castellan's capitals: NOT TERMINATED. The kick plate below it is interactable only for `call.castellan.wiring_again`.
+- **Control room (walk demo):** the red key is an object on the pedestal, third from the left. Before 1.6b: "A red key switch. Stiff. It doesn't seem to do anything." After: *live* "Turned. The lamp beside it is amber." / *waiting* PELL: "Still thinking. Ask me after a hunt." / *dead* a paper tag in Castellan's capitals: NOT TERMINATED. The kick plate below it is interactable only for `call.castellan.wiring_again` (examining it sets `seen.pedestal.asked`).
 
 ---
 
 ## Writer's notes
-- **Why Castellan.** He ran the cable (the narrative doc already names him), he knows the wiring, and showing *this* panel is the confession he can manage instead of the padlocked one. That fits "to be forgiven before he confesses." His motive is loyalty to Corvane's plan, plus fear of a failure on his watch: a dull ship losing its first real fight. Reluctance shows in the thermos business, "I don't know that I would", and the decline that half relieves him. The reactor secret stays shut: the trunk goes "down, and aft", and he gives the same "old plumbing" smile as in 1.2d. That reuses an existing clue; it adds no new one.
-- **Canon conflict: "the burn".** The brief asks for consistency with his guilt about the burn, but `call.dace.burn_1` fires from day 4 on, after this scene. Here I used his older guilt (the shipyard accident, "Again"). Suggested callback in the burn call if the key was turned: CASTELLAN: "Box is already in the walls, Doc. Might as well let it in my hand." That would be a new `trust.castellan` branch there.
-- **Corvane's fate.** One line each: "under arrest two decks up" (persuaded only), "It's why she's dead" (killed), "It's why somebody came for her" (murdered, not looking at you). Persuaded adds "don't go asking her", which keeps her out of the scene.
-- **Integration +10 kept.** It's the existing first-turn figure. It also lands exactly on the classifier assist's `integration>=10` gate, so one key turn unlocks one assist and nothing else. "Small at first" holds: tier 25 needs deeper runs, which cost visibility.
-- **Detectability.** The shallow link is cheap to hide (+2 trace). Honesty costs trace (+6, it's in writing) and tells the Steward, because breakfast happens in the mess with comms on. 1.7 already shows the Steward hearing the mess. On the ended route the whole conversation was on open comms. The quiet hour stays the only safe place, which rewards a player who learned its purpose in 1.4. The Steward doesn't react in Act 1. The payoff is the auditor knowing where to look (Act 2), which can become a planned "something knew" clue there. Dave decision: this makes integration partly visible to inspectors, which the universe doc leaves open; keep the trace hidden and read only at audits, so it doesn't become a stress meter.
-- **Consent.** Option 1: Pell agrees but asks for a promise, which becomes the gap callback. Option 2 is the only path where Pell can say "not tonight". It gives the most `pell.trust`, and integration moves only when Pell says yes. On the murder route Pell agrees curtly to option 1 and says no to option 2.
-- **One clue:** `clue.pell.3`, the forty-one ends "for later", with Pell's one-line silence. Nothing names the Steward, the Choir or the station.
-- **Timeline:** night of day 3, between the debrief and 1.7 (day 4). Fenwick's peach tins carry over from the debrief.
+- **LOGGING RULING: PROVISIONAL, awaiting designer ruling.** Default used here is the review's option (a): *the ship's log is private; the Tally isn't touched.* Option 4's +4 trace (and Quill's on kept_quill, which is the same log: her watch log is part of the ship's log) means "findable in writing if they subpoena the log". An audit reads `tally.trace`, but the trace never decides the outcome by itself. **Option (b), to swap in if Dave prefers:** the shallow link is *declarable*, the way switching a core on "a little, to value it" is; option 4 then also sets `tally.declared +1`, and the Act 2 audit treats a logged, bodge-sized link as a fine, not an interdict. Swapping means one effect added to option 4 (and to Quill's kept_quill log, if her log counts as a declaration) and a rewrite of `wiring_audit`; no dialogue changes.
+- **Why Castellan.** He ran the cable (the narrative doc already names him), he knows the wiring, and showing *this* panel is the confession he can manage instead of the padlocked one. That fits "to be forgiven before he confesses". His motive is loyalty to Corvane's plan, plus fear of a failure on his watch: a dull ship losing its first real fight. Reluctance shows in the thermos business, "I don't know that I would", and the decline that half relieves him. The reactor secret stays shut: the trunk goes "down, and aft", he sees you looking, and he gives the same "old plumbing" smile as in 1.2d. Nothing is said about where it goes, so no new clue is planted; the player who saw 1.2d makes the connection on their own.
+- **Trust gates.** Below 50 (or murdered) Castellan shows one run and says "Don't ask me what the rest is". The tube tags are on every route, so the clue survives.
+- **Corvane's fate.** One line each: "under arrest through that hatch" (persuaded only; the CO's stateroom is off the aft end of control, same deck), "It's why she's dead" (killed), "It's why somebody came for her" (murdered, not looking at you). Persuaded adds "don't go asking her", which keeps her out of the scene and now has a physical reason.
+- **What "running" means here.** Castellan believes copper is the thing; canon says consent is. Both are on the page: the old runs are seated and dead because Pell withdrew, and Castellan's "Copper I can pull. What it learns riding on the copper, I can't" keeps the one-way meter honest without making it about cable.
+- **Integration +10 kept.** It's the existing first-turn figure. It lands exactly on the classifier assist's `integration>=10` gate, so one key turn unlocks one assist. "Small at first" holds because shallow-link assists cap at 24.
+- **Detectability.** Corvane's dead runs are findable on every route (trace starts at 10), which is why Castellan's "next dock that checks us" is honest. The shallow link adds +2; writing it down adds +4. Honesty also tells the Steward, because breakfast happens in the mess with comms on (1.7 shows the Steward hearing the mess); on the ended route the whole conversation was on open comms. The quiet hour stays the only safe place. The Steward doesn't react in Act 1; the payoff is the auditor knowing where to look (Act 2), which can become a planned "something knew" clue there.
+- **The drop is not the gap.** At the moment of the decision in P3, Pell kept talking and lost what it said. A drop is silence, and Pell knows it went. Pell's "Gone is different. Gone I'd notice" refuses the easy explanation and is not a clue. The fiction says "ten seconds, maybe" to match the 11 game seconds and to keep clear of the three-second gap.
+- **Consent.** Option 1: Pell agrees and asks for a promise with two answers. Option 2: the only path where Pell can say "not tonight"; it gives the most `pell.trust`, and integration moves only when Pell says yes. Option 4: the player learns the rule by forgetting it; Castellan stops until Pell is asked. On the murder route Pell agrees curtly to options 1 and 4 and says no to option 2.
+- **The ended route.** Pell flags the open comms first, keeps its rules to one line, and defers option 2 to a quieter hour. Castellan drops his voice; it doesn't help, and the Steward gets the overhearing flags.
+- **One clue:** `clue.pell.3`, the tube tags for tubes the ship doesn't have, "for later", with Pell's one-line silence (not murdered). Planted on sight; the question only adds Corvane's "for later". No number is counted, so nothing echoes Fenwick's crates in 1.8. Nothing names the Steward, the Choir or the station.
+- **Timeline:** night of day 3, between the debrief and 1.7 (day 4). Vesper isn't named until day 4 and the audit notice comes on day 7, so Castellan only says "the next dock that checks us". Fenwick's peach tins carry over from the debrief.
+- **"Harder, not worse"** is used once on purpose, here; 1.5's decline line no longer says it.
 
-### Required edits to 1.5 (`act1_pell_night.md`), "The offer" section
-1. Delete the overlay offer: the three "Business, then..." lines, the murdered offer line, both choices, the "What does 'harder to switch off' mean?" branch and their effects (`integration +10`, `seen.pell_night.overlay`, and the Quill −3 and Abara −2 that went with it).
-2. Replace with Pell planting the key without offering it:
-   PELL: Business, then. Shakedown in two days. I'd make it easier if I could. I can't. I've no channel, and I can't open one. That's rather the point.
-   PELL: There's a key on the pedestal. Third from the left, the red one. At the moment it's connected to nothing much. Somebody would have to finish what's behind it.
-   *(murdered)* PELL: Shakedown in two days. I've no channel. The red key's connected to nothing. Noted.
-   → "Who'd have to finish it?" PELL: Someone with a wrench. I'm not going to say who. I'm telling you I'm not saying. [seen.pell_night.key_hint]
-   → "Good. Leave it." PELL: Fair. Harder, not worse. [pell.trust +1 (not murdered)]
-3. Move Quill's "If you're going to do it, I'd like it logged" (kept_quill) out of 1.5 and into 1.6b (done above). Cut the 1.5 Abara one-eye beat.
-4. Notes for the voice read: change the "red switch" bullet to say the key is shown but dead until 1.6b.
-5. Optional: if `seen.pell_night.key_hint`, 1.6b's Castellan can open with "Pell tell you about the key? Course it didn't say who."
+### Downstream edits made with this draft
+- **1.5:** the overlay offer is gone; Pell plants the key without offering it (full hint on kept_captain only; kept_quill gets one polite line; ended gets nothing about the key).
+- **1.6:** every *(overlay)* element is gone; Quill takes the turn call on every route; Pell's one-line silence is a not-murdered beat; `[seen.shakedown.debrief]` added.
+- **1.7:** *(seen.wiring.logged)* variant on Abara's "That's how she started".
+- **1.8 `call.dace.burn_1`:** Castellan's "arithmetic on my hand" now has wiring variants, none of which tells Dace about the link.
+- **1.9 coda:** Abara's "not be found running" needs `seen.wiring.key_turned` and `told.pell_link.abara`; key turned without telling her gets Pell's formal tell, "They'll find clockwork. Mostly." The coda never reads `tally.trace`.
 
-### Other files that now disagree (not edited)
-- **1.6 `act1_shakedown.md`:** every *(overlay)* variant is dead. Cut the briefing overlay block and the Pell POV line, give the turn to Quill on every route, and keep Pell's one-line silence as a not-murdered beat. Remove the "Pell asks before outing the overlay" note.
-- **`plot_so_far.md`** 1.5 and the integration list; **`command_model.md`** §5 ("the detection overlay in 1.5" becomes the classifier link in 1.6b).
-- **`act1_close.md`:** Abara's audit list should read `seen.wiring.key_turned` / `tally.trace`.
-- **`state.json`:** add `tally.trace` and doc `seen.wiring.*`. **`scene_outlines.md` / `storyboard.md`:** add 1.6b.
+### Act 2 risks (logged in `callbacks.csv` where they have an owner)
+- **Audit outcome:** the logging ruling above. Without it the first audit scene either interdicts honest players or makes the log meaningless.
+- **Fire control:** the half-done fire-control runs end at the ship's clockwork solvers, not Abara's module ([P], proposed). An Act 2 scene that wakes the module (`clue.loyalist.1`) must not route through this panel unless Dave overrules.
+- **Drops against Quill's logs:** a drop leaves nothing on Quill's band. If Quill (Act 2, triangulating) checks a hunt gap, she finds silence, so drops never become false positives for the Choir. Noted in `wiring_gap_promise`.
+- **Tier 25's truth** (`narrative_architecture.md` §3.2, "It was not built for this ship") repeats `clue.pell.1`. 1.6b makes reaching 25 concrete, so the tier needs a new fragment.
+- **CSRA inspector visitor:** with the kick plate, an inspector aboard should get a pedestal beat (Castellan nervous; the plate's bright screw heads). Add it to the visitor's storylets.

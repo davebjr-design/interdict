@@ -75,9 +75,11 @@ Structure: a conversation in rounds (aim for 5-6). On each round the player pick
 - If **persuaded**: she asks to see you once; courteous; tells you what the patron cannot know; asks you to tell Abara something. You can refuse to hear it. She is the first big "believe her or not" choice.
 - If **killed**: her cabin is sealed. Pell offers her logs and asks whether to open them (the first small step on the integration meter, but only if you say yes). Quill's hands shake slightly the first time you mention her.
 
-**1.5 | TEXT | control room, night | Pell | Pell's first conversation.** Pell is clamped (integration 0): honest, helpful, stops one step short and says so. Asks one question about you. Offers the first firewall trade: a faster detection overlay for the shakedown if you allow one more of its channels. *Choice:* accept (`integration +10`, hunt bonus) / decline (no change). First test that both routes are viable.
+**1.5 | TEXT | control room, night | Pell | Pell's first conversation.** Pell is clamped (integration 0): honest, helpful, stops one step short and says so. Asks one question about you. Shows you the red key and says it's connected to nothing. Drafted: `scenes/act1_pell_night.md`.
 
 **1.6 | HUNT | shakedown | Abara/Quill/Castellan as voices on cards | Shakedown against a decoy.** Fully in your control. Two or three decision cards (`card3_route`, `card4_detection`, `card5_classification`) with the recast cast speaking. Aftermath: who did well, who was overruled.
+
+**1.6b | TEXT | control room, night | Castellan, Pell | The wiring.** Castellan shows the wiring Corvane had him run behind the pedestal and offers the smallest piece: one half-done run into the classifier. The first firewall trade. *Choice:* turn the key (`integration +10`, Pell assists in later hunts) / let Pell choose / not tonight / turn it on the record. First test that both routes are viable. Drafted: `scenes/act1_wiring.md`.
 
 **1.7 | TEXT | control | the Steward | First commission.** A sealed "medical" store from a war-era hospital tender, to Vesper Dock, off the ledger. Its mass fits a core housing. *Choice:* log it / hide it / open it / refuse. Drafted: `scenes/act1_commission.md`.
 

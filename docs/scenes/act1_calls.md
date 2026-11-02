@@ -20,7 +20,8 @@ callbacks: call.castellan.manifold_1 (one-handed variant)
 - *(otherwise)* *A coolant line let go next to the crack he's been watching. Right across the old scar on his palm.*
 
 DACE: Second-degree, palm and two fingers. I can treat it. I can treat it *better* if Pell models the tissue and tells me how to dress it. I'd need to run a line from the sickbay panel to Pell. On your word.
-CASTELLAN: Doc, I like you fine, but I don't want the box doing arithmetic on my hand.
+- *(seen.wiring.key_turned)* CASTELLAN: Doc, I like you fine. Box is already doing enough round here. I don't want it doing arithmetic on my hand too.
+- *(otherwise)* CASTELLAN: Doc, I like you fine, but I don't want the box doing arithmetic on my hand. *(beat)* Ship's one thing.
 DACE: The box is better at this arithmetic than I am. *(beat)* I don't love saying that.
 - *(not murdered)* PELL: I can halve the healing time. I can also stay out of it. Your hand, Castellan. Your call, Captain.
 - *(murdered)* PELL: Available if asked.

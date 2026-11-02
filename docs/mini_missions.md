@@ -24,6 +24,8 @@ The command model shapes it:
 
 ## 3. Pell's assists: the temptation
 Once integration passes a tier, Pell offers an **assisted** version of some trims: the benefit with no performance cost. The cost is integration (always a human turning the key) and the trust of the officer whose job Pell just did. That puts the AI dial in the most ordinary moment of the game: tuning the ship. (`pell_assists` in the data: classifier, lead tables, heat.)
+- **Gate:** every assist needs `seen.wiring.key_turned` (the red key, 1.6b) as well as its integration gate. The classifier assist is at integration 10, below the first tier: one key turn unlocks exactly that one. Lead tables and heat need 25.
+- **Shallow-link cap:** while only the 1.6b classifier run is seated, assists can't raise integration above 24 ("the run can't carry more"); the gauge shows the cap. Reaching 25 takes a deeper run (a later Castellan scene, more `tally.trace`) or a story step, never clicks alone.
 
 ## 4. The first set (17 trims, 6 departments)
 | Dept (officer) | Trim | Better | Worse |

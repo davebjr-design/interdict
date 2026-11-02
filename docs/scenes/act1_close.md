@@ -137,9 +137,11 @@ ABARA: Tally audit. Ours is at Vesper.
 - *(commission = refused)* ABARA: At least there's nothing in the hold we didn't write down. Mostly.
 - *(seen.fenwick.crate_logged)* ABARA: They'll read the manifest too. A crate of rations nobody can explain, which you wrote down. Better than not.
 
-*(integration > 0)* PELL: They'll look at me too, I expect. I've never been audited. I'd like to make a good impression.
-*(integration > 0)* ABARA: You'd like to not be found running, is what you'd like. *(to you)* That's how ships get interdicted, Captain. Same as hiding a box.
-*(integration = 0)* PELL: They'll look at me, and find clockwork. I'm very good at clockwork.
+*(seen.wiring.key_turned, told.pell_link.abara)* PELL: They'll look at me too, I expect. I've never been audited. I'd like to make a good impression.
+*(seen.wiring.key_turned, told.pell_link.abara)* ABARA: You'd like to not be found running, is what you'd like. *(to you)* That's how ships get interdicted, Captain. Same as hiding a box.
+*(seen.wiring.key_turned, not told.pell_link.abara, not murdered)* PELL: They will find clockwork, Captain. Mostly.
+*(seen.wiring.key_turned, not told.pell_link.abara, murdered)* PELL: Clockwork. Mostly.
+*(not seen.wiring.key_turned)* PELL: They'll look at me, and find clockwork. I'm very good at clockwork.
 
 ABARA: Vesper tomorrow. Lots of captains. Lots of talk.
 
@@ -156,4 +158,5 @@ ABARA: Vesper tomorrow. Lots of captains. Lots of talk.
 - **The Ames beat** (if he died) is consistent with P3: she looked long enough to be sure, and he was nervous; she didn't think about what Corvane would do, because she was waiting for the signal.
 - **Pell's "Yes"** is the third `pell_is_front` clue (with P3 R5 and 1.5).
 - **The audit** turns every earlier Tally choice into stakes for Act 2: the box, the manifest, how quiet the ship runs, and whether Pell is running.
+- **Abara's audit list reads what she knows, never `tally.trace`.** She can only say "You'd like to not be found running" if the key was turned *and* she was told (`told.pell_link.abara`: 1.6b option 4). If the key was turned off the log, Pell goes formal (its lying tell): "They will find clockwork, Captain. Mostly." That is the honest moment for `wiring_hidden`: the captain knows, and Abara doesn't yet. `tally.trace` is read only by the Act 2 audit.
 - **Day count:** commission day 4; Vesper is four days out, so the ship arrives day 8. Crew calls over days 4-6; this scene night 6; coda day 7; Pell's "seven days" counts from the takeover.

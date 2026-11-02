@@ -53,6 +53,7 @@ This matches the concept doc: scripted content for the dilemmas and backstory, s
 | `arc.<officer>` | stage number | Where each personal arc stands. |
 | `corvane` | killed / persuaded / (later) freed | The opening fork. |
 | `tally` | declared, hidden, destroyed counts | The ledger from the universe doc. Inspections read it. |
+| `tally.trace` | 0-100, hidden | What an audit could physically find of Pell's integration aboard. Read only at audits; never shown as a meter (1.6b). |
 | `patron.standing`, `patron.suspicion` | 0-100 each | What the patron thinks of you; what you suspect. Suspicion is only what the player has actually found. |
 | `knows.<fact>` | boolean | What the player has learned (reveals ladder). Facts are named once in a ledger. |
 | `told.<fact>.<officer>` | boolean | What the crew have been told. Drives the "trust drops when they find out you hid it" rule. |
@@ -85,7 +86,7 @@ Pick the highest-priority eligible call at each leg, with a cap on how many of o
 
 ### 2.5 The ledgers
 
-1. **Choice and consequence**: choice id, where, options, state it sets, who reacts, where the callback lands.
+1. **Choice and consequence**: choice id, where, options, state it sets, who reacts, where the callback lands. Ids are `choice.<scene shortname>` (first: `choice.wiring`, 1.6b). Scenes have no `scene.*` ids; their beats are `seen.<scene shortname>.<beat>`.
 2. **Reveal and clue**: each secret, the clue ids planted for it, where each appears, and the minimum number a careful player will see. Rule: at least three independent clues before a reveal, so nobody feels cheated, and a player who investigates can see it coming (the concept doc's "playable twist").
 3. **Callback register**: promise, owner, status (planted / paid / dropped on purpose).
 4. **Crew arc sheet**: per officer, stage by stage, with trust gates and the Pell tier at which each stage becomes available.

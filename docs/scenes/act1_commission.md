@@ -82,6 +82,7 @@ PELL: Four days out. A great many captains, and a very good bar, I'm told. I've 
   *Quill looks up from her console.*
   QUILL: A core. Off the ledger.
   ABARA: *(quietly)* That's how she started.
+  - *(seen.wiring.logged)* *She doesn't look at the pedestal. She doesn't have to.*
   [clue.patron.3; knows.commission_mass_wrong]
 
 *(trust.castellan ≥ 55)*
@@ -133,7 +134,7 @@ PELL: Three calls. Three closings. I'm keeping count.
 - **The voice overhears:** it quotes Abara's exact words from the mess the night before. The crew don't say what that means; Abara just looks up. `clue.patron.6`.
 - **"I'll know your answer" / "I knew you would"** is the Converged faith: it isn't asking.
 - **The voice never lies here.** "The manifest calls it medical"; "from a time when the world had better medicine" (true of a war core); "people who will look after it"; "nobody has ever needed a column for it." Every line true, every line incomplete. It never says "we" about humanity.
-- **"That's how she started"** is the line that makes the Tally choice heavy: hiding a core is exactly the step that got Corvane interdicted.
+- **"That's how she started"** is the line that makes the Tally choice heavy: hiding a core is exactly the step that got Corvane interdicted. If the captain logged the wiring (1.6b option 4), Abara heard about the red key at breakfast that morning, and the line lands on both.
 - **Castellan's slip** only happens if he trusts you; he knows the weight from the work he did for Corvane, which he still isn't ready to explain.
 - **Command style and Tally standing move together** for the first time: logging is honest and tight and costs patron standing; hiding is loose and costs Quill (and Abara, if she heard "core").
 - **Pell doesn't relay messages:** the player says yes or no on the open line themselves (the cable rule, and consent).

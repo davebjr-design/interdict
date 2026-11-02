@@ -26,3 +26,5 @@ pell_lost_time,Pell lost three seconds during the standoff and is afraid of it,p
 decoy_turned,In the shakedown the clockwork decoy drone turned toward the ship for forty seconds; its own log says it never turned,crew;pell,1.6
 commission_mass_wrong,The commissioned cold-store has the mass of a war-era core housing,pell;castellan,1.7
 the_six,The names of the six who died when Corvane scuttled her last ship (two were Dunne's friends),abara;corvane;dunne,1.8
+corvane_wiring,"Corvane had Castellan wire the ship for full integration behind the control-room pedestal: sensors and ECM ran live until the takeover (dead since: Pell withdrew); fire control half; drives never; extra ends tagged for tubes 25-31 ""for later""",castellan;corvane;pell,1.6b
+pell_link,"A shallow link on the clockwork classifier bus (the CLASS. BUS run) lets Pell assist in hunts; it passes for a bodge; the run is half done and can drop for about ten seconds, and Pell knows when it drops",castellan;corvane;pell,1.6b
