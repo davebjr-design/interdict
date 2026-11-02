@@ -7,20 +7,20 @@
 | Hunt engine (`web/hunt_rt_engine.js`) | Reworked and balanced. Enemy ships have their own parameter block; easy/normal/hard knobs touch enemies only; trims touch only the player's ship. Targets met on normal (`docs/balance_report.md`). |
 | Hunt console (`web/hunt_rt.html`, `design/hunt.html`) | Fully playable. Tutorial hunt (`?tutorial=tern`) is unfailable and isolated (no trims, no Pell, no saved state). |
 | Decision moments | M01 (hunch call) live as a pause popup. M02-M09, standing settings, underway moments: designed, not built. |
-| Walk demo (`design/proto_iso.html`) | Playable: name entry, Tern briefing, tutorial hunt, Ames beat, airlock, boarding, Corvane's ship (12 rooms), red key, dock inspection. |
+| Walk demo (`design/proto_iso.html`) | Playable: opening in the Tern's bunks (call, name entry, walk to the CIC), Tern briefing, tutorial hunt, Ames beat, airlock, boarding, Corvane's ship (12 rooms), red key, dock inspection. |
 | Pell | Gated until the wiring scene (1.6b) has been played; debug trigger stands in for the scene. |
 | Narrative | Act 1 scenes written and reviewed (docs/scenes/). No dialogue runner yet, so only the wiring panel and some briefing text are playable. |
-| Art | Placeholder/prototype only. 17 Meshy credits left. |
+| Art | Placeholder/prototype only. Tern bunks generated 2026-11-02 (12 credits). 15 Meshy credits left. |
 | Underway layer, save/load | Not built. Demo state lives in localStorage (`interdict.state`). |
 
 ## 2. What is playable for a test run
 
 **A. Walk demo (whole flow)**: open `design/proto_iso.html` (published artifact is the same file).
-1. Enter a name (12 chars). 2. Tern control room briefing, then Ostrow's tutorial hunt. 3. Surrender, back on the Tern, junction beat with Ames, airlock. 4. "Begin boarding / Look around first", walk Corvane's ship (tracker "Walk the ship n of 12"). 5. Control room: red key pedestal; choose "[Debug] Play the wiring scene (1.6b)" or the "Debug: play wiring scene" button. This sets `pell.wiring_seen` and the hidden `tally.trace`. 6. "Dock at the next station" rolls an inspection. 7. "Run a hunt" now shows Pell controls and may fire M01.
+1. Opening: black, lights up in the Tern's crew bunks; Ostrow calls you to the CIC and asks your name (12 chars, blank = Rookie). Walk forward through the junction to the control room. ("Skip opening" jumps straight to the briefing.) 2. Arriving starts the briefing, then Ostrow's tutorial hunt. 3. Surrender, back on the Tern, junction beat with Ames, airlock. 4. "Begin boarding / Look around first", walk Corvane's ship (tracker "Walk the ship n of 12"). 5. Control room: red key pedestal; choose "[Debug] Play the wiring scene (1.6b)" or the "Debug: play wiring scene" button. This sets `pell.wiring_seen` and the hidden `tally.trace`. 6. "Dock at the next station" rolls an inspection. 7. "Run a hunt" now shows Pell controls and may fire M01.
 
 **B. Plain hunts**: `web/hunt_rt.html` or `design/hunt.html`. Query options: `?difficulty=easy|normal|hard`, `?tutorial=tern`. Keys: 3 = Target view; FIRE SALVO needs two clicks.
 
-**C. Tests (all pass at last run)**: `node tests/*.js` (engine, walk_demo, pell_gate, dock_inspect, moments_test), `python3 tests/smoke4.py`, `python3 tests/hunt_pages.py`, `python3 -I tools/narr_check.py`, `node tools/balance_bot.js 240 normal`.
+**C. Tests (all pass at last run)**: `node tests/*.js` (engine, opening, walk_demo, pell_gate, dock_inspect, moments_test), `python3 tests/smoke4.py`, `python3 tests/hunt_pages.py`, `python3 -I tools/narr_check.py`, `node tools/balance_bot.js 240 normal`.
 
 **Not playable yet**: the P3 standoff, P4 blessing, Act 1 scenes (no Ink runner), moments M02-M09, hunt-witness detection, underway events, save/load.
 

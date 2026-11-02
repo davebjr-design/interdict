@@ -32,6 +32,11 @@ button { font: 500 13px var(--mono); background: #0c1713; color: var(--fg); bord
 button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; } .row button { font: 700 12px var(--disp); letter-spacing: .12em; text-transform: uppercase; }
 .note { color: var(--dim); max-width: 100ch; }
+/* opening: the stage starts black, then the lights come up (docs/scenes/p0_opening.md) */
+#curtain { position: absolute; inset: 0; background: #000; opacity: 0; pointer-events: none; z-index: 5; }
+#curtain.on { opacity: 1; pointer-events: auto; } #curtain.fade { opacity: 0; transition: opacity 1.5s linear; pointer-events: auto; }
+#nameIn { font: 500 14px var(--mono); background: #07100d; color: var(--fg); border: 1px solid var(--amber); padding: 7px 10px; width: 16ch; }
+.link { background: none; border: none; color: var(--dim); text-decoration: underline; padding: 8px 4px; font: 400 12px var(--mono); }
 </style>
 
 <div class="wrap">
@@ -44,12 +49,13 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     <div id="job" class="hud"><div class="lab">Mission tracker</div><div class="k" id="jobk">BRIEFING</div><div class="t" id="jobt">Report to Captain Ostrow at the chart table</div></div>
     <div id="map" class="hud"><div class="lab">Deck plan</div><svg id="plan" width="300" height="118" viewBox="0 0 240 98"></svg></div>
     <div id="tip" class="hud" hidden></div><div id="room" class="hud" style="left:50%;transform:translateX(-50%);top:12px;font:700 12px var(--disp);letter-spacing:.2em;color:var(--amber)">CONTROL ROOM</div>
+    <div id="curtain" class="on" data-phase="black"></div>
   </div>
   <div class="panel">
     <div id="por">&middot;</div>
-    <div><div id="nm">Ship log</div><div id="tx">The Tern's control room. Captain Ostrow keeps her ship painted, stowed and quiet. You're the probationary hand, and you're late for the briefing at the chart table.</div><div id="fx"></div><div id="ch"></div></div>
+    <div><div id="nm">Ship log</div><div id="tx"></div><div id="fx"></div><div id="ch"></div></div>
   </div>
-  <div class="row"><button id="grid" type="button">Show walk grid</button><button id="reset" type="button">Restart at the Tern</button><button id="skip" type="button">Skip to Corvane's ship</button><button id="hunt" type="button">Run a hunt</button><button id="dock" type="button" hidden title="Dock at the next station. Crews check each other's ships at docks.">Dock at the next station</button><button id="dbgwire" type="button" title="Debug: the dialogue runner doesn't exist yet. Plays 1.6b as a text-only choice panel and sets the Pell gate.">Debug: play wiring scene</button><label class="note" style="margin-left:10px">Your name <input id="pname" type="text" maxlength="12" size="10" placeholder="Rookie" style="width:90px"></label><span id="trimline" class="note"></span></div>
+  <div class="row"><button id="grid" type="button">Show walk grid</button><button id="reset" type="button">Restart at the Tern</button><button id="skipop" type="button" class="link" title="Testers: skip the wake-up and go straight to the briefing, with the saved name">Skip opening</button><button id="skip" type="button">Skip to Corvane's ship</button><button id="hunt" type="button">Run a hunt</button><button id="dock" type="button" hidden title="Dock at the next station. Crews check each other's ships at docks.">Dock at the next station</button><button id="dbgwire" type="button" title="Debug: the dialogue runner doesn't exist yet. Plays 1.6b as a text-only choice panel and sets the Pell gate.">Debug: play wiring scene</button><span id="trimline" class="note"></span></div>
   <p class="note">Hull revision 2: all twelve compartments are walkable. They chain end to end through bulkhead hatches, with ladders between decks at the junction and in engineering. Every room is scaled to the same walk-cell size, so the captain stays the same size throughout and the view only zooms enough to fill the stage. Room art is generated from the submarine brief in docs/room_art_brief_v2.md and keyed from magenta. Crew are Meshy models rendered to sprite sheets, drawn at 90% of a hatch height. Light flicker is drawn in code over the still art. Walk grids are fitted by hand; use Show walk grid to check them.</p>
 </div>
 
@@ -190,7 +196,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     [60, 62, 62, 62], [136, 62, 138, 62], [186, 62, 188, 62],
     [163, 46, 163, 52], [30, 46, 30, 52], [163, 20, 163, 26], [205, 20, 205, 26], [155, 72, 155, 76]
   ];
-  const TERN_PLAN = [['tern_airlock', 'LOCK', 100, 6, 40, 18], ['tern_junction', 'JCT', 100, 30, 40, 22], ['tern_control', 'CONTROL', 142, 30, 70, 22]], TERN_LINK = [[120, 24, 120, 30], [140, 41, 142, 41]];
+  const TERN_PLAN = [['tern_bunks', 'BUNKS', 40, 30, 58, 22], ['tern_airlock', 'LOCK', 100, 6, 40, 18], ['tern_junction', 'JCT', 100, 30, 40, 22], ['tern_control', 'CONTROL', 142, 30, 70, 22]], TERN_LINK = [[98, 41, 100, 41], [120, 24, 120, 30], [140, 41, 142, 41]];
   function drawPlan() {
     let h = '';
     if (room.ship === 'tern') { TERN_LINK.forEach(l => { h += '<line x1="' + l[0] + '" y1="' + l[1] + '" x2="' + l[2] + '" y2="' + l[3] + '" stroke="#8fd694" stroke-width="2"/>'; }); TERN_PLAN.forEach(r => { const cur = ROOMS[r[0]] === room; h += '<rect x="' + r[2] + '" y="' + r[3] + '" width="' + r[4] + '" height="' + r[5] + '" fill="' + (cur ? 'rgba(255,180,84,.25)' : 'rgba(111,195,208,.08)') + '" stroke="' + (cur ? '#ffb454' : '#6fc3d0') + '"/><text x="' + (r[2] + r[4] / 2) + '" y="' + (r[3] + r[5] / 2 + 3) + '" fill="' + (cur ? '#ffb454' : '#9fb9b0') + '" font-size="8" text-anchor="middle" font-family="monospace">' + r[1] + '</text>'; }); h += '<text x="4" y="14" fill="#9fb9b0" font-size="8" font-family="monospace">THE TERN (Ostrow)</text>'; $('plan').innerHTML = h; return; }
@@ -350,10 +356,12 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   }
   $('dock').onclick = () => dockStep();
   // the player's name: plain until the handover on Corvane's bridge, then 'Cptn.' in front (names are limited to 12 characters)
-  const pnameBase = () => { let v = ''; try { v = ($('pname').value || localStorage.getItem('interdict.pname') || '').replace(/[^\w .'-]/g, '').trim().slice(0, 12); } catch (e) {} return v; };
-  const setMeName = capt => { const v = pnameBase(); me.name = capt ? 'Cptn. ' + (v || 'You') : (v || 'You'); try { localStorage.setItem('interdict.pname', v); } catch (e) {} };
-  try { $('pname').value = localStorage.getItem('interdict.pname') || ''; } catch (e) {}
-  $('pname').oninput = () => setMeName(me.name.indexOf('Cptn.') === 0);
+  // The name is entered in the opening ("What's your name again?"); it is kept in localStorage 'interdict.pname'. Blank means Rookie.
+  const cleanName = s => String(s || '').replace(/[^\w .'-]/g, '').trim().slice(0, 12);
+  const pnameBase = () => { let v = ''; try { v = cleanName(localStorage.getItem('interdict.pname')); } catch (e) {} return v || 'Rookie'; };
+  const setMeName = capt => { const v = pnameBase(); me.name = capt ? 'Cptn. ' + v : v; };
+  const saveName = raw => { const v = cleanName(raw) || 'Rookie'; try { localStorage.setItem('interdict.pname', v); } catch (e) {} setMeName(false); return v; };
+  setMeName(false);
   // Tracker after boarding: walk every compartment of Corvane's ship (both decks); it completes when all twelve have been entered.
   const CORV = () => Object.keys(ROOMS).filter(k => !ROOMS[k].ship);
   function walkJob() { if (!walked) return; const n = CORV().filter(k => walked.has(k)).length, N = CORV().length; setJob('WALK THE SHIP', n >= N ? 'Walked the ship, bow to stern, both decks (' + N + ' of ' + N + ')' : 'Walk the ship, bow to stern, both decks (' + n + ' of ' + N + ')', n >= N); }
@@ -386,7 +394,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   function useDoor(d) { if (d.action === 'key') { redKey(); return; } if (d.action === 'board') { if (!briefed || !hunted) { say('Dunne', briefed ? 'Not yet. We have to find her first.' : 'Not yet. Captain wants you at the chart table first.', '', [{ t: 'Continue', fn: close }]); return; } if (!amesTalked) { amesBeat(true); return; } boardPrompt(); return; } if (d.locked) { say('Ship log', d.locked, '', [{ t: 'Continue', fn: close }]); return; } if (!d.to) { say('Ship log', d.label + '. The art exists but this part of the ship is not wired up yet.', '', [{ t: 'Continue', fn: close }]); return; } if (!d.wall || d.fade) { pending = d; fadeDir = 1; return; } startExit(d); }
   cv.addEventListener('pointermove', e => { if (fadeDir) return; const [x, y] = mpos(e); const d = doorAt(x, y); const nn = npcAt(x, y); hover = nn ? nn : d ? d : manifoldHere() && inRect(x, y, MANIFOLD.rect) ? 'man' : null; const c = pick(x, y); hoverCell = free(...c) ? c : null; cv.style.cursor = hover || hoverCell ? 'pointer' : 'default'; });
   cv.addEventListener('pointerdown', e => {
-    if (dlg || insp > 0 || fadeDir || me.steps.length) return; const [x, y] = mpos(e); const d = doorAt(x, y);
+    if (opening || dlg || insp > 0 || fadeDir || me.steps.length) return; const [x, y] = mpos(e); const d = doorAt(x, y);
     const nn = npcAt(x, y); if (nn) { const c = nearNpc(nn); if (c && c[0] === me.i && c[1] === me.j) { talk(nn); return; } if (c && go(c, { npc: nn })) return; return; }
     if (d) { if (me.i === d.stand[0] && me.j === d.stand[1]) { useDoor(d); return; } go(d.stand, d); return; }
     if (manifoldHere() && inRect(x, y, MANIFOLD.rect)) { if (me.i === MANIFOLD.stand[0] && me.j === MANIFOLD.stand[1]) { insp = 0.001; return; } go(MANIFOLD.stand, 'man'); return; }
@@ -396,9 +404,38 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   // Restart clears everything a playthrough leaves behind: trims, Pell integration, the shared demo state (wiring, Tally), the #after_hunt hash.
   // The player's name and the voice/briefing preferences are kept (they are conveniences, not progress).
   function clearRun() { try { ['interdict.trims', 'interdict_integration', 'interdict.state', 'interdict_hold'].forEach(k => localStorage.removeItem(k)); } catch (e) {} try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} }
-  $('reset').onclick = () => { clearRun(); walked = null; keyLook = 'none'; docked = false; $('dock').textContent = 'Dock at the next station'; setMeName(false); insp = 0; briefed = false; hunted = false; amesTalked = false; ROOMS.tern_junction.npcs = ROOMS.tern_junction.npcs.filter(n => n.name !== 'Ames'); if (!ROOMS.tern_control.npcs.some(n => n.name === 'Ames')) ROOMS.tern_control.npcs.push({ name: 'Ames', col: '#c7d9a8', cell: [7, 4] }); setRoom('tern_control', [12, 2]); setJob('BRIEFING', 'Report to Captain Ostrow at the chart table'); say('Ship log', ROOMS.tern_control.blurb, '', []); };
-  $('skip').onclick = () => { insp = 0; briefed = true; hunted = true; moveAmes(); toCorvane(); };
-  if (location.hash === '#after_hunt') { setTimeout(afterHunt, 50); }
+  function restart(skipOpening) {
+    clearRun(); walked = null; keyLook = 'none'; docked = false; $('dock').textContent = 'Dock at the next station'; setMeName(false); insp = 0; briefed = false; hunted = false; amesTalked = false;
+    ROOMS.tern_junction.npcs = ROOMS.tern_junction.npcs.filter(n => n.name !== 'Ames'); if (!ROOMS.tern_control.npcs.some(n => n.name === 'Ames')) ROOMS.tern_control.npcs.push({ name: 'Ames', sheet: 'ames', col: '#c7d9a8', cell: [7, 4] });
+    if (!skipOpening) return startOpening();
+    stopOpening(); setRoom('tern_control', [12, 2]); setJob('BRIEFING', 'Report to Captain Ostrow at the chart table'); talk({ name: 'Ostrow' });   // testers: straight to the briefing, saved name
+  }
+  $('reset').onclick = () => restart(false);
+  $('skipop').onclick = () => restart(true);
+  // ---------- P0: the opening (docs/scenes/p0_opening.md). Black 1 s, lights up over 1.5 s on the Tern's crew bunks, then the call. ----------
+  let opGen = 0, opening = false, reportCIC = false;
+  const curtain = ph => { const c = $('curtain'); c.dataset.phase = ph; c.className = ph === 'black' ? 'on' : ph === 'fade' ? 'fade' : ''; };
+  function stopOpening() { opGen++; opening = false; reportCIC = false; curtain('up'); $('job').hidden = false; }
+  function startOpening() {
+    const g = ++opGen; opening = true; reportCIC = false; close(); $('nm').textContent = ''; $('tx').textContent = ''; $('fx').textContent = ''; $('por').textContent = '\u00b7'; $('job').hidden = true;
+    setRoom('tern_bunks', ROOMS.tern_bunks.start, 'ne'); curtain('black');
+    setTimeout(() => { if (g !== opGen) return; void $('curtain').offsetWidth; curtain('fade');
+      setTimeout(() => { if (g !== opGen) return; curtain('up'); opening = false; opCall(g); }, 1500); }, 1000);
+  }
+  function opCall(g) { say('Ostrow', '(Ship intercom.) New guy, report to the CIC.', '', [{ t: 'On my way.', fn: () => opName(g) }]); }
+  function opName(g) {
+    if (g !== opGen) return;
+    const submit = () => { const v = saveName(inp.value); say('Ostrow', v + '. Right. Forward, through the junction. Don\'t make me call twice.', '', [{ t: 'Continue', fn: () => { close(); $('job').hidden = false; setJob('FIRST JOB', 'Report to the CIC'); reportCIC = true; say('Ship log', ROOMS.tern_bunks.blurb, '', []); } }]); };
+    say('Ostrow', "What's your name again?", '', [{ t: "That's me.", fn: submit }]);
+    const inp = document.createElement('input'); inp.id = 'nameIn'; inp.type = 'text'; inp.maxLength = 12; inp.placeholder = 'Rookie'; inp.autocomplete = 'off'; inp.spellcheck = false; inp.setAttribute('aria-label', 'Your name');
+    try { inp.value = cleanName(localStorage.getItem('interdict.pname')); } catch (e) {}
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); submit(); } });
+    $('ch').insertBefore(inp, $('ch').firstChild); setTimeout(() => { try { inp.focus(); } catch (e) {} }, 0);
+  }
+  // Arriving in the CIC on the first job starts the P1 briefing.
+  function arrived() { if (reportCIC && room === ROOMS.tern_control && !briefed) { reportCIC = false; setJob('FIRST JOB', 'Report to the CIC', true); talk({ name: 'Ostrow' }); } }
+  $('skip').onclick = () => { stopOpening(); insp = 0; briefed = true; hunted = true; moveAmes(); toCorvane(); };
+  if (location.hash === '#after_hunt') { curtain('up'); setTimeout(afterHunt, 50); } else startOpening();
   if (!PITCHES_LIVE) putTrims([]);   // no stale trims leaking into hunts
   $('hunt').onclick = () => { const t = PITCHES_LIVE ? getTrims() : []; window.open('hunt.html' + (t.length ? '?trims=' + t.join(',') : ''), '_blank'); };
   showTrims();
@@ -420,7 +457,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   let last = performance.now();
   function frame(now) {
     const dt = Math.min(0.05, (now - last) / 1000), t = now / 1000; last = now;
-    if (fadeDir === 1) { fade += dt / 0.25; if (fade >= 1) { fade = 1; const d = pending; pending = null; setRoom(d.to, d.arrive, d.dir); startEnter(d.arrive); if (room.blurb) say('Ship log', room.blurb, '', []); fadeDir = -1; } }
+    if (fadeDir === 1) { fade += dt / 0.25; if (fade >= 1) { fade = 1; const d = pending; pending = null; setRoom(d.to, d.arrive, d.dir); startEnter(d.arrive); if (room.blurb) say('Ship log', room.blurb, '', []); arrived(); fadeDir = -1; } }
     else if (fadeDir === -1) { fade -= dt / 0.25; if (fade <= 0) { fade = 0; fadeDir = 0; } }
     let walking = false;
     if (me.steps.length) {
@@ -474,6 +511,6 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     [['T', r.T], ['R', r.R], ['L', r.L], ['B', r.B]].forEach(([n, w]) => { const q = I(w); g.fillStyle = '#ff0'; g.beginPath(); g.arc(q[0], q[1], 6, 0, 7); g.fill(); g.fillStyle = '#000'; g.textAlign = 'center'; g.fillText(n, q[0], q[1] + 4); });
     return c.toDataURL('image/png');
   }
-  window.__iso = { me, go, bfs, ROOMS, setRoom, talk, devRender, get room() { return room; }, useDoor, get npcs() { return npcs; }, get cam() { return cam; }, get dlg() { return dlg; }, dockStep, inspectP: () => inspectP(DS.load()) };
+  window.__iso = { me, go, bfs, ROOMS, setRoom, talk, devRender, get room() { return room; }, useDoor, get npcs() { return npcs; }, get cam() { return cam; }, get dlg() { return dlg; }, dockStep, inspectP: () => inspectP(DS.load()), get opening() { return opening; }, get reportCIC() { return reportCIC; }, get briefed() { return briefed; } };
 })();
 </script>

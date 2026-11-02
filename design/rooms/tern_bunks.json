@@ -1,0 +1,392 @@
+{
+ "id": "tern_bunks",
+ "name": "TERN: CREW BUNKS",
+ "deck": "upper",
+ "file": "tern_bunks_v1.png",
+ "img_size": [
+  1532,
+  843
+ ],
+ "quad": {
+  "t": [
+   398,
+   305
+  ],
+  "r": [
+   1488,
+   655
+  ],
+  "l": [
+   40,
+   400
+  ],
+  "b": [
+   1205,
+   835
+  ]
+ },
+ "Ni": 16,
+ "Nj": 4,
+ "hatch_h": 232,
+ "floor": [
+  [
+   398,
+   308
+  ],
+  [
+   1485,
+   655
+  ],
+  [
+   1300,
+   818
+  ],
+  [
+   1050,
+   818
+  ],
+  [
+   45,
+   400
+  ]
+ ],
+ "solids": [
+  {
+   "name": "rackL",
+   "p": [
+    [
+     398,
+     305
+    ],
+    [
+     452,
+     322
+    ],
+    [
+     275,
+     372
+    ],
+    [
+     219,
+     352
+    ]
+   ],
+   "h": 230
+  },
+  {
+   "name": "racks",
+   "p": [
+    [
+     398,
+     305
+    ],
+    [
+     1270,
+     585
+    ],
+    [
+     1198,
+     624
+    ],
+    [
+     312,
+     328
+    ]
+   ],
+   "h": 260
+  },
+  {
+   "name": "crateFront",
+   "p": [
+    [
+     1058,
+     765
+    ],
+    [
+     1120,
+     742
+    ],
+    [
+     1160,
+     768
+    ],
+    [
+     1100,
+     792
+    ]
+   ],
+   "h": 80
+  },
+  {
+   "name": "crateMid",
+   "p": [
+    [
+     1128,
+     722
+    ],
+    [
+     1200,
+     690
+    ],
+    [
+     1242,
+     715
+    ],
+    [
+     1168,
+     752
+    ]
+   ],
+   "h": 120
+  },
+  {
+   "name": "cratesBack",
+   "p": [
+    [
+     1205,
+     652
+    ],
+    [
+     1300,
+     622
+    ],
+    [
+     1348,
+     662
+    ],
+    [
+     1262,
+     702
+    ]
+   ],
+   "h": 140
+  }
+ ],
+ "block": [
+  [
+   13,
+   0
+  ],
+  [
+   13,
+   1
+  ],
+  [
+   13,
+   2
+  ],
+  [
+   13,
+   3
+  ],
+  [
+   14,
+   0
+  ],
+  [
+   14,
+   1
+  ],
+  [
+   14,
+   2
+  ],
+  [
+   14,
+   3
+  ],
+  [
+   15,
+   0
+  ],
+  [
+   15,
+   1
+  ],
+  [
+   15,
+   2
+  ],
+  [
+   15,
+   3
+  ]
+ ],
+ "open": [],
+ "doors": [
+  {
+   "id": "toJct",
+   "rc": [
+    75,
+    135,
+    195,
+    375
+   ],
+   "wall": "i",
+   "to": "tern_junction",
+   "label": "Hatch forward to the junction"
+  },
+  {
+   "id": "toAft",
+   "rc": [
+    1335,
+    400,
+    1455,
+    650
+   ],
+   "stand": [
+    12,
+    2
+   ],
+   "dir": "ne",
+   "to": null,
+   "label": "Hatch aft to engineering",
+   "locked": "Aft hatch: engineering. Crates stacked against it. Somebody's been meaning to move those for a while."
+  }
+ ],
+ "npcs": [],
+ "lights": [
+  {
+   "p": [
+    165,
+    120
+   ],
+   "r": 30,
+   "c": [
+    230,
+    240,
+    255
+   ],
+   "a": 0.3,
+   "pat": "steady",
+   "seed": 40
+  },
+  {
+   "p": [
+    425,
+    92
+   ],
+   "r": 30,
+   "c": [
+    230,
+    240,
+    255
+   ],
+   "a": 0.3,
+   "pat": "steady",
+   "seed": 41
+  },
+  {
+   "p": [
+    625,
+    152
+   ],
+   "r": 30,
+   "c": [
+    230,
+    240,
+    255
+   ],
+   "a": 0.3,
+   "pat": "flicker",
+   "seed": 42
+  },
+  {
+   "p": [
+    845,
+    232
+   ],
+   "r": 30,
+   "c": [
+    230,
+    240,
+    255
+   ],
+   "a": 0.3,
+   "pat": "steady",
+   "seed": 43
+  },
+  {
+   "p": [
+    1070,
+    295
+   ],
+   "r": 30,
+   "c": [
+    230,
+    240,
+    255
+   ],
+   "a": 0.3,
+   "pat": "steady",
+   "seed": 44
+  },
+  {
+   "p": [
+    1270,
+    358
+   ],
+   "r": 28,
+   "c": [
+    230,
+    240,
+    255
+   ],
+   "a": 0.3,
+   "pat": "fault",
+   "seed": 45
+  },
+  {
+   "p": [
+    1395,
+    397
+   ],
+   "r": 26,
+   "c": [
+    230,
+    240,
+    255
+   ],
+   "a": 0.3,
+   "pat": "steady",
+   "seed": 46
+  },
+  {
+   "p": [
+    68,
+    255
+   ],
+   "r": 16,
+   "c": [
+    111,
+    195,
+    208
+   ],
+   "a": 0.4,
+   "pat": "blink",
+   "seed": 47
+  },
+  {
+   "p": [
+    1460,
+    510
+   ],
+   "r": 16,
+   "c": [
+    111,
+    195,
+    208
+   ],
+   "a": 0.4,
+   "pat": "blink",
+   "seed": 48
+  }
+ ],
+ "ship": "tern",
+ "start": [
+  12,
+  1
+ ],
+ "blurb": "The Tern's crew bunks. Patched racks, everything stowed and strapped. A photo tucked behind a pipe. A mug wedged where it won't roll. The new hand gets the rack by the aft hatch, next to the crates.",
+ "art_note": "tern_bunks_v1.png: Meshy gpt-image-2 (task 01a19e21-e33c-754c-9639-b2856185008b, 12 credits), structure from bunks_v5, style from tern_control_v1 / tern_junction_v1. Fallback if it is ever rejected: bunks_v5.png with the bunks.json grid. Known flaw: crates painted in front of the aft hatch, so that hatch is a locked object, not a walkable link."
+}

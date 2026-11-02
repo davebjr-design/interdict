@@ -1,7 +1,7 @@
 # P1: The Briefing (draft 1, dialogue)
 
 **Status:** first dialogue draft, for a voice read. Not in Ink yet. Outline: `scene_outlines.md` P1.
-**Where:** briefing room of the *Tern*, a low-rated gleaner ship. **Reading time:** about 3-4 minutes.
+**Where:** briefing room of the *Tern*, a low-rated gleaner ship. **Comes after:** P0, the wake-up call in the crew bunks (`p0_opening.md`); in the walk demo, arriving in the control room starts this scene. **Reading time:** about 3-4 minutes.
 **POV sheets:** `pov_sheets.md` (Ostrow, Dunne, Ames).
 **Format:** `NAME:` lines are spoken. *Italics* are narration. `→` is a player choice, with its effect in [brackets].
 

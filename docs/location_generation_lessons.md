@@ -37,6 +37,7 @@ Distilled from building the twelve-compartment player ship (sections 15-26 of `s
 
 ## 5. Open issues carried forward
 
+- Tern bunks (tern_bunks_v1): the structure reference (bunks_v5) carried its crate pile in front of the right-hand hatch into the new image, so that hatch is a locked object. Next time, say where crates go, and keep the floor in front of every hatch clear.
 - Bunks: tubes are one row of 13, not two rows of 12; no wall-mounted bunks hanging off the tubes; crates piled against the bow-end hatch (repaint without them).
 - Engineering lower: the reactor is solid with a lane in front; there is no walking behind it.
 - Mess ladder hides the name label at its foot. Pell node panels are painted lit and need a dark state drawn in code.

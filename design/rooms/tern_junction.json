@@ -155,7 +155,7 @@
  ],
  "block": [],
  "open": [],
- "blurb": "The Tern's junction. Ladder down to quarters, trunk up to the boarding airlock.",
+ "blurb": "The Tern's junction. Control forward, bunks aft, ladder down to the mess, trunk up to the boarding airlock.",
  "doors": [
   {
    "id": "toControl",
@@ -170,7 +170,7 @@
    "label": "Hatch forward to the control room"
   },
   {
-   "id": "toMissile",
+   "id": "toBunks",
    "rc": [
     975,
     204,
@@ -178,9 +178,8 @@
     557
    ],
    "wall": "j",
-   "to": null,
-   "label": "Hatch aft to the missile compartment",
-   "locked": "Aft hatch: the Tern's crew spaces. Dunne said quarters are off-limits until probation is over."
+   "to": "tern_bunks",
+   "label": "Hatch aft to the crew bunks"
   },
   {
    "id": "downToMess",
@@ -198,7 +197,7 @@
    "to": null,
    "dir": "sw",
    "label": "Ladder down to the mess",
-   "locked": "Ladder down to the Tern's mess and berths. Not now: Ostrow wants the boarding party at the lock."
+   "locked": "Ladder down to the Tern's mess and stores. Not now: you're wanted somewhere."
   },
   {
    "id": "upToAirlock",

@@ -19,9 +19,15 @@ const clickChoice = (pg, s) => pg.evaluate(s => { const b = [...document.querySe
   await clickChoice(pg, 'Continue');
   // locked door: one click walks there and answers
   await pg.evaluate(() => __iso.setRoom('tern_junction', __iso.ROOMS.tern_junction.doors[0].stand)); await pg.waitForTimeout(300);
-  await clickObj(pg, 'toMissile'); await pg.waitForTimeout(4000); s = await txt(pg);
-  chk('locked hatch answers on the first click', /off-limits/.test(s.tx));
+  await clickObj(pg, 'downToMess'); await pg.waitForTimeout(4000); s = await txt(pg);
+  chk('locked ladder answers on the first click', /Not now/.test(s.tx));
   await clickChoice(pg, 'Continue');
+  // junction <-> crew bunks (the opening room) both ways
+  await clickObj(pg, 'toBunks'); for (let t = 0; t < 40 && (await pg.evaluate(() => __iso.room.id)) !== 'tern_bunks'; t++) await pg.waitForTimeout(250);
+  chk('junction aft hatch leads to the crew bunks', (await pg.evaluate(() => __iso.room.id)) === 'tern_bunks');
+  await pg.waitForTimeout(1500); await clickObj(pg, 'toJct'); for (let t = 0; t < 40 && (await pg.evaluate(() => __iso.room.id)) !== 'tern_junction'; t++) await pg.waitForTimeout(250);
+  chk('bunks hatch leads back to the junction', (await pg.evaluate(() => __iso.room.id)) === 'tern_junction');
+  await pg.waitForTimeout(1500);
   // outer hatch: one click, Ames, then the boarding prompt
   await pg.evaluate(() => __iso.setRoom('tern_airlock', [3, 6])); await pg.waitForTimeout(300);
   await clickObj(pg, 'board'); await pg.waitForTimeout(5000); s = await txt(pg);
