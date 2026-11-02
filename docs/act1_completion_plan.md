@@ -52,3 +52,5 @@ The tracker can offer two missions that exclude each other ("go here to side wit
 - Tutorial polish: hide the integration meter on the Tern (cosmetic gap in web/tutorial.js hidePell()).
 
 - 2026-11-02 decisions: officer pitches are seed material (not live); Pell assist is introduced by the wiring scene (act1_wiring) after the shakedown hunt; Ames beat happens on the way to stations (junction) with the hatch as fallback; tutorial cannot be failed (breach/quiet hidden, surrender also after 8 shots); player enters a name (12 chars), "Cptn." is prefixed from the handover.
+
+- 2026-11-02 decisions: (B) the standoff's decision time is stored from the game clock (`clock.decision`) and the blessing's send time is always 11 minutes earlier; later scenes read the variable instead of "22:13". Command-style thresholds use the command-model bands with hysteresis (enter 35/65, exit 43/57; very bands 15/85, exit 23/77), props and volunteered options read the committed band. `tally.trace` approved (hidden, read only at audits).

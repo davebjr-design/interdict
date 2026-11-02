@@ -50,8 +50,8 @@ Preferences from `command_model.md` §3: Quill tight, Abara tight-ish, Castellan
 
 ### 1.5 Extra options at the meter's ends
 Both options always show. At the ends of the meter a third option can join:
-- **Loose ≥ 70:** an officer volunteers: "Captain, I've got an idea, but it's outside the box." A loose-only third lever, drawn from the moment's department (examples: M01, Castellan offers to read the reactor line by ear, faster again but certainty capped at 55%; M07, Dace offers to vent behind the nearest body, `blocked()` cover, which saves the afterglow if you're in line of cover).
-- **Tight ≤ 30:** "Already running, Captain." The drilled crew starts the tight option before you choose. Picking it costs 15% less time than the normal tight option (the command model's ×0.85 procedure speed), and choosing loose instead costs nothing extra.
+- **Committed loose band (enter ≥ 65, hold until < 57; see command_model hysteresis):** an officer volunteers: "Captain, I've got an idea, but it's outside the box." A loose-only third lever, drawn from the moment's department (examples: M01, Castellan offers to read the reactor line by ear, faster again but certainty capped at 55%; M07, Dace offers to vent behind the nearest body, `blocked()` cover, which saves the afterglow if you're in line of cover).
+- **Committed tight band (enter ≤ 35, hold until > 43):** "Already running, Captain." The drilled crew starts the tight option before you choose. Picking it costs 15% less time than the normal tight option (the command model's ×0.85 procedure speed), and choosing loose instead costs nothing extra.
 - Very tight (< 15) does **not** hide the loose option here (the captain can always give the order). It hides only the volunteered third option, which matches "the crew stops volunteering."
 
 ### 1.6 Standing settings (the old trims, made permanent)

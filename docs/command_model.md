@@ -13,6 +13,8 @@ Dave's direction: trust isn't the only thing; how tight you run the ship matters
 ## 2. Command style: tight vs. loose
 State: `command.style`, 0 (tight) to 100 (loose), starts at 50. Bands: **very tight** < 15, **tight** 15-35, **neutral** 35-65, **loose** 65-85, **very loose** > 85.
 
+**Hysteresis (2026-11-02).** Entering a band and leaving it use different thresholds, so the style can't rubber-band across an edge. You *enter* tight at ≤ 35 and loose at ≥ 65 (very tight ≤ 15, very loose ≥ 85), but you *leave* them only after crossing back past an exit margin of 8: tight is held until style > 43, loose until style < 57, very tight until > 23, very loose until < 77. Props, volunteered options and officer reactions read the *committed* band (`command.band`), not the raw number. The raw number keeps moving; only the committed band has memory.
+
 | | Tight (drilled procedure) | Loose (judgment and ideas) |
 |---|---|---|
 | Detection → classification | faster (×0.85 time) | slower (×1.10) |
