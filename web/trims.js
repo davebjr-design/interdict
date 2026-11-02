@@ -1,5 +1,5 @@
 /* Mini-mission trims (docs/mini_missions.md, data/mini_missions.json) mapped onto the hunt engine.
- * P: multipliers on HuntRT.P; set: absolute values on P; me: multipliers on our ship's loadout (s.me).
+ * P and me: multipliers on our ship's profile for the hunt (s.me, built from HuntRT.PLAYER and our loadout); set: absolute values there.
  * Underway-only trims (navigation, quartermaster) have no hunt effect and are listed with hunt: false.
  * Active trims come from ?trims=a,b in the URL or localStorage 'interdict.trims' (JSON array). */
 var HuntTrims = (function () {
@@ -25,17 +25,19 @@ var HuntTrims = (function () {
     'pell.assist_lead':     { label: 'Pell takes the lead tables', P: { leadSpread: 0.65 } },
     'pell.assist_heat':     { label: 'Pell runs the sink', P: { sinkK: 0.90 } }
   };
-  let base = null;
   function active() {
     try { const q = new URLSearchParams(location.search).get('trims'); if (q) return q.split(',').filter(x => T[x]); } catch (e) {}
     try { const v = JSON.parse(localStorage.getItem('interdict.trims') || '[]'); return (Array.isArray(v) ? v : []).filter(x => T[x]); } catch (e) { return []; }
   }
-  function applyP(P, ids) {   // reset to the untrimmed values, then apply each trim's multipliers and settings
-    if (!base) base = Object.assign({}, P); Object.assign(P, base);
-    for (const id of ids) { const t = T[id]; if (!t) continue; for (const k in t.P || {}) P[k] = P[k] * t.P[k]; for (const k in t.set || {}) P[k] = t.set[k]; }
-  }
-  function applyShip(s, ids) {   // our loadout is shared with LOADOUTS[0]; copy before changing it
-    s.me = Object.assign({}, s.me); for (const id of ids) { const t = T[id]; if (!t) continue; for (const k in t.me || {}) s.me[k] = s.me[k] * t.me[k]; }
+  // Trims are player-only: they write into this hunt's player profile (s.me) and nowhere else. The shared rules (HuntRT.P) and every
+  // enemy's behaviour block (a.ai) are out of reach, so a trim can never change the enemy. A key that is not in s.me is refused.
+  function applyP(P, ids) { return P; }   // retired: trims no longer write to the shared P. Kept so old callers do not break.
+  function applyShip(s, ids) {
+    const bad = [];
+    for (const id of ids) { const t = T[id]; if (!t) continue;
+      for (const src of [t.P || {}, t.me || {}]) for (const k in src) { if (typeof s.me[k] === 'number') s.me[k] *= src[k]; else bad.push(id + ':' + k); }
+      for (const k in t.set || {}) { if (k in s.me) s.me[k] = t.set[k]; else bad.push(id + ':' + k); } }
+    if (bad.length && typeof console !== 'undefined') console.warn('trims: refused non-player keys', bad);
     s.trims = ids.slice(); return s;
   }
   return { T, active, applyP, applyShip, labels: ids => ids.map(id => T[id] ? T[id].label : id) };

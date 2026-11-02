@@ -182,8 +182,8 @@ function cTactical() {
   s += cplate(56, 53, 20, 4, 'COURSE LEGS COLORED BY DRIVE SETTING', { tag: 'plate 20x4u' });
   o += czone('SCOPE', 36, 8, 76, 66, 'SCOPE &amp; HELM', 'who is where, and how we move', s, { cls: 'blank', vz: 'tac' });
   // WEAPONS and COMMS
-  let w = ''; for (let i = 0; i < 3; i++) w += cgauge('g-tube' + i, i * 12, 3, 12, 8, { tag: 'M 12x8u', tip: 'Missile tube. Each takes about ' + P.reload + ' minutes to reload after firing.' });
-  w += cgauge('g-coil', 36, 3, 12, 8, { tag: 'M 12x8u', tip: 'Point-blank coilgun: instant, ignores scatter, only inside ' + P.closeRange + ' km, and the flash is loud.' });
+  let w = ''; for (let i = 0; i < 3; i++) w += cgauge('g-tube' + i, i * 12, 3, 12, 8, { tag: 'M 12x8u', tip: 'Missile tube. Each takes about ' + ME().reload + ' minutes to reload after firing.' });
+  w += cgauge('g-coil', 36, 3, 12, 8, { tag: 'M 12x8u', tip: 'Point-blank coilgun: instant, ignores scatter, only inside ' + ME().closeRange + ' km, and the flash is loud.' });
   w += croW('r-fly', 0, 11, 'IN FLIGHT', '88:88', 12, 4);
   w += ckeyW('k-tgt', 12, 11, 12, 4, 'TARGET &#9656;', '', CC.amber, { act: 'target', tag: 'K 12x4u', tip: 'Open the fire solution view for a locked contact. Fire from there.' });
   w += clampW('lw-live', 24, 11, 'LIVE', { tip: 'The locked contact is being observed now.' }) + clampW('lw-stale', 30, 11, 'STALE', { tip: 'The firing solution is stale: refresh it in the Target view.' }) + clampW('lw-rng', 36, 11, 'IN RNG', { tip: 'A contact is inside coilgun range.' }) + clampW('lw-fr', 42, 11, 'FRIEND', { tip: 'An ally is near the aim point: weapons safe.' });
@@ -232,14 +232,14 @@ function cHeat() {
   const h = S.sink.h, r = E.heatRate(S), q = heatHover ? E.heatRate(S, heatHover) : null, rp = r * R * 100, qp = q == null ? null : q * R * 100;
   if (hbufS !== S) { hbufS = S; hbuf = []; }
   if (!hbuf.length || S.t - hbuf[hbuf.length - 1].t >= 0.4) { hbuf.push({ t: S.t, h }); while (hbuf.length > 60 && (S.t - hbuf[0].t) * P.secPerMin / 60 > 5.5) hbuf.shift(); }
-  csvg('g-tank', ctankSvg(h * 100, q == null ? null : Math.max(0, Math.min(100, (h + q * R) * 100)), S.vent.on && S.vent.forced && h >= P.forcedRetract ? P.forcedRetract * 100 : null));
+  csvg('g-tank', ctankSvg(h * 100, q == null ? null : Math.max(0, Math.min(100, (h + q * R) * 100)), S.vent.on && S.vent.forced && h >= ME().forcedRetract ? ME().forcedRetract * 100 : null));
   csvg('d-rate', crateDialSvg(rp, qp));
   csvg('g-trend', ctrendSvg(hbuf, S.t, h, r, q));
   const clk = (rr) => rr > 0.0003 ? ['FULL IN', mmss((1 - h) / rr)] : rr < -0.0003 ? ['EMPTY IN', mmss(h / -rr)] : ['STEADY', '--:--'];
   const c0 = clk(r), c1 = q == null ? null : clk(q), show = c1 || c0;
   croSet('r-full', show[1], c1 ? CC.cyan : (r > 0.0003 ? (h + 0.0 > 0.8 ? CC.red : CC.amber) : r < -0.0003 ? CC.cyan : CC.green), show[0]);
-  const forcedLock = S.vent.on && S.vent.forced && h >= P.forcedRetract;
-  ckeySet('k-vent', S.vent.on ? { t: forcedLock ? 'VENTING' : 'RETRACT', s: forcedLock ? 'LOCKED UNTIL ' + Math.round(P.forcedRetract * 100) + '%' : 'FINS IN &middot; V', hot: true, dis: forcedLock, heat: { ventOn: false } } : { t: 'VENT', s: h < P.ventMin ? 'SINK LOW' : 'FINS OUT &middot; V', dis: h < P.ventMin || !!S.over, heat: { ventOn: true } });
+  const forcedLock = S.vent.on && S.vent.forced && h >= ME().forcedRetract;
+  ckeySet('k-vent', S.vent.on ? { t: forcedLock ? 'VENTING' : 'RETRACT', s: forcedLock ? 'LOCKED UNTIL ' + Math.round(ME().forcedRetract * 100) + '%' : 'FINS IN &middot; V', hot: true, dis: forcedLock, heat: { ventOn: false } } : { t: 'VENT', s: h < ME().ventMin ? 'SINK LOW' : 'FINS OUT &middot; V', dis: h < ME().ventMin || !!S.over, heat: { ventOn: true } });
   const qa = S.t < S.quietUntil, cd = Math.max(0, S.quietCd - S.t);
   ckeySet('k-quiet', qa ? { t: 'QUIET', s: (S.quietUntil - S.t).toFixed(1) + ' MIN LEFT', lit: true } : { t: 'GO QUIET', s: S.vent.on ? 'NOT WITH FINS OUT' : cd > 0 ? 'READY IN ' + fmtMin(cd) : 'Q', dis: cd > 0 || !!S.vent.on || !!S.over, heat: { quiet: 1 } });
   croSet('r-qcd', cd > 0 ? mmss(cd) : 'READY', cd > 0 ? CC.amber : CC.green);
@@ -263,8 +263,8 @@ function cShip() {
   clampSet('ln-sens', true, { col: hm || eff < 0.9 ? (eff < 0.5 ? 'r' : 'a') : 'g' }); clampSet('ln-drive', true, { col }); clampSet('ln-weap', true, { col }); clampSet('ln-breach', true, { col: S.spool ? 'a' : 'g', fl: !!S.spool });
   ckeySet('k-pell', { t: 'PELL ASSIST', s: 'RUNS HOT', lit: !!S.pell }); ckeySet('k-pellact', { t: 'PELL ACTS', s: S.integration >= 75 ? 'NO ASKING' : 'AT 75%', lit: !!S.pellAct, dis: S.integration < 75 });
   csvg('g-integ', csegSvg('INTEGRATION', S.integration / 100, CC.violet, Math.round(S.integration) + '%', 12, 8, [.25, .5, .75], 10));
-  const sp = S.spool, left = sp ? Math.max(0, sp.at - S.t) : 0, tot = S.spoolMin || P.spool;
-  csvg('g-spool', csegSvg('BREACH SPOOL', sp ? 1 - left / tot : 0, CC.amber, sp ? mmss(left) : 'IDLE', 24, 8, S.dog ? [P.spool / tot] : [], 20));
+  const sp = S.spool, left = sp ? Math.max(0, sp.at - S.t) : 0, tot = S.spoolMin || ME().spool;
+  csvg('g-spool', csegSvg('BREACH SPOOL', sp ? 1 - left / tot : 0, CC.amber, sp ? mmss(left) : 'IDLE', 24, 8, S.dog ? [ME().spool / tot] : [], 20));
   ckeySet('k-breach', sp ? { t: 'CANCEL', s: 'SPOOLING', lit: true, hot: false, dis: !!S.over, heat: null } : { t: 'BREACH', s: 'BREAK CONTACT', dis: !!S.over, heat: { spoolOn: 1 } });
   croSet('r-eta', sp ? mmss(left) : '--:--', sp ? CC.amber : CC.green); clampSet('ln-jump', !sp); clampSet('ln-dog', !!S.dog);
 }
@@ -287,7 +287,7 @@ function slipVM(a) {
   const pos = isF ? E.truePos(a, S.t) : a.state === 'locked' && a.anchor ? E.estAt(a, S.t - a.anchor.t) : E.displayPos(S, a), rng = Math.round(Math.hypot(pos.x - S.player.x, pos.y - S.player.y));
   const chans = ['thermal', 'reactor', 'occlusion'].map(ch => {
     const q = a.read[ch], blind = !!(q && q.blind), has = q && !q.blind && q.den > 0, w = S.analysts.find(x => x.id === E.ANALYSTS.find(z => z.ch === ch).id);
-    const v = has ? Math.max(0, q.num / q.den) : 0, pr = has ? Math.min(1, q.den / P.readDone) : 0;
+    const v = has ? Math.max(0, q.num / q.den) : 0, pr = has ? Math.min(1, q.den / ME().readDone) : 0;
     return { ch, off: blind || isF, sig: has ? Math.max(2, Math.min(100, v * 100)) : 0, prog: pr * 100, done: pr >= 1, hold: w.task === a.id && (a.state === 'open' || a.state === 'locked'), op: has ? 0.3 + 0.7 * ago(q) : 1, n: blind ? '--' : pr >= 1 ? '&#10003;' : has ? Math.round(Math.min(99, v * 100)) : '?' };
   });
   return { ts, n: a.id + 1, word, led, fl, tier, kind, gcol, odds, rng, chans, venting, c, isF, isH, rdy, nread };
@@ -341,7 +341,7 @@ function nextStep() {
   if (S.over) return { t: S.over === 'win' ? (S.nreal > 1 ? 'ALL SHIPS CRIPPLED' : 'SHIP CRIPPLED') : 'HUNT OVER', led: 'g' };
   if (S.inc.length) return { t: 'INCOMING FIRE: MOVE OFF THE AIM POINT OR <em>GO QUIET</em>', led: 'r', key: 'k-quiet' };
   const h = S.sink.h;
-  if (S.vent.on && S.vent.forced) return { t: 'SINK FULL: FINS HOLD OUT UNTIL ' + Math.round(P.forcedStop * 100) + '%', led: 'r' };
+  if (S.vent.on && S.vent.forced) return { t: 'SINK FULL: FINS HOLD OUT UNTIL ' + Math.round(ME().forcedStop * 100) + '%', led: 'r' };
   if (h >= 0.95 && !S.vent.on) return { t: 'SINK PEGGED: <em>VENT</em> NOW', led: 'r', key: 'k-vent' };
   if (h >= 0.8 && !S.vent.on && S.t >= S.quietUntil) return { t: 'SINK ' + Math.round(h * 100) + '%: <em>VENT</em> OR EASE OFF THE DRIVE', led: 'o', key: 'k-vent' };
   for (const a of S.an) if (a.state === 'locked') { const si = E.solveInfo(S, a); if (si.ready) return { t: 'C' + (a.id + 1) + ': SOLUTION READY, <em>TARGET</em> IT', led: 'a', key: 'k-tgt', id: a.id }; if (si.stale) return { t: 'C' + (a.id + 1) + ': SOLUTION STALE, REFRESH IT IN THE <em>TARGET</em> VIEW', led: 'a', key: 'k-tgt', id: a.id }; }
@@ -393,12 +393,12 @@ function cHelm() {
 }
 // ----- weapons and comms -----
 function cWeapons() {
-  S.tubes.forEach((x, i) => { const rdy = S.t >= x, p = rdy ? 1 : 1 - (x - S.t) / P.reload; csvg('g-tube' + i, csegSvg('SALVO ' + (i + 1), p, rdy ? CC.green : CC.amber, rdy ? 'READY' : 'RELOAD ' + fmtMin(x - S.t), 12, 8, [], 8)); });
+  S.tubes.forEach((x, i) => { const rdy = S.t >= x, p = rdy ? 1 : 1 - (x - S.t) / ME().reload; csvg('g-tube' + i, csegSvg('SALVO ' + (i + 1), p, rdy ? CC.green : CC.amber, rdy ? 'READY' : 'RELOAD ' + fmtMin(x - S.t), 12, 8, [], 8)); });
   const cwr = S.t >= S.cwCd; csvg('g-coil', csegSvg('COILGUN', cwr ? 1 : 0.3, cwr ? CC.green : CC.amber, cwr ? 'READY' : fmtMin(S.cwCd - S.t), 12, 8, [], 8));
   const vo = S.volleys.length ? Math.min(...S.volleys.map(v => v.at - S.t)) : null; croSet('r-fly', vo == null ? '--:--' : mmss(Math.max(0, vo)), vo == null ? '#6f877d' : CC.amber);
   const lk = S.an.filter(a => a.state === 'locked'), rd = lk.find(a => E.solveInfo(S, a).ready), t0 = rd || lk[0], si = t0 && E.solveInfo(S, t0);
   ckeySet('k-tgt', { t: 'TARGET &#9656;', s: t0 ? 'C' + (t0.id + 1) + (si.ready ? ' READY' : si.stale ? ' STALE' : ' SOLVING') : 'NO LOCK', dis: !lk.length, lit: !!lk.length });
-  clampSet('lw-live', lk.some(a => a.anchor && S.t - a.anchor.t < 0.8), { fl: true }); clampSet('lw-stale', lk.some(a => E.solveInfo(S, a).stale)); clampSet('lw-rng', lk.some(a => a.anchor && E.closeInfo(S, a).d <= P.closeRange));
+  clampSet('lw-live', lk.some(a => a.anchor && S.t - a.anchor.t < 0.8), { fl: true }); clampSet('lw-stale', lk.some(a => E.solveInfo(S, a).stale)); clampSet('lw-rng', lk.some(a => a.anchor && E.closeInfo(S, a).d <= ME().closeRange));
   clampSet('lw-fr', S.an.some(a => a.idStatus === 'plan' && a.state !== 'disabled'));
   ckeySet('k-voice', { t: 'VOICE', s: VRATES[vIdx][0].toUpperCase(), lit: vIdx > 0 }); ckeySet('k-rall', { t: allReports ? 'ALL CALLS' : 'KEY CALLS', s: allReports ? 'ALL' : 'KEY', lit: allReports });
 }
@@ -528,18 +528,18 @@ function cTgtUpdate(T) {
   clampSet('tl-ready', si.ready, { fl: true }); clampSet('tl-solv', !si.ready && !si.stale && !si.paused); clampSet('tl-stale', si.stale, { fl: true }); clampSet('tl-pause', si.paused && !si.ready); cOn('tl-pause', e => { e.dataset.tip = pauseTip(si); });
   csvg('g-tsol', csegSvg('', si.ready ? 1 : si.prog, si.ready ? CC.green : CC.amber, si.ready ? 'SOLUTION READY' : si.stale ? 'STALE: REFRESH' : si.paused ? 'PAUSED: ' + pauseWhy(si) : Math.round(si.prog * 100) + '% &middot; ' + fmtMin(si.remain) + ' LEFT', 24, 4, [], 24));
   const age = S.t - q.t, ts = E.trackState(S, a), live = ts.state === 'lock';
-  croSet('r-tage', mmss(age), age > P.solveStale * 0.66 ? CC.amber : CC.green); clampSet('tl-live', live, { fl: true }); clampSet('tl-proj', ts.state !== 'lock'); cOn('tl-proj', e => { const t = ts.state === 'last' ? 'LAST' : 'TRACK'; if (e.dataset.w !== t) { e.dataset.w = t; const b = e.querySelector('.clg'); if (b) b.textContent = t; } });
+  croSet('r-tage', mmss(age), age > ME().solveStale * 0.66 ? CC.amber : CC.green); clampSet('tl-live', live, { fl: true }); clampSet('tl-proj', ts.state !== 'lock'); cOn('tl-proj', e => { const t = ts.state === 'last' ? 'LAST' : 'TRACK'; if (e.dataset.w !== t) { e.dataset.w = t; const b = e.querySelector('.clg'); if (b) b.textContent = t; } });
   ckeySet('k-trefresh', { t: 'REFRESH', s: si.stale ? 'STALE: DO IT' : 'NEW SOLUTION', rec: si.stale }); const lk = S.an.filter(x => x.state === 'locked'); ckeySet('k-tnext', { t: 'NEXT LOCK', s: lk.length > 1 ? lk.length + ' LOCKED' : 'ONLY ONE', dis: lk.length < 2 });
   const nb = n => String(Math.round(n)).padStart(3, '0');
   csvg('d-brg', clin(0, 360, rel, [0, 90, 180, 270], 'BEARING', 'degrees off our bow', v => nb(v), [[null, null, '#2b6b66']], null, CC.cyan, '', Math.min(25, Math.atan2(sp.cross, rg) * 57.3)).replace(/>0</, '>AHD<').replace('>90<', '>STB<').replace('>180<', '>AST<').replace('>270<', '>PRT<'));
-  csvg('d-rng', clin(0, 240, rg, [0, 60, 120, 180, 240], 'RANGE', 'km', v => String(Math.round(v)), [[null, P.closeRange, '#a8681f'], [P.closeRange, null, '#2b6b66']], null, CC.cyan, 'COILGUN ' + P.closeRange));
+  csvg('d-rng', clin(0, 240, rg, [0, 60, 120, 180, 240], 'RANGE', 'km', v => String(Math.round(v)), [[null, ME().closeRange, '#a8681f'], [ME().closeRange, null, '#2b6b66']], null, CC.cyan, 'COILGUN ' + ME().closeRange));
   csvg('d-bow', clin(-180, 180, aob, [-180, -90, 0, 90, 180], 'BOW ANGLE', aob < 0 ? 'degrees, crossing left' : 'degrees, crossing right', v => Math.abs(Math.round(v)) + '', [[null, null, '#2b6b66']], null, CC.cyan, '0 = HEAD ON', q.hs * 57.3));
   csvg('d-tspd', clin(0, 12, q.spd, [0, 3, 6, 9, 12], 'TARGET SPEED', 'km per minute', v => (v % 1 ? v.toFixed(1) : String(v)), [[null, 6, '#2b6b66'], [6, null, '#a8681f']], null, CC.cyan, '', q.spd * q.ss));
   csvg('d-lead', clin(0, 240, f.L, [0, 60, 120, 180, 240], 'AIM LEAD', 'km along path', v => String(Math.round(v)), [[null, null, '#a8681f']], null, CC.amber, 'DRAG THE PLOT', 0, sug));
   csvg('d-cone', clin(0, 24, cone, [0, 6, 12, 18, 24], 'CONE WIDTH', 'km spread', v => String(Math.round(v)), [[null, null, '#a8681f']], null, CC.amber, 'WHEEL ON PLOT'));
-  croSet('r-taim', Math.round(f.L), CC.amber); croSet('r-tarr', mmss(P.engage + f.tf), CC.amber); croSet('r-tspd', q.spd.toFixed(1), CC.cyan);
-  const sr = selfCache, ci = E.closeInfo(S, a), inR = ci.d <= P.closeRange, cwr = S.t >= S.cwCd, dang = sr.p >= 0.03;
-  clampSet('tp-grid', !!a.flutter); clampSet('tp-dng', dang, { fl: true, col: 'r' }); clampSet('tp-coil', inR); clampSet('tp-fr', S.an.some(x => x.idStatus === 'plan' && x.state !== 'disabled' && Math.hypot(E.truePos(x, S.t).x - f.aim.x, E.truePos(x, S.t).y - f.aim.y) < P.killR * 2));
+  croSet('r-taim', Math.round(f.L), CC.amber); croSet('r-tarr', mmss(ME().engage + f.tf), CC.amber); croSet('r-tspd', q.spd.toFixed(1), CC.cyan);
+  const sr = selfCache, ci = E.closeInfo(S, a), inR = ci.d <= ME().closeRange, cwr = S.t >= S.cwCd, dang = sr.p >= 0.03;
+  clampSet('tp-grid', !!a.flutter); clampSet('tp-dng', dang, { fl: true, col: 'r' }); clampSet('tp-coil', inR); clampSet('tp-fr', S.an.some(x => x.idStatus === 'plan' && x.state !== 'disabled' && Math.hypot(E.truePos(x, S.t).x - f.aim.x, E.truePos(x, S.t).y - f.aim.y) < ME().killR * 2));
   cOn('r-tarr', e => { e.dataset.tip = $('eninfo').textContent; }); cOn('tp-dng', e => { e.dataset.tip = $('selfwarn').textContent; }); cOn('plotbox', e => { e.dataset.tip = $('scale').textContent; });
   ckeySet('k-tauto', { t: 'FOLLOW ABARA', s: 'AUTO LEAD', lit: aimL == null }); ckeySet('k-thom', { t: 'HOMING', s: 'EASY TO SPOT', lit: !!homing });
   ['he', 'emp', 'flare'].forEach(k => { ckeySet('k-am-' + k, { t: k.toUpperCase(), s: { he: 'STANDARD', emp: 'DISABLES', flare: 'BLINDS' }[k], lit: ammo === k }); cOn('k-am-' + k, e => { e.dataset.tip = E.WARHEAD[k].tip; }); });
@@ -551,7 +551,7 @@ function cTgtUpdate(T) {
   else if (!si.ready) ckeySet('k-fire', { t: 'SOLVING', s: si.paused ? pauseWhy(si) : fmtMin(si.remain) + ' LEFT', dis: true, guard: true });
   else if (!rd) ckeySet('k-fire', { t: 'RELOADING', s: fmtMin(Math.min(...S.tubes.map(x => x - S.t))), dis: true, guard: true });
   else ckeySet('k-fire', { t: 'FIRE SALVO', s: (hitNow ? hitNow.hv + '% HIT CHANCE' : 'READY') + (dang ? ' &middot; DANGER CLOSE' : ''), hot: true, guard: false, dis: false });
-  ckeySet('k-coilg', { t: 'COILGUN', s: cwr ? (inR ? 'READY' : 'UNDER ' + P.closeRange + ' KM') : fmtMin(S.cwCd - S.t), dis: !inR || !cwr, hot: inR && cwr });
+  ckeySet('k-coilg', { t: 'COILGUN', s: cwr ? (inR ? 'READY' : 'UNDER ' + ME().closeRange + ' KM') : fmtMin(S.cwCd - S.t), dis: !inR || !cwr, hot: inR && cwr });
 }
 Object.assign(ACT, {
   pedit() { planEdit = !planEdit; if (view === 'str') drawMap(); uiUpdate(true); }, trefresh() { if (engageId != null) E.refreshSolution(S, engageId); engUpdate(true); },
