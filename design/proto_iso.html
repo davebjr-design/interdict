@@ -61,7 +61,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   const $ = id => document.getElementById(id), cv = $('cv'), cx = cv.getContext('2d'), S = 2;
   const load = s => { const i = new Image(); i.src = s; return i; };
   const spr = load('assets/captain_sheet.png'); let sprReady = false; spr.onload = () => { sprReady = true; };
-  const SHEET = { castellan: load('assets/castellan_sheet.png'), abara: load('assets/abara_sheet.png'), quill: load('assets/quill_sheet.png'), dace: load('assets/dace_sheet.png'), fenwick: load('assets/fenwick_sheet.png') };
+  const SHEET = { castellan: load('assets/castellan_sheet.png'), abara: load('assets/abara_sheet.png'), quill: load('assets/quill_sheet.png'), dace: load('assets/dace_sheet.png'), fenwick: load('assets/fenwick_sheet.png'), ames: load('assets/ames_sheet.png') };
   const DIRS = ['se', 'sw', 'ne', 'nw'], CW = 256, CH = 320, FEET = [128, 280], SC = 0.62, CHAR = 0.9; // CHAR: global crew scale so a person is about 90% of a door's height
 
   // ---------- rooms (world units are 640 x 360; drawn at 2x) ----------
@@ -254,7 +254,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   }
   function moveAmes() {
     ROOMS.tern_control.npcs = ROOMS.tern_control.npcs.filter(n => n.name !== 'Ames');
-    if (!ROOMS.tern_junction.npcs.some(n => n.name === 'Ames')) { const J = ROOMS.tern_junction, c = [[5, 4], [5, 3], [6, 3], [1, 5], [4, 6]].find(q => !J.blocked.has(q.join(','))) || [5, 4]; J.npcs.push({ name: 'Ames', col: '#c7d9a8', cell: c }); }
+    if (!ROOMS.tern_junction.npcs.some(n => n.name === 'Ames')) { const J = ROOMS.tern_junction, c = [[5, 4], [5, 3], [6, 3], [1, 5], [4, 6]].find(q => !J.blocked.has(q.join(','))) || [5, 4]; J.npcs.push({ name: 'Ames', sheet: 'ames', col: '#c7d9a8', cell: c }); }
     if (room === ROOMS.tern_control) npcs = npcs.filter(n => n.name !== 'Ames');
   }
   let hunted = false;

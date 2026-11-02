@@ -54,3 +54,5 @@ Style learning: Meshy ignores 'no X' exclusions; body type words matter ('lean s
 
 ### Captain v2 (2026-10-28)
 Regenerated with the learned prompt style (style first, positive wording, average build, plain navy shirt, canvas vest, tan trousers, one wristband). Result matches the crew's look. Old sheet kept as design/assets/captain_v1_sheet.png. IDs in design/assets/meshy_output/crew/ids.json under captain2. Height 1.78 m (demo scale 0.63).
+
+- **Ames (2026-11-02):** preview 01a19e14-270a-744c-950a-a14eff216907, refine 01a19e15-1940-734a-a5e2-1fe98b605c78, remesh 01a19e15-eae6-74fa-a8e1-7ad76627f6c4, rig 01a19e17-1436-7690-b3c3-dc8d19e43625; 40 credits (27 left). Navy shirt, mustard-brown vest, khaki cargo pants, orange wristband. Sheet: design/assets/ames_sheet.png, used on the Tern control room and junction. Note: the preview came out with no vest geometry; the vest is painted by the texture prompt, which worked.
