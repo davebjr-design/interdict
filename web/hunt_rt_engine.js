@@ -420,7 +420,7 @@ const HuntRT = (() => {
       if (tgt) doRead(s, w, tgt, w.task != null);
       w.next = s.t + (w.task != null ? s.me.focusPeriod : s.me.autoPeriod) / rate;
     }
-    if (s.pell && !quiet) {   // Pell is always honest: he does not want to be destroyed by bad data. The cost is heat and integration.
+    if (s.pell && !quiet) {   // Pell is always honest: it does not want to be destroyed by bad data. The cost is heat and integration.
       s.integration = Math.min(100, s.integration + s.me.integrationPerMin * h);
       for (const [lvl, text] of THRESH) if (s.integration >= lvl && !s.thresholdsHit[lvl]) { s.thresholdsHit[lvl] = true; report(s, 'Pell', text, 'integration', true); }
       if (s.t >= s.pellNext) {

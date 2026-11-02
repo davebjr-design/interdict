@@ -143,9 +143,9 @@ function cShell() {   // rail + heat + signature + ship: identical in every view
   // SHIP & AI
   let sh = cgauge('g-hull', 0, 3, 12, 8, { tag: 'M 12x8u', tip: 'Hull integrity. Below 60% the analysts slow down and the firing solution takes longer.' });
   [['ln-sens', 'SENS', 'Sensors at full efficiency.'], ['ln-drive', 'DRIVE', 'Drive at full efficiency.'], ['ln-weap', 'WEAPON', 'Weapons at full efficiency.'], ['ln-breach', 'BREACH', 'Breach drive ready.']].forEach(([id, lab, tip], i) => { sh += clampW(id, 12 + (i % 2) * 6, 3 + (i >> 1) * 4, lab, { tip }); });
-  sh += ckeyW('k-pell', 24, 3, 12, 4, 'PELL ASSIST', 'RUNS HOT', CC.violet, { act: 'pell', tag: 'K 12x4u', heat: { pell: true }, tip: "Pell assists: he speeds the analysts and the solution, runs the ship hot, and grows more integrated while he helps. Integration carries between hunts." });
+  sh += ckeyW('k-pell', 24, 3, 12, 4, 'PELL ASSIST', 'RUNS HOT', CC.violet, { act: 'pell', tag: 'K 12x4u', heat: { pell: true }, tip: "Pell assists: it speeds the analysts and the solution, runs the ship hot, and grows more integrated while it helps. Integration carries between hunts." });
   sh += ckeyW('k-pellact', 24, 7, 12, 4, 'PELL ACTS', 'NO ASKING', CC.violet, { act: 'pellact', tag: 'K 12x4u', tip: 'Let Pell act on standing orders without asking. Unlocks at 75% integration.' });
-  sh += cgauge('g-integ', 36, 3, 12, 8, { tag: 'M 12x8u', tip: 'Pell integration. Rises while he assists and stays between hunts.' });
+  sh += cgauge('g-integ', 36, 3, 12, 8, { tag: 'M 12x8u', tip: 'Pell integration. Rises while it assists and stays between hunts.' });
   sh += cgauge('g-spool', 0, 11, 24, 8, { tag: 'M 24x8u', tip: 'Breach drive spool. The drive must spool before we can leave, and the spool makes us very visible.' });
   sh += ckeyW('k-breach', 24, 11, 12, 8, 'BREACH', 'BREAK CONTACT', CC.red, { act: 'breach', tag: 'K 12x8u', heat: { spoolOn: 1 }, cls: 'guard', tip: 'Calm option: leave now with what we have. The breach drive spools for several minutes and we are very visible while it does. Press again to cancel.' });
   sh += croW('r-eta', 36, 11, 'SPOOL ETA', '88:88', 12, 4);
@@ -421,7 +421,7 @@ const ACT = {
   pause() { $('pause').click(); }, speed(el) { setTime(+el.dataset.arg); }, menu() { $('manbtn').click(); },
   view(el) { if (!el.classList.contains('dis')) setView(el.dataset.arg); },
   vent() { ventToggle(); }, quiet() { E.goQuiet(S); uiUpdate(true); }, breach() { E.retreat(S); uiUpdate(true); },
-  pell() { S.pell = !S.pell; uiUpdate(true); }, pellact() { E.setPellAct(S, !S.pellAct); uiUpdate(true); },
+  pell() { if (!pellLive()) return; S.pell = !S.pell; uiUpdate(true); }, pellact() { if (!pellLive()) return; E.setPellAct(S, !S.pellAct); uiUpdate(true); },
   voice() { $('vcyc').click(); cWeapons(); }, rall() { $('rall').click(); cWeapons(); },
   drive(el) { E.setSpeed(S, el.dataset.arg); uiUpdate(true); }, burn() { E.redlineBurn(S); uiUpdate(true); }, hold() { E.setOrder(S, 'still', null); uiUpdate(true); }, evade() { E.setOrder(S, 'evade', null); uiUpdate(true); },
   clearplan() { E.setOrder(S, 'still', null); E.setRoute(S, []); uiUpdate(true); }, resume() { E.setOrder(S, 'route', null); uiUpdate(true); }, editplan() { planEdit = true; setView('str'); },
@@ -495,7 +495,7 @@ function cPlanUI() {
 function cTarget() {
   let t = `<div class="cw cslip lk" id="tsl" style="--x:0;--y:1;--w:36;--h:8"></div>`;
   [['tl-ready', 'READY', 'g'], ['tl-solv', 'SOLVING', 'a'], ['tl-stale', 'STALE', 'r'], ['tl-pause', 'PAUSED', 'c']].forEach(([id, lab], i) => { t += clampW(id, 37 + i * 6, 1, lab, { tip: { READY: 'The firing solution is ready.', SOLVING: 'The crew is still working the solution.', STALE: 'The scan is too old. Refresh the solution or keep an analyst tracking it.', PAUSED: 'Sensors are dark, so the solution is paused.' }[lab] }); });
-  t += cgauge('g-tsol', 37, 5, 24, 4, { tag: 'M 24x4u', tip: 'Firing solution progress. It speeds up with better readings, a fresh track, and Pell; hull damage, clutter and target maneuvers slow it.' });
+  t += cgauge('g-tsol', 37, 5, 24, 4, { tag: 'M 24x4u', tip: 'Firing solution progress. It speeds up with better readings' + (PELL_UI ? ', a fresh track, and Pell' : ' and a fresh track') + '; hull damage, clutter and target maneuvers slow it.' });
   t += croW('r-tage', 62, 1, 'SCAN AGE', '88:88', 12, 4, { tag: 'T 12x4u' });
   t += ckeyW('k-trefresh', 62, 5, 12, 4, 'REFRESH', 'NEW SOLUTION', CC.amber, { act: 'trefresh', tag: 'K 12x4u', tip: 'Throw out this solution and work a fresh one. Pointing analysts at the contact keeps the track fresh without this.' });
   t += clampW('tl-live', 75, 1, 'LOCK', { tip: 'LOCK: fresh fix and a tight position. The bracket is solid.' }) + clampW('tl-proj', 81, 1, 'TRACK', { tip: 'TRACK: dead reckoning from the last fix, certainty slipping. LAST (hollow ring) means we have lost it and are guessing; refresh before firing.' });
@@ -508,7 +508,7 @@ function cTarget() {
   o += czone('PLOT', 0, 18, 64, 72, 'FIRE SOLUTION', '<span id="tgt-sub">contact</span>', p, { vz: 'tgt', cls: 'blank' });
   let d = '';
   [['d-brg', 0, 3], ['d-rng', 24, 3], ['d-bow', 0, 19], ['d-tspd', 24, 19], ['d-lead', 0, 35], ['d-cone', 24, 35]].forEach(([id, x, y]) => { d += cdial(id, x, y, 24, 16, { tag: 'L 24x16u' }); });
-  d += ckeyW('k-tauto', 0, 51, 12, 4, 'FOLLOW ABARA', 'AUTO LEAD', CC.green, { act: 'tauto', tag: 'K 12x4u', tip: "Aim where Abara suggests. He tends to under-lead, so drag the aim point further along the track if the target is fast." });
+  d += ckeyW('k-tauto', 0, 51, 12, 4, 'FOLLOW ' + crewName('Abara').toUpperCase(), 'AUTO LEAD', CC.green, { act: 'tauto', tag: 'K 12x4u', tip: 'Aim where ' + crewName('Abara') + ' suggests. The suggestion tends to under-lead, so drag the aim point further along the track if the target is fast.' });
   d += ckeyW('k-thom', 12, 51, 12, 4, 'HOMING', 'EASY TO SPOT', CC.amber, { act: 'thom', tag: 'K 12x4u', tip: 'Homing seekers: tighter landings, but easy to spot, so the target is more likely to maneuver off its line.' });
   [['he', 'HE', 'STANDARD'], ['emp', 'EMP', ''], ['flare', 'FLARE', '']].forEach(([k, t, s], i) => { d += ckeyW('k-am-' + k, 24 + i * 8, 51, 8, 4, t, s, CC.amber, { act: 'tammo', arg: k, tag: 'K 8x4u' }); });
   d += cgauge('g-hit', 0, 55, 24, 8, { tag: 'M 24x8u', tip: 'Chance that a missile gets close enough to do something, from 400 trial volleys at the current aim point and cone.' });
@@ -541,7 +541,7 @@ function cTgtUpdate(T) {
   const sr = selfCache, ci = E.closeInfo(S, a), inR = ci.d <= ME().closeRange, cwr = S.t >= S.cwCd, dang = sr.p >= 0.03;
   clampSet('tp-grid', !!a.flutter); clampSet('tp-dng', dang, { fl: true, col: 'r' }); clampSet('tp-coil', inR); clampSet('tp-fr', S.an.some(x => x.idStatus === 'plan' && x.state !== 'disabled' && Math.hypot(E.truePos(x, S.t).x - f.aim.x, E.truePos(x, S.t).y - f.aim.y) < ME().killR * 2));
   cOn('r-tarr', e => { e.dataset.tip = $('eninfo').textContent; }); cOn('tp-dng', e => { e.dataset.tip = $('selfwarn').textContent; }); cOn('plotbox', e => { e.dataset.tip = $('scale').textContent; });
-  ckeySet('k-tauto', { t: 'FOLLOW ABARA', s: 'AUTO LEAD', lit: aimL == null }); ckeySet('k-thom', { t: 'HOMING', s: 'EASY TO SPOT', lit: !!homing });
+  ckeySet('k-tauto', { t: 'FOLLOW ' + crewName('Abara').toUpperCase(), s: 'AUTO LEAD', lit: aimL == null }); ckeySet('k-thom', { t: 'HOMING', s: 'EASY TO SPOT', lit: !!homing });
   ['he', 'emp', 'flare'].forEach(k => { ckeySet('k-am-' + k, { t: k.toUpperCase(), s: { he: 'STANDARD', emp: 'DISABLES', flare: 'BLINDS' }[k], lit: ammo === k }); cOn('k-am-' + k, e => { e.dataset.tip = E.WARHEAD[k].tip; }); });
   if (hitNow) { const hv = hitNow.hv; csvg('g-hit', csegSvg('HIT CHANCE', hv / 100, hv < 25 ? CC.red : hv < 55 ? CC.amber : CC.green, hv + '%', 24, 8, [], 20)); cOn('g-hit', e => { e.dataset.tip = $('ammotip').textContent; }); }
   S.tubes.forEach((x, i) => clampSet('tf-s' + i, S.t >= x, { col: 'g' })); clampSet('tf-coil', inR && cwr, { col: 'g' });
