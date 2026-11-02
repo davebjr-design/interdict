@@ -966,6 +966,40 @@ var HuntTrims = (function () {
 })();
 if (typeof module !== 'undefined') module.exports = HuntTrims;
 
+/* Shared demo state for the walk demo and the hunt page (localStorage 'interdict.state'), until the dialogue runner and
+ * save/load (act1_completion_plan.md C.1, C.4) replace it. Names follow data/narrative/state.json where a variable exists there.
+ *   pell.wiring_seen   1.6b has been played (the gate for every Pell control in the hunt)
+ *   pell.key           'live' | 'waiting' | 'dead' | 'none'   (1.6b: turned / Pell asked, pending / declined)
+ *   pell.link_recent   hunts with the shallow link in use since the last dock (read by the dock inspection roll)
+ *   tally.trace        hidden; never shown anywhere. Default 10 = Corvane's dead runs behind the pedestal (1.6b)
+ *   tally.declared     the Tally's declared count; unchanged by 1.6b under PROVISIONAL logging ruling (a)
+ *   command.style      0 tight .. 100 loose, starts 50; command.band is the committed band (hysteresis, command_model.md §2)
+ * Inlined into web/hunt_rt.html by web/build_hunt_rt.sh; copied to design/demo_state.js by tools/build_demo.sh. */
+var DemoState = (function () {
+  const K = 'interdict.state';
+  const DEF = () => ({ pell: { wiring_seen: false, key: 'none', link_recent: 0, integration_cap: 24 }, tally: { trace: 10, declared: 0, ruling: 'a' }, command: { style: 50, band: 'neutral' }, seen: {}, trust: {}, dock: {}, flags: {}, hunts: 0, moments: {} });
+  function merge(a, b) { for (const k in b) { if (b[k] && typeof b[k] === 'object' && !Array.isArray(b[k]) && a[k] && typeof a[k] === 'object') merge(a[k], b[k]); else a[k] = b[k]; } return a; }
+  function load() { let v = null; try { v = JSON.parse(localStorage.getItem(K) || 'null'); } catch (e) {} return merge(DEF(), v && typeof v === 'object' ? v : {}); }
+  function save(st) { try { localStorage.setItem(K, JSON.stringify(st)); } catch (e) {} return st; }
+  function update(fn) { const st = load(); fn(st); return save(st); }
+  function clear() { try { localStorage.removeItem(K); } catch (e) {} }
+  // Committed band with hysteresis: enter tight at <= 35 (very tight <= 15), loose at >= 65 (very loose >= 85); leave only past
+  // the exit margin of 8 (tight held until > 43, very tight until > 23, loose until < 57, very loose until < 77).
+  const BANDS = { '-2': 'very_tight', '-1': 'tight', '0': 'neutral', '1': 'loose', '2': 'very_loose' }, RANK = { very_tight: -2, tight: -1, neutral: 0, loose: 1, very_loose: 2 };
+  function entry(x) { return x <= 15 ? -2 : x <= 35 ? -1 : x >= 85 ? 2 : x >= 65 ? 1 : 0; }
+  function bandStep(prevName, x) {
+    const p = RANK[prevName] || 0, e = entry(x); let r = e;
+    if (p !== 0 && !(e !== 0 && Math.sign(e) === Math.sign(p) && Math.abs(e) >= Math.abs(p))) {
+      if (p === -2) r = x <= 23 ? -2 : x <= 43 ? -1 : e; else if (p === -1) r = x <= 43 ? -1 : e;
+      else if (p === 2) r = x >= 77 ? 2 : x >= 57 ? 1 : e; else if (p === 1) r = x >= 57 ? 1 : e;
+    }
+    return BANDS[r];
+  }
+  function nudgeStyle(st, d) { st.command.style = Math.max(0, Math.min(100, st.command.style + d)); st.command.band = bandStep(st.command.band, st.command.style); return st; }
+  return { K, load, save, update, clear, bandStep, nudgeStyle, DEF };
+})();
+if (typeof module !== 'undefined') module.exports = DemoState;
+
 const SYM = {"ships_destroyer": {"name": "Destroyer", "items": [["M32 4L39 24L37 46L45 60L32 53L19 60L27 46L25 24Z", "fill"], ["M32 18V44", "stroke_cut"]]}, "ships_cruiser": {"name": "Cruiser", "items": [["M32 3L41 16L51 30L47 50L41 58L32 51L23 58L17 50L13 30L23 16Z", "fill"], ["M32 14V46M24 32H40", "stroke_cut"]]}, "ships_battleship": {"name": "Battleship", "items": [["M32 2L43 9L47 22L57 28V47L48 53L46 62H18L16 53L7 47V28L17 22L21 9Z", "fill"], ["M32 12V50M22 28H42M20 42H44", "stroke_cut"]]}, "stations_base": {"name": "Base", "items": [["M11 32a21 21 0 1 0 42 0a21 21 0 1 0 -42 0ZM17 32a15 15 0 1 0 30 0a15 15 0 1 0 -30 0Z", "evenodd"], ["M26 32a6 6 0 1 0 12 0a6 6 0 1 0 -12 0Z", "fill"], ["M30.5 8V26M30.5 38V56M8 30.5H26M38 30.5H56", "stroke_thick"]]}, "stations_outpost": {"name": "Outpost", "items": [["M22 26H42V44H22Z", "fill"], ["M31 6H33V26H31Z", "fill"], ["M24 8Q32 0 40 8", "stroke"], ["M16 50H48V56H16Z", "fill"], ["M27 44H37V50H27Z", "fill"]]}, "debrisfield": {"name": "Debris field", "items": [["M10 14L20 10L22 20L13 24Z", "fill"], ["M36 8L46 14L40 22Z", "fill"], ["M50 28L58 34L51 40Z", "fill"], ["M24 30L34 28L36 38L26 40Z", "fill"], ["M8 44L18 40L20 50L10 54Z", "fill"], ["M38 48L46 46L48 56L40 58Z", "fill"], ["M28 52L32 50L33 55Z", "fill"]]}, "derelict": {"name": "Derelict", "items": [["M29 6L23 24L25 44L18 58L27 53L31 38L28 24Z", "stroke"], ["M35 10L40 24L37 40L46 58L36 52L33 40L35 26Z", "stroke"], ["M30 4V4", "stroke"], ["M12 20L16 24M50 34L54 30M44 12L47 16", "stroke"]]}, "anomaly": {"name": "Anomaly", "items": [["M32 4L60 32L32 60L4 32Z", "stroke"], ["M23 32a9 9 0 1 0 18 0a9 9 0 1 0 -18 0Z", "stroke"], ["M29.5 32a2.5 2.5 0 1 0 5.0 0a2.5 2.5 0 1 0 -5.0 0Z", "fill"], ["M32 4V14M32 50V60M4 32H14M50 32H60", "stroke"]]}};
 
 const E = HuntRT, P = E.P, $ = id => document.getElementById(id);
@@ -975,7 +1009,9 @@ const TUT = QS.get('tutorial') === 'tern';   // P2 on the Tern: no trims, no Pel
 const CREW_NAMES = {};   // display-name overrides (the tutorial puts the Tern's crew here); console labels go through crewName()
 const crewName = n => CREW_NAMES[n] || n;
 const TRIMS_ON = TUT ? [] : HuntTrims.active();   // applied to our ship's profile only, in begin(). Mini-mission trims never apply on the Tern.
-let PELL_UI = !TUT;   // Pell's controls and the integration gauge; narrowed further by the wiring gate (Stage C)
+const DS0 = TUT ? null : DemoState.load();   // shared demo state (web/demo_state.js); never read or written on the Tern
+let PELL_UI = !TUT && !!(DS0 && DS0.pell.wiring_seen);   // Pell's controls and the integration gauge exist only after the wiring scene (1.6b)
+const PELL_KEY = DS0 ? DS0.pell.key : 'none';   // 'live' | 'waiting' | 'dead': only a live key lets PELL ASSIST be pressed
 try { const d = QS.get('difficulty'); if (d && !E.setDifficulty(d)) console.warn('unknown difficulty', d); } catch (e) { }
 /* P2: the tutorial hunt on the Tern (?tutorial=tern&return=<page>). Scripted director on top of the real engine:
  * fixed seed, one target (Corvane, running quiet in a Shade-class hull), few decoys, Ostrow's step-by-step orders with the
@@ -1322,7 +1358,7 @@ function cShip() {
   const hp = Math.max(0, S.hull) / 100; csvg('g-hull', csegSvg('HULL', hp, hp < 0.4 ? CC.red : hp < 0.7 ? CC.amber : CC.green, Math.round(S.hull) + '%', 12, 8, [], 10));
   const eff = S.sysEff == null ? 1 : S.sysEff, col = eff < 0.5 ? 'r' : eff < 0.9 ? 'a' : 'g', hm = S.hull < 60;
   clampSet('ln-sens', true, { col: hm || eff < 0.9 ? (eff < 0.5 ? 'r' : 'a') : 'g' }); clampSet('ln-drive', true, { col }); clampSet('ln-weap', true, { col }); clampSet('ln-breach', true, { col: S.spool ? 'a' : 'g', fl: !!S.spool });
-  ckeySet('k-pell', { t: 'PELL ASSIST', s: 'RUNS HOT', lit: !!S.pell }); ckeySet('k-pellact', { t: 'PELL ACTS', s: S.integration >= 75 ? 'NO ASKING' : 'AT 75%', lit: !!S.pellAct, dis: S.integration < 75 });
+  if (pellLive()) ckeySet('k-pell', { t: 'PELL ASSIST', s: 'RUNS HOT', lit: !!S.pell }); else ckeySet('k-pell', { t: 'PELL ASSIST', s: PELL_KEY === 'waiting' ? 'ASK PELL' : 'NOT TERMINATED', lit: false, dis: true }); ckeySet('k-pellact', { t: 'PELL ACTS', s: S.integration >= 75 ? 'NO ASKING' : 'AT 75%', lit: !!S.pellAct, dis: S.integration < 75 });
   csvg('g-integ', csegSvg('INTEGRATION', S.integration / 100, CC.violet, Math.round(S.integration) + '%', 12, 8, [.25, .5, .75], 10));
   const sp = S.spool, left = sp ? Math.max(0, sp.at - S.t) : 0, tot = S.spoolMin || ME().spool;
   csvg('g-spool', csegSvg('BREACH SPOOL', sp ? 1 - left / tot : 0, CC.amber, sp ? mmss(left) : 'IDLE', 24, 8, S.dog ? [ME().spool / tot] : [], 20));
@@ -1482,7 +1518,7 @@ const ACT = {
   pause() { $('pause').click(); }, speed(el) { setTime(+el.dataset.arg); }, menu() { $('manbtn').click(); },
   view(el) { if (!el.classList.contains('dis')) setView(el.dataset.arg); },
   vent() { ventToggle(); }, quiet() { E.goQuiet(S); uiUpdate(true); }, breach() { E.retreat(S); uiUpdate(true); },
-  pell() { if (!pellLive()) return; S.pell = !S.pell; uiUpdate(true); }, pellact() { if (!pellLive()) return; E.setPellAct(S, !S.pellAct); uiUpdate(true); },
+  pell() { if (!pellLive()) return; S.pell = !S.pell; if (S.pell) S.linkUsed = true; uiUpdate(true); }, pellact() { if (!pellLive()) return; E.setPellAct(S, !S.pellAct); uiUpdate(true); },
   voice() { $('vcyc').click(); cWeapons(); }, rall() { $('rall').click(); cWeapons(); },
   drive(el) { E.setSpeed(S, el.dataset.arg); uiUpdate(true); }, burn() { E.redlineBurn(S); uiUpdate(true); }, hold() { E.setOrder(S, 'still', null); uiUpdate(true); }, evade() { E.setOrder(S, 'evade', null); uiUpdate(true); },
   clearplan() { E.setOrder(S, 'still', null); E.setRoute(S, []); uiUpdate(true); }, resume() { E.setOrder(S, 'route', null); uiUpdate(true); }, editplan() { planEdit = true; setView('str'); },
@@ -1624,8 +1660,8 @@ Object.assign(ACT, {
 cBuild();
 $('k-fire').insertAdjacentHTML('beforeend', '<div class="cguard"><b>LIFT GUARD</b><small>THEN PRESS TO FIRE</small></div>');
 
-// ---------- Pell gate: no Pell controls, gauge or copy unless PELL_UI (never on the Tern; Stage C adds the wiring scene) ----------
-function pellLive() { return PELL_UI; }   // may the PELL ASSIST key be used right now
+// ---------- Pell gate: no Pell controls, gauge or copy unless PELL_UI (never on the Tern; elsewhere only after the wiring scene 1.6b) ----------
+function pellLive() { return PELL_UI && PELL_KEY === 'live'; }   // may the PELL ASSIST key be used right now
 function applyPellGate() {
   const hide = !PELL_UI;
   ['k-pell', 'k-pellact', 'g-integ', 'ls-pell', 'man-pell'].forEach(id => { const el = $(id); if (el) el.style.visibility = hide ? 'hidden' : ''; });
@@ -1636,8 +1672,8 @@ function applyPellGate() {
 applyPellGate();
 let tscale = 1, VX = 0, VY = 0, VZ = 1, follow = false, dragged = false, view = 'tac', hist = [], fires = [], trail = [], planEdit = false, mapG = null, SC = 1;
 let ammo = 'he', homing = false, S = null, paused = false, engageId = null, cone = 8, aimL = null, built = false, feedN = 0, lastUi = 0, lastHp = 0, savedInteg = 0, T0 = 0;
-if (!TUT) try { savedInteg = +localStorage.getItem('interdict_integration') || 0; } catch (e) {}
-function save() { if (TUT) return; try { localStorage.setItem('interdict_integration', String(Math.round(S.integration))); } catch (e) {} }
+if (PELL_UI) try { savedInteg = +localStorage.getItem('interdict_integration') || 0; } catch (e) {}   // before 1.6b every hunt starts at 0
+function save() { if (TUT || !PELL_UI) return; try { localStorage.setItem('interdict_integration', String(Math.round(Math.min(S.integration, Math.max(savedInteg, DS0.pell.integration_cap || 24))))); } catch (e) {} }   // the shallow link can't carry integration past 24 (1.6b)
 let brief = { entry: 'standard', speed: 'v3', pace: 'normal', ally: true, route: [] }, briefing = false;
 const PACE = { relaxed: ['Relaxed', 24], normal: ['Normal', 16], brisk: ['Brisk', 11] }, ENTRY = { dark: ['Running dark', 'Engines cold, sensors still warming. Arrive far out and quiet: we are hard to notice for the first 6 minutes, but sensors work 20% slower for the first 4.'], standard: ['Standard arrival', 'Balanced. Arrive at the edge with sensors up.'], fast: ['Hot arrival', 'Burn in close, about 36 km nearer the contacts. The wake lights us up for the first 3 minutes.'] };
 try { Object.assign(brief, JSON.parse(localStorage.getItem('interdict_brief') || '{}'), { route: [] }); } catch (e) {}
@@ -1948,6 +1984,7 @@ function lootHtml() {
 }
 function endScreen() {
   if (S.endShown || briefing) return; S.endShown = true; const win = S.over === 'win', brk = S.over !== 'found' && !win; $('over').hidden = false; save(); try { savedInteg = S.integration; } catch (e) {}
+  if (!TUT) DemoState.update(st => { st.hunts = (st.hunts || 0) + 1; if (S.linkUsed) st.pell.link_recent = (st.pell.link_recent || 0) + 1; st.last_hunt = { hull: Math.round(S.hull), over: S.over }; });   // hunts and recent link use feed the dock inspection roll
   $('obox').innerHTML = `<h3>${win ? (S.nreal > 1 ? 'All enemy ships crippled' : 'Enemy ship crippled') : brk ? 'Contact broken' : 'Contact lost'}</h3><div>${win ? 'Nobody died, the salvage is yours.' : (S.disabled ? 'Breach drive spins up. You get away with ' + S.disabled + ' of ' + S.nreal + ' ships crippled and the salvage you can carry.' : 'Breach drive spins up. You come home without a ship, but with a sensor log worth something.')} ${S.t.toFixed(1)} game minutes, ${S.beats} reports.</div>${PELL_UI ? `<div class="help">Pell integration: ${Math.round(T0)}% to ${Math.round(S.integration)}%. It carries over to your next hunt.</div>` : ''}${lootHtml()}<div class="help">What was really out there:</div><div class="reveal">${S.an.map(a => `<span>${a.id + 1}: ${a.kind}${a.kind === 'real' ? '<br>' + a.load.name : ''}<br>grid ${a.grid}</span>`).join('')}</div><div class="row"><button class="go" id="again">Hunt again</button><button id="close">Look at the screen</button></div>`;
   $('again').onclick = () => start(); $('close').onclick = () => { $('over').hidden = true; };
 }

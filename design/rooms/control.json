@@ -323,6 +323,22 @@
    "label": "Door to the captain's stateroom",
    "wall": "j",
    "fade": true
+  },
+  {
+   "id": "redKey",
+   "rc": [
+    688,
+    398,
+    748,
+    468
+   ],
+   "stand": [
+    7,
+    2
+   ],
+   "action": "key",
+   "dir": "nw",
+   "label": "The red key on the pedestal, third from the left"
   }
  ],
  "npcs": [

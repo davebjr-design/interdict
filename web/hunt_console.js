@@ -261,7 +261,7 @@ function cShip() {
   const hp = Math.max(0, S.hull) / 100; csvg('g-hull', csegSvg('HULL', hp, hp < 0.4 ? CC.red : hp < 0.7 ? CC.amber : CC.green, Math.round(S.hull) + '%', 12, 8, [], 10));
   const eff = S.sysEff == null ? 1 : S.sysEff, col = eff < 0.5 ? 'r' : eff < 0.9 ? 'a' : 'g', hm = S.hull < 60;
   clampSet('ln-sens', true, { col: hm || eff < 0.9 ? (eff < 0.5 ? 'r' : 'a') : 'g' }); clampSet('ln-drive', true, { col }); clampSet('ln-weap', true, { col }); clampSet('ln-breach', true, { col: S.spool ? 'a' : 'g', fl: !!S.spool });
-  ckeySet('k-pell', { t: 'PELL ASSIST', s: 'RUNS HOT', lit: !!S.pell }); ckeySet('k-pellact', { t: 'PELL ACTS', s: S.integration >= 75 ? 'NO ASKING' : 'AT 75%', lit: !!S.pellAct, dis: S.integration < 75 });
+  if (pellLive()) ckeySet('k-pell', { t: 'PELL ASSIST', s: 'RUNS HOT', lit: !!S.pell }); else ckeySet('k-pell', { t: 'PELL ASSIST', s: PELL_KEY === 'waiting' ? 'ASK PELL' : 'NOT TERMINATED', lit: false, dis: true }); ckeySet('k-pellact', { t: 'PELL ACTS', s: S.integration >= 75 ? 'NO ASKING' : 'AT 75%', lit: !!S.pellAct, dis: S.integration < 75 });
   csvg('g-integ', csegSvg('INTEGRATION', S.integration / 100, CC.violet, Math.round(S.integration) + '%', 12, 8, [.25, .5, .75], 10));
   const sp = S.spool, left = sp ? Math.max(0, sp.at - S.t) : 0, tot = S.spoolMin || ME().spool;
   csvg('g-spool', csegSvg('BREACH SPOOL', sp ? 1 - left / tot : 0, CC.amber, sp ? mmss(left) : 'IDLE', 24, 8, S.dog ? [ME().spool / tot] : [], 20));
@@ -421,7 +421,7 @@ const ACT = {
   pause() { $('pause').click(); }, speed(el) { setTime(+el.dataset.arg); }, menu() { $('manbtn').click(); },
   view(el) { if (!el.classList.contains('dis')) setView(el.dataset.arg); },
   vent() { ventToggle(); }, quiet() { E.goQuiet(S); uiUpdate(true); }, breach() { E.retreat(S); uiUpdate(true); },
-  pell() { if (!pellLive()) return; S.pell = !S.pell; uiUpdate(true); }, pellact() { if (!pellLive()) return; E.setPellAct(S, !S.pellAct); uiUpdate(true); },
+  pell() { if (!pellLive()) return; S.pell = !S.pell; if (S.pell) S.linkUsed = true; uiUpdate(true); }, pellact() { if (!pellLive()) return; E.setPellAct(S, !S.pellAct); uiUpdate(true); },
   voice() { $('vcyc').click(); cWeapons(); }, rall() { $('rall').click(); cWeapons(); },
   drive(el) { E.setSpeed(S, el.dataset.arg); uiUpdate(true); }, burn() { E.redlineBurn(S); uiUpdate(true); }, hold() { E.setOrder(S, 'still', null); uiUpdate(true); }, evade() { E.setOrder(S, 'evade', null); uiUpdate(true); },
   clearplan() { E.setOrder(S, 'still', null); E.setRoute(S, []); uiUpdate(true); }, resume() { E.setOrder(S, 'route', null); uiUpdate(true); }, editplan() { planEdit = true; setView('str'); },

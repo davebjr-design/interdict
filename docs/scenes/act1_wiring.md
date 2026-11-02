@@ -269,6 +269,13 @@ The inline tags above are authoritative; this table is generated from them.
 - **Console copy:** Pell is "it" (audit item 23).
 - **Control room (walk demo):** the red key is an object on the pedestal, third from the left. Before 1.6b: "A red key switch. Stiff. It doesn't seem to do anything." After: *live* "Turned. The lamp beside it is amber." / *waiting* PELL: "Still thinking. Ask me after a hunt." / *dead* a paper tag in Castellan's capitals: NOT TERMINATED. The kick plate below it is interactable only for `call.castellan.wiring_again` (examining it sets `seen.pedestal.asked`).
 
+### Built in the demo (2026-11-02)
+- **State:** `web/demo_state.js` (localStorage `interdict.state`, shared by the walk demo and the hunt page): `pell.wiring_seen`, `pell.key` (live / waiting / dead), `pell.link_recent`, `tally.trace` (starts 10; hidden, never rendered), `tally.declared` (untouched: PROVISIONAL ruling (a); the one-line swap for (b) is commented in `wiringApply`), `command.style` / `command.band` (hysteresis), `seen.wiring.*`, `trust.*`. The route is assumed *kept_captain, not murdered* (the demo has no standoff yet).
+- **Gate:** the hunt page shows no PELL ASSIST, PELL ACTS, INTEGRATION gauge, PELL heat lamp or "Pell" copy until `pell.wiring_seen`; before it, every hunt starts at integration 0 and saves nothing. After it, the gauge shows; PELL ASSIST is pressable only with a live key (otherwise dimmed, "ASK PELL" or "NOT TERMINATED"). Saved integration is capped at 24 (shallow link). The continuous toggle is still the assist mechanism; the decision-moment third option is only built for M01 (see `decision_moments.md`).
+- **Debug trigger (no dialogue runner yet):** the walk demo's **"Debug: play wiring scene"** button, or the red key's **"[Debug] Play the wiring scene (1.6b)"** choice before the scene. A text-only panel plays the scene's spine with the four choices (the decline shows the committed band's variant) and applies the state table above. Replaying resets the scene's own results first.
+- **Red key:** an object on Corvane's control-room pedestal (`design/rooms/control.json` door `redKey`, stand cell 7,2), drawn as a red cap; amber lamp when live, a paper tag when dead. Texts as in the list above; the kick plate sets `seen.pedestal.asked` after a decline.
+- Tests: `node tests/pell_gate.js`.
+
 ---
 
 ## Writer's notes

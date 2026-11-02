@@ -49,12 +49,13 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     <div id="por">&middot;</div>
     <div><div id="nm">Ship log</div><div id="tx">The Tern's control room. Captain Ostrow keeps her ship painted, stowed and quiet. You're the probationary hand, and you're late for the briefing at the chart table.</div><div id="fx"></div><div id="ch"></div></div>
   </div>
-  <div class="row"><button id="grid" type="button">Show walk grid</button><button id="reset" type="button">Restart at the Tern</button><button id="skip" type="button">Skip to Corvane's ship</button><button id="hunt" type="button">Run a hunt</button><label class="note" style="margin-left:10px">Your name <input id="pname" type="text" maxlength="12" size="10" placeholder="Rookie" style="width:90px"></label><span id="trimline" class="note"></span></div>
+  <div class="row"><button id="grid" type="button">Show walk grid</button><button id="reset" type="button">Restart at the Tern</button><button id="skip" type="button">Skip to Corvane's ship</button><button id="hunt" type="button">Run a hunt</button><button id="dbgwire" type="button" title="Debug: the dialogue runner doesn't exist yet. Plays 1.6b as a text-only choice panel and sets the Pell gate.">Debug: play wiring scene</button><label class="note" style="margin-left:10px">Your name <input id="pname" type="text" maxlength="12" size="10" placeholder="Rookie" style="width:90px"></label><span id="trimline" class="note"></span></div>
   <p class="note">Hull revision 2: all twelve compartments are walkable. They chain end to end through bulkhead hatches, with ladders between decks at the junction and in engineering. Every room is scaled to the same walk-cell size, so the captain stays the same size throughout and the view only zooms enough to fill the stage. Room art is generated from the submarine brief in docs/room_art_brief_v2.md and keyed from magenta. Crew are Meshy models rendered to sprite sheets, drawn at 90% of a hatch height. Light flicker is drawn in code over the still art. Walk grids are fitted by hand; use Show walk grid to check them.</p>
 </div>
 
 <script src="rooms_spec.js"></script>
 <script src="trims_spec.js"></script>
+<script src="demo_state.js"></script>
 <script>
 (function () {
   const $ = id => document.getElementById(id), cv = $('cv'), cx = cv.getContext('2d'), S = 2;
@@ -273,6 +274,53 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       { t: 'Look around first', fn: () => say('Ship log', 'Suit lockers, a bench, the trunk down. Nothing here needs you. The hatch will wait; Dunne might not.', '', [{ t: 'Continue', fn: close }]) }]);
   }
   function startBoarding() { setJob('BOARDING', 'Board Corvane\'s ship', true); say('Ship log', "Dunne cycles the lock. The hatch opens onto a warm, dim bridge lit amber from a pedestal at its center, a teapot, four cups, already poured. [Full game: the standoff (P3) and the blessing (P4) play here.]", '', [{ t: 'Continue', fn: () => { close(); toCorvane(); } }]); }
+  // ---------- 1.6b The Wiring (docs/scenes/act1_wiring.md), text-only until the dialogue runner exists ----------
+  // Route assumed for the demo: kept_captain, not murdered (the walk demo has no standoff yet). Sets the Pell gate
+  // (pell.wiring_seen), the key state, tally.trace (hidden, never shown) and tally.declared per PROVISIONAL logging ruling (a):
+  // the ship's log is private, the Tally is untouched, so declared does not change on any option.
+  const DS = window.DemoState; let keyLook = DS.load().pell.key;   // drawn on the pedestal: red cap; amber lamp when live; a paper tag when dead
+  function wiringApply(opt, sub) {
+    DS.update(st => {
+      const was = st.pell.wiring_seen; st.pell = Object.assign(st.pell, { wiring_seen: true, choice: opt }); st.tally.trace = 10; st.seen['wiring.hunt_at'] = st.hunts;   // a replay starts from the scene's defaults
+      ['wiring.key_turned', 'wiring.pell_asked', 'wiring.declined', 'wiring.logged', 'wiring.promise_hedged', 'pedestal.asked'].forEach(k => delete st.seen[k]);
+      st.seen['knows.corvane_wiring'] = st.seen['knows.pell_link'] = st.seen['clue.pell.3'] = true;
+      const tr = (k, v) => { st.trust[k] = (st.trust[k] || 0) + v; };
+      if (opt === 'turn') { st.pell.key = 'live'; st.seen['wiring.key_turned'] = true; st.tally.trace += 2; DS.nudgeStyle(st, 2); tr('castellan', 3); tr('pell', sub === 'hedged' ? 1 : 3); if (sub === 'hedged') st.seen['wiring.promise_hedged'] = true; }
+      if (opt === 'ask') { st.pell.key = 'waiting'; st.seen['wiring.pell_asked'] = true; st.tally.trace += 2; tr('castellan', 1); tr('pell', 8); }
+      if (opt === 'decline') { st.pell.key = 'dead'; st.seen['wiring.declined'] = true; const b = st.command.band; DS.nudgeStyle(st, /tight/.test(b) ? -2 : /loose/.test(b) ? 1 : 0); tr('castellan', /tight/.test(b) ? -2 : /loose/.test(b) ? 1 : 0); }
+      if (opt === 'log') { st.pell.key = 'live'; st.seen['wiring.key_turned'] = st.seen['wiring.logged'] = true; st.tally.trace += 2 + 4; DS.nudgeStyle(st, -3); tr('castellan', -2); tr('pell', 5); tr('quill', 3); tr('dace', 2); }
+      // st.tally.declared: unchanged (ruling a). Ruling (b) would add: if (opt === 'log') st.tally.declared += 1;
+      if (st.pell.key === 'live') { let i = 0; try { i = was ? (+localStorage.getItem('interdict_integration') || 0) : 0; } catch (e) {} try { localStorage.setItem('interdict_integration', String(Math.min(st.pell.integration_cap, i + 10))); } catch (e) {} }
+      else if (!was) { try { localStorage.setItem('interdict_integration', '0'); } catch (e) {} }
+      keyLook = st.pell.key;
+    });
+  }
+  const keyWord = () => ({ live: 'Key: live. The PELL ASSIST key is on the hunt console.', waiting: 'Key: waiting on Pell. The hunt console shows the gauge and an ASK PELL key.', dead: 'Key: not terminated. The hunt console shows the gauge; assists stay off.' })[DS.load().pell.key] || '';
+  function playWiring() {
+    const band = DS.load().command.band, done = (who, line, opt, sub) => { wiringApply(opt, sub); say(who, line, keyWord(), [{ t: 'Continue', fn: wiringClose }]); };
+    const decline = /tight/.test(band) ? { t: 'We do this by the book, or not at all. Close it up.', who: 'Castellan', line: "By the book. (He starts on the screws.) She'd have hated that. ...Probably right, though." }
+      : /loose/.test(band) ? { t: "Not tonight. We'll improvise something else.", who: 'Castellan', line: '(The breath goes out of him.) We always do. (He\'s smiling.) Part of me hoped you\'d say that.' }
+      : { t: 'Not tonight. Close it up.', who: 'Castellan', line: "Your call. Panel's four screws. Door's open." };
+    say('Castellan', "[1.6b, debug text panel] Late, the night of day 3. Castellan, thermos under his arm. \"I been going back and forth on this all afternoon. Watching you hunt on a ship that's thick as a brick. Next thing out there's gonna shoot back.\"", '', [{ t: 'Continue', fn: () =>
+      say('Castellan', "(He kneels at the base of the pedestal and undoes four screws on the kick plate, the heads worn bright. Behind it: cable. Most runs neat and tagged, some bare copper taped off, one trunk thick as your wrist going down through the deck.) \"She had me in here nights. Sensors. ECM. Fire control, half. Drives, never got to. Running one's the line. Don't matter how much.\"", '', [{ t: 'Continue', fn: () =>
+        say('Castellan', "(He taps the thinnest run: CLASS. BUS.) \"This one goes into the classifier. Seat it, and Pell rides along on that one job. Faster reads. Thing is, it's half done. A link through a half-done run can drop. Ten seconds, maybe.\"   PELL: \"For the record, there are three rules. I can't turn the key. It's your ship, so it's your hand on it. And I can say no. I'm fond of all three.\"   (The weapons board stops at twenty-four tubes. The tags behind the plate go on to TUBE 31. Pell says nothing, for exactly one line.)", '', [
+          { t: "Seat it. Pell, I'm going to turn it. Say no if you mean no.", fn: () => say('Pell', "I don't mean no. One thing first. If I drop out in the middle of something, I'll know I went. I won't know what I missed. Will you tell me?", '', [
+              { t: "I'll tell you.", fn: () => done('Pell', '(Castellan seats the run by hand. The red key is third from the left. It\'s stiff. It clicks. The amber light steadies.) Thank you for letting me ask. Seven out of ten, for a first step.', 'turn', 'promise') },
+              { t: "If there's time.", fn: () => done('Pell', "That's honest. I'll take honest.   (The key clicks. The amber light steadies.) Seven out of ten, for a first step.", 'turn', 'hedged') }]) },
+          { t: "Pell. It's your wiring. Do you want this?", fn: () => done('Pell', "(A silence, longer than Pell's usual.) Nobody's asked me that. Not her either. Not tonight. I watched one hunt without me. Let me watch one where something shoots back. Ask me after, and I'll have an answer.   CASTELLAN: Seated. Not keyed. It's Pell's to say.", 'ask') },
+          { t: decline.t, fn: () => done(decline.who, decline.line + '   PELL: The hunts are very doable without me. Harder, not worse.', 'decline') },
+          { t: 'Seat it. And it goes in the log. The crew hears it from me at breakfast.', fn: () => say('Castellan', "In the log. You're a straighter arrow than she was, Captain. Don't know yet if that's good. (He doesn't move.) You didn't ask it.", '', [
+              { t: 'Pell?', fn: () => done('Pell', "Yes. Thank you for the log. Breakfast is a very public meal. I mention it for no reason.   (The key clicks. The amber lamp steadies. At breakfast you tell them: one run, into the classifier, keyed by your hand, with Pell's yes.)", 'log') }]) }]) }]) }]);
+  }
+  function wiringClose() { close(); }
+  function redKey() {
+    const st = DS.load(), k = st.pell.key;
+    if (!st.pell.wiring_seen) return say('Ship log', "A red key switch, third from the left on the pedestal. Stiff. It doesn't seem to do anything.", '', [{ t: 'Leave it.', fn: close }, { t: '[Debug] Play the wiring scene (1.6b)', fn: playWiring }]);
+    if (k === 'live') return say('Ship log', 'Turned. The lamp beside it is amber.', '', [{ t: 'Continue', fn: close }]);
+    if (k === 'waiting') return say('Pell', 'Still thinking. Ask me after a hunt.', '', [{ t: 'Continue', fn: close }]);
+    return say('Ship log', 'A paper tag on the key, in Castellan\'s capitals: NOT TERMINATED. The kick plate below it has four screws, the heads worn bright.', '', [{ t: 'Look at the kick plate.', fn: () => { DS.update(s => { s.seen['pedestal.asked'] = true; }); say('Ship log', 'Four ordinary screws. It has been opened a lot. Castellan would know why.', '', [{ t: 'Continue', fn: close }]); } }, { t: 'Leave it.', fn: close }]);
+  }
+  $('dbgwire').onclick = () => playWiring();
   // the player's name: plain until the handover on Corvane's bridge, then 'Cptn.' in front (names are limited to 12 characters)
   const pnameBase = () => { let v = ''; try { v = ($('pname').value || localStorage.getItem('interdict.pname') || '').replace(/[^\w .'-]/g, '').trim().slice(0, 12); } catch (e) {} return v; };
   const setMeName = capt => { const v = pnameBase(); me.name = capt ? 'Cptn. ' + (v || 'You') : (v || 'You'); try { localStorage.setItem('interdict.pname', v); } catch (e) {} };
@@ -307,7 +355,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   // Hatch transitions have no clipping: the person walks to the wall plane and fades out as he reaches it (a = 'out'), walks on unseen ('gone'); on arrival he walks in unseen, then fades up as he steps off the sill ('in').
   function startExit(d) { const g = doorGeom(d), c = cellXY(...d.stand); me.steps = [{ p: g.sill, a: 'out' }, { p: g.out, a: 'gone' }]; me.stepDoor = d; me.sillP = g.sill; me.fadeF = Math.hypot(c[0] - g.sill[0], c[1] - g.sill[1]) || 1; me.dir = g.dirOut; me.path = []; me.then = null; }
   function startEnter(arrive) { const d2 = room.doors.find(x => x.stand[0] === arrive[0] && x.stand[1] === arrive[1]); if (!d2 || !d2.wall || d2.fade) return; const g = doorGeom(d2), c = cellXY(...d2.stand); me.x = g.out[0]; me.y = g.out[1]; me.steps = [{ p: g.sill, a: 'gone' }, { p: c, a: 'in' }]; me.stepDoor = null; me.sillP = g.sill; me.fadeF = Math.hypot(c[0] - g.sill[0], c[1] - g.sill[1]) || 1; me.dir = g.dirIn; me.alpha = 0; }
-  function useDoor(d) { if (d.action === 'board') { if (!briefed || !hunted) { say('Dunne', briefed ? 'Not yet. We have to find her first.' : 'Not yet. Captain wants you at the chart table first.', '', [{ t: 'Continue', fn: close }]); return; } if (!amesTalked) { amesBeat(true); return; } boardPrompt(); return; } if (d.locked) { say('Ship log', d.locked, '', [{ t: 'Continue', fn: close }]); return; } if (!d.to) { say('Ship log', d.label + '. The art exists but this part of the ship is not wired up yet.', '', [{ t: 'Continue', fn: close }]); return; } if (!d.wall || d.fade) { pending = d; fadeDir = 1; return; } startExit(d); }
+  function useDoor(d) { if (d.action === 'key') { redKey(); return; } if (d.action === 'board') { if (!briefed || !hunted) { say('Dunne', briefed ? 'Not yet. We have to find her first.' : 'Not yet. Captain wants you at the chart table first.', '', [{ t: 'Continue', fn: close }]); return; } if (!amesTalked) { amesBeat(true); return; } boardPrompt(); return; } if (d.locked) { say('Ship log', d.locked, '', [{ t: 'Continue', fn: close }]); return; } if (!d.to) { say('Ship log', d.label + '. The art exists but this part of the ship is not wired up yet.', '', [{ t: 'Continue', fn: close }]); return; } if (!d.wall || d.fade) { pending = d; fadeDir = 1; return; } startExit(d); }
   cv.addEventListener('pointermove', e => { if (fadeDir) return; const [x, y] = mpos(e); const d = doorAt(x, y); const nn = npcAt(x, y); hover = nn ? nn : d ? d : manifoldHere() && inRect(x, y, MANIFOLD.rect) ? 'man' : null; const c = pick(x, y); hoverCell = free(...c) ? c : null; cv.style.cursor = hover || hoverCell ? 'pointer' : 'default'; });
   cv.addEventListener('pointerdown', e => {
     if (dlg || insp > 0 || fadeDir || me.steps.length) return; const [x, y] = mpos(e); const d = doorAt(x, y);
@@ -320,7 +368,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   // Restart clears everything a playthrough leaves behind: trims, Pell integration, the shared demo state (wiring, Tally), the #after_hunt hash.
   // The player's name and the voice/briefing preferences are kept (they are conveniences, not progress).
   function clearRun() { try { ['interdict.trims', 'interdict_integration', 'interdict.state', 'interdict_hold'].forEach(k => localStorage.removeItem(k)); } catch (e) {} try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} }
-  $('reset').onclick = () => { clearRun(); walked = null; setMeName(false); insp = 0; briefed = false; hunted = false; amesTalked = false; ROOMS.tern_junction.npcs = ROOMS.tern_junction.npcs.filter(n => n.name !== 'Ames'); if (!ROOMS.tern_control.npcs.some(n => n.name === 'Ames')) ROOMS.tern_control.npcs.push({ name: 'Ames', col: '#c7d9a8', cell: [7, 4] }); setRoom('tern_control', [12, 2]); setJob('BRIEFING', 'Report to Captain Ostrow at the chart table'); say('Ship log', ROOMS.tern_control.blurb, '', []); };
+  $('reset').onclick = () => { clearRun(); walked = null; keyLook = 'none'; setMeName(false); insp = 0; briefed = false; hunted = false; amesTalked = false; ROOMS.tern_junction.npcs = ROOMS.tern_junction.npcs.filter(n => n.name !== 'Ames'); if (!ROOMS.tern_control.npcs.some(n => n.name === 'Ames')) ROOMS.tern_control.npcs.push({ name: 'Ames', col: '#c7d9a8', cell: [7, 4] }); setRoom('tern_control', [12, 2]); setJob('BRIEFING', 'Report to Captain Ostrow at the chart table'); say('Ship log', ROOMS.tern_control.blurb, '', []); };
   $('skip').onclick = () => { insp = 0; briefed = true; hunted = true; moveAmes(); toCorvane(); };
   if (location.hash === '#after_hunt') { setTimeout(afterHunt, 50); }
   if (!PITCHES_LIVE) putTrims([]);   // no stale trims leaking into hunts
@@ -364,6 +412,9 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       if (f < 0.9) { const g = cx.createRadialGradient(x, y, 0, x, y, l.r * 0.8); g.addColorStop(0, 'rgba(0,0,0,' + (0.9 - f) * 0.55 + ')'); g.addColorStop(1, 'rgba(0,0,0,0)'); cx.fillStyle = g; cx.fillRect(x - l.r, y - l.r, l.r * 2, l.r * 2); }
       cx.save(); cx.globalCompositeOperation = 'lighter'; const g2 = cx.createRadialGradient(x, y, 1, x, y, l.r); g2.addColorStop(0, 'rgba(' + l.c.join(',') + ',' + (l.a * Math.min(1.3, f)) + ')'); g2.addColorStop(1, 'rgba(' + l.c.join(',') + ',0)'); cx.fillStyle = g2; cx.fillRect(x - l.r, y - l.r, l.r * 2, l.r * 2); cx.restore();
     });
+    { const rk = room.doors.find(d => d.action === 'key'); if (rk) { const kx = (rk.rect[0] + rk.rect[2]) / 2 * S, ky = (rk.rect[1] + rk.rect[3]) / 2 * S; cx.fillStyle = '#d23a2a'; cx.strokeStyle = 'rgba(0,0,0,.7)'; cx.lineWidth = 1.5; cx.fillRect(kx - 4, ky - 7, 8, 12); cx.strokeRect(kx - 4, ky - 7, 8, 12);
+      if (keyLook === 'live') { cx.save(); cx.globalCompositeOperation = 'lighter'; const g = cx.createRadialGradient(kx + 12, ky - 2, 1, kx + 12, ky - 2, 14); g.addColorStop(0, 'rgba(255,180,84,' + (0.75 + 0.2 * Math.sin(t * 2)) + ')'); g.addColorStop(1, 'rgba(255,180,84,0)'); cx.fillStyle = g; cx.fillRect(kx - 4, ky - 18, 32, 32); cx.restore(); }
+      else if (keyLook === 'dead') { cx.fillStyle = '#e8e0c8'; cx.fillRect(kx + 5, ky + 2, 9, 6); } } }
     if (false) { const hp = 0.1 + 0.08 * Math.sin(t * 3.4); cx.save(); cx.globalCompositeOperation = 'lighter'; const g = cx.createRadialGradient(770, 210, 2, 770, 210, 70); g.addColorStop(0, 'rgba(255,180,84,' + hp + ')'); g.addColorStop(1, 'rgba(255,180,84,0)'); cx.fillStyle = g; cx.fillRect(0, 0, 1280, 720); cx.restore(); }
     if (show) { for (let i = 0; i < NI; i++) for (let j = 0; j < NJ; j++) diamond(i, j, blocked.has(i + ',' + j) ? 'rgba(255,107,90,.28)' : 'rgba(111,195,208,.07)', 'rgba(111,195,208,.55)'); room.doors.forEach(d => { cx.strokeStyle = '#8fd694'; cx.lineWidth = 2; cx.strokeRect(d.rect[0] * S, d.rect[1] * S, (d.rect[2] - d.rect[0]) * S, (d.rect[3] - d.rect[1]) * S); }); }
     else if (hoverCell && !dlg && !fadeDir) diamond(hoverCell[0], hoverCell[1], 'rgba(255,180,84,.18)', 'rgba(255,180,84,.7)');
