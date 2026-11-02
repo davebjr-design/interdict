@@ -78,3 +78,14 @@ Redline is a timed burn, not a speed you sit at by accident: one press of the Re
 
 ## Identity from behavior (Oct 26)
 A real warship is marked hostile the moment it fires on us or extends its heat fins while our thermal read can see it. Hostile contacts show 100 percent odds, cannot be dismissed, and the crew treats them as ships. Lures and static never vent or fire, so the marker is never wrong. Faint-trace and dark-sensor pauses of a firing solution are now labeled separately in the Target view.
+
+## Dock inspections (walk demo, 2026-11-02)
+Crews check each other's ships at docks (universe_background). The walk demo rolls one inspection per docking: **Dock at the next station** (row button, Corvane's ship only; code `dockStep()` in `design/proto_iso.html`, test `tests/dock_inspect.js`).
+- **Chance** p = clamp((0.03 + 0.012 x (`tally.trace` - 10) + 0.06 x min(4, `pell.link_recent`)) x band, 0.02, 0.60), band x0.85 in a committed tight band, x1.15 loose (command_model §2: inspections easier tight, harder loose). `tally.trace` starts at 10 (Corvane's dead runs), so a ship that never touched the wiring still has a 3% chance. Examples: trace 12, no linked hunts: 5.4%; trace 16 (keyed and logged) with two linked hunts: 22%.
+- **Recent link use** = hunts flown with PELL ASSIST on since the last dock (`pell.link_recent`, written by the hunt page's end screen). Docking resets it to 0.
+- **Outcome** (one roll r): r < p **found** (the inspector has the kick plate off and photographs the tags); r < 2p **questions** (she lingers at the pedestal and asks about the bright screw heads); otherwise **clean**. Text only; the odds and the trace are never shown.
+- **Consequence flags (set, not wired):** `dock.last`, `dock.count`; `flags.inspection_noticed` (questions: for Castellan's nervous beat and the inspector-visitor pedestal storylet, `wiring_inspector_pedestal`); `flags.inspection_found` and `flags.audit_pending` (found: should bring the Act 2 audit forward; its outcome follows the logging ruling in `act1_wiring.md`). This is a demo check, not the audit: the Act 2 audit still reads `tally.trace` and `seen.wiring.*` and the trace never decides that outcome by itself.
+- **Undock** just clears the docked state.
+
+## TODO: hunt-witness check (not built)
+A hunt can be seen: another ship in the arena (the ally, a fleeing contact, a convoy) may witness Pell being run. Proposed: at the end of a hunt in which the link was used, each surviving non-hostile contact within its sensor range of us rolls on our visibility while PELL ASSIST was on (`exposure` part `pell`) and sets `flags.hunt_witnessed` plus a rumour for the captains' bar; a witnessed hunt should raise the next dock inspection's chance. Needs: a per-hunt log of link-on minutes and our visibility, the ally's survival, and the captains' bar. Not built; the engine is untouched.
