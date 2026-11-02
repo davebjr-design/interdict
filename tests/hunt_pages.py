@@ -65,8 +65,15 @@ with sync_playwright() as p:
         pg.close()
     # Target view highlight: with a ready solution the FIRE SALVO key itself is outlined
     pg=b.new_page(viewport={'width':1366,'height':768}); pg.goto('file://'+R+'design/hunt.html?tutorial=tern&return=proto_iso.html'); pg.wait_for_timeout(1200)
-    r=pg.evaluate("""(()=>{const C=S.an.find(a=>a.kind==='real'); E.lockContact(S,C.id); C.solve=1; C.stale=false; for(let i=0;i<5;i++){const b=document.getElementById('tutnext')||document.getElementById('tutskip'); if(__tut.step<4) b.click();} openTarget(C.id); E.tick(S,0.01); return {step:__tut.step, hi:[...document.querySelectorAll('.tut-hi')].map(e=>e.id)}})()""")
-    print('   ',r); chk('tutorial step 5 outlines FIRE SALVO in the Target view', r['step']==4 and 'k-fire' in r['hi'])
+    r=pg.evaluate("""(()=>{const C=S.an[__tut.corvane]; E.lockContact(S,C.id); E.assign(S,'dace',C.id); C.solve=1; for(let i=0;i<12&&__tut.id!=='fire';i++) document.getElementById('tutskip').click(); openTarget(C.id); E.tick(S,0.01); return {id:__tut.id, hi:[...document.querySelectorAll('.tut-hi')].map(e=>e.id)}})()""")
+    print('   ',r); chk('tutorial fire step outlines FIRE SALVO in the Target view', r['id']=='fire' and 'k-fire' in r['hi'])
+    pg.close()
+    # tutorial-only engine tuning: with an analyst on her the solution never bleeds or goes stale, and finishes in about 35 s at 1x
+    pg=b.new_page(viewport={'width':1366,'height':768}); pg.goto('file://'+R+'web/hunt_rt.html?tutorial=tern&return=index.html'); pg.wait_for_timeout(1200)
+    r=pg.evaluate("""(()=>{const C=S.an[__tut.corvane]; window.__tutHold=false; E.lockContact(S,C.id); E.assign(S,'dace',C.id); let t=0, min=1, prev=0, drop=0; while(C.solve<1&&t<10){E.tick(S,0.05); t+=0.05; if(C.solve<prev-1e-9)drop++; prev=C.solve;}
+      const tReady=t; for(let i=0;i<200;i++){E.tick(S,0.05); if(C.solve<1)drop++;} return {sec:tReady*P.secPerMin, drop, stale:!!C.stale, keep:!!S.tut&&S.tut.keep}})()""")
+    print('   ',r); chk('tutorial solution ready in 25-50 s at 1x and never bleeds or goes stale', 25<=r['sec']<=50 and r['drop']==0 and not r['stale'])
+
     pg.close()
     b.close()
 print('FAILED' if bad else 'ALL OK'); sys.exit(1 if bad else 0)

@@ -12,7 +12,7 @@ One blocker, seventeen should-fix, nine polish. Fix order suggestion: 1, 2, 3, 4
 
 
 ## Status at 2026-11-02 (after the tutorial, walk-demo, Pell-gate, dock and M01 pass)
-Fixed: 1-6 (tutorial), 9-11 and 13 (walk demo), 12 (earlier), 23 (Pell copy and gating), 26 (earlier). Partly: 20, 24. Decided but not built: 19. Open: 7, 8, 14-18, 21, 22, 25, 27. New since the audit: the red key and a debug wiring panel (`act1_wiring.md`, "Built in the demo"), a dock inspection roll (`detection_model.md`), and decision moment M01 (`decision_moments.md` §1.9). Tests added: `tests/walk_demo.js`, `tests/pell_gate.js`, `tests/dock_inspect.js`, `tests/moments_test.js`; `tests/hunt_pages.py` now checks the tutorial's isolation and highlights.
+Fixed: 1-8 (tutorial; 7 and 8 in the tutorial restructure, see `p2_tutorial_hunt.md`), 9-11 and 13 (walk demo), 12 (earlier), 23 (Pell copy and gating), 26 (earlier). Partly: 20, 24. Decided but not built: 19. Open: 14-18, 21, 22, 25, 27. New since the audit: the red key and a debug wiring panel (`act1_wiring.md`, "Built in the demo"), a dock inspection roll (`detection_model.md`), and decision moment M01 (`decision_moments.md` §1.9). Tests added: `tests/walk_demo.js`, `tests/pell_gate.js`, `tests/dock_inspect.js`, `tests/moments_test.js`; `tests/hunt_pages.py` now checks the tutorial's isolation and highlights.
 
 ---
 
@@ -53,12 +53,12 @@ Fix: in the tutorial, disable or hide `k-breach` (Ostrow wouldn't run), or have 
 **7. The step box is never paused and can stall at 1/7.** *Polish.*
 Evidence: game time runs while the player reads step 1 (`0.10 → 0.29` game minutes in 3 s). If the player doesn't press "Understood", no later step can complete: the box stayed on "1 / 7" after a lock and a volley had already happened (`probe_fire.js` run 2), and when the player finally presses it the steps cascade one per tick. After "Skip step" on 7/7 the box keeps showing step 7 with a dead Skip button (`H08_skipped_all.png`).
 Fix: pause while a step with a button is showing, or let step 1's `done` be "any order given". After the last step, collapse the box to a one-line reminder.
-**Status (2026-11-02): open.**
+**Status (2026-11-02): fixed** (tutorial restructured, `p2_tutorial_hunt.md`). Step 1 holds the clock (up to 45 s) and also completes on any order; every step's `done` is cumulative state, so acting early counts and nothing cascades; Skip step works on every step (Ostrow does it); idle steps re-prompt at 60% of their wait and Ostrow does them at 100%; after the last order the box collapses to one line. `tests/tutorial_bots.py` (literal, skipper, idle, wander players).
 
 **8. The step box covers live controls.** *Polish.*
 Evidence: at 1600×900 it sits over the NEXT beacon (`H01_tutorial_start.png`); at 1400 wide it covers the master-caution lamps; on the Target view it covers REFRESH and the LOCK/TRACK lamps (`H11_target_view_fire.png`).
 Fix: dock it in the comms panel or under the top bar, or make it draggable.
-**Status (2026-11-02): open.**
+**Status (2026-11-02): fixed.** The box is docked over the SHIP zone's bottom row (breach, spool and Pell cells, all hidden on the Tern), sized from the console's own rects, the same in every view; `tests/tutorial_bots.py` checks it never overlaps a visible console control and never overflows.
 
 ### Playability: walk demo
 

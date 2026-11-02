@@ -30,6 +30,9 @@ const HuntRT = (() => {
     ai.dmgW *= D.punch; ai.missRate *= c; ai.cunning = D.cunning;
     return ai;
   }
+  // Tutorial hook (s.tut), set only by web/tutorial.js on the Tern (P2): { keep: true, solveT: game minutes }. keep: a locked solution never
+  // goes stale, never bleeds for low certainty, is never cut by a target maneuver, and never pauses as too faint, but pauses while no analyst is on it; solveT: a fixed solve time
+  // (divided by moveRate while moving or EVASIVE). Absent on every other hunt, bot and test, so normal balance is untouched.
   // Per-contact player modifiers (a.pm), set only by decision moments (web/hunt_rt_template.html, MOMENTS). They change how WE read and
   // hold one contact and nothing else; an absent a.pm (every headless test, every bot) leaves the engine exactly as before.
   //   readDone, classNoise, sensR: multipliers on our read threshold, guess noise and read range for this contact
@@ -89,7 +92,7 @@ const HuntRT = (() => {
   function velAt(a, t) { const p1 = truePos(a, t - 0.05), p2 = truePos(a, t + 0.05); return { vx: (p2.x - p1.x) / 0.1, vy: (p2.y - p1.y) / 0.1 }; }
   function maneuver(s, a, dh, steer) {
     const p = truePos0(a, s.t), v = legVel(a, s.t), sp = Math.hypot(v.vx, v.vy), h0 = steer != null ? steer : Math.atan2(v.vy, v.vx) + dh;
-    (a.legs || (a.legs = [])).push({ t: s.t, x: p.x, y: p.y, vx: Math.cos(h0) * sp, vy: Math.sin(h0) * sp }); a.lastMan = s.t; if (a.state === 'locked' && sp > 0.5 && (a.solve || 0) > 0) a.solve *= 1 - s.me.manLoss;
+    (a.legs || (a.legs = [])).push({ t: s.t, x: p.x, y: p.y, vx: Math.cos(h0) * sp, vy: Math.sin(h0) * sp }); a.lastMan = s.t; if (a.state === 'locked' && sp > 0.5 && (a.solve || 0) > 0 && !(s.tut && s.tut.keep)) a.solve *= 1 - s.me.manLoss;
     if (a.state === 'locked' && sp > 0.5) report(s, 'Dace', `Contact ${a.id + 1} has changed course. Our track is off until we rescan it.`, 'bad');
   }
   function makeAware(s, a, text, know = 0.4) {   // know: how good a fix the event gave it (a hit or a ping points straight back at us)
@@ -412,8 +415,9 @@ const HuntRT = (() => {
     const quiet = s.t < s.quietUntil;
     const friction = 1 - s.me.pellFriction * Math.max(0, Math.floor(s.integration / 25) - 1), rate = POSTURE[s.posture].rate * (s.entry === 'dark' && s.t < s.me.darkWarm ? 0.8 : 1) * (moving(s) || s.posture === 'evade' ? s.me.moveRate : 1) * (moving(s) ? SPEED[s.speed].rate : 1) * friction * (s.hull < 60 ? 0.85 : 1) * s.sysEff;
     for (const a of s.an) if (a.pingSolve && s.t >= a.pingSolve) { a.pingSolve = null; if (a.state === 'locked') { a.solve = Math.min(decoy(a) ? s.me.decoyStall : 1, (a.solve || 0) + s.me.pingGain); a.stale = false; scan(s, a, 1.2); if (a.solve >= 1) { a.track = Math.max(a.track, 3); report(s, 'Abara', `Ping fix on contact ${a.id + 1} closed the solution. Ready when you are.`, 'good', true); } else report(s, 'Abara', `Ping fix on contact ${a.id + 1}: solution ${Math.round(a.solve * 100)} percent.`, 'info'); } }
-    for (const a of s.an) if (a.state === 'locked' && (a.solve || 0) >= 1 && a.anchor && s.t - a.anchor.t > s.me.solveStale) { a.solve = 0; a.stale = true; report(s, 'Abara', `The solution on contact ${a.id + 1} has gone stale. Refresh it when you want a new one; an analyst on the contact keeps the track fresh.`, 'bad'); }
-    for (const a of s.an) if (a.state === 'locked' && !a.stale && (a.solve || 0) > 0 && a.anchor && uncertainty(s, a).conf < s.me.certReady) a.solve = Math.max(0, a.solve - s.me.certBleed * h);
+    const tutKeep = !!(s.tut && s.tut.keep);   // tutorial only (web/tutorial.js): the solution never goes stale or bleeds
+    if (!tutKeep) for (const a of s.an) if (a.state === 'locked' && (a.solve || 0) >= 1 && a.anchor && s.t - a.anchor.t > s.me.solveStale) { a.solve = 0; a.stale = true; report(s, 'Abara', `The solution on contact ${a.id + 1} has gone stale. Refresh it when you want a new one; an analyst on the contact keeps the track fresh.`, 'bad'); }
+    if (!tutKeep) for (const a of s.an) if (a.state === 'locked' && !a.stale && (a.solve || 0) > 0 && a.anchor && uncertainty(s, a).conf < s.me.certReady) a.solve = Math.max(0, a.solve - s.me.certBleed * h);
     if (!quiet) for (const a of s.an) if (a.state === 'locked' && !a.stale && (a.solve || 0) < 1) { { const si = solveInfo(s, a); if (!si.paused) a.solve = Math.min(decoy(a) ? s.me.decoyStall : 1, (a.solve || 0) + h / si.T); if (decoy(a) && a.solve >= s.me.decoyStall && !a.stallSaid) { a.stallSaid = true; report(s, 'Abara', `Contact ${a.id + 1}: the trace will not resolve. The solution has stalled.`, 'bad'); } } if (a.solve >= 1) { a.track = Math.max(a.track, 3); scan(s, a, 1); report(s, 'Abara', `Firing solution on contact ${a.id + 1}. The track is tight. Ready when you are.`, 'good'); } }
     for (const w of s.analysts) {
       if (s.t < w.next) continue;
@@ -527,8 +531,9 @@ const HuntRT = (() => {
     if (cl) { T *= 1 + Math.min(0.3, 0.1 * cl); why.push('clutter nearby'); }
     { const vv = legVel(a, s.t), spd = Math.hypot(vv.vx, vv.vy); T *= 1 + s.me.spdK * spd; if (spd > 4.5) why.push('fast target'); if (backdrop(s, a)) T *= s.me.backK; if (a.lastMan != null && s.t - a.lastMan < s.me.manWin && spd > 0.5) { T *= s.me.manPen; why.push('target maneuvering'); } }
     if (s.pellAct && s.integration >= 50) T *= 0.85;
+    if (s.tut && s.tut.solveT && !decoy(a)) { T = s.tut.solveT / (moving(s) || s.posture === 'evade' ? s.me.moveRate : 1); why.length = 0; }   // tutorial only: a fixed, short solve; moving or EVASIVE is about 10% faster, as with the analysts' reads
     const dark = s.t < s.quietUntil, prog = a.solve || 0;
-    const stall = decoy(a) && prog >= s.me.decoyStall; if (stall) why.push('trace will not resolve'); const faint = avgM < 0.22 || stall; if (faint && !stall) why.push('trace too faint to work'); const cert = a.anchor ? uncertainty(s, a).conf : 0, unsure = !!a.anchor && cert < s.me.certReady; if (unsure) why.push('position too uncertain'); return { prog, T, remain: dark || faint || unsure ? Infinity : (1 - prog) * T, res, why, paused: dark || faint || unsure, dark, faint, unsure, cert, ready: prog >= 1, stale: !!a.stale, rate: avgM };
+    const stall = decoy(a) && prog >= s.me.decoyStall; if (stall) why.push('trace will not resolve'); const faint = (avgM < 0.22 && !(s.tut && s.tut.keep)) || stall; if (faint && !stall) why.push('trace too faint to work'); const cert = a.anchor ? uncertainty(s, a).conf : 0, unsure = !!a.anchor && cert < s.me.certReady && !(s.tut && s.tut.keep); if (unsure) why.push('position too uncertain'); const noEyes = !!(s.tut && s.tut.keep) && !decoy(a) && !s.analysts.some(w => w.task === a.id); if (noEyes) why.push('no analyst on it'); return { prog, T, remain: dark || faint || unsure || noEyes ? Infinity : (1 - prog) * T, res, why, paused: dark || faint || unsure || noEyes, dark, faint, unsure, noEyes, cert, ready: prog >= 1, stale: !!a.stale, rate: avgM };
   }
   const decoy = a => a.kind === 'lure' || a.kind === 'ghost';
   function lockContact(s, id) {

@@ -519,7 +519,7 @@ function cTarget() {
   return o;
 }
 let hitNow = null;
-const pauseWhy = si => si.dark ? 'SENSORS DARK' : si.unsure ? 'POSITION UNCERTAIN' : 'TRACE TOO FAINT';
+const pauseWhy = si => si.noEyes ? 'NO ANALYST ON IT' : si.dark ? 'SENSORS DARK' : si.unsure ? 'POSITION UNCERTAIN' : 'TRACE TOO FAINT';
 const pauseTip = si => si.dark ? 'We went quiet, so nobody is working the solution. It resumes when the sensors come back.' : si.unsure ? 'We are only guessing where it is. Solving resumes when a fresh fix tightens the position: keep a sensor on it, close the range, or wait for it to vent.' : 'The trace is too faint to work: the target is too far, too cold or behind a body. Close the range, wait for it to vent, or get a clear line of sight.';
 function cTgtUpdate(T) {
   const { a, f, sug, q, rg, rel, aob, sp, si, rd } = T, vm = slipVM(a), sl = slipHtml(a, vm, true, 0, false), el = $('tsl'), key = sl.cls + sl.html;
