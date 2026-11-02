@@ -506,5 +506,6 @@
    "difficulty": 0,
    "watches": 0
   }
- ]
+ ],
+ "status": "SEED MATERIAL (2026-11-02): officers' ship pitches are not live in the demo; reserved for the underway buildout. Hunt-side choices are now decision moments (docs/decision_moments.md). Pell assists unlock via the wiring scene (docs/scenes/act1_wiring.md)."
 }

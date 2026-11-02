@@ -49,7 +49,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     <div id="por">&middot;</div>
     <div><div id="nm">Ship log</div><div id="tx">The Tern's control room. Captain Ostrow keeps her ship painted, stowed and quiet. You're the probationary hand, and you're late for the briefing at the chart table.</div><div id="fx"></div><div id="ch"></div></div>
   </div>
-  <div class="row"><button id="grid" type="button">Show walk grid</button><button id="reset" type="button">Restart at the Tern</button><button id="skip" type="button">Skip to Corvane's ship</button><button id="hunt" type="button">Run a hunt with these trims</button><span id="trimline" class="note"></span></div>
+  <div class="row"><button id="grid" type="button">Show walk grid</button><button id="reset" type="button">Restart at the Tern</button><button id="skip" type="button">Skip to Corvane's ship</button><button id="hunt" type="button">Run a hunt</button><span id="trimline" class="note"></span></div>
   <p class="note">Hull revision 2: all twelve compartments are walkable. They chain end to end through bulkhead hatches, with ladders between decks at the junction and in engineering. Every room is scaled to the same walk-cell size, so the captain stays the same size throughout and the view only zooms enough to fill the stage. Room art is generated from the submarine brief in docs/room_art_brief_v2.md and keyed from magenta. Crew are Meshy models rendered to sprite sheets, drawn at 90% of a hatch height. Light flicker is drawn in code over the still art. Walk grids are fitted by hand; use Show walk grid to check them.</p>
 </div>
 
@@ -217,9 +217,10 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     if (npc.name === 'Dunne') return say('Dunne', briefed ? "Lock's aft and up the trunk. Don't keep her waiting." : 'Captain wants you at the chart table.', '', [{ t: 'Continue', fn: close }]);
     if (npc.name === 'Ames') return amesBeat(false);
     const LINES = { Abara: "Thirty years cleaning up after captains. Sit down, tea's hot. Let's find out what kind of mess you are.", Dace: "Oh, that's fascinating. Sorry, no, it's terrible. But it's also fascinating. Hold still and let me look.", Quill: "With respect, Captain, \"probably\" isn't a reading. Give me ten minutes and I'll have a real one.", Castellan: "She's not broke, she's sulking. Give me twenty minutes and a sandwich and she'll come around.", Fenwick: "Sit, sit! You look like you've been living on ration bars. There's soup, there's bread, and there's something I'm calling stew until somebody tells me otherwise." };
-    if (LINES[npc.name]) return say(npc.name, LINES[npc.name], '', [{ t: 'Any ideas for the ship?', fn: () => pitchList(npc.name) }, { t: 'Carry on.', fn: close }]);
+    if (LINES[npc.name]) return say(npc.name, LINES[npc.name], '', (PITCHES_LIVE ? [{ t: 'Any ideas for the ship?', fn: () => pitchList(npc.name) }] : []).concat([{ t: 'Carry on.', fn: close }]));
   }
   // ---------- mini-mission trims (data/mini_missions.json via trims_spec.js) ----------
+  const PITCHES_LIVE = false;   // officers' ship pitches are seed material for the underway build (docs/decision_moments.md); not live
   const DEPT = { engineering: 'Engineering', thermal: 'Thermal', sensors_ecm: 'Sensors', tactical: 'Fire control', navigation: 'Navigation', quartermaster: 'Quartermaster' };
   const getTrims = () => { try { const v = JSON.parse(localStorage.getItem('interdict.trims') || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } };
   const putTrims = v => { try { localStorage.setItem('interdict.trims', JSON.stringify(v)); } catch (e) {} };
@@ -235,7 +236,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       { t: 'Do it.', fn: () => { const on = getTrims().filter(id => { const o = jobById(id); return !o || o.dept !== j.dept; }); on.push(j.id); putTrims(on); showTrims(); say(name, 'Aye, Captain.', 'Active trims: ' + on.map(id => (jobById(id) || {}).label || id).join(' / '), [{ t: 'Continue', fn: close }]); } },
       { t: 'Not this one.', fn: () => pitchList(name) }]);
   }
-  function showTrims() { const on = getTrims(); $('trimline').textContent = on.length ? 'Trims: ' + on.map(id => (jobById(id) || {}).label || id).join(' / ') : 'No trims set. Talk to an officer: "Any ideas for the ship?"'; }
+  function showTrims() { const on = PITCHES_LIVE ? getTrims() : []; $('trimline').textContent = !PITCHES_LIVE ? '' : on.length ? 'Trims: ' + on.map(id => (jobById(id) || {}).label || id).join(' / ') : 'No trims set. Talk to an officer: "Any ideas for the ship?"'; }
   // ---------- Ames before boarding ----------
   let amesTalked = false;
   function amesBeat(atHatch) {
@@ -309,7 +310,8 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   $('reset').onclick = () => { insp = 0; briefed = false; hunted = false; amesTalked = false; ROOMS.tern_junction.npcs = ROOMS.tern_junction.npcs.filter(n => n.name !== 'Ames'); if (!ROOMS.tern_control.npcs.some(n => n.name === 'Ames')) ROOMS.tern_control.npcs.push({ name: 'Ames', col: '#c7d9a8', cell: [7, 4] }); setRoom('tern_control', [12, 2]); setJob('BRIEFING', 'Report to Captain Ostrow at the chart table'); say('Ship log', ROOMS.tern_control.blurb, '', []); };
   $('skip').onclick = () => { insp = 0; briefed = true; hunted = true; moveAmes(); toCorvane(); };
   if (location.hash === '#after_hunt') { setTimeout(afterHunt, 50); }
-  $('hunt').onclick = () => { const t = getTrims(); window.open('hunt.html' + (t.length ? '?trims=' + t.join(',') : ''), '_blank'); };
+  if (!PITCHES_LIVE) putTrims([]);   // no stale trims leaking into hunts
+  $('hunt').onclick = () => { const t = PITCHES_LIVE ? getTrims() : []; window.open('hunt.html' + (t.length ? '?trims=' + t.join(',') : ''), '_blank'); };
   showTrims();
 
   function diamond(i, j, fill, stroke) { const c = [ptXY(i / NI, j / NJ), ptXY((i + 1) / NI, j / NJ), ptXY((i + 1) / NI, (j + 1) / NJ), ptXY(i / NI, (j + 1) / NJ)]; cx.beginPath(); c.forEach((p, k) => k ? cx.lineTo(p[0] * S, p[1] * S) : cx.moveTo(p[0] * S, p[1] * S)); cx.closePath(); if (fill) { cx.fillStyle = fill; cx.fill(); } if (stroke) { cx.strokeStyle = stroke; cx.lineWidth = 1; cx.stroke(); } }
