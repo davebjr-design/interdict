@@ -78,6 +78,17 @@ Both options always show. At the ends of the meter a third option can join:
 5. **The preference payoff is small.** +1 trust at most, once per officer per hunt, so "always pick what Castellan likes" isn't a strategy.
 6. **Sim acceptance test** (extend `tools/trim_bot.js`): for each moment, a bot that always picks loose and one that always picks tight, 240 hunts each across the three arenas. Pass if the mean result (win %, hull) is within **±2 points**, loose has the **higher win rate** (by about 2-6 points), and loose has the **worse worst decile** (hull, or losses with 2 ships). If either side wins on both mean and spread, retune that moment's numbers.
 
+
+### 1.9 Built (2026-11-02): M01 only
+- **Where:** `web/hunt_rt_template.html`, `MOMENTS` (after the Pell gate). Test: `node tests/moments_test.js` (fires once in a typical hunt, holds the hunt, applies the effects, hidden nudge with the 8-point cap and hysteresis, never in the tutorial). A scripted 20-seed check with an investigating player fired M01 in 18 of 20 hunts, never twice.
+- **Pause:** the engine's `holdEvents` hook. `begin()` sets `S.holdEvents`; the moment is raised with `E.emit(S, {kind: 'moment'})` (emit is now exported), which sets `S.hold`; the frame loop (`stepGame`) does not tick while `S.hold` is set, and `pumpFx` clears `S.hold` for ordinary events unless a moment is open. No timer. `?moments=0` switches moments off.
+- **Player-only effects:** the chosen option writes a per-contact modifier `a.pm` that the engine reads only for our reads of that contact (`readDone`, `classNoise`, `sensR` multipliers; `cap` on call certainty, `confCap` on position confidence, `trackCap` on `a.track` in `scan()`). With no `a.pm` the engine is unchanged: `tools/balance_bot.js 60 normal` gives identical tables before and after.
+- **Trigger as written, plus one guard:** the contact must still be in doubt (call certainty under 85%), so Quill never offers a guess on a contact the board already reads at 99%.
+- **Options:** TIGHT (`classNoise` x0.85; in a committed tight band "Already running, Captain.": `readDone` x0.85), LOOSE (`readDone` x0.6, `sensR` x1.15, cap 70%, `classNoise` x1.5, hunch lock: `confCap` 0.70, `trackCap` 1.5). Committed loose band adds Castellan's volunteered third option (read the reactor line by ear: `readDone` x0.5, cap 55%, `classNoise` x1.6). With a live key and integration >= 10, Pell's classifier assist is a third option ("Let Pell trim the classifier": `readDone` x0.8, uncapped; integration +3 within the 24 cap, `trust.quill` -2, no meter nudge, counts as link use). The cap lifts when two channels reach 1.2 x `readDone` (Quill says so in the feed).
+- **Nudge and preferences:** tight -3 / loose +3 to `command.style` in the shared demo state, at most 8 points per hunt, committed band via the hysteresis in `web/demo_state.js`. Quill's +1 trust for the tight call (once per hunt); Castellan's line on loose, Quill's look ("Quill's pen stops."). The end screen has the one-line crew reading.
+- **Frequency rules** are generic (3 per hunt, 1 per officer except Abara 2, once each, 4-minute cooldown, nothing before 1.5 minutes, none while a spool is ordered or running, priority on collisions), so the next moments only need a catalogue entry.
+- **Not built:** M02-M09; standing settings and the after-action "make it standing?" question; Pell's drop (10% on the first committed moment); the sim acceptance test (§1.8.6).
+
 ---
 
 ## 2. Catalogue (10 moments)

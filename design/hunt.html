@@ -58,6 +58,11 @@ button:hover{border-color:var(--amber)}button:focus-visible{outline:2px solid va
 .meter{position:relative;height:12px;background:#0b1210;border:1px solid var(--line)}.meter i{position:absolute;left:0;top:0;bottom:0;background:var(--violet)}.meter s{position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--dim)}
 .engage{position:sticky;top:8px;z-index:5;background:var(--panel);border:1px solid var(--amber);padding:9px;display:flex;flex-direction:column;gap:7px}.slider input{width:100%;accent-color:var(--amber)}
 .ghost{color:var(--cyan);font-size:10px}
+#moment{position:fixed;inset:0;z-index:40;background:rgba(3,6,5,.6);display:flex;align-items:center;justify-content:center;padding:16px}#moment[hidden]{display:none}
+.mbox{background:var(--panel);border:1px solid var(--cyan);width:min(760px,96vw);max-height:94vh;overflow:auto;padding:16px 18px;display:flex;flex-direction:column;gap:10px;box-shadow:0 8px 30px rgba(0,0,0,.6)}
+.mh{font:700 12px var(--display);letter-spacing:.16em;color:var(--cyan);text-transform:uppercase}.ml{font-size:14px;line-height:1.5}.mopts{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}@media(max-width:620px){.mopts{grid-template-columns:minmax(0,1fr)}}
+.mopt{display:flex;flex-direction:column;gap:6px;text-align:left;padding:10px 12px;background:#0c1311;border:1px solid var(--line);color:var(--ink);font:13px/1.4 var(--mono);cursor:pointer}.mopt:hover,.mopt:focus-visible{border-color:var(--amber);outline:none}
+.mopt b{font:700 11px var(--display);letter-spacing:.16em}.mopt .q{font-size:14px;color:var(--ink)}.mopt .e{color:var(--dim)}.mopt .w{color:var(--red)}.mopt.t b{color:var(--cyan)}.mopt.l b{color:var(--amber)}.mopt.x b{color:var(--violet)}.mopt.x{grid-column:1/-1}
 .over{position:fixed;inset:0;background:rgba(5,8,7,.94);display:flex;align-items:center;justify-content:center;padding:20px;z-index:20}
 .box{background:var(--panel);border:1px solid var(--amber);max-width:560px;width:100%;padding:18px;display:flex;flex-direction:column;gap:10px}.box h3{margin:0;font:700 24px var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--amber)}
 .reveal{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.reveal span{border:1px solid var(--line);padding:4px;text-align:center}
@@ -317,6 +322,7 @@ body.sweep #stage{box-shadow:inset 0 0 0 4px #ff6b5a}
 <div class="over" id="pausebox" hidden><div class="box"><h3>Paused</h3><div class="help">The displays are blanked. Time is stopped. Press P or Resume.</div><div class="row"><button class="go" id="resume">Resume</button></div></div></div>
 <div id="fx" hidden><div class="fxbox"><div class="fxh" id="fxh"></div><div class="fxm"><canvas id="fxc" width="640" height="320"></canvas><video id="fxv" muted playsinline hidden></video></div><div class="fxb" id="fxb"></div><div class="fxd" id="fxd"></div><div class="row"><button id="fxok" class="fire">Continue <kbd>Space</kbd></button></div></div></div>
 <div class="over" id="over" hidden><div class="box" id="obox"></div></div>
+<div id="moment" hidden role="dialog" aria-modal="true" aria-labelledby="mh"><div class="mbox"><div class="mh" id="mh"></div><div class="ml" id="ml"></div><div class="mopts" id="mopts"></div></div></div>
 <script>
 // Interdict hunt engine v4: REAL TIME with analyst reports. Time unit = game minutes (UI maps real seconds to game minutes).
 // Three analysts (thermal / reactor / occlusion) read contacts on their own schedule; the player directs attention, interprets, locks, tracks, fires.
@@ -350,6 +356,11 @@ const HuntRT = (() => {
     ai.dmgW *= D.punch; ai.missRate *= c; ai.cunning = D.cunning;
     return ai;
   }
+  // Per-contact player modifiers (a.pm), set only by decision moments (web/hunt_rt_template.html, MOMENTS). They change how WE read and
+  // hold one contact and nothing else; an absent a.pm (every headless test, every bot) leaves the engine exactly as before.
+  //   readDone, classNoise, sensR: multipliers on our read threshold, guess noise and read range for this contact
+  //   cap: ceiling on the shown and usable call certainty; confCap: ceiling on position confidence; trackCap: ceiling on a.track inside scan()
+  const pmv = (a, k, d) => (a.pm && a.pm[k] != null ? a.pm[k] : d);
   function makeMe(load) { const me = clone(PLAYER); for (const k of ['id', 'cls', 'name', 'sensor', 'sig', 'sink']) me[k] = load[k]; return me; }   // our ship's profile for one hunt
   function applyPlayer(s, mod = {}) {   // the one door for player-only effects (trims, Pell assists, decision moments). It can reach only s.me; returns any keys it refused
     const bad = []; for (const k in mod.mul || {}) { if (typeof s.me[k] === 'number') s.me[k] *= mod.mul[k]; else bad.push(k); }
@@ -503,7 +514,7 @@ const HuntRT = (() => {
   }
   function infoMult(s, a, ch) {   // how fast one read on this contact teaches us anything
     const p = truePos(a, s.t), d = Math.hypot(p.x - s.player.x, p.y - s.player.y), v = enemyVis(s, a), hot = a.vent ? 1.6 : 1;
-    const sig = ch === 'thermal' ? (0.25 + 0.9 * v) * hot : ch === 'reactor' ? 0.55 + 0.5 * v : 1, R = ch === 'thermal' ? s.me.sensR : ch === 'reactor' ? s.me.sensR * 0.67 : s.me.sensR * 1.3;
+    const sig = ch === 'thermal' ? (0.25 + 0.9 * v) * hot : ch === 'reactor' ? 0.55 + 0.5 * v : 1, R = (ch === 'thermal' ? s.me.sensR : ch === 'reactor' ? s.me.sensR * 0.67 : s.me.sensR * 1.3) * pmv(a, 'sensR', 1);
     return clamp(s.me.sensor * sig * rangeF(d, R) * (blocked(s, s.player, p) ? P.blockM : 1), P.floorM, 2);
   }
   function signal(s, a, ch) {
@@ -523,7 +534,7 @@ const HuntRT = (() => {
     q.num = q.num * k + obs * w; q.den = q.den * k + w; q.t = s.t; q.blind = false; a.lastRead = s.t; return q.num / q.den;
   }
   const TEXT = { thermal: { strong: 'thermal bloom, strong', faint: 'faint thermal, could be nothing', none: 'nothing thermal' }, reactor: { strong: 'neutrino line, steady', faint: 'faint neutrino flutter', none: 'no reactor signature' }, occlusion: { strong: 'starlight blocked, a dark mass', none: 'starlight clear behind it' } };
-  function readIsDone(s, a, ch) { const q = a.read[ch]; return !!q && (q.den >= s.me.readDone || ((!!q.blind || !!q.said) && s.t - q.t < 6)); }   // a blind channel is retried every few minutes
+  function readIsDone(s, a, ch) { const q = a.read[ch]; return !!q && (q.den >= s.me.readDone * pmv(a, 'readDone', 1) || ((!!q.blind || !!q.said) && s.t - q.t < 6)); }   // a blind channel is retried every few minutes
   function doRead(s, who, a, focus) {
     const ch = who.ch, n = a.id + 1, o = obsRead(s, a, ch, focus ? 3 : 1, focus ? 0.22 : 0.45);
     if (o === null) { const q = a.read[ch]; q.t = s.t; if (!q.said) { q.said = true; report(s, who.name, `Contact ${n}: no bright screen behind that bearing. I cannot judge it by occlusion.`, 'info'); } return; }
@@ -533,7 +544,7 @@ const HuntRT = (() => {
     if (a.state === 'locked' && s.rP() < clamp((o.m - s.me.fixLo) / s.me.fixSpan, 0, 1)) { a.track += s.me.focusPeriod * Math.min(1, o.m); scan(s, a, o.m); }   // a read only yields a fix when the trace is strong enough
   }
   function scan(s, a, m = 1) {
-    const q = 1 / Math.sqrt(clamp(m, 0.15, 1.5)), hs = Math.max(0.05, 0.6 - 0.12 * a.track) * q, ss = Math.max(0.06, 0.45 - 0.09 * a.track) * q, p = truePos(a, s.t), vv = velAt(a, s.t);
+    const q = 1 / Math.sqrt(clamp(m, 0.15, 1.5)), tk = Math.min(a.track, pmv(a, 'trackCap', Infinity)), hs = Math.max(0.05, 0.6 - 0.12 * tk) * q, ss = Math.max(0.06, 0.45 - 0.09 * tk) * q, p = truePos(a, s.t), vv = velAt(a, s.t);
     a.anchor = { x: p.x + gauss(s.rP) * 1.2 * q, y: p.y + gauss(s.rP) * 1.2 * q, pe: 1.2 * q, t: s.t, hdg: Math.atan2(vv.vy, vv.vx) + gauss(s.rP) * hs, spd: Math.hypot(vv.vx, vv.vy) * (1 + gauss(s.rP) * ss), hs, ss };
   }
   function estAt(a, tau) { const q = a.anchor; return { x: q.x + Math.cos(q.hdg) * q.spd * tau, y: q.y + Math.sin(q.hdg) * q.spd * tau }; }
@@ -648,7 +659,7 @@ const HuntRT = (() => {
     else if (s.hull < 60 && !s.hullWarned) { s.hullWarned = true; report(s, 'Dace', 'Hull damage is fouling the sensor mounts. Everything reads slower now.', 'bad'); }
   }
   function uncertainty(s, a) {   // how well we know where it is: grows as readings go stale, shrinks as evidence piles up
-    if (a.state === 'locked' && a.anchor) { const sp = spreadAt(a, Math.max(0.01, s.t - a.anchor.t), s.me); const r = Math.max(s.me.uncMin, Math.min(s.me.uncMax, Math.max(sp.cross, sp.along * 0.6))); return { conf: 1 - (r - s.me.uncMin) / (s.me.uncMax - s.me.uncMin), r }; }
+    if (a.state === 'locked' && a.anchor) { const sp = spreadAt(a, Math.max(0.01, s.t - a.anchor.t), s.me); const r = Math.max(s.me.uncMin, Math.min(s.me.uncMax, Math.max(sp.cross, sp.along * 0.6))); return { conf: Math.min(pmv(a, 'confCap', 1), 1 - (r - s.me.uncMin) / (s.me.uncMax - s.me.uncMin)), r }; }
     let c = 0; for (const ch of ['thermal', 'reactor', 'occlusion']) { const q = a.read[ch]; if (q && !q.blind && q.den > 0) c += q.den * Math.exp(-(s.t - q.t) * Math.LN2 / P.halfLife); }
     const conf = Math.min(1, c / s.me.uncDen); return { conf, r: s.me.uncMin + (s.me.uncMax - s.me.uncMin) * Math.pow(1 - conf, 1.2) };
   }
@@ -799,13 +810,14 @@ const HuntRT = (() => {
       const q = a.read[ch]; if (!q) { st[ch] = 'none'; continue; }
       if (q.blind) { st[ch] = 'blind'; n++; continue; }
       if (!(q.den > 0)) { st[ch] = 'none'; continue; }
-      const v = q.num / q.den, sd = (0.45 / Math.sqrt(Math.max(q.den, 0.5)) + 0.06) * s.me.classNoise; if (q.den >= 1) { st[ch] = 'set'; n++; } else st[ch] = 'thin';
+      const v = q.num / q.den, sd = (0.45 / Math.sqrt(Math.max(q.den, 0.5)) + 0.06) * s.me.classNoise * pmv(a, 'classNoise', 1); if (q.den >= 1) { st[ch] = 'set'; n++; } else st[ch] = 'thin';
       for (const k of kinds) { const mu = KMEAN[ch][k], z = (v - mu) / sd; lp[k] += -0.5 * z * z - Math.log(sd); }
     }
     const m = Math.max(...kinds.map(k => lp[k])), w = kinds.map(k => Math.exp(lp[k] - m)), sum = w.reduce((x, y) => x + y, 0), post = {}; kinds.forEach((k, i) => post[k] = w[i] / sum);
     const best = kinds.reduce((b, k) => post[k] > post[b] ? k : b, 'real');
     if (a.idStatus === 'hostile') return { n: Math.max(n, 1), st, post: { real: 1, lure: 0, ghost: 0 }, best: 'real', p: 1 };
-    return { n, st, post, best, p: post[best] };
+    const cap = pmv(a, 'cap', 1); if (post[best] > cap) { const rest = 1 - post[best]; kinds.forEach(k => { post[k] = k === best ? cap : rest > 0 ? post[k] * (1 - cap) / rest : (1 - cap) / 2; }); }   // a hunch call: certainty can't pass the cap
+    return { n, st, post, best, p: post[best], capped: cap < 1 };
   }
   function exposure(s) {   // what is making us easy to find, per game minute (display only; sub() uses the same terms)
     const sq = 1, quiet = s.t < s.quietUntil; let m = POSTURE[s.posture].haz * sq * (s.entry === 'dark' && s.t < s.me.darkWindow ? s.me.darkHaz : 1);
@@ -918,7 +930,7 @@ const HuntRT = (() => {
     s.spool = { at: s.t + s.spoolMin }; report(s, 'Abara', `Breach drive spooling. ${mins(s.spoolMin)} to jump, and the spool is bright on every sensor.`, 'danger', true);
   }
   function setPellAct(s, on) { s.pellAct = !!on && s.integration >= 75; }
-  return { setDifficulty, getDifficulty, DIFFICULTY, applyPlayer, RULES, PLAYER, AI, maneuver, trackState, redlineBurn, navBlocked, reanalyze, investigate, heatRate, visIf, arenaPlan, PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge };
+  return { emit, setDifficulty, getDifficulty, DIFFICULTY, applyPlayer, RULES, PLAYER, AI, maneuver, trackState, redlineBurn, navBlocked, reanalyze, investigate, heatRate, visIf, arenaPlan, PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge };
 })();
 if (typeof module !== 'undefined') module.exports = HuntRT;
 
@@ -1672,6 +1684,77 @@ function applyPellGate() {
   if (TUT) { const m = $('manual'); if (m) { const w = document.createTreeWalker(m, NodeFilter.SHOW_TEXT); let n; while ((n = w.nextNode())) n.nodeValue = n.nodeValue.replace(/\b(Dace|Castellan|Quill|Abara)\b/g, k => crewName(k)).replace('hull damage; Pell speeds it up, and it pauses', 'hull damage. It pauses'); } }
 }
 applyPellGate();
+// ---------- Decision moments (docs/decision_moments.md): in-hunt tight / loose calls. Built: M01 only. ----------
+// Player-only: effects go on one contact's per-contact modifiers (a.pm, read by the engine only for our reads of that contact) and never
+// touch the shared rules or any enemy. The popup holds the hunt through the engine's holdEvents hook: emit() sets s.hold, and the
+// frame loop does not tick while s.hold is set. The meter nudge (command.style) is hidden; the after-action report says one line.
+const MOMENTS = (() => {
+  const R = { perHunt: 3, cooldown: 4, quietStart: 1.5, styleCap: 8, hunchRestart: 1.2 }, CH = ['thermal', 'reactor', 'occlusion'];
+  const off = () => TUT || QS.get('moments') === '0';   // never on the Tern (P2); ?moments=0 switches them off for tests
+  let H = null;
+  const say = (who, text, kind = 'info') => { S.beats++; S.log.push({ t: S.t, who: crewName(who), text, kind, urgent: false }); };
+  const band = () => (DS0 ? DemoState.load().command.band : 'neutral');
+  const CAT = {
+    M01: { key: 'sens.hunch_call', officer: 'Quill', station: 'Sensors and ECM', prio: 5,
+      trigger(s) {
+        if (s.t <= R.quietStart) return null; const open = s.an.filter(a => a.state === 'open' && a.idStatus !== 'plan' && a.idStatus !== 'hostile');
+        if (open.length < 3 || s.an.some(a => a.state === 'locked')) return null; const thr = s.me.readDone;
+        const c = open.filter(a => !a.pm).map(a => { const d = CH.map(ch => a.read[ch]).filter(q => q && !q.blind).map(q => q.den); return { a, top: Math.max(0, ...d), done: d.filter(x => x >= thr).length }; })
+          .filter(o => o.top >= 0.6 * thr && o.done < 2 && E.classify(s, o.a).p < 0.85).sort((x, y) => y.top - x.top)[0];   // only a contact still in doubt is 'shaping into something'
+        return c ? { id: c.a.id } : null;
+      },
+      line: ctx => `Captain. Contact ${ctx.id + 1} is shaping into something. I could give you a call now. It would be a guess with good manners. Or I run the full processors and give you a reading.`,
+      options(ctx) {
+        const b = band(), drilled = /tight/.test(b), o = [
+          { side: 'tight', title: drilled ? 'Already running, Captain.' : 'Run the full processors.', eff: (drilled ? 'The drilled crew has started: the call comes 15% sooner than normal. ' : 'The call comes when two channels finish (normal time). ') + 'Certainty uncapped. Guess noise on this contact x0.85.',
+            pm: { classNoise: 0.85, readDone: drilled ? 0.85 : 1 }, nudge: -3, react: ['Quill', "Thank you, Captain. Ten minutes. You'll have a real one."], trust: 'quill' },
+          { side: 'loose', title: 'Give me your best guess now.', eff: 'The call comes about 40% sooner, and our reads on this contact reach 15% farther. Certainty capped at 70%; guess noise x1.5; a lock on it is a hunch lock (it can never firm up to LOCK).',
+            wrong: 'a wrong guess becomes a chase, and the full reading takes 20% longer than it would have.', pm: { readDone: 0.6, sensR: 1.15, cap: 0.7, classNoise: 1.5, confCap: 0.7, trackCap: 1.5, hunch: true }, nudge: 3, react: ['Castellan', "Atta girl. Gut's a sensor too."], look: "(Quill's pen stops.)" }];
+        if (/loose/.test(b)) o.push({ side: 'loose', third: true, who: 'Castellan', title: "Captain, I've got an idea, but it's outside the box. Let me read the reactor line by ear.", eff: 'Faster again: the call comes about half way through a normal read, at 15% more range. Certainty capped at 55%; guess noise x1.6; hunch lock.',
+          wrong: 'more wrong calls than Quill\'s guess, and the full reading still has to start over.', pm: { readDone: 0.5, sensR: 1.15, cap: 0.55, classNoise: 1.6, confCap: 0.55, trackCap: 1.5, hunch: true }, nudge: 3, react: ['Castellan', 'Shh. Listen. ...Yeah. That\'s a ship, or I\'m a teapot.'], look: "(Quill's pen stops.)" });
+        if (pellLive() && S.integration >= 10) o.push({ side: 'pell', third: true, who: 'Pell', title: 'Let Pell trim the classifier.', eff: "Pell: \"I can make the classifier faster and not wrong. That's the whole pitch. Also it's me.\" The call comes 20% sooner, certainty uncapped. Costs integration +3 (the shallow link caps it at 24) and Quill's trust.",
+          pm: { readDone: 0.8 }, nudge: 0, pell: 3, trustCost: ['quill', -2], react: ['Pell', 'Asked and answered. Thank you for asking.'] });
+        return o;
+      } } };
+  function reset(s) { H = { n: 0, fired: {}, by: {}, lastT: null, moved: 0, trusted: {}, open: null, picks: [] }; if (!off()) s.holdEvents = true; }
+  function allowed(s, k, m) {
+    if (off() || !H || H.open || s.over || s.spool) return false;   // no popup while a spool is ordered or running
+    if (H.n >= R.perHunt || H.fired[k] || (H.by[m.officer] || 0) >= (m.officer === 'Abara' ? 2 : 1)) return false;
+    return s.t > R.quietStart && (H.lastT == null || s.t - H.lastT >= R.cooldown);
+  }
+  function check(s) {
+    if (!H || off()) return;
+    for (const a of s.an) if (a.pm && a.pm.hunch && CH.filter(ch => a.read[ch] && !a.read[ch].blind && a.read[ch].den >= s.me.readDone * R.hunchRestart).length >= 2) {   // the full processors caught up: the cap lifts
+      a.pm = null; say('Quill', `Full processors on contact ${a.id + 1}. That's a reading now, not a guess. The cap is off.`, 'good'); }
+    if (H.open) return;
+    const cands = Object.entries(CAT).filter(([k, m]) => allowed(s, k, m)).map(([k, m]) => ({ k, m, ctx: m.trigger(s) })).filter(c => c.ctx).sort((x, y) => y.m.prio - x.m.prio);
+    if (!cands.length) return; const c = cands[0];
+    H.open = c; H.fired[c.k] = true; H.n++; H.by[c.m.officer] = (H.by[c.m.officer] || 0) + 1; H.lastT = s.t;
+    E.emit(s, { kind: 'moment', id: c.k, ctx: c.ctx });   // holdEvents: this sets s.hold, so the hunt stops until the captain chooses
+  }
+  function show() {
+    const c = H && H.open; if (!c) return; const m = c.m, opts = m.options(c.ctx); c.opts = opts;
+    $('mh').textContent = crewName(m.officer) + ' · ' + m.station; $('ml').textContent = crewName(m.officer).toUpperCase() + ': ' + m.line(c.ctx);
+    $('mopts').innerHTML = opts.map((o, i) => `<button type="button" class="mopt ${o.third ? 'x' : o.side === 'tight' ? 't' : 'l'}" data-i="${i}"><b>${o.third ? (o.side === 'pell' ? 'PELL' : 'LOOSE · ' + o.who.toUpperCase()) : o.side.toUpperCase()}</b><span class="q">${cesc(o.title)}</span><span class="e">${cesc(o.eff)}</span>${o.wrong ? `<span class="w">If it goes wrong: ${cesc(o.wrong)}</span>` : ''}</button>`).join('');
+    $('mopts').querySelectorAll('button').forEach(b => b.onclick = () => choose(+b.dataset.i)); $('moment').hidden = false; const f = $('mopts').querySelector('button'); if (f) f.focus();
+  }
+  function choose(i) {
+    const c = H.open; if (!c) return; if (!c.opts) c.opts = c.m.options(c.ctx); const o = c.opts[i], a = S.an[c.ctx.id]; if (!o) return;
+    a.pm = Object.assign({}, o.pm); H.picks.push({ k: c.k, side: o.side, contact: a.id });
+    if (o.pell) { S.integration = Math.min(Math.max(DS0.pell.integration_cap || 24, T0), S.integration + o.pell); S.linkUsed = true; }
+    const d = Math.sign(o.nudge) * Math.min(Math.abs(o.nudge), R.styleCap - H.moved);   // at most 8 points of command.style per hunt
+    DemoState.update(st => { if (d) DemoState.nudgeStyle(st, d); if (o.trust && !H.trusted[o.trust]) { H.trusted[o.trust] = true; st.trust[o.trust] = (st.trust[o.trust] || 0) + 1; } if (o.trustCost) st.trust[o.trustCost[0]] = (st.trust[o.trustCost[0]] || 0) + o.trustCost[1]; st.moments[c.k] = (st.moments[c.k] || 0) + 1; });
+    H.moved += Math.abs(d);
+    if (o.react) say(o.react[0], o.react[1], 'good'); if (o.look) say('Quill', o.look);
+    H.open = null; $('moment').hidden = true; S.hold = false; uiUpdate(true);
+  }
+  function afterAction() {
+    if (!H || !H.picks.length) return ''; const L = H.picks.filter(p => p.side === 'loose').length, T = H.picks.filter(p => p.side === 'tight').length, Pe = H.picks.filter(p => p.side === 'pell').length;
+    const q = crewName('Quill'), line = L ? `The crew noticed you let ${q} run on instinct${L > 1 ? ' ' + L + ' times' : ''}.` : T ? `The crew noticed you had ${q} run the full processors.` : `The crew noticed you let Pell into the classifier.`;
+    return `<div class="help">${line}</div>`;
+  }
+  return { reset, check, show, choose, afterAction, get open() { return !!(H && H.open); }, get book() { return H; }, CAT, R };
+})();
 let tscale = 1, VX = 0, VY = 0, VZ = 1, follow = false, dragged = false, view = 'tac', hist = [], fires = [], trail = [], planEdit = false, mapG = null, SC = 1;
 let ammo = 'he', homing = false, S = null, paused = false, engageId = null, cone = 8, aimL = null, built = false, feedN = 0, lastUi = 0, lastHp = 0, savedInteg = 0, T0 = 0;
 if (PELL_UI) try { savedInteg = +localStorage.getItem('interdict_integration') || 0; } catch (e) {}   // before 1.6b every hunt starts at 0
@@ -1704,7 +1787,7 @@ function drawBrief() {
 $('bmap').addEventListener('click', e => { const c = $('bmap'), r = c.getBoundingClientRect(), k = c.width / P.arena, x = (e.clientX - r.left) * c.width / r.width, y = (e.clientY - r.top) * c.height / r.height; const hit = brief.route.findIndex(w => Math.hypot(w.x * k - x, w.y * k - y) < 12); if (hit >= 0) brief.route.splice(hit, 1); else brief.route.push({ x: Math.max(6, Math.min(P.arena - 6, x / k)), y: Math.max(6, Math.min(P.arena - 6, y / k)) }); drawBrief(); });
 $('bundo').onclick = () => { brief.route.pop(); drawBrief(); }; $('bclear').onclick = () => { brief.route = []; drawBrief(); };
 $('begin').onclick = () => { $('brief').hidden = true; briefing = false; begin(); };
-function begin() { P.secPerMin = 16; fxOn = null; fxQ = []; $("fx").hidden = true; MZ = 1; VZ = 3; follow = true; $('zfollow').classList.add('on'); MCX = MCY = P.arena / 2; S = E.newHunt(brief.seed, { nreal: brief.nreal, integration: savedInteg, friendly: brief.ally, entry: brief.entry, speed: brief.speed, route: brief.route.map(w => ({ x: w.x, y: w.y })) }); HuntTrims.applyShip(S, TRIMS_ON); trimBadge(); T0 = savedInteg; engageId = null; aimL = null; hist = []; fires = []; trail = []; planEdit = false; feedN = 0; $('feed').innerHTML = ''; setView('tac'); $('over').hidden = true; $('pell').checked = false; build(); applyPellGate(); uiUpdate(true); }
+function begin() { P.secPerMin = 16; fxOn = null; fxQ = []; $("fx").hidden = true; MZ = 1; VZ = 3; follow = true; $('zfollow').classList.add('on'); MCX = MCY = P.arena / 2; S = E.newHunt(brief.seed, { nreal: brief.nreal, integration: savedInteg, friendly: brief.ally, entry: brief.entry, speed: brief.speed, route: brief.route.map(w => ({ x: w.x, y: w.y })) }); HuntTrims.applyShip(S, TRIMS_ON); MOMENTS.reset(S); trimBadge(); T0 = savedInteg; engageId = null; aimL = null; hist = []; fires = []; trail = []; planEdit = false; feedN = 0; $('feed').innerHTML = ''; setView('tac'); $('over').hidden = true; $('pell').checked = false; build(); applyPellGate(); uiUpdate(true); }
 function seg(host, items, cur, on) { host.innerHTML = ''; items.forEach(([v, text, tip]) => { const l = document.createElement('label'); const i = document.createElement('input'); i.type = 'radio'; i.name = host.id; i.dataset.v = v; i.checked = v === cur; i.onchange = () => on(v); const sp = document.createElement('span'); sp.textContent = text; l.title = tip || ''; l.append(i, sp); host.append(l); }); }
 const CH = { thermal: { n: 'Heat', col: '#ff8a4c', tip: 'Heat: how hot the contact runs (Dace)' }, reactor: { n: 'Reactor', col: '#6fc3d0', tip: 'Reactor: neutrino line (Castellan)' }, occlusion: { n: 'Visual', col: '#b79cff', tip: 'Visual: a silhouette against a bright backdrop (Quill). It only works when the contact is backlit by the star or a bright body.' } };
 function build() {
@@ -1987,7 +2070,7 @@ function lootHtml() {
 function endScreen() {
   if (S.endShown || briefing) return; S.endShown = true; const win = S.over === 'win', brk = S.over !== 'found' && !win; $('over').hidden = false; save(); try { savedInteg = S.integration; } catch (e) {}
   if (!TUT) DemoState.update(st => { st.hunts = (st.hunts || 0) + 1; if (S.linkUsed) st.pell.link_recent = (st.pell.link_recent || 0) + 1; st.last_hunt = { hull: Math.round(S.hull), over: S.over }; });   // hunts and recent link use feed the dock inspection roll
-  $('obox').innerHTML = `<h3>${win ? (S.nreal > 1 ? 'All enemy ships crippled' : 'Enemy ship crippled') : brk ? 'Contact broken' : 'Contact lost'}</h3><div>${win ? 'Nobody died, the salvage is yours.' : (S.disabled ? 'Breach drive spins up. You get away with ' + S.disabled + ' of ' + S.nreal + ' ships crippled and the salvage you can carry.' : 'Breach drive spins up. You come home without a ship, but with a sensor log worth something.')} ${S.t.toFixed(1)} game minutes, ${S.beats} reports.</div>${PELL_UI ? `<div class="help">Pell integration: ${Math.round(T0)}% to ${Math.round(S.integration)}%. It carries over to your next hunt.</div>` : ''}${lootHtml()}<div class="help">What was really out there:</div><div class="reveal">${S.an.map(a => `<span>${a.id + 1}: ${a.kind}${a.kind === 'real' ? '<br>' + a.load.name : ''}<br>grid ${a.grid}</span>`).join('')}</div><div class="row"><button class="go" id="again">Hunt again</button><button id="close">Look at the screen</button></div>`;
+  $('obox').innerHTML = `<h3>${win ? (S.nreal > 1 ? 'All enemy ships crippled' : 'Enemy ship crippled') : brk ? 'Contact broken' : 'Contact lost'}</h3><div>${win ? 'Nobody died, the salvage is yours.' : (S.disabled ? 'Breach drive spins up. You get away with ' + S.disabled + ' of ' + S.nreal + ' ships crippled and the salvage you can carry.' : 'Breach drive spins up. You come home without a ship, but with a sensor log worth something.')} ${S.t.toFixed(1)} game minutes, ${S.beats} reports.</div>${MOMENTS.afterAction()}${PELL_UI ? `<div class="help">Pell integration: ${Math.round(T0)}% to ${Math.round(S.integration)}%. It carries over to your next hunt.</div>` : ''}${lootHtml()}<div class="help">What was really out there:</div><div class="reveal">${S.an.map(a => `<span>${a.id + 1}: ${a.kind}${a.kind === 'real' ? '<br>' + a.load.name : ''}<br>grid ${a.grid}</span>`).join('')}</div><div class="row"><button class="go" id="again">Hunt again</button><button id="close">Look at the screen</button></div>`;
   $('again').onclick = () => start(); $('close').onclick = () => { $('over').hidden = true; };
 }
 function openMenu(id, mx, my) {
@@ -2054,7 +2137,8 @@ function fxClass(ev) {   // 0 miss, 1 shrapnel, 2 medium, 3 destroyed
   const r = ev.res.find(q => q.main); if (!r) return null; if (r.result === 'cripple') return 3; if (!r.n) return 0; if (ev.ammo !== 'he') return r.dmg < 12 ? 1 : 2; return r.dmg / (r.max || 100) < 0.18 ? 1 : 2;
 }
 function pumpFx(now) {
-  if (S.events.length) { fxQ.push(...S.events.splice(0)); }
+  if (S.events.length) { const evs = S.events.splice(0); if (evs.some(e => e.kind === 'moment')) MOMENTS.show(); fxQ.push(...evs.filter(e => e.kind !== 'moment')); }
+  if (S.hold && !MOMENTS.open) S.hold = false;   // with holdEvents on, every emit sets s.hold; only an open moment keeps it
   if (fxOn) { if (now - fxOn.t0 > (fxOn.clip ? 11000 : 6500)) closeFx(); return; }
   if (!fxQ.length || paused || briefing) return;
   const ev = fxQ.shift(), cl = fxClass(ev); if (cl == null) return;
@@ -2101,10 +2185,11 @@ function drawFx(now) {
   g.strokeStyle = 'rgba(255,230,184,.25)'; g.setLineDash([3, 4]); g.beginPath(); g.arc(cxs, cys, R * sc, 0, 7); g.stroke(); g.setLineDash([]); g.fillStyle = 'rgba(160,180,170,.6)'; g.font = '10px IBM Plex Mono, monospace'; g.fillText('blast radius', cxs + R * sc * 0.7, cys - R * sc * 0.75);
   if (t > 2.6 && !$('fxb').textContent) $('fxb').textContent = $('fxb').dataset.txt;
 }
+function stepGame(dt) { if (!paused && !briefing && !S.over && !fxOn && !S.hold) { E.tick(S, dt); MOMENTS.check(S); } }   // s.hold: a decision moment is up
 function frame(now) {
   if (!S) { requestAnimationFrame(frame); return; }
   const dtReal = Math.min(0.25, (now - last) / 1000); last = now;
-  pumpFx(now); if (!paused && !briefing && !S.over && !fxOn) E.tick(S, dtReal / P.secPerMin * tscale);
+  pumpFx(now); stepGame(dtReal / P.secPerMin * tscale);
   if (now - lastUi > 150) { lastUi = now; uiUpdate(); if (engageId != null) { const hp = now - lastHp > 900; if (hp) lastHp = now; engUpdate(hp); } }
   if (!paused) draw(); drawFx(now); requestAnimationFrame(frame);
 }

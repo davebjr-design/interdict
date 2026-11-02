@@ -30,6 +30,11 @@ const HuntRT = (() => {
     ai.dmgW *= D.punch; ai.missRate *= c; ai.cunning = D.cunning;
     return ai;
   }
+  // Per-contact player modifiers (a.pm), set only by decision moments (web/hunt_rt_template.html, MOMENTS). They change how WE read and
+  // hold one contact and nothing else; an absent a.pm (every headless test, every bot) leaves the engine exactly as before.
+  //   readDone, classNoise, sensR: multipliers on our read threshold, guess noise and read range for this contact
+  //   cap: ceiling on the shown and usable call certainty; confCap: ceiling on position confidence; trackCap: ceiling on a.track inside scan()
+  const pmv = (a, k, d) => (a.pm && a.pm[k] != null ? a.pm[k] : d);
   function makeMe(load) { const me = clone(PLAYER); for (const k of ['id', 'cls', 'name', 'sensor', 'sig', 'sink']) me[k] = load[k]; return me; }   // our ship's profile for one hunt
   function applyPlayer(s, mod = {}) {   // the one door for player-only effects (trims, Pell assists, decision moments). It can reach only s.me; returns any keys it refused
     const bad = []; for (const k in mod.mul || {}) { if (typeof s.me[k] === 'number') s.me[k] *= mod.mul[k]; else bad.push(k); }
@@ -183,7 +188,7 @@ const HuntRT = (() => {
   }
   function infoMult(s, a, ch) {   // how fast one read on this contact teaches us anything
     const p = truePos(a, s.t), d = Math.hypot(p.x - s.player.x, p.y - s.player.y), v = enemyVis(s, a), hot = a.vent ? 1.6 : 1;
-    const sig = ch === 'thermal' ? (0.25 + 0.9 * v) * hot : ch === 'reactor' ? 0.55 + 0.5 * v : 1, R = ch === 'thermal' ? s.me.sensR : ch === 'reactor' ? s.me.sensR * 0.67 : s.me.sensR * 1.3;
+    const sig = ch === 'thermal' ? (0.25 + 0.9 * v) * hot : ch === 'reactor' ? 0.55 + 0.5 * v : 1, R = (ch === 'thermal' ? s.me.sensR : ch === 'reactor' ? s.me.sensR * 0.67 : s.me.sensR * 1.3) * pmv(a, 'sensR', 1);
     return clamp(s.me.sensor * sig * rangeF(d, R) * (blocked(s, s.player, p) ? P.blockM : 1), P.floorM, 2);
   }
   function signal(s, a, ch) {
@@ -203,7 +208,7 @@ const HuntRT = (() => {
     q.num = q.num * k + obs * w; q.den = q.den * k + w; q.t = s.t; q.blind = false; a.lastRead = s.t; return q.num / q.den;
   }
   const TEXT = { thermal: { strong: 'thermal bloom, strong', faint: 'faint thermal, could be nothing', none: 'nothing thermal' }, reactor: { strong: 'neutrino line, steady', faint: 'faint neutrino flutter', none: 'no reactor signature' }, occlusion: { strong: 'starlight blocked, a dark mass', none: 'starlight clear behind it' } };
-  function readIsDone(s, a, ch) { const q = a.read[ch]; return !!q && (q.den >= s.me.readDone || ((!!q.blind || !!q.said) && s.t - q.t < 6)); }   // a blind channel is retried every few minutes
+  function readIsDone(s, a, ch) { const q = a.read[ch]; return !!q && (q.den >= s.me.readDone * pmv(a, 'readDone', 1) || ((!!q.blind || !!q.said) && s.t - q.t < 6)); }   // a blind channel is retried every few minutes
   function doRead(s, who, a, focus) {
     const ch = who.ch, n = a.id + 1, o = obsRead(s, a, ch, focus ? 3 : 1, focus ? 0.22 : 0.45);
     if (o === null) { const q = a.read[ch]; q.t = s.t; if (!q.said) { q.said = true; report(s, who.name, `Contact ${n}: no bright screen behind that bearing. I cannot judge it by occlusion.`, 'info'); } return; }
@@ -213,7 +218,7 @@ const HuntRT = (() => {
     if (a.state === 'locked' && s.rP() < clamp((o.m - s.me.fixLo) / s.me.fixSpan, 0, 1)) { a.track += s.me.focusPeriod * Math.min(1, o.m); scan(s, a, o.m); }   // a read only yields a fix when the trace is strong enough
   }
   function scan(s, a, m = 1) {
-    const q = 1 / Math.sqrt(clamp(m, 0.15, 1.5)), hs = Math.max(0.05, 0.6 - 0.12 * a.track) * q, ss = Math.max(0.06, 0.45 - 0.09 * a.track) * q, p = truePos(a, s.t), vv = velAt(a, s.t);
+    const q = 1 / Math.sqrt(clamp(m, 0.15, 1.5)), tk = Math.min(a.track, pmv(a, 'trackCap', Infinity)), hs = Math.max(0.05, 0.6 - 0.12 * tk) * q, ss = Math.max(0.06, 0.45 - 0.09 * tk) * q, p = truePos(a, s.t), vv = velAt(a, s.t);
     a.anchor = { x: p.x + gauss(s.rP) * 1.2 * q, y: p.y + gauss(s.rP) * 1.2 * q, pe: 1.2 * q, t: s.t, hdg: Math.atan2(vv.vy, vv.vx) + gauss(s.rP) * hs, spd: Math.hypot(vv.vx, vv.vy) * (1 + gauss(s.rP) * ss), hs, ss };
   }
   function estAt(a, tau) { const q = a.anchor; return { x: q.x + Math.cos(q.hdg) * q.spd * tau, y: q.y + Math.sin(q.hdg) * q.spd * tau }; }
@@ -328,7 +333,7 @@ const HuntRT = (() => {
     else if (s.hull < 60 && !s.hullWarned) { s.hullWarned = true; report(s, 'Dace', 'Hull damage is fouling the sensor mounts. Everything reads slower now.', 'bad'); }
   }
   function uncertainty(s, a) {   // how well we know where it is: grows as readings go stale, shrinks as evidence piles up
-    if (a.state === 'locked' && a.anchor) { const sp = spreadAt(a, Math.max(0.01, s.t - a.anchor.t), s.me); const r = Math.max(s.me.uncMin, Math.min(s.me.uncMax, Math.max(sp.cross, sp.along * 0.6))); return { conf: 1 - (r - s.me.uncMin) / (s.me.uncMax - s.me.uncMin), r }; }
+    if (a.state === 'locked' && a.anchor) { const sp = spreadAt(a, Math.max(0.01, s.t - a.anchor.t), s.me); const r = Math.max(s.me.uncMin, Math.min(s.me.uncMax, Math.max(sp.cross, sp.along * 0.6))); return { conf: Math.min(pmv(a, 'confCap', 1), 1 - (r - s.me.uncMin) / (s.me.uncMax - s.me.uncMin)), r }; }
     let c = 0; for (const ch of ['thermal', 'reactor', 'occlusion']) { const q = a.read[ch]; if (q && !q.blind && q.den > 0) c += q.den * Math.exp(-(s.t - q.t) * Math.LN2 / P.halfLife); }
     const conf = Math.min(1, c / s.me.uncDen); return { conf, r: s.me.uncMin + (s.me.uncMax - s.me.uncMin) * Math.pow(1 - conf, 1.2) };
   }
@@ -479,13 +484,14 @@ const HuntRT = (() => {
       const q = a.read[ch]; if (!q) { st[ch] = 'none'; continue; }
       if (q.blind) { st[ch] = 'blind'; n++; continue; }
       if (!(q.den > 0)) { st[ch] = 'none'; continue; }
-      const v = q.num / q.den, sd = (0.45 / Math.sqrt(Math.max(q.den, 0.5)) + 0.06) * s.me.classNoise; if (q.den >= 1) { st[ch] = 'set'; n++; } else st[ch] = 'thin';
+      const v = q.num / q.den, sd = (0.45 / Math.sqrt(Math.max(q.den, 0.5)) + 0.06) * s.me.classNoise * pmv(a, 'classNoise', 1); if (q.den >= 1) { st[ch] = 'set'; n++; } else st[ch] = 'thin';
       for (const k of kinds) { const mu = KMEAN[ch][k], z = (v - mu) / sd; lp[k] += -0.5 * z * z - Math.log(sd); }
     }
     const m = Math.max(...kinds.map(k => lp[k])), w = kinds.map(k => Math.exp(lp[k] - m)), sum = w.reduce((x, y) => x + y, 0), post = {}; kinds.forEach((k, i) => post[k] = w[i] / sum);
     const best = kinds.reduce((b, k) => post[k] > post[b] ? k : b, 'real');
     if (a.idStatus === 'hostile') return { n: Math.max(n, 1), st, post: { real: 1, lure: 0, ghost: 0 }, best: 'real', p: 1 };
-    return { n, st, post, best, p: post[best] };
+    const cap = pmv(a, 'cap', 1); if (post[best] > cap) { const rest = 1 - post[best]; kinds.forEach(k => { post[k] = k === best ? cap : rest > 0 ? post[k] * (1 - cap) / rest : (1 - cap) / 2; }); }   // a hunch call: certainty can't pass the cap
+    return { n, st, post, best, p: post[best], capped: cap < 1 };
   }
   function exposure(s) {   // what is making us easy to find, per game minute (display only; sub() uses the same terms)
     const sq = 1, quiet = s.t < s.quietUntil; let m = POSTURE[s.posture].haz * sq * (s.entry === 'dark' && s.t < s.me.darkWindow ? s.me.darkHaz : 1);
@@ -598,6 +604,6 @@ const HuntRT = (() => {
     s.spool = { at: s.t + s.spoolMin }; report(s, 'Abara', `Breach drive spooling. ${mins(s.spoolMin)} to jump, and the spool is bright on every sensor.`, 'danger', true);
   }
   function setPellAct(s, on) { s.pellAct = !!on && s.integration >= 75; }
-  return { setDifficulty, getDifficulty, DIFFICULTY, applyPlayer, RULES, PLAYER, AI, maneuver, trackState, redlineBurn, navBlocked, reanalyze, investigate, heatRate, visIf, arenaPlan, PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge };
+  return { emit, setDifficulty, getDifficulty, DIFFICULTY, applyPlayer, RULES, PLAYER, AI, maneuver, trackState, redlineBurn, navBlocked, reanalyze, investigate, heatRate, visIf, arenaPlan, PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge };
 })();
 if (typeof module !== 'undefined') module.exports = HuntRT;
