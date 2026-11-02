@@ -49,7 +49,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     <div id="por">&middot;</div>
     <div><div id="nm">Ship log</div><div id="tx">The Tern's control room. Captain Ostrow keeps her ship painted, stowed and quiet. You're the probationary hand, and you're late for the briefing at the chart table.</div><div id="fx"></div><div id="ch"></div></div>
   </div>
-  <div class="row"><button id="grid" type="button">Show walk grid</button><button id="reset" type="button">Restart at the Tern</button><button id="skip" type="button">Skip to Corvane's ship</button><button id="hunt" type="button">Run a hunt</button><span id="trimline" class="note"></span></div>
+  <div class="row"><button id="grid" type="button">Show walk grid</button><button id="reset" type="button">Restart at the Tern</button><button id="skip" type="button">Skip to Corvane's ship</button><button id="hunt" type="button">Run a hunt</button><label class="note" style="margin-left:10px">Your name <input id="pname" type="text" maxlength="12" size="10" placeholder="Rookie" style="width:90px"></label><span id="trimline" class="note"></span></div>
   <p class="note">Hull revision 2: all twelve compartments are walkable. They chain end to end through bulkhead hatches, with ladders between decks at the junction and in engineering. Every room is scaled to the same walk-cell size, so the captain stays the same size throughout and the view only zooms enough to fill the stage. Room art is generated from the submarine brief in docs/room_art_brief_v2.md and keyed from magenta. Crew are Meshy models rendered to sprite sheets, drawn at 90% of a hatch height. Light flicker is drawn in code over the still art. Walk grids are fitted by hand; use Show walk grid to check them.</p>
 </div>
 
@@ -165,7 +165,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     if (!(key(...t) in prev)) return null; const p = []; let c = t; while (c) { p.unshift(c); c = prev[key(...c)]; } return p;
   }
 
-  const me = { steps: [], alpha: 1, i: 7, j: 7, x: 0, y: 0, path: [], then: null, col: '#8fd694', name: 'Captain', dir: 'sw', sprite: true, sc: 0.63 };
+  const me = { steps: [], alpha: 1, i: 7, j: 7, x: 0, y: 0, path: [], then: null, col: '#8fd694', name: 'You', dir: 'sw', sprite: true, sc: 0.63 };
   let npcs = [];
   const MANIFOLD = { rect: [335, 62, 430, 152], stand: [5, 1] };
   let done = false, insp = 0, show = false, hover = null, hoverCell = null, dlg = false, fade = 0, fadeDir = 0, pending = null;
@@ -271,7 +271,12 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       { t: 'Look around first', fn: () => say('Ship log', 'Suit lockers, a bench, the trunk down. Nothing here needs you. The hatch will wait; Dunne might not.', '', [{ t: 'Continue', fn: close }]) }]);
   }
   function startBoarding() { setJob('BOARDING', 'Board Corvane\'s ship', true); say('Ship log', "Dunne cycles the lock. The hatch opens onto a warm, dim bridge lit amber from a pedestal at its center, a teapot, four cups, already poured. [Full game: the standoff (P3) and the blessing (P4) play here.]", '', [{ t: 'Continue', fn: () => { close(); toCorvane(); } }]); }
-  function toCorvane() { setRoom('control', [12, 2]); setJob('MECHANICAL', 'Walk the ship, bow to stern, both decks'); say('Ship log', ROOMS.control.blurb, '', []); }
+  // the player's name: plain until the handover on Corvane's bridge, then 'Cptn.' in front (names are limited to 12 characters)
+  const pnameBase = () => { let v = ''; try { v = ($('pname').value || localStorage.getItem('interdict.pname') || '').replace(/[^\w .'-]/g, '').trim().slice(0, 12); } catch (e) {} return v; };
+  const setMeName = capt => { const v = pnameBase(); me.name = capt ? 'Cptn. ' + (v || 'You') : (v || 'You'); try { localStorage.setItem('interdict.pname', v); } catch (e) {} };
+  try { $('pname').value = localStorage.getItem('interdict.pname') || ''; } catch (e) {}
+  $('pname').oninput = () => setMeName(me.name.indexOf('Cptn.') === 0);
+  function toCorvane() { setMeName(true); setRoom('control', [12, 2]); setJob('MECHANICAL', 'Walk the ship, bow to stern, both decks'); say('Ship log', ROOMS.control.blurb, '', []); }
   function afterInspect() {
     say('Castellan', 'The coupling seats fine. Behind it there is a hairline crack in the manifold. Patch it now and we lose four minutes at the next stop. Leave it and I will watch it.', '', [
       { t: 'Patch it now.', fn: () => { done = true; $('job').classList.add('done'); say('Castellan', 'Four minutes. I will have it welded before the next jump.', 'Transit +4:00. Heat sinks fill at the normal rate.', [{ t: 'Continue', fn: close }]); } },
@@ -307,7 +312,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     const c = pick(x, y); if (free(...c)) go(c, null);
   });
   $('grid').onclick = () => { show = !show; $('grid').textContent = show ? 'Hide walk grid' : 'Show walk grid'; };
-  $('reset').onclick = () => { insp = 0; briefed = false; hunted = false; amesTalked = false; ROOMS.tern_junction.npcs = ROOMS.tern_junction.npcs.filter(n => n.name !== 'Ames'); if (!ROOMS.tern_control.npcs.some(n => n.name === 'Ames')) ROOMS.tern_control.npcs.push({ name: 'Ames', col: '#c7d9a8', cell: [7, 4] }); setRoom('tern_control', [12, 2]); setJob('BRIEFING', 'Report to Captain Ostrow at the chart table'); say('Ship log', ROOMS.tern_control.blurb, '', []); };
+  $('reset').onclick = () => { setMeName(false); insp = 0; briefed = false; hunted = false; amesTalked = false; ROOMS.tern_junction.npcs = ROOMS.tern_junction.npcs.filter(n => n.name !== 'Ames'); if (!ROOMS.tern_control.npcs.some(n => n.name === 'Ames')) ROOMS.tern_control.npcs.push({ name: 'Ames', col: '#c7d9a8', cell: [7, 4] }); setRoom('tern_control', [12, 2]); setJob('BRIEFING', 'Report to Captain Ostrow at the chart table'); say('Ship log', ROOMS.tern_control.blurb, '', []); };
   $('skip').onclick = () => { insp = 0; briefed = true; hunted = true; moveAmes(); toCorvane(); };
   if (location.hash === '#after_hunt') { setTimeout(afterHunt, 50); }
   if (!PITCHES_LIVE) putTrims([]);   // no stale trims leaking into hunts

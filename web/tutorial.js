@@ -49,7 +49,7 @@
   }
   function director(s) {
     if (done || !C) return;
-    if (s.over || C.hp <= C.hpMax * 0.6 || s.hull < 45) { surrender(s); return; }
+    if (s.over || C.hp <= C.hpMax * 0.6 || s.hull < 45 || s.shots >= 8) { surrender(s); return; }   // the tutorial cannot be failed
     const st = STEPS[step]; if (st && st.done && st.done(s)) { step++; }
     if (step !== shown) render();
   }
@@ -62,9 +62,10 @@
       '<div style="margin-top:12px;display:flex;justify-content:flex-end"><button id="tutdone" type="button">Report to the airlock</button></div>';
     document.getElementById('tutdone').onclick = () => { location.href = RET + '#after_hunt'; };
   }
+  function hideEscapes() { ['brk', 'quiet'].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; }); }   // no breach drive or running quiet in the tutorial
   function hidePell() {   // the Tern runs on clockwork: no AI controls
     document.querySelectorAll('div,span,b,i').forEach(el => { const tx = (el.textContent || '').trim(); if ((el.childElementCount === 0 && /^(PELL ASSIST|PELL ACTS|INTEGRATION|PELL)$/.test(tx)) || (el.id === 'integ' || el.id === 'integtxt')) { const c = el.parentElement; if (c) c.style.visibility = 'hidden'; } });
   }
   // skip the briefing screen and start straight away
-  setTimeout(() => { try { brief.seed = 4242; brief.nreal = 1; brief.ally = false; brief.entry = 'standard'; brief.speed = 'v2'; brief.route = []; document.getElementById('brief').hidden = true; briefing = false; begin(); render(); hidePell(); setTimeout(hidePell, 400); } catch (e) { console.error(e); } }, 60);
+  setTimeout(() => { try { brief.seed = 4242; brief.nreal = 1; brief.ally = false; brief.entry = 'standard'; brief.speed = 'v2'; brief.route = []; document.getElementById('brief').hidden = true; briefing = false; begin(); render(); hidePell(); hideEscapes(); setTimeout(hidePell, 400); } catch (e) { console.error(e); } }, 60);
 })();
