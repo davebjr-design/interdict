@@ -10,7 +10,7 @@ var HuntTrims = (function () {
     'heat.bigger_sink':     { label: 'Plumb the reserve tanks', me: { sink: 1.20 }, P: { ventFull: 1.20 } },
     'heat.fast_fins':       { label: 'Fast fins', P: { ventFull: 0.75 }, set: { ventAfterglow: 0.5 } },
     'heat.cold_analysts':   { label: 'Cold analysts', P: { glowFocus: 0.70, glowTrack: 0.70, readDone: 1.15 } },
-    'sens.long_ears':       { label: 'Long ears', P: { sensRef: 1.15, readDone: 1.12 } },
+    'sens.long_ears':       { label: 'Long ears', P: { sensR: 1.15, readDone: 1.12 } },   // scales the range of our three channels only (enemies use P.foeSensR)
     'sens.snap_classifier': { label: 'Snap classifier', P: { readDone: 0.80, classNoise: 1.5 } },
     'sens.narrow_ping':     { label: 'Narrow ping', P: { pingGlow: 0.5, pingAlert: 0.6 }, set: { pingRounds: 2 } },
     'tac.tight_drill':      { label: 'Drill the solution', P: { solveMin: 0.80, solveMax: 0.80, leadSpread: 1.15 } },
