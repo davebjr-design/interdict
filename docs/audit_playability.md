@@ -10,6 +10,10 @@ Independent review of the walk demo (`design/proto_iso.html`), the hunt console 
 
 One blocker, seventeen should-fix, nine polish. Fix order suggestion: 1, 2, 3, 4, 5, 6, then the narrative should-fixes (12-19) before the dialogue runner (C.1 in `act1_completion_plan.md`) locks them into Ink.
 
+
+## Status at 2026-11-02 (after the tutorial, walk-demo, Pell-gate, dock and M01 pass)
+Fixed: 1-6 (tutorial), 9-11 and 13 (walk demo), 12 (earlier), 23 (Pell copy and gating), 26 (earlier). Partly: 20, 24. Decided but not built: 19. Open: 7, 8, 14-18, 21, 22, 25, 27. New since the audit: the red key and a debug wiring panel (`act1_wiring.md`, "Built in the demo"), a dock inspection roll (`detection_model.md`), and decision moment M01 (`decision_moments.md` §1.9). Tests added: `tests/walk_demo.js`, `tests/pell_gate.js`, `tests/dock_inspect.js`, `tests/moments_test.js`; `tests/hunt_pages.py` now checks the tutorial's isolation and highlights.
+
 ---
 
 ## Findings
@@ -19,76 +23,93 @@ One blocker, seventeen should-fix, nine polish. Fix order suggestion: 1, 2, 3, 4
 **1. Ostrow's highlights are never visible; the tutorial can't point at anything.** *Blocker (for the tutorial's purpose).*
 Evidence: `web/tutorial.js` highlights `#analysts` (step 2), `#fire` (steps 5 and 7) and `#sinkc` (step 6). In the built page `#analysts` and `#sinkc` live inside `#legacy` (hidden, positioned at x ≈ -9,545 px) and `#fire` doesn't exist; the v2 console uses `k-fire`, `k-vent`, contact slips and `k-inv`. Probe output: `analysts: 175x126 at -9545,773 inLegacy=true hidden=true`, `fire: MISSING`, `sinkc: ... inLegacy=true hidden=true`; during play `hi analysts(legacy,hidden)`, then `hi none` for steps 4-7 (`flow_full.log`). Screenshots `H02_step2.png`, `H04_step5_fire.png`: no outline anywhere.
 Fix: retarget to console ids: step 2 → the contact slip's H/R/V channel cells (`[data-act=chan]`) or `#k-inv`; step 4 → `#k-lock`; step 5/7 → `[data-act=target]` on the Tactical view, then `#k-fire` once the Target view is open; step 6 → `#k-vent` (or the heat-sink header). Add a smoke test that asserts every `hi` id resolves to a visible element.
+**Status (2026-11-02): fixed.** Highlights target the console (`#k-inv` and the slip's channel cells, `#k-dis`, her slip and `#k-lock`, `#kv-tgt`/`#k-tgt` then `#k-fire` in the Target view, `#k-vent`) and are re-applied every tick; `tests/hunt_pages.py` asserts each one lands on a visible control.
 
 **2. Step 5's instruction doesn't match how firing works.** *Should-fix.*
 Evidence: "When the Fire button lights, put a volley on her." On the Tactical view there's no Fire button; the player has to open the Target view (`TARGET ▸ C3 READY` in the weapons strip) and then press FIRE SALVO twice (lift guard, then fire). Confirmed through the real UI: the first click only arms it; the second fires (`probe_fire.js`, `H04_step5_fire.png`, `H11_target_view_fire.png`).
 Fix: split it into two lines: "Open the target plot (Target, or press 3)", then "Lift the guard, then fire." Highlight each control in turn (see 1).
+**Status (2026-11-02): fixed.** Steps 5 and 7 name the Target view (TARGET or 3) and the two-click guard.
 
 **3. Mini-mission trims from Corvane's ship apply inside the Tern tutorial.** *Should-fix.*
 Evidence: `docs/scenes/p2_tutorial_hunt.md` says "Mini-mission trims don't apply on the Tern." The hunt page reads `localStorage['interdict.trims']` for every hunt, including `?tutorial=tern`. After choosing trims on Corvane's ship and pressing "Restart at the Tern", the second tutorial ran with `TRIMS_ON ["tac.judgment_lead","sens.snap_classifier"]`, `P.readDone 6.4` (was 8), `leadSpread 0.7`, and the badge "Trims: Lead from judgment / Snap classifier" in the corner (`H07_tutorial_with_leaked_trims.png`).
 Fix: in `tutorial.js`, force `TRIMS_ON = []` before `begin()` (or have `HuntTrims.active()` return `[]` when `tutorial` is set), and remove the badge.
+**Status (2026-11-02): fixed.** The template's `TUT` flag makes `TRIMS_ON` empty (URL and localStorage), so no badge and no trimmed profile.
 
 **4. Pell's integration carries into the Tern, and the meter shows it.** *Should-fix.*
 Evidence: with `localStorage.interdict_integration = 35` (left over from any normal hunt played with Pell assist), the tutorial starts with `S.integration 35` and the INTEGRATION meter reads 35% (`H10_tutorial_integration_leak.png`). The SHIP & AI header still reads "HULL · SYSTEMS · PELL · BREACH" (`H01_tutorial_start.png`). The "known gap" in the P2 doc covers only the meter's visibility, not the carried value. The tutorial's `save()` would also write the value back.
 Fix: in tutorial mode set `savedInteg = 0`, skip `save()`, and hide the whole integration cell plus the "PELL" word in the header (the `hidePell()` regex only matches whole-text nodes).
+**Status (2026-11-02): fixed.** No saved integration is read or written in the tutorial (and no other localStorage write); the gauge, PELL keys, PELL heat lamp and "Pell" in the SHIP header are hidden.
 
 **5. Corvane's crew names leak into the Tern's Target view.** *Should-fix.*
 Evidence: on the Target view in the tutorial the auto-lead key reads "FOLLOW ABARA / AUTO LEAD" and the plot's aim marker is labelled "Abara" (`H11_target_view_fire.png`). `tutorial.js` renames only analysts and log lines (`NAMES`, `remap`). Several console tooltips also name Pell ("...a fresh track, and Pell...").
 Fix: route display names through one lookup (`crewName('Abara')`) in `hunt_console.js`, which the tutorial overrides; or have the tutorial patch these labels.
+**Status (2026-11-02): fixed.** Display names go through `crewName()` (FOLLOW DUNNE, the aim marker, the manual); Pell is dropped from the solution tooltip when Pell is hidden.
 
 **6. Breaking contact makes Corvane surrender.** *Should-fix.*
 Evidence: pressing BREACH in the tutorial spools the drive; when the jump completes (`S.over = 'breach0'`, her hull untouched at 110/110), `director()` treats any `s.over` as the surrender cue and plays "Hold your fire, Ostrow. I'll take visitors." (`probe2.js` A; `H09_breach_then_surrender.png`). By the same rule she also surrenders if our hull drops under 45 before a single shot is fired, and "Hold your fire" then makes no sense.
 Fix: in the tutorial, disable or hide `k-breach` (Ostrow wouldn't run), or have Ostrow cancel it ("We're not leaving."). For the hull < 45 path, use a variant laser line ("Enough, Ostrow. Nobody needs to die tonight. Send me the new one.").
+**Status (2026-11-02): fixed.** BREACH and GO QUIET are hidden and `E.retreat`/`E.goQuiet` are stubbed in the tutorial; if our hull goes first, Corvane uses the variant line.
 
 **7. The step box is never paused and can stall at 1/7.** *Polish.*
 Evidence: game time runs while the player reads step 1 (`0.10 → 0.29` game minutes in 3 s). If the player doesn't press "Understood", no later step can complete: the box stayed on "1 / 7" after a lock and a volley had already happened (`probe_fire.js` run 2), and when the player finally presses it the steps cascade one per tick. After "Skip step" on 7/7 the box keeps showing step 7 with a dead Skip button (`H08_skipped_all.png`).
 Fix: pause while a step with a button is showing, or let step 1's `done` be "any order given". After the last step, collapse the box to a one-line reminder.
+**Status (2026-11-02): open.**
 
 **8. The step box covers live controls.** *Polish.*
 Evidence: at 1600×900 it sits over the NEXT beacon (`H01_tutorial_start.png`); at 1400 wide it covers the master-caution lamps; on the Target view it covers REFRESH and the LOCK/TRACK lamps (`H11_target_view_fire.png`).
 Fix: dock it in the comms panel or under the top bar, or make it draggable.
+**Status (2026-11-02): open.**
 
 ### Playability: walk demo
 
 **9. "Walk to a hatch" does nothing for the outer hatch and the locked doors; you have to click again.** *Should-fix.*
 Evidence: on arrival the walk demo calls `useDoor` only if `th.to !== undefined`. The Tern's outer hatch (`action: 'board'`) and the locked Tern doors have no `to`, so the first click walks the captain there and nothing happens; a second click on the hatch is needed (`dbg_hatch.js`; `flow_full.log` "arrived at door, nothing happened"). This is the exact interaction Act 0 is meant to teach ("walk there → prompt").
 Fix: `else if (th && th.rc) useDoor(th)` (any door object), or test `'to' in th || th.action || th.locked`.
+**Status (2026-11-02): fixed.** Arriving at any door object's stand cell uses it (`th.rc`), so one click works for the outer hatch, locked doors and the new red key. `tests/walk_demo.js`.
 
 **10. The airlock prompt ("Begin boarding / Look around first") is skipped on the natural path.** *Should-fix.*
 Evidence: returning from the hunt reloads `proto_iso.html#after_hunt`, so `amesTalked` is false. Clicking the hatch then runs `amesBeat(true)`, whose Continue goes straight to `startBoarding()` (`flow_full.log`: `[hatch after hunt]` Ames → `[after ames at hatch]` boarding text, no prompt; `W07_hatch_after_hunt.png`, `W08_boarding.png`). `game_flow.md` and `act1_completion_plan.md` both describe the prompt as the loop Act 0 teaches.
 Fix: after Ames's beat at the hatch, call `boardPrompt()` instead of `startBoarding()`.
+**Status (2026-11-02): fixed.** Ames's beat at the hatch continues to `boardPrompt()`.
 
 **11. Restart doesn't restart.** *Should-fix.*
 Evidence: "Restart at the Tern" resets the JS flags but not `localStorage['interdict.trims']` (the trims line still reads "Trims: Lead from judgment / Snap classifier" on the Tern: `W12_restart.png`) and not the `#after_hunt` hash, so reloading after a restart drops you back at "Report to the airlock" (`probe2.js` D).
 Fix: on reset, clear `interdict.trims` and `interdict_integration` (or namespace them per playthrough) and `history.replaceState(null, '', location.pathname)`.
+**Status (2026-11-02): fixed.** Restart clears `interdict.trims`, `interdict_integration`, `interdict.state` (wiring, Tally, dock, style) and `interdict_hold`, and drops the `#after_hunt` hash; the name is kept.
 
 **12. Controls and text from Corvane's ship show on the Tern.** *Should-fix.*
 Evidence: from the first frame on the Tern the strip offers "Run a hunt with these trims" and says "No trims set. Talk to an officer: 'Any ideas for the ship?'", but no Tern character has that option (`W01_tern_start.png`, `W06_after_hunt.png`). "Run a hunt with these trims" from the Tern opens a normal hunt crewed by Dace, Castellan and Quill, people the probationer hasn't met. The player's sprite is labelled "CAPTAIN" while standing next to Captain Ostrow (`W06_after_hunt.png`).
 Fix: hide the trims button and line while `room.ship === 'tern'`; label the player "YOU" (or "NEW HAND") until P4.
+**Status (2026-11-02): fixed earlier the same day** (pitches off: `PITCHES_LIVE = false`, no trims line or trims button; the player label is the entered name, with "Cptn." from the handover).
 
 **13. The tracker entry after boarding can never complete.** *Should-fix.*
 Evidence: `toCorvane()` sets "MECHANICAL: Walk the ship, bow to stern, both decks". The only completion path is Castellan's manifold job (`afterInspect`), but `manifoldHere()` is hard-coded `false` and nothing else tracks visited rooms. The "MECHANICAL" kind label is also a leftover from the shipwalk prototype (`W09_corvane_control.png`).
 Fix: track visited rooms (12 of 12 → done, kind "WALK THE SHIP"), or wire the manifold job into `eng_upper` as the doc's 1.2d beat.
+**Status (2026-11-02): fixed.** The entry is now WALK THE SHIP with a count (n of 12) and completes when all twelve compartments have been entered.
 
 **14. The narration and state labels are printed as "EFFECT:".** *Polish.*
 Evidence: "Who sent you?" shows `EFFECT: She says it before you've quite finished asking.` (a stage direction); Ames shows `EFFECT: Ames: bond 1` (`flow_full.log`).
 Fix: give `say()` a separate narration slot (italic) and keep EFFECT for mechanics, or hide state names outside a debug mode.
+**Status (2026-11-02): open.**
 
 **15. Character positions contradict the lines.** *Polish.*
 Evidence: after the hunt Ostrow says "Dunne and Ames are suiting up" and the hatch says "Dunne and Ames are suited and waiting", but Dunne stays seated in the control room and Ames is in the junction; then "(Ames climbs up the trunk behind you, a little out of breath)". Before the hunt, the airlock hatch answers in Dunne's voice although Dunne is two rooms away (`W05_board_before_hunt.png`).
 Fix: move Dunne and Ames into `tern_airlock` in `afterHunt()` and drop the "climbs up" line, or rewrite the two lines to match where they stand.
+**Status (2026-11-02): open.**
 
 **16. Small text mismatches in rooms and the hunt briefing.** *Polish.*
 - The mess blurb says "the hatches fore and aft are not wired yet", but they are (`check_ship.js`: every compartment reachable). It also says "seats twenty-five and there are six of you"; 1.2 says "seats thirty. There are five places set, and one extra."
 - The hunt's launch briefing says "you give orders from the contact menu"; in v2 that's the Orders bank (`H06_trims_hunt_brief.png`).
 - `quill`'s *Snap classifier* lists Quill as its own objector, so the pitch shows no objection (`data/mini_missions.json`; `W11_quill_snap.png`).
 - Navigation and quartermaster trims can be chosen and then shown in the hunt badge although they have no hunt effect (`hunt: false` in `web/trims.js`).
+**Status (2026-11-02): open** (the trims items are moot while pitches are off).
 
 ### Narrative: the demo against the canonical scenes
 
 **17. "She asked for you, by name" contradicts the line the player just read.** *Should-fix.*
 Evidence: the laser message is "Send me the new one" (`tutorial.js`, `p2_tutorial_hunt.md`). Ostrow then says "She asked for you, by name" (`proto_iso.html` `afterHunt`, and the P2 doc's "Back on the Tern" line). P3 R1 has Corvane greet the player by role ("Ostrow's new hand"), and the P2 doc's own rationale says she asks for "the probationer". The player never has a name anywhere in canon. `storyboard.md` (P3 R1, "Corvane greets you by name") and `scene_outlines.md` (R1, "She names the player... Pell greets the boarders by name") are older and disagree with the P3 draft.
 Fix: "She asked for you. 'The new one.' I don't like that." Update the storyboard and outline rows to "greets by role".
+**Status (2026-11-02): open** (the walk demo's Ostrow still says "by name").
 
 **18. The walk-demo briefing drops the choices P3 depends on.** *Should-fix.*
 Evidence: compared with `docs/scenes/p1_briefing.md`:
@@ -98,10 +119,12 @@ Evidence: compared with `docs/scenes/p1_briefing.md`:
 - The closing exchange is gone ("When you find her, she'll want to talk... Hear her out. Then do what you have to." → "What if she's right?"). P3 R5's callback and `clue.pell.0` need `seen.p1.what_if_right`, and Dunne's MURDER line ("She said hear her out") quotes it. In the demo, "Hear her out" is reachable only by talking to Ostrow again after the hunt.
 - The sidearm is never handed over (P3 needs the player armed).
 Fix: until the Ink runner lands, port P1 as written: a question loop with a counter, then the closing three-way choice. Record `seen.p1.what_if_right` and `ames.bond` in localStorage so later demo beats can read them.
+**Status (2026-11-02): open.**
 
 **19. Ames's beat is moved and compressed, and P3's narration no longer fits it.** *Polish.*
 Evidence: P1 places the question "in the corridor" right after the briefing, and P3 R3 narrates "An hour ago, in a corridor, he asked you...". In the demo the post-briefing dialog is modal (Begin the hunt / Skip), so the natural place is the hatch after the hunt, minutes before boarding. The bond-2 branch skips the player's "Mostly." reply and the holster-flap beat.
 Fix: either ask it in the junction on the way to the hunt station (make the post-brief dialog closable and gate "Begin the hunt" on reaching a station), or change the P3 narration to "At the airlock, he asked you...". Restore "Mostly."
+**Status (2026-11-02): decided, not built** (Ames on the way to stations, hatch as fallback: `act1_completion_plan.md` 11-02).
 
 ### Narrative: canon against the data and systems
 
@@ -112,28 +135,34 @@ Evidence:
 - **Thresholds:** command model bands switch at 15/35/65/85. Decision moments' volunteered options trigger at ≤ 30 and ≥ 70. Neither number is a band edge.
 - **Very tight:** command model §2 and `decision_cards.json` hide `style: loose` levers. Decision moments §1.5 keeps the loose option and hides only the volunteered third one. It's fine for the two systems to differ, but nothing says which rule wins.
 Fix: decide one meaning ("tight = drilled procedure: faster on the routine, capped judgment; loose = faster first answer with a visible ceiling" fits both docs' prose). Then update command model §2's table and make the band edges the thresholds (or say why moments use 30/70).
+**Status (2026-11-02): partly resolved.** Thresholds are the command-model bands with hysteresis (enter 35/65, exit 43/57), and M01 reads the committed band (`web/demo_state.js`). The classification-speed and cone wording in `command_model.md` §2 still disagrees.
 
 **21. Is pinging tight or loose?** *Should-fix.*
 Evidence: `decision_cards.json` card4 tags `ping` (going active) as `style: loose`, and command model §8 counts it among the loose levers. Decision moments M02 makes the **full** ping the TIGHT option and the narrow ping the loose one. Abara objects to a ping in card4 ("And if it isn't the decoy?") but cheers the full ping in M02 ("Loud and certain").
 Fix: in cards, "go active at all" is a judgment call; in M02, "how to ping" is procedure versus shortcut. State that distinction in `decision_moments.md` §2 (M02), or retag card4 `ping` as `any`.
+**Status (2026-11-02): open.**
 
 **22. Pell proposes levers on the shakedown cards while canon has it clamped.** *Should-fix.*
 Evidence: card3 `slow_passive` and card5 `cross_check` have proposer Pell. By 1.6 (day 3) integration is 0-10. `narrative_architecture.md` §3.2: 0-24 "Clamped: answers direct questions... stops one step short", 25 "Volunteers: offers observations", 50 "Advises: recommends calls". 1.1 has the ship "thick as a brick" because Pell went back to clockwork.
 Fix: at integration < 25, make these levers answers to a question the captain asks ("Pell?" → line), or give them to Quill and Abara with Pell as a gated third option.
+**Status (2026-11-02): open.**
 
 **23. The hunt's Pell contradicts the story's Pell.** *Should-fix (design call).*
 Evidence:
 - **Pronoun:** the console uses "he" for Pell ("Pell assists: he speeds the analysts...", "Rises while he assists"; engine comment "he does not want to be destroyed"). Every scene uses "it".
 - **How integration rises:** the PELL ASSIST key raises integration continuously while toggled on, available from the first hunt. Command model §1: integration moves only by "firewall steps (always a human act: the red switch, a cable)". Act 1 makes the first +5 and +10 explicit scene choices (logs, the overlay (superseded by 1.6b: the red key in the wiring scene)).
 Fix: change the console copy to "it". Decide whether the assist key exists before the 1.5 overlay (superseded by 1.6b: assists exist only after the wiring scene). If it does, frame it as the red key ("each press is a firewall step").
+**Status (2026-11-02): fixed.** Console and manual copy say "it". Pell's controls and gauge are hidden until the wiring scene (1.6b) has been played; PELL ASSIST works only with a live key, and saved integration is capped at 24. The continuous toggle remains the assist mechanism outside M01's Pell option.
 
 **24. `cast.json` is missing the Act 0 cast and the Steward.** *Should-fix.*
 Evidence: `others` has only `corvane` and `patron` (name "(unnamed)"). Ostrow, Dunne and Ames speak in P1-P4, and Riggs, Okafor and Sato speak in P2. The Steward's name is confirmed in P4. `state.json`'s `told.<fact>.<who>` pattern says `who` may be "a cast 'others' id (corvane, steward)", but `steward` doesn't exist, so `told.x.steward` or `told.x.dunne` would fail `narr_check.py`. `knowledge.csv` already lists `ostrow`, `dunne` and `steward` as knowers.
 Fix: add `ostrow`, `dunne`, `ames`, `riggs`, `okafor`, `sato` and `steward` to `others` (rename `patron` → `steward`, or alias it).
+**Status (2026-11-02): partly fixed** (`steward` added to `cast.json`; the Act 0 cast is still missing).
 
 **25. The validator checks less than the docs say it does.** *Polish.*
 Evidence: `narr_check.py` validates only `calls.csv` (plus clue counts and callbacks). State names in the scene docs aren't checked. A scratch check of every `[bracketed]` and code-quoted name in `docs/scenes/*.md`, `plot_so_far.md` and `command_model.md` against `state.json`, `knowledge.csv` and `clues.csv` found them all valid (`.../audit/scene_names.py`). `choices.csv` is header-only.
 Fix: fold `scene_names.py` into `narr_check.py` so it keeps passing once the Ink conversion starts.
+**Status (2026-11-02): open.**
 
 **26. The standoff's clock is the same in every route.** *Polish / open question.*
 Evidence: P4: "You fired at twenty-two-thirteen" (any shot) / "She stood down at twenty-two-thirteen". Quill logs 22:13 in all endings, and 1.5 and 1.9 key off it. A round-1 murder happens several minutes before a round-6 stand-down (the reading time is 6-9 minutes). If the time is meant to be fixed, that's a strong clue (something chose the moment), but no doc says so.
@@ -147,6 +176,7 @@ Evidence:
 - `act1_completion_plan.md` A.2 calls the officer-pitch trims "wired" and lists the airlock prompt as part of the demo flow; it doesn't mention that `decision_moments.md` (same day) replaces the pitch model (see open question 1).
 - `mini_missions.md` §4 still shows *Run her hot* and *Mix the salvo*, which are now shelved.
 Fix: one pass marking superseded sections.
+**Status (2026-11-02): open.**
 
 ### Checked and consistent (no finding)
 - The timeline holds:

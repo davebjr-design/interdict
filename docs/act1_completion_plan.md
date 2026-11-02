@@ -13,8 +13,8 @@
 ### A. Make the hunt interface 100% playable (no credits)
 1. Hunt balance pass (the open items in `game_flow.md`: spool vs. clear, ~68% win baseline).
 2. ~~**Trims layer**~~ **wired** (`web/trims.js`, officers pitch trims in the walk demo, `tools/trim_bot.js`). Bot needs to learn to ping and spool under fire before the trims can be judged.
-3. **Decision cards in the hunt:** cards 3-5 fire during the shakedown with their voiced lines.
-4. ~~**Tutorial director (P2)**~~ **built** (`web/tutorial.js`, `docs/scenes/p2_tutorial_hunt.md`): Ostrow's seven steps, highlighted controls, Corvane surrenders by laser.
+3. **Decision cards in the hunt:** cards 3-5 fire during the shakedown with their voiced lines. *(Decision moments: M01 built in the hunt page, 2026-11-02, `decision_moments.md` §1.9.)*
+4. ~~**Tutorial director (P2)**~~ **built** (2026-11-02: highlights on the v2 console, isolated from trims, Pell and saved state) (`web/tutorial.js`, `docs/scenes/p2_tutorial_hunt.md`): Ostrow's seven steps, highlighted controls, Corvane surrenders by laser.
 5. **The shakedown's scripted event:** the decoy's forty-second turn (1.6).
 6. Only then: switch art for the final control set (see C).
 
@@ -31,7 +31,7 @@
 2. **Mission tracker v2:** several entries at once, mutually exclusive branches, done/failed states.
 3. **Storylet picker:** chooses 1.8 calls per leg by priority and gates (`calls.csv`).
 4. **Save/load** of narrative state.
-5. **The red key on the pedestal:** the integration switch as an object in the control room.
+5. **The red key on the pedestal:** the integration switch as an object in the control room. *(Built in the demo 2026-11-02: object on Corvane's pedestal, debug text panel for 1.6b, Pell gate in the hunt; see `scenes/act1_wiring.md` "Built in the demo".)*
 6. **Command-style props layer** (code side): swap prop sprites by band.
 
 ### D. Art (credits; current balance 17)
