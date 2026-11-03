@@ -45,28 +45,52 @@
 
   // ---------- Ostrow's orders ----------
   // hi: console selectors to outline (every visible match is outlined). tests/hunt_pages.py checks each resolves to a visible control.
-  // done: the state that completes the step (cumulative, so doing things early counts). wait: real seconds at 1x before Ostrow re-prompts
-  // (at 60%) and then does it himself (auto). Skip step runs auto at once. hold: game time is held while the step shows (up to 45 s).
-  const cid = () => (C ? C.id + 1 : '?'), gid = () => (G ? G.id + 1 : '?');
+  // done: the state that completes the step (cumulative, so doing things early counts). wait: seconds at 1x before Ostrow re-prompts
+  // (at 60%) and then does it himself (auto); game time, so it only runs once the clock does. canAuto: auto waits for it, and the wait
+  // counts from when it came true. tend: runs every tick (an idle player's analysts are put where the step needs them). Skip step runs
+  // auto at once (or, if it can't yet, tends and autos the moment it can). hold: the clock step; nothing moves while it shows.
+  const cid = () => (C ? C.id + 1 : '?'), gid = () => (G ? G.id + 1 : '?'), lid = () => (L ? L.id + 1 : '?');
   const eyes = s => s.analysts.some(w => w.task === C.id);
+  const on = (s, a) => s.analysts.some(w => w.task === a.id);
+  const onto = (s, a) => { if (a.state === 'open' || a.state === 'locked') s.analysts.forEach(w => { if (w.task !== a.id) E.assign(s, w.id, a.id); }); };
   const sec = s => (step === shown ? (s.t - t0) * P.secPerMin : 0);
   const ready = s => C.state === 'locked' && (C.solve || 0) >= 1;
   const tacOnly = list => (view === 'tac' ? list : ['#kv-tac']);
   const fireHi = () => (view === 'tgt' ? ['#k-fire'] : ['#kv-tgt', '#k-tgt']);
   const landed = s => vols.length >= 2 && s.t >= vols[1].at + 0.05;
+  // identification comes from the engine's own reads: the same honest call the slip shows (E.advice), or a near-certain classification
+  const junk = (s, a) => { if (a.state !== 'open') return true; const c = E.classify(s, a); return E.advice(s, a).call === 'junk' || (c.n >= 2 && c.best !== 'real' && c.p >= 0.9); };
+  const known = s => (idd = idd || C.idStatus === 'hostile' || E.advice(s, C).call === 'ship' || (() => { const c = E.classify(s, C); return c.n >= 3 && c.best === 'real' && c.p >= 0.95; })());
+  const CHN = [['thermal', 'heat'], ['reactor', 'reactor'], ['occlusion', 'eclipse']];
+  const rd = a => CHN.map(([ch, w]) => { const q = a.read[ch]; if (!q || (!q.blind && !(q.den > 0))) return null; return q.blind ? (ch === 'occlusion' ? 'no eclipse' : w + ' blind') : w + ' ' + Math.min(99, Math.round(Math.max(0, q.num / q.den) * 100)); }).filter(Boolean).join(', ') || 'nothing yet';
+  const readStep = (ga, n, first, verdict) => ({   // one contact read and judged on its own readings; the verdict is the engine's, never the script's
+    hi: s => { const a = ga(); return a.state !== 'open' ? ['#k-dis'] : !on(s, a) && !junk(s, a) ? ['#sl' + a.id, '#k-inv'] : junk(s, a) ? ['#sl' + a.id, '#k-dis'] : ['#sl' + a.id]; },
+    tend: (s, f, t) => { const a = ga(); if (a.state === 'open' && !on(s, a) && !junk(s, a) && (f || t > 12)) { onto(s, a); say(`Riggs, Okafor, Sato: contact ${n()}.`); } },
+    canAuto: s => junk(s, ga()), auto: s => { const a = ga(); pend = rd(a); if (a.state === 'open') oDismiss(s, a.id); },
+    say: s => { const a = ga(); return a.state !== 'open' ? 'Done with that one.' : junk(s, a) ? verdict(s) : !on(s, a) ? first(s) : `Reading contact ${n()}: ${rd(a)}. The cells under its slip fill in as they read. Wait for the verdict.`; } });
   const STEPS = [
-    { id: 'board', title: 'Read the board', hold: true, btn: 'Understood', wait: 45,
-      say: () => 'Four contacts on the board, left. Every one is a maybe. Three analysts above them: Riggs reads heat (H), Okafor reactors (R), Sato watches for an eclipse (V). Corvane is one of the four.',
+    { id: 'clock', title: 'Start the clock', hold: true, wait: 40, auto: () => startClock(), autoSay: (s, f) => (f ? "Clock's running." : "Clock's running. We don't have all night."),
+      say: () => "The clock's stopped: nothing out there moves until you start it. Press START (or P). &frac12;&times;, 1&times; and 2&times; set the speed. Orders you give now go out when it runs.",
+      hi: () => ['#k-pause', '#k-t1'], done: () => !window.__tutHold },
+    { id: 'board', title: 'Read the board', btn: 'Understood', wait: 30,
+      say: () => 'Four contacts on the board, left. Nobody has read them yet: any one could be Corvane, or junk. Above them, Riggs reads heat (H), Okafor reactors (R), Sato watches for an eclipse (V).',
       hi: () => ['#an0', '#an1', '#an2', '#ct .cslip'], done: s => acked || s.analysts.some(w => w.task != null) || C.state !== 'open' },
     { id: 'investigate', title: 'Investigate', wait: 35, auto: s => E.investigate(s, G.id), autoSay: () => `I'll start you off. Riggs, Okafor, Sato: contact ${gid()}.`,
-      say: () => `Put them to work. Select contact ${gid()}, then press INVESTIGATE. All three read it at once.`,
+      say: () => `Put them to work, one contact at a time. Start with the nearest: select contact ${gid()}, then press INVESTIGATE. All three read it at once.`,
       hi: () => ['#sl' + G.id, '#k-inv'], done: s => s.analysts.some(w => w.task != null) || C.state !== 'open' },
-    { id: 'dismiss', title: 'Dismiss the decoy', wait: 45, auto: s => { if (G.state === 'open') oDismiss(s, G.id); }, autoSay: () => `Contact ${gid()} is junk. Dunne, rule it out.`,
-      say: () => `Readings fill in under the slip. Contact ${gid()} reads cold and dead: junk. Select it and press DISMISS.`,
-      hi: () => (G.state === 'open' ? ['#sl' + G.id, '#k-dis'] : ['#k-dis']), done: s => s.an.some(a => a !== C && a.state === 'out') },
-    { id: 'lock', title: 'Lock on', wait: 40, auto: s => { if (C.state === 'open') E.lockContact(s, C.id); }, autoSay: () => `That's her. Dunne, lock contact ${cid()}.`,
-      say: () => `Contact ${cid()}. Warm, quiet, keeping to the dark. That's her. Select her slip and press LOCK ON.`,
-      hi: () => ['#sl' + C.id, '#k-lock'], done: s => C.state === 'locked' },
+    Object.assign(readStep(() => G, gid, () => `Put them on contact ${gid()}: select it, INVESTIGATE.`, s => `Contact ${gid()}: ${rd(G)}. Cold and dead: no ship reads like that. Junk. Select it and press DISMISS.`),
+      { id: 'dismiss', title: 'Read and rule out', wait: 30, autoSay: () => `Contact ${gid()}: ${pend}. Cold and dead. Junk: ruled out.`,
+        done: s => s.an.some(a => a !== C && a.state === 'out') || known(s) }),
+    Object.assign(readStep(() => L, lid, () => `Next, contact ${lid()}. Select it, INVESTIGATE.`, s => `Contact ${lid()}: ${rd(L)}. Warm, but it hides no stars: a hot can with nothing behind it. A decoy. DISMISS it.`),
+      { id: 'decoy', title: 'Spot the decoy', wait: 30, autoSay: () => `Contact ${lid()}: ${pend}. Warm, but nothing solid behind it. A decoy: ruled out.`,
+        done: s => L.state !== 'open' || known(s) }),
+    { id: 'identify', title: 'Read the next', wait: 30, canAuto: known, auto: () => {},
+      say: s => (!on(s, C) ? `Contact ${cid()} next. Select it, INVESTIGATE.` : `Reading contact ${cid()}: ${rd(C)}. Wait for the verdict.`),
+      hi: s => (on(s, C) ? ['#sl' + C.id] : ['#sl' + C.id, '#k-inv']), tend: (s, f, t) => { if (!on(s, C) && (f || t > 12)) { onto(s, C); say(`Riggs, Okafor, Sato: contact ${cid()}.`); } },
+      done: known },
+    { id: 'lock', title: 'Lock on', wait: 40, auto: s => { if (C.state === 'open') E.lockContact(s, C.id); }, autoSay: () => `Dunne, lock contact ${cid()}.`,
+      say: () => `Contact ${cid()}: ${rd(C)}. Hot, a live reactor, and it blots out the stars. That's a ship. That'll be Corvane. Select her slip, LOCK ON.`,
+      hi: () => ['#sl' + C.id, '#k-lock'], done: s => known(s) && C.state === 'locked' },
     { id: 'track', title: 'Hold the track', wait: 20, btn: 'Understood', auto: s => { if (!eyes(s)) E.assign(s, 'dace', C.id); }, autoSay: () => 'Riggs, stay on her.',
       say: s => (eyes(s) ? 'Dunne solves from a live track. Your analysts are on her: keep at least one there. No eyes, no solution. Watch the bar below.' : 'Dunne solves from a live track. Keep eyes on her: press INVESTIGATE with her slip selected, or click one H / R / V cell on it. No eyes, no solution.'),
       hi: s => (eyes(s) ? ['#sl' + C.id, '#tsl'] : ['#k-inv', '#sl' + C.id + ' [data-act=chan]', '#tsl [data-act=chan]']), done: s => eyes(s) && (acked || sec(s) > 8) },
