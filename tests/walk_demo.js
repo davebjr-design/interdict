@@ -50,6 +50,20 @@ const clickChoice = (pg, s) => pg.evaluate(s => { const b = [...document.querySe
   chk('restart clears trims, integration, state and hash', !ls.t && !ls.i && !ls.s && !ls.h);
   chk('restart: name without Cptn.', ls.name.indexOf('Cptn.') !== 0);
   chk('PITCHES_LIVE off: no trim line', (await pg.textContent('#trimline')) === '');
+  // CIC briefing staging (docs/scenes/p1_briefing.md): nobody stands inside furniture; Ames sits in the far-end chair; the player sits in the chair at the near end
+  await pg.click('#skipop'); await pg.waitForTimeout(300);
+  const stg = await pg.evaluate(() => { const r = __iso.ROOMS.tern_control, inP = (p, pg) => { let c = false; for (let a = 0, b = pg.length - 1; a < pg.length; b = a++) { const xi = pg[a][0], yi = pg[a][1], xj = pg[b][0], yj = pg[b][1]; if ((yi > p[1]) !== (yj > p[1]) && p[0] < (xj - xi) * (p[1] - yi) / (yj - yi) + xi) c = !c; } return c; };
+    const inside = n => r.props.filter(pr => inP([n.x, n.y], pr.poly)).map(pr => pr.name);
+    return { npcs: __iso.npcs.map(n => ({ name: n.name, seated: !!n.seated, dir: n.dir, inside: inside(n) })), seat: r.seat }; });
+  const by = Object.fromEntries(stg.npcs.map(n => [n.name, n]));
+  chk('Ostrow and Dunne stand clear of every solid (' + JSON.stringify(stg.npcs.filter(n => !n.seated).map(n => n.inside)) + ')', !by.Ostrow.seated && !by.Dunne.seated && !by.Ostrow.inside.length && !by.Dunne.inside.length);
+  chk('Ames sits in chairA at the far end, facing the table', by.Ames.seated && by.Ames.inside.join() === 'chairA' && by.Ames.dir === 'se');
+  for (let t = 0; t < 40 && !(await pg.evaluate(() => __iso.seated)); t++) await pg.waitForTimeout(250);
+  chk('player sits in chairB for the briefing', await pg.evaluate(() => { const r = __iso.ROOMS.tern_control, pr = r.props.find(p => p.name === 'chairB'), p = [__iso.me.x, __iso.me.y]; let c = false; for (let a = 0, b = pr.poly.length - 1; a < pr.poly.length; b = a++) { const [xi, yi] = pr.poly[a], [xj, yj] = pr.poly[b]; if ((yi > p[1]) !== (yj > p[1]) && p[0] < (xj - xi) * (p[1] - yi) / (yj - yi) + xi) c = !c; } return __iso.seated && c; }));
+  chk('movement blocked while seated (dialogue up)', await pg.evaluate(() => __iso.dlg));
+  await clickChoice(pg, 'Continue'); await clickChoice(pg, 'Skip the hunt'); await clickChoice(pg, 'Continue');
+  chk('briefing over: the player stands', await pg.evaluate(() => !__iso.seated && !__iso.holdSeat && !__iso.dlg));
+  chk('walking resumes after the briefing', await pg.evaluate(() => __iso.go([12, 2])));
   chk('no page errors', !errs.length); if (errs.length) console.log(errs);
   await b.close(); console.log(bad ? 'FAILED' : 'ALL OK'); process.exit(bad ? 1 : 0);
 })();

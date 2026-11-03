@@ -44,7 +44,12 @@ const waitRoom = async (pg, id, ms) => { for (let t = 0; t < ms; t += 200) { if 
   s = await txt(pg);
   chk('arrival in the CIC starts the P1 briefing', s.nm === 'Ostrow' && /You're late\. Sit\./.test(s.tx) && s.ch.includes('Continue'));
   chk('job ticked off', /Report to the CIC/.test(s.job) && s.done);
+  // the briefing seats the player: walk to the seat by the chart table, sit facing the table, hold
+  for (let t = 0; t < 40 && !(await pg.evaluate(() => __iso.seated)); t++) await pg.waitForTimeout(250);
+  const seat = await pg.evaluate(() => { const st = __iso.ROOMS.tern_control.seat; return { ok: __iso.seated, at: __iso.me.i === st.cell[0] && __iso.me.j === st.cell[1], dir: __iso.me.dir === st.dir, path: __iso.me.path.length }; });
+  chk('player walks to the briefing seat and sits facing the table', seat.ok && seat.at && seat.dir && !seat.path);
   await clickChoice(pg, 'Continue'); s = await txt(pg); chk('briefing ends into the hunt job', /HUNT/.test(s.job) && s.ch.includes('Begin the hunt'));
+  chk('still seated on the second briefing screen', await pg.evaluate(() => __iso.seated));
   // Cptn. prefix at handover still works
   await clickChoice(pg, 'Skip the hunt'); await pg.click('#skip'); await pg.waitForTimeout(200);
   chk('Cptn. prefix on Corvane\'s ship', (await pg.evaluate(() => __iso.me.name)) === 'Cptn. Vasquezb-O');
@@ -58,6 +63,8 @@ const waitRoom = async (pg, id, ms) => { for (let t = 0; t < ms; t += 200) { if 
   // Skip opening: straight to the briefing in the control room, saved name
   await pg.click('#reset'); await pg.waitForTimeout(100); await pg.click('#skipop'); await pg.waitForTimeout(300); c = await cur(pg); s = await txt(pg);
   chk('Skip opening: CIC, briefing, curtain up', s.room === 'tern_control' && c.ph === 'up' && /You're late/.test(s.tx) && !s.jobHidden);
+  for (let t = 0; t < 40 && !(await pg.evaluate(() => __iso.seated)); t++) await pg.waitForTimeout(250);
+  chk('Skip opening: seated for the briefing', await pg.evaluate(() => __iso.seated));
   await pg.waitForTimeout(3000); s = await txt(pg); chk('skipped opening does not come back', s.room === 'tern_control' && /You're late/.test(s.tx));
   chk('no page errors', !errs.length); if (errs.length) console.log(errs);
   await b.close(); console.log(bad ? 'FAILED' : 'ALL OK'); process.exit(bad ? 1 : 0);

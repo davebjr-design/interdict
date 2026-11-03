@@ -29,6 +29,7 @@ canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block
 #tx { max-width: 70ch; } #fx { margin-top: 6px; color: var(--amber); font-size: 12px; }
 #dbox { position: absolute; left: 50%; top: 9%; transform: translateX(-50%); width: min(760px, 92%); z-index: 4; background: rgba(8, 16, 13, .97); border: 1px solid var(--amber); box-shadow: 0 8px 40px rgba(0,0,0,.7); min-height: 0; padding: 16px 18px; gap: 16px; }
 #dbox[hidden] { display: none; }
+#dbox.low { top: auto; bottom: 5%; }   /* the speakers are in the upper half of the stage: put the dialogue under them, not over them */
 #stage.talk::after { content: ''; position: absolute; inset: 0; background: rgba(0, 0, 0, .5); z-index: 3; pointer-events: none; }
 #opor { width: 72px; height: 88px; border: 1px solid currentColor; display: grid; place-items: center; font: 700 38px var(--disp); background: #0c1713; }
 #onm { font: 700 13px var(--disp); letter-spacing: .16em; text-transform: uppercase; margin-bottom: 6px; }
@@ -77,6 +78,12 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   const spr = load('assets/captain_sheet.png'); let sprReady = false; spr.onload = () => { sprReady = true; };
   const SHEET = { castellan: load('assets/castellan_sheet.png'), abara: load('assets/abara_sheet.png'), quill: load('assets/quill_sheet.png'), dace: load('assets/dace_sheet.png'), fenwick: load('assets/fenwick_sheet.png'), ames: load('assets/ames_sheet.png') };
   const DIRS = ['se', 'sw', 'ne', 'nw'], CW = 256, CH = 320, FEET = [128, 280], SC = 0.62, CHAR = 0.9; // CHAR: global crew scale so a person is about 90% of a door's height
+  // Sitting. There is no sit sprite yet, so a seated person is drawn with the fallback: the idle frame, turned toward the table, lowered into
+  // the chair by SIT_DROP of its height, with the part below the chair's floor line clipped off. SEATED = false draws them standing at the seat.
+  // A real sit sheet (Meshy 'Chair Sit Idle Male', action 33) can replace the fallback: set SIT_SHEET to load('assets/captain_sit_sheet.png'),
+  // one idle frame per direction in the DIRS column order on row 0, feet (hips on the seat) at FEET.
+  // SIT_DROP and SIT_CLIP are fractions of the figure's height: how far the frame is lowered, and how far above the floor the clip line (the seat) is.
+  const SEATED = true, SIT_DROP = 0.3, SIT_CLIP = 0.17, SIT_SHEET = null;
 
   // ---------- rooms (world units are 640 x 360; drawn at 2x) ----------
   // A room image is placed centered on the 640x360 stage at scale k (world units per image pixel). k is calibrated from the door height (about 60 world units).
@@ -184,13 +191,14 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   let npcs = [];
   const MANIFOLD = { rect: [335, 62, 430, 152], stand: [5, 1] };
   let walked = null;   // Corvane's compartments entered since boarding (the WALK THE SHIP tracker entry)
+  let holdSeat = false;   // the player is walking to, or sitting in, the briefing seat (room.seat)
   let done = false, insp = 0, show = false, hover = null, hoverCell = null, dlg = false, fade = 0, fadeDir = 0, pending = null;
   function setRoom(id, cell, dir) {
     room = ROOMS[id]; blocked = room.blocked; NI = room.Ni || room.N; NJ = room.Nj || room.N; $('room').textContent = room.name; drawPlan();
-    snapCam = true; me.steps = []; me.alpha = 1; me.i = cell[0]; me.j = cell[1]; const p = cellXY(me.i, me.j); me.x = p[0]; me.y = p[1]; me.path = []; me.then = null; if (dir) me.dir = dir;
+    snapCam = true; me.seated = false; holdSeat = false; me.steps = []; me.alpha = 1; me.i = cell[0]; me.j = cell[1]; const p = cellXY(me.i, me.j); me.x = p[0]; me.y = p[1]; me.path = []; me.then = null; if (dir) me.dir = dir;
     if (walked && !room.ship) { walked.add(id); walkJob(); }
     if ($('dock')) $('dock').hidden = !!room.ship;   // the dock step exists only on Corvane's ship (the Tern stays docked to her)
-    npcs = room.npcs.map(n => { const o = Object.assign({ dir: 'sw' }, n), q = cellXY(...o.cell); o.x = q[0]; o.y = q[1]; o.i = o.cell[0]; o.j = o.cell[1]; o.img = n.sheet ? SHEET[n.sheet] : null; return o; });
+    npcs = room.npcs.map(n => { const o = Object.assign({ dir: 'sw' }, n), q = cellXY(...o.cell); o.x = q[0]; o.y = q[1]; o.i = o.cell[0]; o.j = o.cell[1]; o.img = n.sheet ? SHEET[n.sheet] : null; if (n.at) { const w = room.sp.W(n.at); o.x = w[0]; o.y = w[1]; } if (n.seat) { const w = room.sp.W(n.seat); o.x = w[0]; o.y = w[1]; o.seated = true; } return o; });
   }
   // Deck plan: upper deck band, lower deck band, side rooms above and below, bow to the right.
   const PLAN = [
@@ -226,15 +234,27 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       host.innerHTML = ''; (choices || []).forEach(b0 => { const b = document.createElement('button'); b.type = 'button'; b.textContent = b0.t; b.onclick = b0.fn; host.appendChild(b); }); };
     lastSaid = { nm: sp, tx: text, fx: fxT };
     $('och').innerHTML = ''; $('ch').innerHTML = '';
-    if (over) { fill(['opor', 'onm', 'otx', 'ofx'], $('och')); $('dbox').hidden = false; $('stage').classList.add('talk'); }
+    if (over) { fill(['opor', 'onm', 'otx', 'ofx'], $('och')); $('dbox').classList.toggle('low', castHigh()); $('dbox').hidden = false; $('stage').classList.add('talk'); }
     else { $('dbox').hidden = true; $('stage').classList.remove('talk'); fill(['por', 'nm', 'tx', 'fx'], $('ch')); }
     dlg = hasCh;
   }
-  const close = () => { $('ch').innerHTML = ''; $('och').innerHTML = ''; $('dbox').hidden = true; $('stage').classList.remove('talk'); dlg = false; };
+  // Briefing seat: walk to room.seat.cell, then sit facing the table and hold there while the dialogue is up. close() stands the player back up.
+  function seatMe() {
+    const st = room.seat; if (!st) return; holdSeat = true;
+    if (me.i === st.cell[0] && me.j === st.cell[1] && !me.steps.length) { me.path = []; sitDown(); return; }
+    if (!go(st.cell, { sit: true })) { const q = cellXY(...st.cell); me.i = st.cell[0]; me.j = st.cell[1]; me.x = q[0]; me.y = q[1]; me.path = []; sitDown(); }
+  }
+  function sitDown() { const st = room.seat; if (!st || !holdSeat) return; const w = room.sp.W(st.p); me.x = w[0]; me.y = w[1]; me.dir = st.dir; me.seated = true; }
+  function standUp() { holdSeat = false; if (me.then && me.then.sit) me.then = null; if (!me.seated) return; me.seated = false; const q = cellXY(me.i, me.j); me.x = q[0]; me.y = q[1]; }
+  // True when the people in the room (and the seat the player is heading for) sit mostly in the upper half of the stage, on screen.
+  function castHigh() { const z = room.zoom || 1, ys = npcs.map(n => n.y).concat([room.seat && holdSeat ? room.sp.W(room.seat.p)[1] : me.y]); if (!ys.length) return false;
+    const fy = ys.reduce((a, y) => a + ((y - 25 - cam.y) * z + 180) / 360, 0) / ys.length; return fy < 0.5; }
+  const close = () => { standUp(); $('ch').innerHTML = ''; $('och').innerHTML = ''; $('dbox').hidden = true; $('stage').classList.remove('talk'); dlg = false; };
   function talk(npc) {
     if (npc.name === 'Ostrow') {
       if (briefed && !hunted) return say('Ostrow', 'Stations. We find her first.', '', [{ t: 'Begin the hunt', fn: () => { location.href = 'hunt.html?tutorial=tern&return=' + encodeURIComponent(page()); } }, { t: 'Skip the hunt (demo)', fn: afterHunt }]);
       if (briefed) return say('Ostrow', 'Lock is aft and up. Hear her out. Then do what you have to.', '', [{ t: 'Continue', fn: close }]);
+      seatMe();
       return say('Ostrow', "You're late. Sit. There's a rule out here, older than any of us. You can touch the AI. You can't wake it. And if one of us starts waking one, the rest of us go and stop them. Ilsa Corvane is running hers. I sailed under her four years. Best captain I ever had. So naturally, I'm the one they sent.", '', [
         { t: 'Continue', fn: endBrief }]);
     }
@@ -420,7 +440,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   function clearRun() { try { ['interdict.trims', 'interdict_integration', 'interdict.state', 'interdict_hold'].forEach(k => localStorage.removeItem(k)); } catch (e) {} try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} }
   function restart(skipOpening) {
     clearRun(); walked = null; keyLook = 'none'; docked = false; $('dock').textContent = 'Dock at the next station'; setMeName(false); insp = 0; briefed = false; hunted = false; amesTalked = false;
-    ROOMS.tern_junction.npcs = ROOMS.tern_junction.npcs.filter(n => n.name !== 'Ames'); if (!ROOMS.tern_control.npcs.some(n => n.name === 'Ames')) ROOMS.tern_control.npcs.push({ name: 'Ames', sheet: 'ames', col: '#c7d9a8', cell: [7, 4] });
+    ROOMS.tern_junction.npcs = ROOMS.tern_junction.npcs.filter(n => n.name !== 'Ames'); if (!ROOMS.tern_control.npcs.some(n => n.name === 'Ames')) ROOMS.tern_control.npcs.push(JSON.parse(JSON.stringify(window.ROOM_SPEC.tern_control.npcs.find(n => n.name === 'Ames'))));
     if (!skipOpening) return startOpening();
     stopOpening(); setRoom('tern_control', [12, 2]); setJob('BRIEFING', 'Report to Captain Ostrow at the chart table'); talk({ name: 'Ostrow' });   // testers: straight to the briefing, saved name
   }
@@ -457,8 +477,16 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   function diamond(i, j, fill, stroke) { const c = [ptXY(i / NI, j / NJ), ptXY((i + 1) / NI, j / NJ), ptXY((i + 1) / NI, (j + 1) / NJ), ptXY(i / NI, (j + 1) / NJ)]; cx.beginPath(); c.forEach((p, k) => k ? cx.lineTo(p[0] * S, p[1] * S) : cx.moveTo(p[0] * S, p[1] * S)); cx.closePath(); if (fill) { cx.fillStyle = fill; cx.fill(); } if (stroke) { cx.strokeStyle = stroke; cx.lineWidth = 1; cx.stroke(); } }
   function person(o, t, walking) {
     const x = o.x * S, y = o.y * S, bob = walking ? Math.abs(Math.sin(t * 9)) * 3 : Math.sin(t * 1.5) * 0.8;
-    cx.fillStyle = 'rgba(0,0,0,.45)'; cx.beginPath(); cx.ellipse(x, y + 2, 17, 8, 0, 0, 7); cx.fill();
     const sh = o.img || (o.sprite ? spr : null), sc = (o.sc || SC) * CHAR;
+    if (o.seated && SEATED && sh && sh.complete && sh.naturalWidth) {   // seated: real sit frame if there is one, else the lowered idle frame
+      const di = DIRS.indexOf(o.dir), real = o.sprite && SIT_SHEET && SIT_SHEET.complete && SIT_SHEET.naturalWidth, H = (FEET[1] - 40) * sc, drop = real ? 0 : SIT_DROP * H, cut = real ? 0 : SIT_CLIP * H;
+      cx.save(); cx.beginPath(); cx.rect(x - CW * sc, y - CH * sc, CW * sc * 2, CH * sc + 2 - cut); cx.clip();
+      if (real) cx.drawImage(SIT_SHEET, di * CW, 0, CW, CH, x - FEET[0] * sc, y - FEET[1] * sc, CW * sc, CH * sc);
+      else cx.drawImage(sh, di * CW, 4 * CH, CW, CH, x - FEET[0] * sc, y - FEET[1] * sc + drop, CW * sc, CH * sc);
+      cx.restore();
+      cx.font = '700 15px Chakra Petch, sans-serif'; cx.textAlign = 'center'; cx.fillStyle = 'rgba(7,16,13,.75)'; cx.fillRect(x - 40, y - 168 * sc / SC + drop, 80, 18); cx.fillStyle = o.col; cx.fillText(o.name.toUpperCase(), x, y - 154 * sc / SC + drop); return;
+    }
+    cx.fillStyle = 'rgba(0,0,0,.45)'; cx.beginPath(); cx.ellipse(x, y + 2, 17, 8, 0, 0, 7); cx.fill();
     if (sh && sh.complete && sh.naturalWidth) {
       const di = DIRS.indexOf(o.dir), col = walking ? Math.floor(t * 7.5) % 8 : di, row = walking ? di : 4;
       cx.drawImage(sh, col * CW, row * CH, CW, CH, x - FEET[0] * sc, y - FEET[1] * sc, CW * sc, CH * sc);
@@ -480,7 +508,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       if (d < 1.5) { me.x = st.p[0]; me.y = st.p[1]; me.steps.shift(); if (!me.steps.length) { me.alpha = 1; const sd = me.stepDoor; me.stepDoor = null; if (sd) { pending = sd; fadeDir = 1; } } }
       else { const sp = 62 * dt; me.x += dx / d * Math.min(sp, d); me.y += dy / d * Math.min(sp, d); }
     }
-    if (!me.steps.length && me.path.length) { const [ti, tj] = me.path[0], tp = cellXY(ti, tj), dx = tp[0] - me.x, dy = tp[1] - me.y, d = Math.hypot(dx, dy); walking = true; me.dir = dx >= 0 ? (dy >= 0 ? 'se' : 'ne') : (dy >= 0 ? 'sw' : 'nw'); if (d < 2) { me.i = ti; me.j = tj; me.path.shift(); } else { const sp = 120 * dt; me.x += dx / d * Math.min(sp, d); me.y += dy / d * Math.min(sp, d); } if (!me.path.length) { const th = me.then; me.then = null; if (th && th.npc) talk(th.npc); else if (th === 'man') insp = 0.001; else if (th && th.rc) useDoor(th); } }
+    if (!me.steps.length && me.path.length) { const [ti, tj] = me.path[0], tp = cellXY(ti, tj), dx = tp[0] - me.x, dy = tp[1] - me.y, d = Math.hypot(dx, dy); walking = true; me.dir = dx >= 0 ? (dy >= 0 ? 'se' : 'ne') : (dy >= 0 ? 'sw' : 'nw'); if (d < 2) { me.i = ti; me.j = tj; me.path.shift(); } else { const sp = 120 * dt; me.x += dx / d * Math.min(sp, d); me.y += dy / d * Math.min(sp, d); } if (!me.path.length) { const th = me.then; me.then = null; if (th && th.sit) sitDown(); else if (th && th.npc) talk(th.npc); else if (th === 'man') insp = 0.001; else if (th && th.rc) useDoor(th); } }
     if (insp > 0 && insp < 1) { insp += dt / 1.6; if (insp >= 1) { insp = 0; afterInspect(); } }
     const tip = $('tip'); if (hover && hover.name) { tip.hidden = false; tip.textContent = 'Talk to ' + hover.name; } else if (hover === 'man') { tip.hidden = false; tip.textContent = 'Inspect the coupling manifold'; } else if (hover && hover.label) { tip.hidden = false; tip.textContent = hover.label; } else tip.hidden = true;
     cx.clearRect(0, 0, 1280, 720); cx.save(); { const z = room.zoom || 1, tg = camTarget(), k = Math.min(1, dt * 6); if (snapCam) { cam.x = tg[0]; cam.y = tg[1]; snapCam = false; } else { cam.x += (tg[0] - cam.x) * k; cam.y += (tg[1] - cam.y) * k; } cx.translate(640, 360); cx.scale(z, z); cx.translate(-cam.x * S, -cam.y * S); }
@@ -525,6 +553,6 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     [['T', r.T], ['R', r.R], ['L', r.L], ['B', r.B]].forEach(([n, w]) => { const q = I(w); g.fillStyle = '#ff0'; g.beginPath(); g.arc(q[0], q[1], 6, 0, 7); g.fill(); g.fillStyle = '#000'; g.textAlign = 'center'; g.fillText(n, q[0], q[1] + 4); });
     return c.toDataURL('image/png');
   }
-  window.__iso = { said: () => lastSaid, me, go, bfs, ROOMS, setRoom, talk, devRender, get room() { return room; }, useDoor, get npcs() { return npcs; }, get cam() { return cam; }, get dlg() { return dlg; }, dockStep, inspectP: () => inspectP(DS.load()), get opening() { return opening; }, get reportCIC() { return reportCIC; }, get briefed() { return briefed; } };
+  window.__iso = { said: () => lastSaid, me, go, bfs, ROOMS, setRoom, talk, devRender, get room() { return room; }, useDoor, get npcs() { return npcs; }, get cam() { return cam; }, get dlg() { return dlg; }, dockStep, inspectP: () => inspectP(DS.load()), get opening() { return opening; }, get reportCIC() { return reportCIC; }, get briefed() { return briefed; }, get seated() { return !!me.seated; }, get holdSeat() { return holdSeat; }, SEATED };
 })();
 </script>

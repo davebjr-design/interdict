@@ -316,25 +316,36 @@
    "name": "Ostrow",
    "col": "#9fb7c8",
    "cell": [
-    5,
-    3
+    4,
+    1
+   ],
+   "dir": "nw",
+   "at": [
+    610,
+    452
    ]
   },
   {
    "name": "Dunne",
    "col": "#a8a08a",
    "cell": [
-    9,
-    2
-   ]
+    7,
+    0
+   ],
+   "dir": "sw"
   },
   {
    "name": "Ames",
    "sheet": "ames",
    "col": "#c7d9a8",
    "cell": [
-    7,
-    4
+    2,
+    1
+   ],
+   "dir": "se",
+   "seat": [
+    455,
+    394
    ]
   }
  ],
@@ -430,5 +441,17 @@
    "seed": 6
   }
  ],
- "ship": "tern"
+ "ship": "tern",
+ "seat": {
+  "cell": [
+   5,
+   0
+  ],
+  "p": [
+   716,
+   414
+  ],
+  "dir": "nw",
+  "note": "chairB, the chair at the aft end of the chart table, nearest the hatch. The player sits here for the P1 briefing."
+ }
 }

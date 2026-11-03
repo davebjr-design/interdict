@@ -152,6 +152,15 @@ AMES: Sorry. Habit.
 **[→ P2: tutorial hunt]**
 
 ---
+## Staging in the walk demo (design/rooms/tern_control.json)
+The chart table stands against the back bulkhead with its long side along the room, so it can only be approached from the open front side and its two short ends, and each short end has a chair facing the table (chairA at the fore end, chairB at the aft end, nearest the hatch).
+- **Ostrow:** standing at the open side of the table, at its aft end beside the player's chair (cell 4,1, drawn at the table edge), facing up the table toward the chart and Ames.
+- **Dunne:** leaning on the back bulkhead beside the low rack, aft of the table (cell 7,0), facing out into the room, apart from the others.
+- **Ames:** seated in chairA at the far (fore) end, facing the table (cell 2,1, seated).
+- **The player:** on arrival in the CIC for the first job, or on talking to Ostrow before the briefing, the player walks to chairB (seat cell 5,0), sits facing the table and stays there through both briefing screens. Closing the briefing stands the player up and walking resumes.
+- **Sitting:** there is no sit sprite yet. With SEATED on (design/proto_iso.html), a seated person is the idle frame lowered into the chair with the legs clipped at the seat. SIT_SHEET is the hook for a real seated sheet (Meshy "Chair Sit Idle Male", action 33, 3 credits to apply to the captain's rig; not made yet).
+- The dialogue box moves to the bottom of the stage when the people in the room are in its upper half, so the briefing does not cover the table.
+
 ## Notes for the voice read
 - Ostrow's tell: she says the hardest things while looking at the chart. She isn't boarding because she knows Corvane could talk her round (POV sheet).
 - Dunne's slip ("Some of them have." / "someone who'd never tell her no") is his history leaking: he refused Corvane once and survived her scuttling. Paid off in P3 R4.
