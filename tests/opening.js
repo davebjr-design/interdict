@@ -42,9 +42,9 @@ const waitRoom = async (pg, id, ms) => { for (let t = 0; t < ms; t += 200) { if 
   s = await txt(pg); chk('no briefing in the junction', s.nm === 'Ship log');
   await clickDoor(pg, 'toControl'); chk('walked to the CIC', await waitRoom(pg, 'tern_control', 20000));
   s = await txt(pg);
-  chk('arrival in the CIC starts the P1 briefing', s.nm === 'Ostrow' && /You're late\. Sit\./.test(s.tx) && s.ch.includes("That's enough."));
+  chk('arrival in the CIC starts the P1 briefing', s.nm === 'Ostrow' && /You're late\. Sit\./.test(s.tx) && s.ch.includes('Continue'));
   chk('job ticked off', /Report to the CIC/.test(s.job) && s.done);
-  await clickChoice(pg, "That's enough."); s = await txt(pg); chk('briefing ends into the hunt job', /HUNT/.test(s.job) && s.ch.includes('Begin the hunt'));
+  await clickChoice(pg, 'Continue'); s = await txt(pg); chk('briefing ends into the hunt job', /HUNT/.test(s.job) && s.ch.includes('Begin the hunt'));
   // Cptn. prefix at handover still works
   await clickChoice(pg, 'Skip the hunt'); await pg.click('#skip'); await pg.waitForTimeout(200);
   chk('Cptn. prefix on Corvane\'s ship', (await pg.evaluate(() => __iso.me.name)) === 'Cptn. Vasquezb-O');

@@ -236,9 +236,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
       if (briefed && !hunted) return say('Ostrow', 'Stations. We find her first.', '', [{ t: 'Begin the hunt', fn: () => { location.href = 'hunt.html?tutorial=tern&return=' + encodeURIComponent(page()); } }, { t: 'Skip the hunt (demo)', fn: afterHunt }]);
       if (briefed) return say('Ostrow', 'Lock is aft and up. Hear her out. Then do what you have to.', '', [{ t: 'Continue', fn: close }]);
       return say('Ostrow', "You're late. Sit. There's a rule out here, older than any of us. You can touch the AI. You can't wake it. And if one of us starts waking one, the rest of us go and stop them. Ilsa Corvane is running hers. I sailed under her four years. Best captain I ever had. So naturally, I'm the one they sent.", '', [
-        { t: 'Who sent you?', fn: () => say('Ostrow', "The patron's office.", "She says it before you've quite finished asking.", [{ t: 'Continue', fn: endBrief }]) },
-        { t: 'Why bring me?', fn: () => say('Dunne', "Because if it goes wrong, nobody's attached to you yet.", '', [{ t: 'Continue', fn: endBrief }]) },
-        { t: "That's enough.", fn: endBrief }]);
+        { t: 'Continue', fn: endBrief }]);
     }
     if (npc.name === 'Dunne') return say('Dunne', briefed ? "Lock's aft and up the trunk. Don't keep her waiting." : 'Captain wants you at the chart table.', '', [{ t: 'Continue', fn: close }]);
     if (npc.name === 'Ames') return amesBeat(false);
@@ -283,7 +281,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   const page = () => (location.pathname.split('/').pop() || 'index.html');
   function endBrief() {
     briefed = true; moveAmes(); setJob('HUNT', 'Take your station: the hunt for Corvane');
-    say('Ostrow', "Here's how it goes. We find her first: that's the hunt, and you'll do what I tell you. Then we board. Three go across: Dunne, the new hand, and Ames. Probation's over for the day. Stations.", '', [
+    say('Ostrow', "The patron's office sent us. You're here because, as Dunne puts it, if it goes wrong, nobody's attached to you yet. Here's how it goes. We find her first: that's the hunt, and you'll do what I tell you. Then we board. Three go across: Dunne, the new hand, and Ames. Probation's over for the day. Stations.", '', [
       { t: 'Begin the hunt', fn: () => { location.href = 'hunt.html?tutorial=tern&return=' + encodeURIComponent(page()); } },
       { t: 'Skip the hunt (demo)', fn: afterHunt }]);
   }
