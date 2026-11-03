@@ -53,15 +53,15 @@ with sync_playwright() as p:
         # play the tutorial like a player through the engine: do what each step asks, press Understood on every box, check every highlight
         got=False; hib=[]; seen=set(); named=[]
         for i in range(1200):
-            st=pg.evaluate("""(()=>{const C=S.an[__tut.corvane], G=S.an[__tut.decoy], L=S.an[__tut.lure], id=__tut.id, on=a=>S.analysts.some(w=>w.task===a.id);
+            st=pg.evaluate("""(()=>{const C=S.an[__tut.corvane], id=__tut.id, k=__tut.kind, X=__tut.x!=null?S.an[__tut.x]:null, on=a=>S.analysts.some(w=>w.task===a.id), all=a=>S.analysts.every(w=>w.task===a.id);
               const tg=__tut.hiTargets(), vis=tg.flatMap(q=>[...document.querySelectorAll(q)]).filter(__tut.visible), lit=document.querySelectorAll('.tut-hi').length;
               const nm=!__tut.identified && /\b(Corvane|her|she)\b/.test(__tut.text);
               const b=document.getElementById('tutnext'); if(b) b.click(); else {
-                if(id==='clock'&&paused) togglePause(); else if(id==='investigate') E.investigate(S,G.id); else if(id==='dismiss') E.dismissContact(S,G.id);
-                else if(id==='next'&&!on(L)) E.investigate(S,L.id); else if(id==='decoy') E.dismissContact(S,L.id); else if(id==='identify'&&!on(C)) E.investigate(S,C.id);
+                if(id==='clock'&&paused) togglePause(); else if(k==='read'&&X.state==='open'&&!all(X)) E.investigate(S,X.id); else if(k==='rule') E.dismissContact(S,X.id);
+                else if(k==='check') { if(X.state==='open'&&!on(X)) E.investigate(S,X.id); else if(!on(C)) E.assign(S,X._keep==='occlusion'?'quill':'castellan',C.id); }
                 else if(id==='lock') E.lockContact(S,C.id); else if(id==='course') E.setRoute(S,[{x:S.player.x+12,y:S.player.y+20,speed:'v2'}]); else if(id==='evade') E.setOrder(S,'evade',null);
                 else if(id==='still') E.setOrder(S,'still',null); else if((id==='fire'||id==='again')&&C.solve>=1) E.fire(S,C.id,null,6); else if(id==='vent') E.startVent(S); }
-              return {t:S.t, hp:C.hp, hull:S.hull, done:!!document.getElementById('tutdone'), shots:S.shots, over:S.over, step:__tut.step, id, ntg:tg.length, nvis:vis.length, lit, nm}})()""")
+              return {t:S.t, hp:C.hp, hpMax:C.hpMax, hull:S.hull, done:!!document.getElementById('tutdone'), shots:S.shots, over:S.over, step:__tut.step, id, ntg:tg.length, nvis:vis.length, lit, nm, order:__tut.readOrder.slice(), hits:C.tutHits||0}})()""")
             if st['ntg'] and (st['nvis']==0 or st['lit']==0): hib.append((st['id'],st['nvis'],st['lit']))
             if st['nm']: named.append(st['id'])
             seen.add(st['step'])
@@ -73,6 +73,9 @@ with sync_playwright() as p:
         if hib: print('   ',hib[:5])
         chk(page+' tutorial reaches the surrender screen',got)
         chk(page+' Corvane alive at surrender', st['hp']>0)
+        chk(page+' both volleys hit her, hull left in the surrender band (38-42%%): %.0f%%' % (100*st['hp']/st['hpMax']), st['hits']==2 and 0.37<=st['hp']/st['hpMax']<=0.43)
+        chk(page+' her answer landed, our hull well above 45: %.0f' % st['hull'], 80<=st['hull']<100)
+        chk(page+' contacts read in order 1, 2, 3, 4: %s' % st['order'], st['order']==[0,1,2,3])
         chk(page+' tutorial writes nothing to localStorage', pg.evaluate("localStorage.getItem('interdict_integration')")=='35')
         chk(page+' tutorial no page errors',not errs)
         if errs: print(errs[:3])

@@ -6,20 +6,22 @@
 #            menus, view keys) and Understood about a third of the time (4x)
 #   idle     never acts. The page must not crash and game time must not move: first while the start pause is up, then (after the
 #            harness starts the clock for it) while Ostrow's first order waits to be read.
+# literal also: reads all four contacts in order (1, 2, 3, 4), sees a hit land on Corvane that leaves her above 0 and below 100% (the
+# first hit at 58-68%), takes her one answer (our hull drops, stays well above 45), and reaches the surrender.
 # Checks for every player: game time never moves while a box is being read or the clock is paused; no page errors; every highlight on
 # a visible control; the order box never overflows or covers a live control; contact 3 is never called a ship, Corvane, 'her' or
 # 'she' in Ostrow's box before the engine's readings identify it. literal, skipper: reach the surrender with Corvane alive and the
 # solution bar seen rising to 100%. literal: the solution goes from lock to ready within 90 s of running clock at 1x, no step was done
 # for it, and game time advances after each Understood. wander: Corvane alive (surrender reported, not required).
 # Run: python3 tests/tutorial_bots.py [literal|skipper|wander|idle ...]
-import sys, time, random, os
+import sys, time, random, os, re
 from playwright.sync_api import sync_playwright
 R = '/home/claude/interdict/'; bad = []
 def chk(m, c):
     print('ok  ' if c else 'FAIL', m)
     if not c: bad.append(m)
 
-WATCH = r"""(() => { if (window.__m) return; const m = window.__m = { lockT: null, readyT: null, bars: [], hiBad: [], over: [], cover: [], steps: [], frozenBad: [], named: [], prev: null, runT: 0, readN: 0 };
+WATCH = r"""(() => { if (window.__m) return; const m = window.__m = { lockT: null, readyT: null, bars: [], hiBad: [], over: [], cover: [], steps: [], frozenBad: [], named: [], prev: null, runT: 0, readN: 0, hps: [], hull: [] };
   const boxR = () => { const b = document.getElementById('tutbox'); return b && !__tut.done ? b.getBoundingClientRect() : null; };
   setInterval(() => { if (!S || __tut.done) return; const C = S.an[__tut.corvane];
     const fr = __tut.reading || paused, key = __tut.step + ':' + __tut.beat + ':' + __tut.beatsSeen().length + ':' + paused + ':' + __tut.reading;
@@ -27,6 +29,7 @@ WATCH = r"""(() => { if (window.__m) return; const m = window.__m = { lockT: nul
     if (m.prev && !m.prev.fr && !fr) m.runT += S.t - m.prev.t;
     if (fr) m.readN++;
     m.prev = { fr, key, t: S.t };
+    if (m.hps[m.hps.length - 1] !== C.hp) m.hps.push(C.hp); if (m.hull[m.hull.length - 1] !== S.hull) m.hull.push(S.hull);
     if (C.state === 'locked' && m.lockT == null) m.lockT = S.t;
     if (C.state === 'locked' && (C.solve || 0) >= 1 && m.readyT == null) m.readyT = S.t;
     const b = document.getElementById('tutsolb'); if (b) { const w = parseFloat(b.style.width); if (!m.bars.length || m.bars[m.bars.length - 1] !== w) m.bars.push(w); }
@@ -41,9 +44,9 @@ ST = "(() => { const C = S.an[__tut.corvane]; return { id: __tut.id, step: __tut
 DISPLAY = ('#an', '#ct .cslip', '#g-', '#ls-', '#d-', '#r-clk', '#k-t')
 def is_display(q): return q.startswith(DISPLAY) or ' .cod' in q or '[data-act=chan]' in q
 
-def try_click(pg, sel, button='left', timeout=1200):
+def try_click(pg, sel, button='left', timeout=1200, pos=None):
     try:
-        pg.locator(sel).filter(visible=True).first.click(button=button, timeout=timeout); return True
+        pg.locator(sel).filter(visible=True).first.click(button=button, timeout=timeout, **({'position': pos} if pos else {})); return True
     except Exception:
         return False
 
@@ -73,8 +76,10 @@ def understood(pg, mem, read_ms):
     mem['held'].append(abs(t1 - t0) < 1e-9)
     if not try_click(pg, '#tutnext'): return
     mem['boxes'] += 1
-    pg.wait_for_timeout(700); st = pg.evaluate("({t: S.t, fr: __tut.reading || paused, done: __tut.done})")
-    if not st['fr'] and not st['done']: mem['resumed'].append(st['t'] > t1)
+    pg.wait_for_timeout(700); st = pg.evaluate("({t: S.t, fr: __tut.reading || paused || !!fxOn, done: __tut.done, id: __tut.id, over: S.over, fx: !!fxOn, hold: !!S.hold})")
+    if not st['fr'] and not st['done']:
+        mem['resumed'].append(st['t'] > t1)
+        if st['t'] <= t1: print('   (no time after Understood: %s)' % st)
 
 def literal(pg, st, mem):
     if st['nxt']: understood(pg, mem, 1000); return
@@ -86,6 +91,7 @@ def literal(pg, st, mem):
             if try_click(pg, '#k-fire'): pg.wait_for_timeout(350); try_click(pg, '#k-fire')
             continue
         if q == '#kv-tgt' and st['view'] == 'tgt': continue
+        if re.fullmatch(r'#sl\d+', q) and pg.evaluate("selId") == int(q[3:]): continue   # a slip already selected: don't click it again (a click can land on a channel cell)
         try_click(pg, q); pg.wait_for_timeout(300)
 
 def skipper(pg, st, mem):
@@ -171,6 +177,11 @@ def run(b, name, page='web/hunt_rt.html?tutorial=tern&return=index.html', vp=(13
     chk(name + ' Corvane alive', st['hp'] > 0 and st['cstate'] != 'disabled')
     common(name, pg, errs, m)
     if name == 'literal':
+        ro = pg.evaluate("__tut.readOrder"); hp1 = [h / st['hpMax'] for h in m['hps'] if h < st['hpMax']]
+        print('   read order %s; her hull %s; ours %s' % ([i + 1 for i in ro], [round(100 * h / st['hpMax']) for h in m['hps']], [round(h) for h in m['hull']]))
+        chk('literal: read all four contacts in order 1, 2, 3, 4', ro == [0, 1, 2, 3])
+        chk('literal: a hit landed on Corvane, her hull above 0 and below 100% (first hit 58-68%)', bool(hp1) and 0.575 <= hp1[0] <= 0.685 and min(hp1) > 0)
+        chk('literal: her answer landed once, our hull stayed well above 45', len(m['hull']) == 2 and 80 <= m['hull'][-1] < 100)
         chk('literal: solution lock->ready within 90 s of running clock at 1x', lr is not None and lr <= 90)
         chk('literal: no step needed Ostrow to do it', not autos)
         chk('literal: game time held on every box while it was read (%d boxes)' % len(mem['held']), mem['held'] and all(mem['held']))

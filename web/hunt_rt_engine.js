@@ -32,7 +32,9 @@ const HuntRT = (() => {
   }
   // Tutorial hook (s.tut), set only by web/tutorial.js on the Tern (P2): { keep: true, solveT: game minutes }. keep: a locked solution never
   // goes stale, never bleeds for low certainty, is never cut by a target maneuver, and never pauses as too faint, but pauses while no analyst is on it; solveT: a fixed solve time
-  // (divided by moveRate while moving or EVASIVE). Absent on every other hunt, bot and test, so normal balance is untouched.
+  // (divided by moveRate while moving or EVASIVE). sure: a contact id whose every volley from us lands (no cut, no miss), with bands: [[lo, hi], ...] the
+  // hull fractions each successive hit leaves it in (dmgEst then reports a certain hit); foeSure: how many of that contact's volleys on us are
+  // made to land, each for foeDmg: [min, max] hull points. Absent on every other hunt, bot and test, so normal balance is untouched.
   // Per-contact player modifiers (a.pm), set only by decision moments (web/hunt_rt_template.html, MOMENTS). They change how WE read and
   // hold one contact and nothing else; an absent a.pm (every headless test, every bot) leaves the engine exactly as before.
   //   readDone, classNoise, sensR: multipliers on our read threshold, guess noise and read range for this contact
@@ -126,7 +128,10 @@ const HuntRT = (() => {
     }
     for (const v of s.inc.filter(v => s.t >= v.at)) {
       s.inc.splice(s.inc.indexOf(v), 1); const ls = landings(v), pl = s.player, R = v.killR; let f = 0, n = 0; const L = ls.map(q => { const d = Math.hypot(q.x - pl.x, q.y - pl.y); if (d < R) { f += blastDmg(1, R, d); n++; } return { dx: q.x - pl.x, dy: q.y - pl.y, d }; });
-      const dmg = v.dmgW * (v.dmg || 1) * stack(f), before = s.hull;
+      const tutFoe = !!(s.tut && s.tut.foeSure > 0 && v.id === s.tut.sure);   // tutorial only (web/tutorial.js): her answer lands once, for a fixed bite
+      if (tutFoe && !n) { const i = L.reduce((b, x, j) => x.d < L[b].d ? j : b, 0), k = 0.5 * R / Math.max(1e-6, L[i].d); L[i] = { dx: L[i].dx * k, dy: L[i].dy * k, d: 0.5 * R }; f += blastDmg(1, R, 0.5 * R); n = 1; }
+      let dmg = v.dmgW * (v.dmg || 1) * stack(f); const before = s.hull;
+      if (tutFoe) { dmg = clamp(dmg, s.tut.foeDmg[0], s.tut.foeDmg[1]); s.tut.foeSure--; }
       if (n) hurtPlayer(s, dmg, `Contact ${v.id + 1} volley: ${n} of ${ls.length} detonated in range. ${dmg < 12 ? 'Light hull damage, plating only, no systems affected.' : dmg < 30 ? 'Moderate hull damage, possible systems damage.' : 'Heavy hull damage. That one hurt.'}`); else report(s, 'Abara', `Contact ${v.id + 1} volley: no damage. All warheads detonated clear of the hull.`, 'good');
       emit(s, { kind: 'theirs', shooter: v.id, ammo: 'he', L, R, n, dmg, before, after: s.hull, max: 100, result: s.hull <= 0 ? 'cripple' : n ? 'damaged' : 'miss', who: 'Us' });
       if (s.over) return;
@@ -246,6 +251,7 @@ const HuntRT = (() => {
   }
   function selfRisk(s, a, L, cone, M = 400, r = Math.random) { const f = fanInfo(s, a, L); let any = 0, tot = 0; for (let i = 0; i < M; i++) { const fx = volleyFx(f.aim, cone, 1e9, 1e9, a, r, f.dir, s.player, null, s.me, f.disp); if (fx.self) any++; tot += fx.self; } return { p: any / M, exp: tot / M, dist: Math.hypot(f.aim.x - s.player.x, f.aim.y - s.player.y) }; }
   function dmgEst(s, a, L, cone, kind = 'he', M = 400, r = Math.random, homing = false) {   // chance a missile lands in range, and the expected effect: hull points (he), efficiency points (emp) or glare points (flare)
+    if (s.tut && s.tut.sure === a.id && a.kind === 'real' && s.tut.bands && a.hpMax) { const bd = s.tut.bands[Math.min(s.tut.bands.length - 1, a.tutHits || 0)]; return { p: 1, exp: Math.max(0, a.hp - (bd[0] + bd[1]) / 2 * a.hpMax) }; }   // tutorial only: the hit is guaranteed, so the odds say so
     const f = fanInfo(s, a, L), cd = Math.cos(f.dir), sd = Math.sin(f.dir), m = estAt(a, f.tauImp), pi = intercept(a, cone), W = WARHEAD[kind], rd = a.kind === 'real' ? reactOf(s, a, homing, s.me.engage + f.tf) : { pw: 0, dev: 0 }, hv = legVel(a, s.t), hd = Math.atan2(hv.vy, hv.vx), sc = scatter(cone, f.disp, s.me.alongStretch); let any = 0, tot = 0;
     for (let i = 0; i < M; i++) { const al = gauss(r) * f.along, cr = gauss(r) * f.cross; let tx = m.x + al * cd - cr * sd; let ty = m.y + al * sd + cr * cd; let wn = false; if (r() < rd.pw) { wn = true; const dv = rd.dev * (0.6 + 0.4 * r()) * (r() < 0.5 ? 1 : -1); tx -= Math.sin(hd) * dv; ty += Math.cos(hd) * dv; } let sum = 0;
       for (let k = 0; k < s.me.missiles; k++) { const a1 = gauss(r) * sc.al, c1 = gauss(r) * sc.cr, ax = f.aim.x + a1 * cd - c1 * sd, ay = f.aim.y + a1 * sd + c1 * cd; let d = Math.hypot(ax - tx, ay - ty); if (homing && d < s.me.killR * 3) d *= 1 - s.me.homePull * (wn ? s.me.homeWarned : 1); if (d < s.me.killR && r() >= pi) sum += blastDmg(1, s.me.killR, d); }
@@ -448,14 +454,16 @@ const HuntRT = (() => {
       const res = []; let mainHit = false;
       for (const b of s.an) {
         if (b.state === 'disabled' || !['real', 'friend', 'lure'].includes(b.kind)) continue;
-        const tp0 = truePos(b, v.at), pi = intercept(b, v.cone), rf = s.rFx; let tp = tp0, warned = false, sum = 0, n = 0;
+        const tp0 = truePos(b, v.at), pi = intercept(b, v.cone), rf = s.rFx, sure = !!(s.tut && s.tut.sure === b.id && b.id === v.id && b.kind === 'real'); let tp = tp0, warned = false, sum = 0, n = 0;   // sure: tutorial only (web/tutorial.js), the volley always lands on her
         if (b.kind === 'real') { const rd = reactOf(s, b, v.homing, v.at - v.t0); if (rf() < rd.pw) { warned = true; const sg = rf() < 0.5 ? 1 : -1, dv = rd.dev * (0.6 + 0.4 * rf()); const hv = legVel(b, v.at), hd = Math.atan2(hv.vy, hv.vx); tp = { x: tp0.x - Math.sin(hd) * dv * sg, y: tp0.y + Math.cos(hd) * dv * sg }; makeAware(s, b, `Contact ${b.id + 1} detected the salvo and is now aware of us.`, s.me.salvoFix); } }
-        const pts = ls.map(q0 => { let q = q0; if (v.homing) { const hp = s.me.homePull * (warned ? s.me.homeWarned : 1), dd = Math.hypot(q0.x - tp.x, q0.y - tp.y); if (dd < R * 3) q = { x: tp.x + (q0.x - tp.x) * (1 - hp), y: tp.y + (q0.y - tp.y) * (1 - hp) }; } const d = Math.hypot(q.x - tp.x, q.y - tp.y), cut = d < R && rf() < pi; if (d < R && !cut) { sum += blastDmg(1, R, d); n++; } return { dx: q.x - tp.x, dy: q.y - tp.y, d, cut, hit: d < R && !cut }; });
+        const pts = ls.map(q0 => { let q = q0; if (v.homing) { const hp = s.me.homePull * (warned ? s.me.homeWarned : 1), dd = Math.hypot(q0.x - tp.x, q0.y - tp.y); if (dd < R * 3) q = { x: tp.x + (q0.x - tp.x) * (1 - hp), y: tp.y + (q0.y - tp.y) * (1 - hp) }; } const d = Math.hypot(q.x - tp.x, q.y - tp.y), cut = d < R && !sure && rf() < pi; if (d < R && !cut) { sum += blastDmg(1, R, d); n++; } return { dx: q.x - tp.x, dy: q.y - tp.y, d, cut, hit: d < R && !cut }; });
+        if (sure && !n) { const i = pts.reduce((m, x, j) => x.d < pts[m].d ? j : m, 0), k = 0.5 * R / Math.max(1e-6, pts[i].d); pts[i] = { dx: pts[i].dx * k, dy: pts[i].dy * k, d: 0.5 * R, cut: false, hit: true }; sum += blastDmg(1, R, 0.5 * R); n = 1; }
         if (warned && b.id === v.id) report(s, 'Dace', `Contact ${b.id + 1} detected the salvo and maneuvered off its line.`, 'bad');
         if (b.id !== v.id && !n) continue;
-        sum = stack(sum); const dmg = W.w * sum; let result = 'miss';
+        sum = stack(sum); let dmg = W.w * sum, result = 'miss';
         if (n) {
-          if (b.hpMax) b.hp = Math.max(b.hpFloor || 0, b.hp - dmg);   // hpFloor: a scripted scene can keep a ship alive
+          if (b.hpMax) { const h0 = b.hp; b.hp = Math.max(b.hpFloor || 0, b.hp - dmg);   // hpFloor: a scripted scene can keep a ship alive
+            if (sure && s.tut.bands) { const bd = s.tut.bands[Math.min(s.tut.bands.length - 1, (b.tutHits = (b.tutHits || 0) + 1) - 1)]; b.hp = clamp(h0 - dmg, Math.min(h0, bd[0] * b.hpMax), Math.min(h0, bd[1] * b.hpMax)); dmg = h0 - b.hp; } }   // tutorial only: each hit lands her in a fixed band of hull
           if (W.emp) b.eff = Math.max(0.25, (b.eff ?? 1) - W.emp * sum);
           if (W.lit) b.lit = Math.min(1, (b.lit || 0) + W.lit * sum);
           result = (!b.hpMax || b.hp <= 0) ? 'cripple' : 'damaged'; if (b.id === v.id) mainHit = true;

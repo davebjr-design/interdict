@@ -356,7 +356,9 @@ const HuntRT = (() => {
   }
   // Tutorial hook (s.tut), set only by web/tutorial.js on the Tern (P2): { keep: true, solveT: game minutes }. keep: a locked solution never
   // goes stale, never bleeds for low certainty, is never cut by a target maneuver, and never pauses as too faint, but pauses while no analyst is on it; solveT: a fixed solve time
-  // (divided by moveRate while moving or EVASIVE). Absent on every other hunt, bot and test, so normal balance is untouched.
+  // (divided by moveRate while moving or EVASIVE). sure: a contact id whose every volley from us lands (no cut, no miss), with bands: [[lo, hi], ...] the
+  // hull fractions each successive hit leaves it in (dmgEst then reports a certain hit); foeSure: how many of that contact's volleys on us are
+  // made to land, each for foeDmg: [min, max] hull points. Absent on every other hunt, bot and test, so normal balance is untouched.
   // Per-contact player modifiers (a.pm), set only by decision moments (web/hunt_rt_template.html, MOMENTS). They change how WE read and
   // hold one contact and nothing else; an absent a.pm (every headless test, every bot) leaves the engine exactly as before.
   //   readDone, classNoise, sensR: multipliers on our read threshold, guess noise and read range for this contact
@@ -450,7 +452,10 @@ const HuntRT = (() => {
     }
     for (const v of s.inc.filter(v => s.t >= v.at)) {
       s.inc.splice(s.inc.indexOf(v), 1); const ls = landings(v), pl = s.player, R = v.killR; let f = 0, n = 0; const L = ls.map(q => { const d = Math.hypot(q.x - pl.x, q.y - pl.y); if (d < R) { f += blastDmg(1, R, d); n++; } return { dx: q.x - pl.x, dy: q.y - pl.y, d }; });
-      const dmg = v.dmgW * (v.dmg || 1) * stack(f), before = s.hull;
+      const tutFoe = !!(s.tut && s.tut.foeSure > 0 && v.id === s.tut.sure);   // tutorial only (web/tutorial.js): her answer lands once, for a fixed bite
+      if (tutFoe && !n) { const i = L.reduce((b, x, j) => x.d < L[b].d ? j : b, 0), k = 0.5 * R / Math.max(1e-6, L[i].d); L[i] = { dx: L[i].dx * k, dy: L[i].dy * k, d: 0.5 * R }; f += blastDmg(1, R, 0.5 * R); n = 1; }
+      let dmg = v.dmgW * (v.dmg || 1) * stack(f); const before = s.hull;
+      if (tutFoe) { dmg = clamp(dmg, s.tut.foeDmg[0], s.tut.foeDmg[1]); s.tut.foeSure--; }
       if (n) hurtPlayer(s, dmg, `Contact ${v.id + 1} volley: ${n} of ${ls.length} detonated in range. ${dmg < 12 ? 'Light hull damage, plating only, no systems affected.' : dmg < 30 ? 'Moderate hull damage, possible systems damage.' : 'Heavy hull damage. That one hurt.'}`); else report(s, 'Abara', `Contact ${v.id + 1} volley: no damage. All warheads detonated clear of the hull.`, 'good');
       emit(s, { kind: 'theirs', shooter: v.id, ammo: 'he', L, R, n, dmg, before, after: s.hull, max: 100, result: s.hull <= 0 ? 'cripple' : n ? 'damaged' : 'miss', who: 'Us' });
       if (s.over) return;
@@ -570,6 +575,7 @@ const HuntRT = (() => {
   }
   function selfRisk(s, a, L, cone, M = 400, r = Math.random) { const f = fanInfo(s, a, L); let any = 0, tot = 0; for (let i = 0; i < M; i++) { const fx = volleyFx(f.aim, cone, 1e9, 1e9, a, r, f.dir, s.player, null, s.me, f.disp); if (fx.self) any++; tot += fx.self; } return { p: any / M, exp: tot / M, dist: Math.hypot(f.aim.x - s.player.x, f.aim.y - s.player.y) }; }
   function dmgEst(s, a, L, cone, kind = 'he', M = 400, r = Math.random, homing = false) {   // chance a missile lands in range, and the expected effect: hull points (he), efficiency points (emp) or glare points (flare)
+    if (s.tut && s.tut.sure === a.id && a.kind === 'real' && s.tut.bands && a.hpMax) { const bd = s.tut.bands[Math.min(s.tut.bands.length - 1, a.tutHits || 0)]; return { p: 1, exp: Math.max(0, a.hp - (bd[0] + bd[1]) / 2 * a.hpMax) }; }   // tutorial only: the hit is guaranteed, so the odds say so
     const f = fanInfo(s, a, L), cd = Math.cos(f.dir), sd = Math.sin(f.dir), m = estAt(a, f.tauImp), pi = intercept(a, cone), W = WARHEAD[kind], rd = a.kind === 'real' ? reactOf(s, a, homing, s.me.engage + f.tf) : { pw: 0, dev: 0 }, hv = legVel(a, s.t), hd = Math.atan2(hv.vy, hv.vx), sc = scatter(cone, f.disp, s.me.alongStretch); let any = 0, tot = 0;
     for (let i = 0; i < M; i++) { const al = gauss(r) * f.along, cr = gauss(r) * f.cross; let tx = m.x + al * cd - cr * sd; let ty = m.y + al * sd + cr * cd; let wn = false; if (r() < rd.pw) { wn = true; const dv = rd.dev * (0.6 + 0.4 * r()) * (r() < 0.5 ? 1 : -1); tx -= Math.sin(hd) * dv; ty += Math.cos(hd) * dv; } let sum = 0;
       for (let k = 0; k < s.me.missiles; k++) { const a1 = gauss(r) * sc.al, c1 = gauss(r) * sc.cr, ax = f.aim.x + a1 * cd - c1 * sd, ay = f.aim.y + a1 * sd + c1 * cd; let d = Math.hypot(ax - tx, ay - ty); if (homing && d < s.me.killR * 3) d *= 1 - s.me.homePull * (wn ? s.me.homeWarned : 1); if (d < s.me.killR && r() >= pi) sum += blastDmg(1, s.me.killR, d); }
@@ -772,14 +778,16 @@ const HuntRT = (() => {
       const res = []; let mainHit = false;
       for (const b of s.an) {
         if (b.state === 'disabled' || !['real', 'friend', 'lure'].includes(b.kind)) continue;
-        const tp0 = truePos(b, v.at), pi = intercept(b, v.cone), rf = s.rFx; let tp = tp0, warned = false, sum = 0, n = 0;
+        const tp0 = truePos(b, v.at), pi = intercept(b, v.cone), rf = s.rFx, sure = !!(s.tut && s.tut.sure === b.id && b.id === v.id && b.kind === 'real'); let tp = tp0, warned = false, sum = 0, n = 0;   // sure: tutorial only (web/tutorial.js), the volley always lands on her
         if (b.kind === 'real') { const rd = reactOf(s, b, v.homing, v.at - v.t0); if (rf() < rd.pw) { warned = true; const sg = rf() < 0.5 ? 1 : -1, dv = rd.dev * (0.6 + 0.4 * rf()); const hv = legVel(b, v.at), hd = Math.atan2(hv.vy, hv.vx); tp = { x: tp0.x - Math.sin(hd) * dv * sg, y: tp0.y + Math.cos(hd) * dv * sg }; makeAware(s, b, `Contact ${b.id + 1} detected the salvo and is now aware of us.`, s.me.salvoFix); } }
-        const pts = ls.map(q0 => { let q = q0; if (v.homing) { const hp = s.me.homePull * (warned ? s.me.homeWarned : 1), dd = Math.hypot(q0.x - tp.x, q0.y - tp.y); if (dd < R * 3) q = { x: tp.x + (q0.x - tp.x) * (1 - hp), y: tp.y + (q0.y - tp.y) * (1 - hp) }; } const d = Math.hypot(q.x - tp.x, q.y - tp.y), cut = d < R && rf() < pi; if (d < R && !cut) { sum += blastDmg(1, R, d); n++; } return { dx: q.x - tp.x, dy: q.y - tp.y, d, cut, hit: d < R && !cut }; });
+        const pts = ls.map(q0 => { let q = q0; if (v.homing) { const hp = s.me.homePull * (warned ? s.me.homeWarned : 1), dd = Math.hypot(q0.x - tp.x, q0.y - tp.y); if (dd < R * 3) q = { x: tp.x + (q0.x - tp.x) * (1 - hp), y: tp.y + (q0.y - tp.y) * (1 - hp) }; } const d = Math.hypot(q.x - tp.x, q.y - tp.y), cut = d < R && !sure && rf() < pi; if (d < R && !cut) { sum += blastDmg(1, R, d); n++; } return { dx: q.x - tp.x, dy: q.y - tp.y, d, cut, hit: d < R && !cut }; });
+        if (sure && !n) { const i = pts.reduce((m, x, j) => x.d < pts[m].d ? j : m, 0), k = 0.5 * R / Math.max(1e-6, pts[i].d); pts[i] = { dx: pts[i].dx * k, dy: pts[i].dy * k, d: 0.5 * R, cut: false, hit: true }; sum += blastDmg(1, R, 0.5 * R); n = 1; }
         if (warned && b.id === v.id) report(s, 'Dace', `Contact ${b.id + 1} detected the salvo and maneuvered off its line.`, 'bad');
         if (b.id !== v.id && !n) continue;
-        sum = stack(sum); const dmg = W.w * sum; let result = 'miss';
+        sum = stack(sum); let dmg = W.w * sum, result = 'miss';
         if (n) {
-          if (b.hpMax) b.hp = Math.max(b.hpFloor || 0, b.hp - dmg);   // hpFloor: a scripted scene can keep a ship alive
+          if (b.hpMax) { const h0 = b.hp; b.hp = Math.max(b.hpFloor || 0, b.hp - dmg);   // hpFloor: a scripted scene can keep a ship alive
+            if (sure && s.tut.bands) { const bd = s.tut.bands[Math.min(s.tut.bands.length - 1, (b.tutHits = (b.tutHits || 0) + 1) - 1)]; b.hp = clamp(h0 - dmg, Math.min(h0, bd[0] * b.hpMax), Math.min(h0, bd[1] * b.hpMax)); dmg = h0 - b.hp; } }   // tutorial only: each hit lands her in a fixed band of hull
           if (W.emp) b.eff = Math.max(0.25, (b.eff ?? 1) - W.emp * sum);
           if (W.lit) b.lit = Math.min(1, (b.lit || 0) + W.lit * sum);
           result = (!b.hpMax || b.hp <= 0) ? 'cripple' : 'damaged'; if (b.id === v.id) mainHit = true;
@@ -1043,37 +1051,47 @@ try { const d = QS.get('difficulty'); if (d && !E.setDifficulty(d)) console.warn
  * The step then completes when the player does it. There is no idle timer anywhere: nothing is done for the player unless they press
  * Skip step (a tester convenience: Ostrow does the step, or waits for what it needs, such as readings or a ready solution).
  *
- * Identification: contact 3 is a contact like any other until the engine's own readings say otherwise (E.advice calls it a ship, or
+ * Order (2026-11-03, Dave): Ostrow walks the board in contact order, 1, 2, 3, 4, all the way through: nothing is fired on until every
+ * contact has been read. Each contact gets its own read, then is ruled out on its own readings or, for the real one, identified and locked.
+ * Contacts after Corvane are read while Dunne works the solution, with one analyst left on her.
+ *
+ * Identification: Corvane's contact is a contact like any other until the engine's own readings say otherwise (E.advice calls it a ship, or
  * E.classify is 90% sure it is real on two or more channels). Only then does Ostrow call it a ship and name Corvane, and only then is
  * LOCK ON highlighted. Decoys are ruled out on their own readings: Ostrow's line is built from what the H, R and V channels show.
  *
  * Tutorial-only guarantees (none of this reaches a normal hunt; the engine reads s.tut, which only this file sets):
  *  - s.tut.keep: a locked solution never goes stale or bleeds and is never cut by a maneuver; it pauses only while no analyst is on her.
  *  - s.tut.solveT: lock to ready in about SOLVE_T game minutes (about 35 real seconds at 1x; EVASIVE about 10% faster).
- *  - Corvane drifts slowly, never maneuvers, and holds her fire until our first volley has landed. She can't be dismissed.
+ *  - s.tut.sure / bands: every volley of ours on her lands (the Target view says 100%), the first leaves her at 58-68% hull, the second at
+ *    38-42%, then she surrenders. She is never destroyed. s.tut.foeSure / foeDmg: her one answer lands, for 8-12 hull points.
+ *  - Corvane drifts slowly, never maneuvers, and holds her fire until our first volley has landed; then she fires once. She can't be dismissed.
  *  - Once she's locked, an analyst stays on her: if the player pulls them all off for a quarter of a game minute, Riggs goes back.
  *  - No breach, no running quiet. Nothing can fail. */
 (function () {
   if (!TUT) return;
   const RET = QS.get('return') || 'index.html';
   const NAMES = { Dace: 'Riggs', Castellan: 'Okafor', Quill: 'Sato', Abara: 'Dunne', Pell: 'the plot' };
+  const BANDS = [[0.58, 0.68], [0.38, 0.42]];   // hull fraction our first and second hit leave her at (tutorial only, s.tut.bands)
+  const WIDE = 16;   // the cone Dunne sets for the shot (km); the console's default is 8
   const SOLVE_T = 2.2;   // game minutes from lock to ready with an analyst on her (P.secPerMin = 16: about 35 real seconds at 1x)
   Object.assign(CREW_NAMES, NAMES);   // console labels (FOLLOW DUNNE, the aim marker, the manual) read crewName()
   E.ANALYSTS.forEach(w => { if (NAMES[w.name]) w.name = NAMES[w.name]; });
   const oNew = E.newHunt, oTick = E.tick, oDismiss = E.dismissContact, oFire = E.fire;
-  let C = null, G = null, L = null, done = false, S0 = null;
+  let C = null, G = null, L = null, done = false, S0 = null, ORD = [];
   let step = 0, hiKey = '', note = '', forced = false, autoDone = false, acked = false, ackTxt = '', vols = [], eyesOffT = null, loose = false, collapsed = false, beats = [], seen = {}, reading = false, rkey = '', fireTold = false;
-  const st0 = () => { step = 0; hiKey = ''; note = ''; forced = false; autoDone = false; acked = false; ackTxt = ''; vols = []; eyesOffT = null; loose = false; collapsed = false; beats = []; seen = {}; reading = false; rkey = ''; fireTold = false; done = false; };
+  const st0 = () => { step = 0; hiKey = ''; note = ''; forced = false; autoDone = false; acked = false; ackTxt = ''; vols = []; eyesOffT = null; loose = false; collapsed = false; beats = []; seen = {}; reading = false; rkey = ''; fireTold = false; done = false; if (window.__tut) __tut.readOrder.length = 0; };
   E.newHunt = (seed, opts) => {
     const s = oNew(4242, Object.assign({}, opts, { nreal: 1, friendly: false, N: 4, nlure: 1, integration: 0 }));   // the field is set per hunt, never on the shared rules
     s.analysts.forEach(w => { if (NAMES[w.name]) w.name = NAMES[w.name]; });
-    C = s.an.find(a => a.kind === 'real'); C.load = Object.assign({}, E.LOADOUTS.find(l => l.id === 'shade'), { dmg: 0.35 }); C.hpMax = C.hp = 110; C.hpFloor = 0.4 * C.hpMax; C.corvane = true;   // she surrenders at 60%; the floor keeps a lucky volley from crippling her first
+    C = s.an.find(a => a.kind === 'real'); C.load = Object.assign({}, E.LOADOUTS.find(l => l.id === 'shade'), { dmg: 0.35 }); C.hpMax = C.hp = 110; C.hpFloor = BANDS[1][0] * C.hpMax; C.corvane = true;   // the bands set what each hit leaves her; the floor is a backstop
+    C.ai.fireRange = 999; C.ai.missileSpeed = 60;   // her one answer always reaches us, in about 30 s of clock
     { const h = Math.atan2(C.vy, C.vx), v = 1.2; C.v = v; C.vx = Math.cos(h) * v; C.vy = Math.sin(h) * v; }   // she drifts, keeping to the dark; she doesn't run
     const d = a => { const p = E.truePos(a, 0); return Math.hypot(p.x - s.player.x, p.y - s.player.y); };
     G = s.an.filter(a => a.kind === 'ghost').sort((a, b) => d(a) - d(b))[0];   // first: the nearest piece of junk
     L = s.an.find(a => a.kind === 'lure');                                     // second: the decoy that runs warm but hides no hull
-    s.tut = { keep: true, solveT: SOLVE_T };
-    S0 = s; st0(); return s;
+    ORD = s.an.slice().sort((a, b) => a.id - b.id);   // Ostrow reads the board in contact order
+    s.tut = { keep: true, solveT: SOLVE_T, sure: C.id, bands: BANDS, foeSure: 1, foeDmg: [8, 12] };
+    S0 = s; st0(); buildSteps(); return s;
   };
   // the engine does nothing while a box is being read or the clock is paused, even when called directly
   E.tick = (s, dt) => { if (C && !done && s === S0) { director(s); if (done || reading || paused) return; } if (C && !done) pre(s); oTick(s, dt); remap(s); director(s); };
@@ -1088,13 +1106,14 @@ try { const d = QS.get('difficulty'); if (d && !E.setDifficulty(d)) console.warn
   function remap(s) { for (let i = s._rm || 0; i < s.log.length; i++) { const l = s.log[i]; if (NAMES[l.who]) l.who = NAMES[l.who]; l.text = l.text.replace(/\bPell\b/g, 'the plot').replace(/\bAbara\b/g, 'Dunne'); } s._rm = s.log.length; }
   function pre(s) {   // before each engine tick: she holds course and holds fire until our first volley has landed
     C.nextMan = s.t + 99;
-    if (!loose) { if (vols.some(v => s.t >= v.at)) { loose = true; C.nextFire = s.t + 0.8; } else C.nextFire = s.t + 99; }
+    if (!loose) { if (vols.some(v => s.t >= v.at)) { loose = true; C.nextFire = s.t + 0.3; } else C.nextFire = s.t + 99; }
+    else if (s.inc.some(v => v.id === C.id) || s.tut.foeSure <= 0) C.nextFire = s.t + 99;   // one answer, then she holds
   }
 
   // ---------- what the readings say (the engine's own evidence) ----------
   const val = (a, ch) => { const q = a.read[ch]; return !q ? null : q.blind ? 'blind' : q.den > 0 ? Math.max(0, q.num / q.den) : null; };
   const settled = a => a.state !== 'open' || E.advice(S0, a).call !== 'unsure' || (() => { const c = E.classify(S0, a); return c.n >= 2 && c.p >= 0.85; })();
-  const idf = s => { if (!C) return false; if (C.idStatus === 'hostile') return true; const ad = E.advice(s, C).call, c = E.classify(s, C); return ad === 'ship' || (c.best === 'real' && c.p >= 0.9 && c.n >= 2); };
+  const idf = s => { if (!C) return false; if (C._idf || C.idStatus === 'hostile') return (C._idf = true); const ad = E.advice(s, C).call, c = E.classify(s, C); return (C._idf = ad === 'ship' || (c.best === 'real' && c.p >= 0.9 && c.n >= 2)); };   // once identified, she stays identified
   function interp(a) {   // Ostrow reads the three channels aloud
     const h = val(a, 'thermal'), r = val(a, 'reactor'), o = val(a, 'occlusion');
     const hs = h == null || h === 'blind' ? 'no heat read yet' : h >= 0.65 ? 'warm' : h >= 0.3 ? 'faint heat' : 'cold';
@@ -1102,13 +1121,10 @@ try { const d = QS.get('difficulty'); if (d && !E.setDifficulty(d)) console.warn
     const os = o == null ? 'no eclipse read yet' : o === 'blind' ? 'nothing behind it to eclipse' : o >= 0.6 ? 'it blocks the stars' : 'Sato sees stars right through it';
     return 'Contact ' + (a.id + 1) + ': ' + hs + ', ' + rs + ', and ' + os + '.';
   }
-  function concl(a) { const c = E.classify(S0, a); return c.best === 'ghost' ? 'Cold and drifting: junk.' : c.best === 'lure' ? 'Heat with no hull behind it: a decoy, a hot can left to drift.' : 'Not junk. Leave it.'; }
+  function concl(a) { const c = E.classify(S0, a), h = val(a, 'thermal');
+    return c.best === 'ghost' ? (typeof h === 'number' && h >= 0.65 ? 'Sun-warmed, but nothing alive in it: junk.' : 'Cold and drifting: junk.') : c.best === 'lure' ? 'Heat with no hull behind it: a decoy, a hot can left to drift.' : 'Not junk. Leave it.'; }
 
-  // ---------- Ostrow's orders ----------
-  // hi: console selectors to outline (every visible match is outlined). tests/hunt_pages.py checks each resolves to a visible control.
-  // done: the state that completes the step (cumulative, so doing things early counts). auto: what Skip step does (Ostrow does it; if the
-  // step needs readings or a solution, it then completes when they arrive). Every order is read with the clock frozen (Understood).
-  const cid = () => (C ? C.id + 1 : '?'), gid = () => (G ? G.id + 1 : '?'), lid = () => (L ? L.id + 1 : '?');
+  const cid = () => (C ? C.id + 1 : '?'), num = a => a.id + 1;
   const eyes = s => s.analysts.some(w => w.task === C.id);
   const on = (s, a) => s.analysts.some(w => w.task === a.id);
   const allOn = (s, a) => s.analysts.every(w => w.task === a.id);
@@ -1116,69 +1132,94 @@ try { const d = QS.get('difficulty'); if (d && !E.setDifficulty(d)) console.warn
   const tacOnly = list => (view === 'tac' ? list : ['#kv-tac']);
   const fireHi = () => (view === 'tgt' ? ['#k-fire'] : ['#kv-tgt', '#k-tgt']);
   const landed = s => vols.length >= 2 && s.t >= vols[1].at + 0.05;
+  const answered = s => s.tut.foeSure <= 0 && !s.inc.some(v => v.id === C.id);   // her one answer has landed
   const invHi = (s, a) => (on(s, a) ? ['#sl' + a.id] : ['#sl' + a.id, '#k-inv']);
-  const STEPS = [
-    { id: 'clock', title: 'Start the clock', noAck: true, auto: () => { if (paused) togglePause(); },
-      say: () => "We're stopped. PAUSE holds the clock, and orders still go in while it's held. The speed keys set the pace: 1x is real time, 2x for the quiet stretches. Press RESUME (or P) to start.",
-      hi: () => ['#k-pause', '#k-t0', '#k-t1', '#k-t2', '#r-clk'], done: () => !paused },
-    { id: 'board', title: 'Read the board',
-      say: () => 'Four contacts on the board, left. Every slip reads ?: unknown. Above them, three analysts: Riggs reads heat (H), Okafor reactors (R), Sato watches for an eclipse (V). A solid hull blocks the stars behind it.',
-      hi: () => ['#an0', '#an1', '#an2', '#ct .cslip'], done: () => acked },
-    { id: 'investigate', title: 'Investigate', auto: s => { if (!allOn(s, G) && G.state === 'open') E.investigate(s, G.id); },
-      say: () => 'One contact at a time. Start with the nearest, contact ' + gid() + ': select its slip, then press INVESTIGATE. All three analysts read it at once.',
-      hi: s => invHi(s, G), done: s => s.analysts.some(w => w.task != null) || G.state !== 'open' },
-    { id: 'read', title: 'Read the channels', auto: s => { if (G.state === 'open' && !on(s, G)) E.investigate(s, G.id); },
-      say: () => 'The H, R and V bars on contact ' + gid() + "'s slip fill as the readings come in. Let them settle. 2x if it's slow.",
-      hi: () => ['#sl' + G.id], done: () => settled(G) },
-    { id: 'dismiss', title: 'Rule it out', auto: s => { if (G.state === 'open') oDismiss(s, G.id); }, autoSay: () => 'Contact ' + gid() + ' is junk. Dunne, rule it out.',
-      say: () => (G.state !== 'open' ? 'Ruled out.' : !settled(G) ? 'Contact ' + gid() + " hasn't settled. Let the bars fill." : interp(G) + ' ' + concl(G) + ' Select it and press DISMISS.'),
-      key: () => G.state + settled(G), hi: () => (G.state === 'open' ? ['#sl' + G.id, '#k-dis'] : ['#k-dis']), done: () => G.state !== 'open' },
-    { id: 'next', title: 'Next contact', auto: s => { if (L.state === 'open' && !on(s, L)) E.investigate(s, L.id); },
-      say: () => 'Next, contact ' + lid() + '. Select it, press INVESTIGATE, and let the readings settle.',
-      hi: s => (L.state === 'open' ? invHi(s, L) : ['#k-inv']), done: () => settled(L) },
-    { id: 'decoy', title: 'Rule out the decoy', auto: s => { if (L.state === 'open') oDismiss(s, L.id); }, autoSay: () => 'Contact ' + lid() + ' is a decoy. Dunne, rule it out.',
-      say: () => (L.state !== 'open' ? 'Ruled out.' : interp(L) + ' ' + concl(L) + ' DISMISS it.'),
-      key: () => L.state, hi: () => (L.state === 'open' ? ['#sl' + L.id, '#k-dis'] : ['#k-dis']), done: () => L.state !== 'open' },
-    { id: 'identify', title: 'Investigate again', auto: s => { if (C.state !== 'out' && !on(s, C)) E.investigate(s, C.id); },
-      say: () => 'Now contact ' + cid() + '. Select it and press INVESTIGATE. The readings decide what it is, not a hunch.',
-      hi: s => invHi(s, C), done: s => idf(s) },
-    { id: 'lock', title: 'Lock on', auto: s => { if (C.state === 'open') E.lockContact(s, C.id); }, autoSay: () => 'Dunne, lock contact ' + cid() + '.',
-      say: () => interp(C) + " Hot, live and solid: that's a ship. That'll be Corvane. Select her slip and press LOCK ON.",
-      hi: () => ['#sl' + C.id, '#k-lock'], done: () => C.state === 'locked' },
-    { id: 'track', title: 'Hold the track', auto: s => { if (!eyes(s)) E.assign(s, 'dace', C.id); }, autoSay: () => 'Riggs, stay on her.',
-      say: s => (eyes(s) ? "Locked. Dunne solves from a live track: keep an analyst on her. The % on her slip is how sure we are of her: LOCK is fresh, TRACK ageing, LAST lost." : 'No eyes, no solution. Put an analyst back on her: INVESTIGATE with her slip selected, or click one H / R / V cell on it.'),
-      key: s => eyes(s), hi: s => (eyes(s) ? ['#sl' + C.id + ' .cod', '#sl' + C.id] : ['#sl' + C.id, '#k-inv']), done: s => eyes(s) && acked },
-    { id: 'course', title: 'Set a course', auto: s => { const p = s.player; E.setRoute(s, [{ x: p.x + 12, y: p.y + (p.y < P.arena / 2 ? 24 : -24), speed: 'v2' }]); E.setSpeed(s, 'v2'); }, autoSay: () => 'Helm, give us a short leg.',
-      say: () => (view === 'tac' ? "While Dunne works, the helm. Right-click open space on the scope and pick Go here. That's a course leg." : view === 'str' ? "While Dunne works, the helm. Right-click open space on the map and pick Go here. That's a course leg." : 'While Dunne works, the helm. Back to TACTICAL first: the TACTICAL key at the top, or press 1.'),
-      key: () => view, hi: () => (view === 'tac' ? ['#cv'] : view === 'str' ? ['#map'] : ['#kv-tac']), done: s => s.route.length > 0 || ['route', 'close', 'separate', 'orbit', 'evade'].includes(s.posture) },
-    { id: 'evade', title: 'Try EVASIVE', auto: s => E.setOrder(s, 'evade', null), autoSay: () => 'Helm, evasive.',
-      say: () => "Press EVASIVE. We weave and the analysts get new angles: reads and Dunne's solve run about ten percent faster. The price: we're louder and hotter.",
-      hi: () => tacOnly(['#k-evade']), done: s => (s._tutEv = s._tutEv || s.posture === 'evade') },
-    { id: 'still', title: 'HOLD STILL', auto: s => E.setOrder(s, 'still', null), autoSay: () => 'Helm, hold still.',
-      say: () => 'Now HOLD STILL. Drive off: the quietest we can be, and the sink fills slowest. Faster or quieter: that trade is every hunt.',
-      hi: () => tacOnly(['#k-hold']), done: s => s._tutEv && s.posture === 'still' },
-    { id: 'fire', title: 'Fire', canAuto: ready, auto: s => oFireAt(s), autoSay: () => 'Dunne, fire.',
-      say: s => (!ready(s) ? 'Dunne needs the solution first: watch the bar below. When it reads ready, we fire.' : view === 'tgt' ? "FIRE SALVO has a guard. Click once to lift it, then again to fire. We're here to make her stop, not to kill her." : 'Solution ready. Open the Target view: TARGET at the top, or press 3.'),
-      key: s => ready(s) + (view === 'tgt' ? 't' : ''), hi: s => (ready(s) ? fireHi() : ['#kv-tgt']), done: () => vols.length >= 1 },
-    { id: 'vent', title: 'Vent', auto: s => E.startVent(s), autoSay: () => 'Fins out. Dumping heat.', enter: s => { s.sink.h = Math.max(s.sink.h, 0.3); },   // the launch warmed the sinks: there is heat to dump
-      say: () => "That launch dumped heat in the sink: see the tank jump. Press VENT to open the fins and dump it. Fins out, we're lit up, so not for long. VENT again pulls them in.",
-      hi: () => ['#k-vent', '#g-tank'], done: s => s.vent.n > 0 },
-    { id: 'again', title: 'Fire again', canAuto: s => ready(s) && vols.length < 2 && s.tubes.some(x => s.t >= x), auto: s => oFireAt(s), autoSay: () => 'Dunne, again.',
-      say: () => (view === 'tgt' ? "Lift the guard and fire. She'll shoot back now. Keep the pressure on." : "Again: TARGET, lift the guard, fire. She'll shoot back now. Keep the pressure on."),
-      key: () => view === 'tgt', hi: fireHi, done: () => vols.length >= 2 }
-  ];
-  function oFireAt(s) { if (ready(s)) E.fire(s, C.id, null, 6); }
+  const AN = { thermal: 'dace', reactor: 'castellan', occlusion: 'quill' }, AN_NAME = { thermal: 'Riggs', reactor: 'Okafor', occlusion: 'Sato' }, CH_KEY = { thermal: 'H', reactor: 'R', occlusion: 'V' };
+  const keepCh = a => a._keep || (a._keep = a.read.occlusion && a.read.occlusion.blind ? 'occlusion' : 'reactor');   // fixed when first asked, so the order never changes under the player   // who stays on her while we read a contact after the lock: Sato if there's nothing to eclipse there, else Okafor
+  const INTRO = "One contact at a time, in order, all the way through. We don't fire on anything until we know what everything out there is. ";
+  // ---------- Ostrow's orders, built per hunt: the board in contact order ----------
+  // hi: console selectors to outline (every visible match is outlined). tests/hunt_pages.py checks each resolves to a visible control.
+  // done: the state that completes the step (cumulative, so doing things early counts). auto: what Skip step does (Ostrow does it; if the
+  // step needs readings or a solution, it then completes when they arrive). Every order is read with the clock frozen (Understood).
+  // kind / x: what the step does and to which contact (tests read these).
+  const readStep = (X, first) => ({ id: 'read' + num(X), kind: 'read', x: X.id, title: 'Read contact ' + num(X), auto: s => { if (X.state === 'open' && !allOn(s, X)) E.investigate(s, X.id); },
+    say: () => (first ? INTRO + 'Contact ' + num(X) + ': select its slip and press INVESTIGATE. All three analysts read it. Let the H, R and V bars settle; 2x if it\'s slow.' : 'Contact ' + num(X) + ' next. Select it, press INVESTIGATE, and let the bars settle.'),
+    hi: s => (X.state === 'open' ? invHi(s, X) : ['#sl' + X.id]), done: () => X._tutOn && settled(X) });
+  const ruleStep = X => ({ id: 'rule' + num(X), kind: 'rule', x: X.id, title: 'Rule out contact ' + num(X), auto: s => { if (X.state === 'open') oDismiss(s, X.id); }, autoSay: () => 'Contact ' + num(X) + ' is nothing. Dunne, rule it out.',
+    say: () => (X.state !== 'open' ? 'Ruled out.' : !settled(X) ? 'Contact ' + num(X) + " hasn't settled. Let the bars fill." : interp(X) + ' ' + concl(X) + ' Select it and press DISMISS.'),
+    key: () => X.state + settled(X), hi: () => (X.state === 'open' ? ['#sl' + X.id, '#k-dis'] : ['#k-dis']), done: () => X.state !== 'open' });
+  const checkStep = (X, first) => ({ id: 'check' + num(X), kind: 'check', x: X.id, title: 'Check contact ' + num(X),
+    auto: s => { if (X.state === 'open' && !on(s, X)) E.investigate(s, X.id); if (!eyes(s)) E.assign(s, AN[keepCh(X)], C.id); },
+    say: s => { const k = keepCh(X);
+      if (X.state === 'open' && !on(s, X)) return (first ? "Nobody's on to us, so we finish the board while Dunne solves. " : '') + 'Contact ' + num(X) + ': select it and press INVESTIGATE.';
+      return eyes(s) ? 'Let contact ' + num(X) + "'s bars settle. Keep one analyst on her: the solve needs eyes." : 'That took all three off her, and the solve stops without eyes. Click her ' + CH_KEY[k] + ' cell: ' + AN_NAME[k] + ' goes back to her, the other two finish contact ' + num(X) + '.'; },
+    key: s => (X.state === 'open' && !on(s, X) ? 'a' : 'b'),
+    hi: s => (X.state === 'open' && !on(s, X) ? invHi(s, X) : !eyes(s) ? ['#sl' + C.id + ' [data-arg="' + C.id + ':' + keepCh(X) + '"]'] : ['#sl' + X.id]),
+    done: s => X._tutOn && settled(X) && eyes(s) });
+  function buildSteps() {
+    STEPS.length = 0; const k = ORD.indexOf(C);
+    STEPS.push(
+      { id: 'clock', title: 'Start the clock', noAck: true, auto: () => { if (paused) togglePause(); },
+        say: () => "We're stopped. PAUSE holds the clock, and orders still go in while it's held. The speed keys set the pace: 1x is real time, 2x for the quiet stretches. Press RESUME (or P) to start.",
+        hi: () => ['#k-pause', '#k-t0', '#k-t1', '#k-t2', '#r-clk'], done: () => !paused },
+      { id: 'board', title: 'Read the board',
+        say: () => 'Four contacts on the board, left. Every slip reads ?: unknown. Above them, three analysts: Riggs reads heat (H), Okafor reactors (R), Sato watches for an eclipse (V). A solid hull blocks the stars behind it.',
+        hi: () => ['#an0', '#an1', '#an2', '#ct .cslip'], done: () => acked });
+    ORD.forEach((X, i) => {
+      if (i < k) { STEPS.push(readStep(X, i === 0), ruleStep(X)); return; }
+      if (X !== C) { STEPS.push(checkStep(X, i === k + 1), ruleStep(X)); return; }
+      STEPS.push(
+        { id: 'identify', kind: 'read', x: C.id, title: 'Read contact ' + num(C), auto: s => { if (C.state !== 'out' && !allOn(s, C)) E.investigate(s, C.id); },
+          say: () => (i === 0 ? INTRO : '') + 'Now contact ' + cid() + '. Select it and press INVESTIGATE. The readings decide what it is, not a hunch.',
+          hi: s => invHi(s, C), done: s => idf(s) },
+        { id: 'lock', title: 'Lock on', auto: s => { if (C.state === 'open') E.lockContact(s, C.id); }, autoSay: () => 'Dunne, lock contact ' + cid() + '.',
+          say: () => interp(C) + " Hot, live and solid: that's a ship. That'll be Corvane. Select her slip and press LOCK ON.",
+          hi: () => ['#sl' + C.id, '#k-lock'], done: () => C.state === 'locked' },
+        { id: 'track', title: 'Hold the track', auto: s => { if (!eyes(s)) E.assign(s, 'dace', C.id); }, autoSay: () => 'Riggs, stay on her.',
+          say: s => (eyes(s) ? "Locked. Dunne solves from a live track: keep an analyst on her. The % on her slip is how sure we are of her: LOCK is fresh, TRACK ageing, LAST lost." : 'No eyes, no solution. Put an analyst back on her: INVESTIGATE with her slip selected, or click one H / R / V cell on it.'),
+          key: s => eyes(s), hi: s => (eyes(s) ? ['#sl' + C.id + ' .cod', '#sl' + C.id] : ['#sl' + C.id, '#k-inv']), done: s => eyes(s) && acked });
+    });
+    STEPS.push(
+      { id: 'course', title: 'Set a course', auto: s => { const p = s.player; E.setRoute(s, [{ x: p.x + 12, y: p.y + (p.y < P.arena / 2 ? 24 : -24), speed: 'v2' }]); E.setSpeed(s, 'v2'); }, autoSay: () => 'Helm, give us a short leg.',
+        say: () => (view === 'tac' ? 'Now the helm. Right-click open space on the scope and pick Go here. That\'s a course leg.' : view === 'str' ? 'Now the helm. Right-click open space on the map and pick Go here. That\'s a course leg.' : 'Now the helm. Back to TACTICAL first: the TACTICAL key at the top, or press 1.'),
+        key: () => view, hi: () => (view === 'tac' ? ['#cv'] : view === 'str' ? ['#map'] : ['#kv-tac']), done: s => s.route.length > 0 || ['route', 'close', 'separate', 'orbit', 'evade'].includes(s.posture) },
+      { id: 'evade', title: 'Try EVASIVE', auto: s => E.setOrder(s, 'evade', null), autoSay: () => 'Helm, evasive.',
+        say: s => 'Press EVASIVE. We weave and the analysts get new angles: reads' + (ready(s) ? '' : " and Dunne's solve") + ' run about ten percent faster. The price: we\'re louder and hotter.',
+        hi: () => tacOnly(['#k-evade']), done: s => (s._tutEv = s._tutEv || s.posture === 'evade') },
+      { id: 'still', title: 'HOLD STILL', auto: s => E.setOrder(s, 'still', null), autoSay: () => 'Helm, hold still.',
+        say: () => 'Now HOLD STILL. Drive off: the quietest we can be, and the sink fills slowest. Faster or quieter: that trade is every hunt.',
+        hi: () => tacOnly(['#k-hold']), done: s => s._tutEv && s.posture === 'still' },
+      { id: 'fire', title: 'Fire', canAuto: ready, auto: s => oFireAt(s), autoSay: () => 'Dunne, fire.', enter: () => wide(),
+        say: s => (!ready(s) ? 'Dunne needs the solution first: watch the bar below. When it reads ready, we fire.' : view === 'tgt' ? 'FIRE SALVO has a guard. Click once to lift it, then again to fire. HIT CHANCE reads 100%: the cone is wide enough that one of the six finds her.' : 'Solution ready. Open the Target view: TARGET at the top, or press 3.'),
+        key: s => ready(s) + (view === 'tgt' ? 't' : ''), hi: s => (ready(s) ? fireHi() : ['#kv-tgt']), done: () => vols.length >= 1 },
+      { id: 'vent', title: 'Vent', auto: s => E.startVent(s), autoSay: () => 'Fins out. Dumping heat.', enter: s => { s.sink.h = Math.max(s.sink.h, 0.3); },   // the launch warmed the sinks: there is heat to dump
+        say: () => "That launch dumped heat in the sink: see the tank jump. Press VENT to open the fins and dump it. Fins out, we're lit up, so not for long. VENT again pulls them in.",
+        hi: () => ['#k-vent', '#g-tank'], done: s => s.vent.n > 0 },
+      { id: 'again', title: 'Fire again', canAuto: s => ready(s) && vols.length < 2 && s.tubes.some(x => s.t >= x), auto: s => oFireAt(s), autoSay: () => 'Dunne, again.',
+        say: () => (view === 'tgt' ? "Lift the guard and fire again. Once she knows where we are, she'll answer. Don't give her time." : "Again: TARGET, lift the guard, fire. Once she knows where we are, she'll answer. Don't give her time."),
+        key: () => view === 'tgt', hi: fireHi, done: () => vols.length >= 2 });
+  }
+  const STEPS = [];
+  function wide() { try { cone = WIDE; const el = document.getElementById('cone'); if (el) el.value = WIDE; if (view === 'tgt') engUpdate(true); } catch (e) {} }   // Dunne's wide cone (the Target view's cone, shared with the console)
+  function oFireAt(s) { if (ready(s)) { wide(); E.fire(s, C.id, null, WIDE); } }
   const IX = id => STEPS.findIndex(x => x.id === id);
+  const FIRST_READ = 2;   // the first per-contact step
+  const who = n => '<b style="color:#9fb7c8;letter-spacing:.08em">' + n + '</b> ';
   // ---------- commentary beats: what just changed and what it costs. Each freezes the clock until Understood and pulses its gauge. ----------
   function beat(id, text, hi, again) { if (seen[id] && !again) return; seen[id] = true; beats.push({ id, text, hi }); }
   function beatsCheck(s) {
-    if (step >= IX('read') && s.analysts.some(w => w.task != null)) {
+    for (const a of ORD) if (!a._tutOn && on(s, a)) { a._tutOn = true; __tut.readOrder.push(a.id); }
+    if (step >= FIRST_READ && s.analysts.some(w => w.task != null)) {
       beat('sensors', "Sensor work isn't free. SENSE just lit beside DRIVE and PING: those lamps show what's heating us. It all goes in the sink, the tall gauge. At the red line, we vent.", ['#ls-sense', '#ls-drive', '#ls-ping', '#g-tank']);
       beat('seen', 'And heat is noise. SEEN BY ENEMY is how loud we look to anyone out there. Cold is hard to find; hot is easy.', ['#g-seen']);
     }
-    if (step >= IX('read') && step <= IX('decoy')) { const a = [G, L].find(x => x.state === 'open' && on(s, x) && typeof val(x, 'thermal') === 'number' && x.read.thermal.den >= 0.5);
+    if (step >= FIRST_READ && step < IX('identify')) { const a = ORD.find(x => x !== C && x.state === 'open' && on(s, x) && typeof val(x, 'thermal') === 'number' && x.read.thermal.den >= 0.5);
       if (a) beat('heat', 'Riggs has a heat reading on contact ' + (a.id + 1) + ': the H bar. Long is warm, short is cold. Ships run warm; junk runs cold.', ['#sl' + a.id, '#sl' + a.id + ' [data-act=chan]']); }
     if (s.posture === 'evade') beat('evasive', "Feel the weave? SEEN BY ENEMY climbs and the heat rate needle swings right. Faster, and louder.", ['#g-seen', '#d-rate']);
+    if (STEPS[step] && STEPS[step].id === 'fire' && ready(s) && view === 'tgt' && !vols.length) { wide();
+      beat('cone', who('OSTROW') + "Wide cone. I'd rather not kill her if she might surrender. " + who('DUNNE') + "If she gets a good lock on us, we're open to a counterattack. So we hit once, hard enough to get her attention, and don't give her time.", ['#d-cone', '#g-hit']); }
+    if (C.tutHits >= 1) beat('hit1', who('DUNNE') + 'Hit. Her hull is at ' + Math.round(100 * C.hp / C.hpMax) + " percent, and she knows we're here. She'll answer.", ['#sl' + C.id]);
+    if (s.hull < 100) beat('answer', who('RIGGS') + "We're hit. Hull " + Math.round(s.hull) + ' percent, plating only.<br>' + who('OSTROW') + "That was her answer. We're still in this.", ['#g-hull']);
   }
 
   const box = document.createElement('div'); box.id = 'tutbox';
@@ -1209,7 +1250,7 @@ try { const d = QS.get('difficulty'); if (d && !E.setDifficulty(d)) console.warn
   function solveLine(s) {
     if (!C || C.state !== 'locked') return '';
     const si = E.solveInfo(s, C), p = Math.round(Math.min(1, si.prog) * 100);
-    const t = si.ready ? 'DUNNE: SOLUTION READY' : 'DUNNE: SOLVING ' + p + '%' + (si.paused ? ' (PAUSED: ' + (si.noEyes ? 'NO ANALYST ON HER' : 'SENSORS DARK') + ')' : ', ABOUT ' + Math.max(1, Math.round(si.remain * P.secPerMin)) + ' S');
+    const t = si.ready ? 'DUNNE: SOLUTION READY' : 'DUNNE: SOLVING ' + p + '%' + (si.paused ? ' (PAUSED: ' + (si.noEyes ? 'NO ANALYST ON ' + (idf(s) ? 'HER' : 'IT') : 'SENSORS DARK') + ')' : ', ABOUT ' + Math.max(1, Math.round(si.remain * P.secPerMin)) + ' S');
     return '<div class="ts"><span class="tl" id="tutsolt">' + t + '</span><div class="tb"><i id="tutsolb" style="width:' + p + '%;background:' + (si.ready ? '#8fd694' : si.paused ? '#ff6a4a' : '#ffb454') + '"></i></div></div>';
   }
   function solveUpd(s) {   // refresh the solution bar in place
@@ -1217,7 +1258,7 @@ try { const d = QS.get('difficulty'); if (d && !E.setDifficulty(d)) console.warn
     const tmp = document.createElement('div'); tmp.innerHTML = solveLine(s); const nb = tmp.querySelector('#tutsolb'); if (!nb) return;
     b.style.width = nb.style.width; b.style.background = nb.style.background; document.getElementById('tutsolt').textContent = tmp.querySelector('#tutsolt').textContent;
   }
-  window.__tut = { get step() { return step; }, get id() { return STEPS[step] ? STEPS[step].id : 'end'; }, steps: STEPS.length, ids: STEPS.map(x => x.id), hiTargets: () => hiOf(), visible,
+  window.__tut = { get step() { return step; }, get id() { return STEPS[step] ? STEPS[step].id : 'end'; }, get steps() { return STEPS.length; }, get ids() { return STEPS.map(x => x.id); }, get kind() { return STEPS[step] ? STEPS[step].kind || null : null; }, get x() { return STEPS[step] && STEPS[step].x != null ? STEPS[step].x : null; }, readOrder: [], hiTargets: () => hiOf(), visible,
     get corvane() { return C ? C.id : null; }, get decoy() { return G ? G.id : null; }, get lure() { return L ? L.id : null; }, get done() { return done; }, get vols() { return vols.length; },
     get reading() { return reading; }, get beat() { return beats.length ? beats[0].id : null; }, get identified() { return !!(C && S0 && idf(S0)); }, get text() { return box.textContent; },
     rawTick: (s, dt) => oTick(s, dt), autos: [], skips: [], beatsSeen: () => Object.keys(seen) };
@@ -1227,10 +1268,10 @@ try { const d = QS.get('difficulty'); if (d && !E.setDifficulty(d)) console.warn
   function body(s) { return beats.length ? beats[0].text : say0(s); }
   function render(s) {
     const st = STEPS[step]; place();
-    if (!st) { collapsed = true; box.classList.remove('rd'); box.innerHTML = '<div class="th"><span>CAPTAIN OSTROW &middot; ALL ORDERS GIVEN</span></div><div>Volleys away. Watch them land.</div>' + solveLine(s); highlight(); return; }
-    const bt = beats.length > 0;
+    if (!st && !beats.length) { collapsed = true; box.classList.remove('rd'); box.innerHTML = '<div class="th"><span>CAPTAIN OSTROW &middot; ALL ORDERS GIVEN</span></div><div>' + (s.inc.some(v => v.id === C.id) ? 'Her answer is in the air. Brace.' : 'Volleys away. Watch them land.') + '</div>' + solveLine(s); highlight(); return; }
+    const bt = beats.length > 0; collapsed = false;
     box.classList.toggle('rd', reading);
-    box.innerHTML = '<div class="th"><span>OSTROW &middot; STEP ' + (step + 1) + ' OF ' + STEPS.length + ' &middot; ' + (bt ? 'NOTE' : st.title.toUpperCase()) + (reading || paused ? ' &middot; <b>CLOCK STOPPED</b>' : '') + '</span>' +
+    box.innerHTML = '<div class="th"><span>OSTROW &middot; ' + (st ? 'STEP ' + (step + 1) + ' OF ' + STEPS.length : 'ALL ORDERS GIVEN') + ' &middot; ' + (bt ? 'NOTE' : st.title.toUpperCase()) + (reading || paused ? ' &middot; <b>CLOCK STOPPED</b>' : '') + '</span>' +
       (reading ? '<button id="tutnext" type="button" title="Resume the clock">Understood</button>' : '') + (bt ? '' : '<button id="tutskip" type="button" title="Ostrow does this step for you">Skip step</button>') + '</div>' +
       '<div>' + body(s) + '</div>' + (note && !bt ? '<div class="tn">' + note + '</div>' : '') + solveLine(s);
     const n = document.getElementById('tutnext'); if (n) n.onclick = () => { if (beats.length) beats.shift(); else { acked = true; ackTxt = tkey(S0); } director(S0); };
@@ -1241,27 +1282,27 @@ try { const d = QS.get('difficulty'); if (d && !E.setDifficulty(d)) console.warn
   function setHold(s, on) { reading = on; window.__tutHold = on; s.hold = on; }   // the engine's hold: stepGame and the E.tick wrapper both stop
   function director(s) {
     if (done || !C || s !== S0) return;
-    if (s.over || C.hp <= C.hpMax * 0.6 || s.hull < 45 || landed(s)) { surrender(s); return; }   // the tutorial cannot be failed
+    if (s.over || s.hull < 45 || (landed(s) && !beats.length && ((answered(s) && (seen.answer || s.hull >= 100)) || s.t > vols[1].at + 3))) { surrender(s); return; }   // both our hits and her answer have landed and been read (the tutorial cannot be failed)
     // standing guarantees (game time only: nothing here runs while the clock is stopped)
     if (C.state === 'locked' && step > IX('track')) { if (eyes(s)) eyesOffT = null; else if (eyesOffT == null) eyesOffT = s.t; else if (s.t - eyesOffT > 0.25) { E.assign(s, 'dace', C.id); eyesOffT = null; beat('riggs' + s.t.toFixed(2), 'Riggs. Back on her. No eyes, no solution.', ['#sl' + C.id], true); } }
     if (s.vent.on && !s.vent.forced && s.t - s.vent.t0 > 1.2 && step >= IX('vent')) { E.stopVent(s); beat('fins' + s.t.toFixed(2), "Fins in. That's long enough out: every second they're out, we're lit up.", ['#k-vent', '#g-seen'], true); }
     let st = STEPS[step];
     for (let guard = 0; st && guard < STEPS.length + 2; guard++) {
       if (forced && !autoDone && st.auto && (!st.canAuto || st.canAuto(s))) { st.auto(s); autoDone = true; __tut.autos.push(st.id + ':skip'); if (st.autoSay) note = st.autoSay(s); }
-      if (st.done(s)) { const nt = autoDone && st.autoSay ? note : ''; step++; st = STEPS[step]; enter(s); note = nt; continue; }
+      if (st.done(s)) { const nt = autoDone && st.autoSay ? note : ''; step++; st = STEPS[step]; enter(s); note = st && st.kind === 'check' ? '' : nt; continue; }   // a check order is long: no carried note
       break;
     }
     beatsCheck(s);
     st = STEPS[step];
     if (st && acked && !st.noAck && tkey(s) !== ackTxt && !forced) acked = false;   // the order changed (readings came in, the solution is ready, another view): read it again
-    const want = !!st && (beats.length > 0 || (!st.noAck && !acked));
+    const want = beats.length > 0 || (!!st && !st.noAck && !acked);
     if (want !== reading || s.hold !== want) setHold(s, want);
     const key = step + '|' + (beats[0] ? beats[0].id : '') + '|' + reading + '|' + paused + '|' + body(s) + '|' + note + '|' + (C.state === 'locked');
     if (key !== rkey) { rkey = key; render(s); } else { highlight(); solveUpd(s); }
   }
   function surrender(s) {
     done = true; setHold(s, false); try { paused = true; } catch (e) {} document.querySelectorAll('.tut-hi').forEach(e => e.classList.remove('tut-hi', 'tut-beat'));
-    const line = vols.length ? "Hold your fire, Ostrow. I'll take visitors. Send me the new one." : 'Enough, Ostrow. Nobody needs to die tonight. Send me the new one.';   // she stops it before we have fired a shot only if our hull went first
+    const line = vols.length ? "Enough, Ostrow. You've made your point, and I've made mine. Hold your fire. I'll take visitors. Send me the new one." : 'Enough, Ostrow. Nobody needs to die tonight. Send me the new one.';   // she stops it before we have fired a shot only if our hull went first
     box.classList.remove('rd'); Object.assign(box.style, { left: '50%', top: '50%', width: 'min(640px,92vw)', height: 'auto', transform: 'translate(-50%,-50%)', fontSize: '13px', padding: '12px 16px' });
     box.innerHTML = '<div style="font:700 11px Chakra Petch,sans-serif;letter-spacing:.16em;color:#5fd0e0;margin-bottom:6px">SATO &middot; SENSORS</div><div>Laser on us, Captain. Low power, pulsed. It\'s not a weapon. It\'s a message.</div>' +
       '<div style="font:700 11px Chakra Petch,sans-serif;letter-spacing:.16em;color:#b69cf0;margin:12px 0 6px">CORVANE &middot; BY LASER</div><div style="font-style:italic">' + line + '</div>' +
@@ -2207,7 +2248,7 @@ function engUpdate(hp) {
     $('cwb').disabled = !inR || !cwr; $('cwb').textContent = cwr ? 'Coilgun' : 'Coilgun ' + (S.cwCd - S.t).toFixed(1) + ' min'; }
   $('infl').innerHTML = 'Salvos: ' + S.tubes.map((x, i) => `<b style="color:${S.t >= x ? 'var(--green)' : 'var(--amber)'}">${i + 1} ${S.t >= x ? 'READY' : 'RELOAD ' + fmtMin(x - S.t)}</b>`).join(' / ') + (S.volleys.length ? '<br>' + S.volleys.map(v => `In flight at contact ${v.id + 1}: impact in ${fmtMin(Math.max(0, v.at - S.t))}`).join('<br>') : '') + '<br>A new volley adds blast heat now. Detonations near us add more.';
   $('sweepb').innerHTML = S.vent.on ? `<div class="banner">FINS OUT: we are fully visible. A volley fired now lights us up even more.</div>` : S.inc.length ? `<div class="banner">INCOMING FIRE. Move off the aim point, or go quiet (Q) to delay their next salvo.</div>` : '';
-  if (hp) { const d = E.dmgEst(S, a, aimL, cone, ammo, 400, Math.random, homing), hv = Math.round(100 * d.p), W = E.WARHEAD[ammo]; hitNow = { hv }; $('hp').textContent = hv + '%'; $('hpb').style.width = hv + '%'; $('ammotip').textContent = W.tip + ' ' + (ammo === 'he' ? `On average about ${d.exp.toFixed(0)} hull points per volley (a destroyer has about 70, a cruiser 110, a battleship 180).` : ammo === 'emp' ? `On average it knocks about ${d.exp.toFixed(0)} points off its efficiency.` : `On average it adds about ${d.exp.toFixed(0)} points of glare.`); }
+  if (hp) { const d = E.dmgEst(S, a, aimL, cone, ammo, 400, Math.random, homing), hv = Math.round(100 * d.p), W = E.WARHEAD[ammo]; hitNow = { hv }; $('hp').textContent = hv + '%'; $('hpb').style.width = hv + '%'; $('ammotip').textContent = W.tip + ' ' + (ammo === 'he' ? `On average about ${d.exp.toFixed(0)} hull points per volley (a destroyer has about 70, a cruiser 110, a battleship 180).` : ammo === 'emp' ? `On average it knocks about ${d.exp.toFixed(0)} points off its efficiency.` : `On average it adds about ${d.exp.toFixed(0)} points of glare.`) + (TUT && d.p >= 1 ? " Tonight it reads 100%: Dunne's wide cone. One of the six will find her." : ''); }
   try { cTgtUpdate({ a, f, sug, q, rg, rel, aob, sp, si, rd }); } catch (e) { console.error(e); }
   drawPlot(a, f);
 }

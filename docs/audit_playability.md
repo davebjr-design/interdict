@@ -11,6 +11,10 @@ Independent review of the walk demo (`design/proto_iso.html`), the hunt console 
 One blocker, seventeen should-fix, nine polish. Fix order suggestion: 1, 2, 3, 4, 5, 6, then the narrative should-fixes (12-19) before the dialogue runner (C.1 in `act1_completion_plan.md`) locks them into Ink.
 
 
+## Tutorial update 2026-11-03 (Dave's feedback)
+The tutorial now reads the contacts in order, 1 to 4 (contact 4 is read while Dunne solves, with one analyst left on Corvane), and the exchange of fire is fixed: our volleys always land on her, the first leaves her at 58-68% hull and the second at 38-42%, her one answer lands for 8-12 hull points, and the Target view's HIT CHANCE reads 100% to match. Tutorial-only (`s.tut.sure`, `bands`, `foeSure`, `foeDmg`); `tools/balance_bot.js 60 normal` is unchanged. See `p2_tutorial_hunt.md`.
+Found while doing this (not changed, normal-hunt code): in `web/hunt_rt_engine.js` `foes()`, the line that schedules an enemy's next shot ends in a `//` comment that has swallowed `a.lastFire = s.t; markHostile(s, a); s.warn.push(...); report(s, 'Dace', 'Contact N has fired on us...')`. So in every hunt an enemy launch is never announced, never marks the shooter hostile and never raises the incoming warning, until it lands. Fixing it changes the balance tables, so it needs Dave's call.
+
 ## Status at 2026-11-02 (after the tutorial, walk-demo, Pell-gate, dock and M01 pass)
 Fixed: 1-8 (tutorial; 7 and 8 in the tutorial restructure, see `p2_tutorial_hunt.md`; 7 reworked again after Dave's playtest: the stall/idle mechanic is gone, every order pauses the clock until Understood), 9-11 and 13 (walk demo), 12 (earlier), 23 (Pell copy and gating), 26 (earlier). Partly: 20, 24. Decided but not built: 19. Open: 14-18, 21, 22, 25, 27. New since the audit: the red key and a debug wiring panel (`act1_wiring.md`, "Built in the demo"), a dock inspection roll (`detection_model.md`), and decision moment M01 (`decision_moments.md` §1.9). Tests added: `tests/walk_demo.js`, `tests/pell_gate.js`, `tests/dock_inspect.js`, `tests/moments_test.js`; `tests/hunt_pages.py` now checks the tutorial's isolation and highlights.
 
