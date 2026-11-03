@@ -55,7 +55,7 @@ async function hunt(ctx, seed, nreal, pick) {
   const tp = await ctx.newPage(); await tp.goto(R + 'design/hunt.html?tutorial=tern&return=proto_iso.html'); await tp.waitForTimeout(1200);
   let tut = null;
   for (let i = 0; i < 500; i++) {
-    tut = await tp.evaluate(() => { const C = S.an.find(a => a.kind === 'real'); if (C.state === 'open') { S.analysts.forEach(w => { if (w.task !== C.id) E.assign(S, w.id, C.id); }); if (E.classify(S, C).n >= 2 && S.t > 6) E.lockContact(S, C.id); }
+    tut = await tp.evaluate(() => { if (paused) togglePause(); const C = S.an.find(a => a.kind === 'real');   // the tutorial starts paused (step 1: start the clock) if (C.state === 'open') { S.analysts.forEach(w => { if (w.task !== C.id) E.assign(S, w.id, C.id); }); if (E.classify(S, C).n >= 2 && S.t > 6) E.lockContact(S, C.id); }
       if (C.state === 'locked') { if (C.stale) E.refreshSolution(S, C.id); if (C.solve >= 1) E.fire(S, C.id, null, 6); } const b = document.getElementById('tutnext'); if (b) b.click(); stepGame(0.05);
       return { done: !!document.getElementById('tutdone'), n: MOMENTS.book.n, open: !$('moment').hidden, holdEv: S.holdEvents, t: S.t }; });
     if (tut.done || tut.open) break;

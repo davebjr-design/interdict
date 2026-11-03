@@ -331,7 +331,7 @@ function cSlips() {
   order.forEach(({ a, vm, full }) => {
     const sl = slipHtml(a, vm, full, y, a.id === selId); let el = $('sl' + a.id);
     if (!el) { host.insertAdjacentHTML('beforeend', `<div class="cw cslip" id="sl${a.id}" data-act="slip" data-arg="${a.id}" style="--x:0;--y:${y};--w:36;--h:${full ? 8 : 4};transition:top .22s"></div>`); el = $('sl' + a.id); }
-    const key = (full ? 'F' : 'C') + sl.cls + sl.html; if (el.dataset.k !== key) { el.dataset.k = key; el.className = 'cw cslip' + sl.cls; el.innerHTML = sl.html; }
+    const key = (full ? 'F' : 'C') + sl.cls + sl.html; if (el.dataset.k !== key) { el.dataset.k = key; const tk = [...el.classList].filter(c => /^tut-/.test(c)); el.className = 'cw cslip' + sl.cls; el.classList.add(...tk); el.innerHTML = sl.html; }   // tut-*: the tutorial's outline survives a rebuild
     el.style.setProperty('--y', y); el.style.setProperty('--h', full ? 8 : 4); el.dataset.tip = cEvidence(a).replace(/<[^>]+>/g, '');
     y += full ? 8.5 : 4.5;
   });
@@ -455,7 +455,7 @@ document.addEventListener('mouseover', e => {
 });
 document.addEventListener('mouseleave', hideTip); addEventListener('blur', hideTip);
 document.addEventListener('keydown', e => {   // orders bank keys and selection cycling (tactical view only)
-  if (!S || briefing || paused || view !== 'tac' || !$('manual').hidden || e.ctrlKey || e.metaKey || e.altKey || (e.target.tagName === 'INPUT' && e.target.type === 'text')) return; const k = e.key.toLowerCase();
+  if (!S || briefing || (paused && !TUT) || view !== 'tac' || !$('manual').hidden || e.ctrlKey || e.metaKey || e.altKey || (e.target.tagName === 'INPUT' && e.target.type === 'text')) return; const k = e.key.toLowerCase();
   const m = { i: 'invest', g: 'ping', l: 'lock', d: 'dismiss', r: 'reanalyze' }[k];
   if (m) { const btn = { invest: 'k-inv', ping: 'k-ping', lock: 'k-lock', dismiss: 'k-dis', reanalyze: 'k-re' }[m]; if (!$(btn).classList.contains('dis')) ACT[m](); e.preventDefault(); }
   else if (e.key === 'Tab') { e.preventDefault(); const live = S.an.filter(a => a.state !== 'out' || true), i = live.findIndex(a => a.id === selId); selId = live[(i + (e.shiftKey ? live.length - 1 : 1)) % live.length].id; uiUpdate(true); }

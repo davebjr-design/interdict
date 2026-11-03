@@ -1,4 +1,5 @@
-# Load the hunt pages, start a plain hunt, run 60 game minutes, and check the tutorial reaches surrender.
+# Load the hunt pages, start a plain hunt, run 60 game minutes, and check the tutorial: paused start, contact 3 unnamed until the
+# readings identify it, every highlight on a visible control, reaches surrender, tutorial-only solve tuning.
 import sys
 from playwright.sync_api import sync_playwright
 R='/home/claude/interdict/'; bad=[]
@@ -42,19 +43,32 @@ with sync_playwright() as p:
         chk(page+' no Corvane-ship crew names or Pell on the console', not lk['names'] and 'DUNNE' in lk['tauto'])
         pg.evaluate("E.retreat(S); E.goQuiet(S)")
         chk(page+' breach and quiet do nothing', pg.evaluate("!S.spool && !(S.t < S.quietUntil)"))
-        # play the tutorial like a player: task analysts on Corvane, lock, fire whenever ready; check every highlight resolves to a visible control
-        got=False; hib=[]; seen=set()
-        for i in range(400):
-            st=pg.evaluate("""(()=>{const C=S.an.find(a=>a.kind==='real'); if(C.state==='open'){S.analysts.forEach(w=>{if(w.task!==C.id)E.assign(S,w.id,C.id)}); if(E.classify(S,C).n>=2)E.lockContact(S,C.id);}
-              if(C.state==='locked'){ if(C.stale)E.refreshSolution(S,C.id); if(C.solve>=1)E.fire(S,C.id,null,6);} if(S.sink.h>0.8&&!S.vent.on)E.startVent(S); if(S.vent.on&&S.sink.h<0.3)E.stopVent(S);
+        # the hunt starts paused on step 1 (start the clock); contact 3 is not called a ship, Corvane or 'her' before any readings
+        z=pg.evaluate("""(()=>{const C=S.an[__tut.corvane], sl=document.getElementById('sl'+C.id); return {paused, id:__tut.id, t:S.t, nread:['thermal','reactor','occlusion'].reduce((m,ch)=>m+(C.read[ch]?.den||0),0),
+            slip:(sl?sl.textContent+' '+(sl.dataset.tip||''):''), box:__tut.text}})()""")
+        print('   ',{k:z[k] for k in ('paused','id','t','nread')})
+        chk(page+' tutorial starts paused on step 1 (start the clock)', z['paused'] and z['id']=='clock' and z['t']==0)
+        import re
+        chk(page+' contact 3 unnamed before readings (slip and Ostrow)', z['nread']==0 and not re.search(r'WARSHIP|ship|Corvane', z['slip'], re.I) and not re.search(r'\b(Corvane|her|she)\b', z['box']))
+        # play the tutorial like a player through the engine: do what each step asks, press Understood on every box, check every highlight
+        got=False; hib=[]; seen=set(); named=[]
+        for i in range(1200):
+            st=pg.evaluate("""(()=>{const C=S.an[__tut.corvane], G=S.an[__tut.decoy], L=S.an[__tut.lure], id=__tut.id, on=a=>S.analysts.some(w=>w.task===a.id);
               const tg=__tut.hiTargets(), vis=tg.flatMap(q=>[...document.querySelectorAll(q)]).filter(__tut.visible), lit=document.querySelectorAll('.tut-hi').length;
-              const b=document.getElementById('tutnext'); if(b)b.click();
-              return {t:S.t, hp:C.hp, hull:S.hull, done:!!document.getElementById('tutdone'), shots:S.shots, over:S.over, step:__tut.step, ntg:tg.length, nvis:vis.length, lit}})()""")
-            if st['ntg'] and (st['nvis']==0 or st['lit']==0): hib.append((st['step'],st['nvis'],st['lit']))
+              const nm=!__tut.identified && /\b(Corvane|her|she)\b/.test(__tut.text);
+              const b=document.getElementById('tutnext'); if(b) b.click(); else {
+                if(id==='clock'&&paused) togglePause(); else if(id==='investigate') E.investigate(S,G.id); else if(id==='dismiss') E.dismissContact(S,G.id);
+                else if(id==='next'&&!on(L)) E.investigate(S,L.id); else if(id==='decoy') E.dismissContact(S,L.id); else if(id==='identify'&&!on(C)) E.investigate(S,C.id);
+                else if(id==='lock') E.lockContact(S,C.id); else if(id==='course') E.setRoute(S,[{x:S.player.x+12,y:S.player.y+20,speed:'v2'}]); else if(id==='evade') E.setOrder(S,'evade',null);
+                else if(id==='still') E.setOrder(S,'still',null); else if((id==='fire'||id==='again')&&C.solve>=1) E.fire(S,C.id,null,6); else if(id==='vent') E.startVent(S); }
+              return {t:S.t, hp:C.hp, hull:S.hull, done:!!document.getElementById('tutdone'), shots:S.shots, over:S.over, step:__tut.step, id, ntg:tg.length, nvis:vis.length, lit, nm}})()""")
+            if st['ntg'] and (st['nvis']==0 or st['lit']==0): hib.append((st['id'],st['nvis'],st['lit']))
+            if st['nm']: named.append(st['id'])
             seen.add(st['step'])
             if st['done']: got=True; break
-            pg.evaluate("E.tick(S,0.25)"); pg.wait_for_timeout(15)
+            pg.evaluate("E.tick(S,0.1)"); pg.wait_for_timeout(15)
         print('   ',st,'steps seen',sorted(seen))
+        chk(page+' Ostrow names Corvane only after the readings identify her', not named)
         chk(page+' every highlight is on a visible control', not hib)
         if hib: print('   ',hib[:5])
         chk(page+' tutorial reaches the surrender screen',got)
@@ -65,13 +79,16 @@ with sync_playwright() as p:
         pg.close()
     # Target view highlight: with a ready solution the FIRE SALVO key itself is outlined
     pg=b.new_page(viewport={'width':1366,'height':768}); pg.goto('file://'+R+'design/hunt.html?tutorial=tern&return=proto_iso.html'); pg.wait_for_timeout(1200)
-    r=pg.evaluate("""(()=>{const C=S.an[__tut.corvane]; E.lockContact(S,C.id); E.assign(S,'dace',C.id); C.solve=1; for(let i=0;i<12&&__tut.id!=='fire';i++) document.getElementById('tutskip').click(); openTarget(C.id); E.tick(S,0.01); return {id:__tut.id, hi:[...document.querySelectorAll('.tut-hi')].map(e=>e.id)}})()""")
+    for i in range(600):   # Skip step (and Understood on the notes) up to the fire step; readings and the solve still take game time
+        r=pg.evaluate("""(()=>{ if(__tut.id==='fire') return __tut.id; const n=document.getElementById('tutnext'), k=document.getElementById('tutskip'); if(k && window.__sk!==__tut.step){window.__sk=__tut.step; k.click();} else if(n) n.click(); E.tick(S,0.1); return __tut.id})()""")
+        if r=='fire': break
+    r=pg.evaluate("""(()=>{const C=S.an[__tut.corvane]; C.solve=1; openTarget(C.id); E.tick(S,0.01); for(let i=0;i<5&&__tut.beat;i++){document.getElementById('tutnext').click();} __tut.hiTargets(); return new Promise(res=>setTimeout(()=>res({id:__tut.id, reading:__tut.reading, hi:[...document.querySelectorAll('.tut-hi')].map(e=>e.id)}),300))})()""")
     print('   ',r); chk('tutorial fire step outlines FIRE SALVO in the Target view', r['id']=='fire' and 'k-fire' in r['hi'])
     pg.close()
     # tutorial-only engine tuning: with an analyst on her the solution never bleeds or goes stale, and finishes in about 35 s at 1x
     pg=b.new_page(viewport={'width':1366,'height':768}); pg.goto('file://'+R+'web/hunt_rt.html?tutorial=tern&return=index.html'); pg.wait_for_timeout(1200)
-    r=pg.evaluate("""(()=>{const C=S.an[__tut.corvane]; window.__tutHold=false; E.lockContact(S,C.id); E.assign(S,'dace',C.id); let t=0, min=1, prev=0, drop=0; while(C.solve<1&&t<10){E.tick(S,0.05); t+=0.05; if(C.solve<prev-1e-9)drop++; prev=C.solve;}
-      const tReady=t; for(let i=0;i<200;i++){E.tick(S,0.05); if(C.solve<1)drop++;} return {sec:tReady*P.secPerMin, drop, stale:!!C.stale, keep:!!S.tut&&S.tut.keep}})()""")
+    r=pg.evaluate("""(()=>{const C=S.an[__tut.corvane]; E.lockContact(S,C.id); E.assign(S,'dace',C.id); let t=0, min=1, prev=0, drop=0; while(C.solve<1&&t<10){__tut.rawTick(S,0.05); t+=0.05; if(C.solve<prev-1e-9)drop++; prev=C.solve;}
+      const tReady=t; for(let i=0;i<200;i++){__tut.rawTick(S,0.05); if(C.solve<1)drop++;} return {sec:tReady*P.secPerMin, drop, stale:!!C.stale, keep:!!S.tut&&S.tut.keep}})()""")
     print('   ',r); chk('tutorial solution ready in 25-50 s at 1x and never bleeds or goes stale', 25<=r['sec']<=50 and r['drop']==0 and not r['stale'])
 
     pg.close()

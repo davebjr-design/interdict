@@ -644,10 +644,10 @@ $('pell').onchange = e => { S.pell = e.target.checked; };
 $('pellact').onchange = e => E.setPellAct(S, e.target.checked);
 $('manbtn').onclick = () => { $('manual').hidden = false; }; $('manclose').onclick = () => { $('manual').hidden = true; };
 $('quiet').onclick = () => E.goQuiet(S); $('pause').onclick = togglePause; $('resume').onclick = togglePause; $('brk').onclick = () => E.retreat(S); $('newh').onclick = start;
-function togglePause() { paused = !paused; $('pausebox').hidden = !paused; $('stage').classList.toggle('paused', paused); last = performance.now(); }
+function togglePause() { paused = !paused; if (!TUT) { $('pausebox').hidden = !paused; $('stage').classList.toggle('paused', paused); } last = performance.now(); }   // on the Tern (P2) the displays stay up and orders still go in while paused
 document.addEventListener('keydown', e => {
   if (!S || briefing || e.target.tagName === 'INPUT' && e.target.type === 'text') return; const k = e.key;
-  if (k === 'p' || k === 'P') { togglePause(); return; } if (paused) { if (k === 'Escape') togglePause(); return; }
+  if (k === 'p' || k === 'P') { togglePause(); return; } if (paused && !TUT) { if (k === 'Escape') togglePause(); return; }
   if (!$('manual').hidden) { if (k === 'Escape') $('manual').hidden = true; return; }
   if (k === '1') setView('tac'); else if (k === '2') setView('str'); else if (k === '3') setView('tgt'); else if (k === 'Escape') { if (view !== 'tac') setView('tac'); } else if (k === 'q' || k === 'Q') E.goQuiet(S); else if (k === 'v' || k === 'V') ventToggle(); else if (k === '[') setTime(tscale > 1 ? 1 : 0.5); else if (k === ']') setTime(tscale < 1 ? 1 : 2);
 });
@@ -668,7 +668,7 @@ function fxClass(ev) {   // 0 miss, 1 shrapnel, 2 medium, 3 destroyed
 }
 function pumpFx(now) {
   if (S.events.length) { const evs = S.events.splice(0); if (evs.some(e => e.kind === 'moment')) MOMENTS.show(); fxQ.push(...evs.filter(e => e.kind !== 'moment')); }
-  if (S.hold && !MOMENTS.open) S.hold = false;   // with holdEvents on, every emit sets s.hold; only an open moment keeps it
+  if (S.hold && !MOMENTS.open && !(TUT && window.__tutHold)) S.hold = false;   // with holdEvents on, every emit sets s.hold; only an open moment (or a tutorial box being read) keeps it
   if (fxOn) { if (now - fxOn.t0 > (fxOn.clip ? 11000 : 6500)) closeFx(); return; }
   if (!fxQ.length || paused || briefing) return;
   const ev = fxQ.shift(), cl = fxClass(ev); if (cl == null) return;
@@ -715,13 +715,13 @@ function drawFx(now) {
   g.strokeStyle = 'rgba(255,230,184,.25)'; g.setLineDash([3, 4]); g.beginPath(); g.arc(cxs, cys, R * sc, 0, 7); g.stroke(); g.setLineDash([]); g.fillStyle = 'rgba(160,180,170,.6)'; g.font = '10px IBM Plex Mono, monospace'; g.fillText('blast radius', cxs + R * sc * 0.7, cys - R * sc * 0.75);
   if (t > 2.6 && !$('fxb').textContent) $('fxb').textContent = $('fxb').dataset.txt;
 }
-function stepGame(dt) { if (!paused && !briefing && !S.over && !fxOn && !S.hold && !(TUT && window.__tutHold)) { E.tick(S, dt); MOMENTS.check(S); } }   // s.hold: a decision moment is up; __tutHold: the tutorial's read-the-board step (web/tutorial.js)
+function stepGame(dt) { if (!paused && !briefing && !S.over && !fxOn && !S.hold && !(TUT && window.__tutHold)) { E.tick(S, dt); MOMENTS.check(S); } }   // s.hold: a decision moment is up; __tutHold: a tutorial box is being read (web/tutorial.js)
 function frame(now) {
   if (!S) { requestAnimationFrame(frame); return; }
   const dtReal = Math.min(0.25, (now - last) / 1000); last = now;
   pumpFx(now); stepGame(dtReal / P.secPerMin * tscale);
   if (now - lastUi > 150) { lastUi = now; uiUpdate(); if (engageId != null) { const hp = now - lastHp > 900; if (hp) lastHp = now; engUpdate(hp); } }
-  if (!paused) draw(); drawFx(now); requestAnimationFrame(frame);
+  if (!paused || TUT) draw(); drawFx(now); requestAnimationFrame(frame);
 }
 const KN = { real: ['WARSHIP', '#ffb454'], lure: ['DECOY', '#6fc3d0'], ghost: ['STATIC', '#8aa196'] }, CHC = { thermal: '#ff8a4c', reactor: '#6fc3d0', occlusion: '#b79cff' };
 function contactLabel(a, x, y, i) {   // starts as a bare number; each established channel adds a pip; the type guess and its odds come once two channels are in
