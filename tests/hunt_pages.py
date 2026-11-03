@@ -1,5 +1,8 @@
 # Load the hunt pages, start a plain hunt, run 60 game minutes, and check the tutorial: paused start, contact 3 unnamed until the
 # readings identify it, every highlight on a visible control, reaches surrender, tutorial-only solve tuning.
+# Also: a press survives the slips being rebuilt under the pointer (slip select, INVESTIGATE, channel cells) in a normal hunt and in the
+# tutorial (box up, clock running, paused); the tutorial outlines an order key only once its contact is selected; the SALVO / COILGUN
+# tooltips follow the tubes' actual state.
 import sys
 from playwright.sync_api import sync_playwright
 R='/home/claude/interdict/'; bad=[]
@@ -51,7 +54,7 @@ with sync_playwright() as p:
         import re
         chk(page+' contact 3 unnamed before readings (slip and Ostrow)', z['nread']==0 and not re.search(r'WARSHIP|ship|Corvane', z['slip'], re.I) and not re.search(r'\b(Corvane|her|she)\b', z['box']))
         # play the tutorial like a player through the engine: do what each step asks, press Understood on every box, check every highlight
-        got=False; hib=[]; seen=set(); named=[]
+        got=False; hib=[]; seen=set(); named=[]; prevmiss=False
         for i in range(1200):
             st=pg.evaluate("""(()=>{const C=S.an[__tut.corvane], id=__tut.id, k=__tut.kind, X=__tut.x!=null?S.an[__tut.x]:null, on=a=>S.analysts.some(w=>w.task===a.id), all=a=>S.analysts.every(w=>w.task===a.id);
               const tg=__tut.hiTargets(), vis=tg.flatMap(q=>[...document.querySelectorAll(q)]).filter(__tut.visible), lit=document.querySelectorAll('.tut-hi').length;
@@ -62,7 +65,9 @@ with sync_playwright() as p:
                 else if(id==='lock') E.lockContact(S,C.id); else if(id==='course') E.setRoute(S,[{x:S.player.x+12,y:S.player.y+20,speed:'v2'}]); else if(id==='evade') E.setOrder(S,'evade',null);
                 else if(id==='still') E.setOrder(S,'still',null); else if((id==='fire'||id==='again')&&C.solve>=1) E.fire(S,C.id,null,6); else if(id==='vent') E.startVent(S); }
               return {t:S.t, hp:C.hp, hpMax:C.hpMax, hull:S.hull, done:!!document.getElementById('tutdone'), shots:S.shots, over:S.over, step:__tut.step, id, ntg:tg.length, nvis:vis.length, lit, nm, order:__tut.readOrder.slice(), hits:C.tutHits||0}})()""")
-            if st['ntg'] and (st['nvis']==0 or st['lit']==0): hib.append((st['id'],st['nvis'],st['lit']))
+            miss = bool(st['ntg'] and (st['nvis']==0 or st['lit']==0))
+            if miss and prevmiss: hib.append((st['id'],st['nvis'],st['lit']))   # outlines are applied on the next frame: count a miss that lasts two passes
+            prevmiss = miss
             if st['nm']: named.append(st['id'])
             seen.add(st['step'])
             if st['done']: got=True; break
@@ -94,6 +99,77 @@ with sync_playwright() as p:
       const tReady=t; for(let i=0;i<200;i++){__tut.rawTick(S,0.05); if(C.solve<1)drop++;} return {sec:tReady*P.secPerMin, drop, stale:!!C.stale, keep:!!S.tut&&S.tut.keep}})()""")
     print('   ',r); chk('tutorial solution ready in 25-50 s at 1x and never bleeds or goes stale', 25<=r['sec']<=50 and r['drop']==0 and not r['stale'])
 
+    pg.close()
+
+    # INVESTIGATE (2026-11-03, Dave: it sometimes did nothing until the contact was dismissed and the key pressed again). Root cause: the
+    # slips are rebuilt (innerHTML) several times a second while a contact is read or drifts; a press whose mousedown node is gone by
+    # mouseup gets no click in Chromium, so the slip was never selected and INVESTIGATE acted on the old selection. Each press below holds
+    # the button while every slip is rebuilt, the worst case of that race.
+    def press(pg, sel, rebuild=True, fx=0.5, fy=0.3):
+        bb = pg.locator(sel).filter(visible=True).first.bounding_box()
+        pg.mouse.move(bb['x'] + bb['width'] * fx, bb['y'] + bb['height'] * fy); pg.mouse.down(); pg.wait_for_timeout(40)
+        if rebuild: pg.evaluate("document.querySelectorAll('#ct .cslip').forEach(e => { e.dataset.k = ''; }); cSlips()")
+        pg.wait_for_timeout(40); pg.mouse.up(); pg.wait_for_timeout(80)
+    TASKS = "S.analysts.map(w => w.task)"
+    for page, label in [('web/hunt_rt.html', 'normal hunt'), ('web/hunt_rt.html?tutorial=tern&return=index.html', 'tutorial')]:
+        for mode in (['running'] if label == 'normal hunt' else ['box up', 'running', 'paused']):
+            pg = b.new_page(viewport={'width': 1366, 'height': 768}); errs = []; pg.on('pageerror', lambda e: errs.append(str(e)))
+            pg.goto('file://' + R + page); pg.wait_for_timeout(1200)
+            if label == 'normal hunt': pg.click('#begin'); pg.wait_for_timeout(300); pg.evaluate("setTime(2)")
+            else:
+                pg.evaluate("togglePause()"); pg.wait_for_timeout(250)
+                for i in range(8):   # Understood up to the first read order (its box still up)
+                    if pg.evaluate("__tut.id") == 'read1': break
+                    pg.evaluate("document.getElementById('tutnext') && document.getElementById('tutnext').click()"); pg.wait_for_timeout(200)
+                if mode != 'box up': pg.evaluate("document.getElementById('tutnext').click(); window.__ack = setInterval(() => { const n = document.getElementById('tutnext'); if (n) n.click(); }, 60)")
+                if mode == 'paused': pg.evaluate("clearInterval(window.__ack); if (!paused) togglePause(); __tut.reading && document.getElementById('tutnext').click()")
+            x, y = pg.evaluate("(() => { const o = S.an.filter(a => a.state === 'open' && a.idStatus !== 'plan').map(a => a.id); return [o[0], o[1]]; })()")
+            pg.evaluate("selId = %d; uiUpdate(true)" % y); pg.wait_for_timeout(60)
+            press(pg, '#sl%d' % x)
+            ok1 = pg.evaluate("selId") == x
+            press(pg, '#k-inv'); t1 = pg.evaluate(TASKS)
+            pg.evaluate("E.tick(S, 0.6)" if mode == 'running' and label == 'normal hunt' else "0"); pg.wait_for_timeout(250)
+            press(pg, '#sl%d' % y); press(pg, '#sl%d' % x); ok2 = pg.evaluate("selId") == x
+            press(pg, '#k-inv'); t2 = pg.evaluate(TASKS)   # pressed again on the same contact: stands them down, exactly once
+            st = pg.evaluate("({paused, reading: __tut ? __tut.reading : null})") if label == 'tutorial' else {}
+            print('   %s, %s: select %s, INVESTIGATE -> %s, again -> %s %s' % (label, mode, ok1, t1, t2, st))
+            chk('%s (%s): a slip press survives a rebuild under the pointer' % (label, mode), ok1 and ok2)
+            chk('%s (%s): INVESTIGATE puts all three analysts on the selected contact, and again stands them down' % (label, mode), t1 == [x, x, x] and t2 == [None, None, None])
+            if label == 'normal hunt':   # a channel cell (inside a slip that is rebuilt) assigns exactly one analyst, once
+                pg.evaluate("E.investigate(S, %d); E.tick(S, 1.5); S.analysts.forEach(w => { w.task = null; }); uiUpdate(true)" % x); pg.wait_for_timeout(200)
+                cell = '#sl%d [data-arg="%d:reactor"]' % (x, x)
+                pg.evaluate("setTime(0.5); uiUpdate(true)"); pg.wait_for_timeout(200)   # slow the clock: the slips must not reorder under the pointer for this one (that is a different press)
+                if pg.locator(cell).count():
+                    press(pg, cell); t3 = pg.evaluate(TASKS); press(pg, cell, rebuild=False); t4 = pg.evaluate(TASKS)
+                    print('    channel cell R: %s, again %s' % (t3, t4))
+                    chk('normal hunt: a channel cell press survives a rebuild and toggles its analyst once', t3 == [None, x, None] and t4 == [None, None, None])
+                else: chk('normal hunt: contact %d has channel cells to press' % (x + 1), False)
+            chk('%s (%s): no page errors' % (label, mode), not errs)
+            pg.close()
+    # the tutorial outlines INVESTIGATE / DISMISS / LOCK ON only when their contact is the selected slip (the key acts on the selection)
+    pg = b.new_page(viewport={'width': 1366, 'height': 768}); pg.goto('file://' + R + 'web/hunt_rt.html?tutorial=tern&return=index.html'); pg.wait_for_timeout(1200)
+    for i in range(1500):
+        r = pg.evaluate("""(() => { if (__tut.id === 'read2') return 'read2'; const n = document.getElementById('tutnext'), k = document.getElementById('tutskip'); if (k && window.__sk !== __tut.step) { window.__sk = __tut.step; k.click(); } else if (n) n.click(); E.tick(S, 0.1); return __tut.id; })()""")
+        if r == 'read2': break
+    r = pg.evaluate("""(() => { const x = __tut.x; selId = 0; uiUpdate(true); const a = __tut.hiTargets().slice(), dis = $('k-inv').classList.contains('dis'); selId = x; uiUpdate(true); const b = __tut.hiTargets().slice(); return { x, a, b, dis }; })()""")
+    print('   ', r)
+    chk('tutorial: with a ruled-out slip selected INVESTIGATE (dead) is not outlined, only the slip; once selected it is', r['dis'] and '#k-inv' not in r['a'] and ('#sl%d' % r['x']) in r['a'] and '#k-inv' in r['b'])
+    pg.close()
+
+    # SALVO / COILGUN tooltips follow the tubes (2026-11-03, Dave: with the lamps out the tip still said loaded)
+    pg = b.new_page(viewport={'width': 1366, 'height': 768}); pg.goto('file://' + R + 'web/hunt_rt.html'); pg.wait_for_timeout(500); pg.click('#begin'); pg.wait_for_timeout(300)
+    def tip(sel):
+        pg.mouse.move(5, 5); pg.wait_for_timeout(60); pg.hover(sel); pg.wait_for_timeout(120); return pg.evaluate("$('ctip').hidden ? '' : $('ctip').textContent")
+    a = tip('#g-tube0'); pg.evaluate("S.tubes[0] = S.t + 2; uiUpdate(true)"); b2 = tip('#g-tube0')
+    pg.evaluate("S.tubes[1] = S.t + 1.5; uiUpdate(true)"); pg.hover('#g-tube1'); pg.wait_for_timeout(100); pg.evaluate("S.tubes[1] = S.t - 0.01; uiUpdate(true)"); pg.wait_for_timeout(60); live = pg.evaluate("$('ctip').textContent")
+    print('    tube tips:', [a[:60], b2[:70], live[:60]])
+    chk('weapons: a loaded tube says loaded; a fired one says empty, reloading, with the time left', 'loaded, ready' in a and 'reloading' in b2 and 'loaded again in 0:32' in b2 and 'ready to fire' not in b2)
+    chk('weapons: a tip that is up changes when the tube loads under it', 'loaded, ready' in live)
+    pg.evaluate("(() => { const a = S.an.find(x => x.kind === 'real'); E.lockContact(S, a.id); a.solve = 1; S.tubes = [S.t + 2, S.t - 1, S.t + 3]; S.cwCd = S.t + 1; openTarget(a.id); engUpdate(true); })()"); pg.wait_for_timeout(300)
+    t = pg.evaluate("[0, 1, 2].map(i => ({ on: $('tf-s' + i).classList.contains('on'), tip: $('tf-s' + i).dataset.tip })).concat([{ on: $('tf-coil').classList.contains('on'), tip: $('tf-coil').dataset.tip }])")
+    h0 = tip('#tf-s0')
+    print('    target lamps:', [(q['on'], q['tip'][:50]) for q in t], h0[:50])
+    chk('target view: SALVO lamps out say empty/reloading with the time, the lit one says loaded; COILGUN says recharging', (not t[0]['on']) and 'reloading: loaded again in 0:32' in t[0]['tip'] and t[1]['on'] and 'loaded, ready' in t[1]['tip'] and 'loaded again in 0:48' in t[2]['tip'] and (not t[3]['on']) and 'Recharging: ready in 0:16' in t[3]['tip'] and 'reloading' in h0)
     pg.close()
     b.close()
 print('FAILED' if bad else 'ALL OK'); sys.exit(1 if bad else 0)

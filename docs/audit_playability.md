@@ -13,6 +13,8 @@ One blocker, seventeen should-fix, nine polish. Fix order suggestion: 1, 2, 3, 4
 
 ## Tutorial update 2026-11-03 (Dave's feedback)
 The tutorial now reads the contacts in order, 1 to 4 (contact 4 is read while Dunne solves, with one analyst left on Corvane), and the exchange of fire is fixed: our volleys always land on her, the first leaves her at 58-68% hull and the second at 38-42%, her one answer lands for 8-12 hull points, and the Target view's HIT CHANCE reads 100% to match. Tutorial-only (`s.tut.sure`, `bands`, `foeSure`, `foeDmg`); `tools/balance_bot.js 60 normal` is unchanged. See `p2_tutorial_hunt.md`.
+**Later on 2026-11-03 (Dave's playtest):** (a) INVESTIGATE sometimes did nothing: slip presses were lost when the slips were rebuilt under the pointer (no click in Chromium), so INVESTIGATE acted on the stale selection; fixed in the console for every hunt (a press is finished on mouseup from the rebuilt element), regression test in `tests/hunt_pages.py`. (b) The order box was a squeezed 330 px strip at 1155x890: it now has its own band below (or beside) the console, 13 px text, buttons always visible (item 8 below). (c) The eclipse is described as a profile (depth, solidity, hull length) and identification is stated from the profile plus heat and reactor, never from "it blocks the stars". (d) The SALVO / COILGUN tooltips follow the actual tube state (loaded / empty, reloading with the time left / held while quiet / weapon systems damaged; coilgun charged, in or out of range, recharging); the engine has no magazine, so a tube is never permanently empty. See `p2_tutorial_hunt.md`.
+
 Found while doing this (not changed, normal-hunt code): in `web/hunt_rt_engine.js` `foes()`, the line that schedules an enemy's next shot ends in a `//` comment that has swallowed `a.lastFire = s.t; markHostile(s, a); s.warn.push(...); report(s, 'Dace', 'Contact N has fired on us...')`. So in every hunt an enemy launch is never announced, never marks the shooter hostile and never raises the incoming warning, until it lands. Fixing it changes the balance tables, so it needs Dave's call.
 
 ## Status at 2026-11-02 (after the tutorial, walk-demo, Pell-gate, dock and M01 pass)
@@ -63,6 +65,7 @@ Fix: pause while a step with a button is showing, or let step 1's `done` be "any
 Evidence: at 1600×900 it sits over the NEXT beacon (`H01_tutorial_start.png`); at 1400 wide it covers the master-caution lamps; on the Target view it covers REFRESH and the LOCK/TRACK lamps (`H11_target_view_fire.png`).
 Fix: dock it in the comms panel or under the top bar, or make it draggable.
 **Status (2026-11-02): fixed.** The box is docked over the SHIP zone's bottom row (breach, spool and Pell cells, all hidden on the Tern), sized from the console's own rects, the same in every view; `tests/tutorial_bots.py` checks it never overlaps a visible console control and never overflows.
+**Revised 2026-11-03:** docked over the SHIP zone it shrank with the window (a 347x99 px box with 10 px text at 1155x890). The console is now fitted into the window minus a band for the box (below it, or a column to the right on wide windows); the box keeps 13 px text and its buttons in view. `tests/tutorial_bots.py layout` checks five window sizes, 1100x800 to 1920x900.
 
 ### Playability: walk demo
 

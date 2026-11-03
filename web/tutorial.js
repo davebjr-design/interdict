@@ -33,6 +33,7 @@
   const NAMES = { Dace: 'Riggs', Castellan: 'Okafor', Quill: 'Sato', Abara: 'Dunne', Pell: 'the plot' };
   const BANDS = [[0.58, 0.68], [0.38, 0.42]];   // hull fraction our first and second hit leave her at (tutorial only, s.tut.bands)
   const WIDE = 16;   // the cone Dunne sets for the shot (km); the console's default is 8
+  const BOX = { font: 13, h: 140, w: 340, gap: 6, maxW: 1100 };   // the order box: text size, height below the console, width beside it (px)
   const SOLVE_T = 2.2;   // game minutes from lock to ready with an analyst on her (P.secPerMin = 16: about 35 real seconds at 1x)
   Object.assign(CREW_NAMES, NAMES);   // console labels (FOLLOW DUNNE, the aim marker, the manual) read crewName()
   E.ANALYSTS.forEach(w => { if (NAMES[w.name]) w.name = NAMES[w.name]; });
@@ -74,15 +75,36 @@
   const val = (a, ch) => { const q = a.read[ch]; return !q ? null : q.blind ? 'blind' : q.den > 0 ? Math.max(0, q.num / q.den) : null; };
   const settled = a => a.state !== 'open' || E.advice(S0, a).call !== 'unsure' || (() => { const c = E.classify(S0, a); return c.n >= 2 && c.p >= 0.85; })();
   const idf = s => { if (!C) return false; if (C._idf || C.idStatus === 'hostile') return (C._idf = true); const ad = E.advice(s, C).call, c = E.classify(s, C); return (C._idf = ad === 'ship' || (c.best === 'real' && c.p >= 0.9 && c.n >= 2)); };   // once identified, she stays identified
-  function interp(a) {   // Ostrow reads the three channels aloud
-    const h = val(a, 'thermal'), r = val(a, 'reactor'), o = val(a, 'occlusion');
+  // Sato's eclipse profile (2026-11-03, Dave: that something blocks light is not the information; the profile is). The engine's V channel
+  // reads how deeply and how solidly the contact dims the star behind it (0.9 for a hull, 0.05 for debris or a can; blind with no star
+  // behind). Depth and solidity are read from that value; the hull's size comes from the contact's class (E.shipClass, the same class the
+  // engine's symbolFor puts on the map at classDen), told only once the V read itself is in and solid (den >= SIZE_DEN): tutorial-only.
+  const SIZE_DEN = 2, CLS = { destroyer: 'destroyer', cruiser: 'cruiser', battleship: 'battleship' };
+  function prof(a) {
+    const o = val(a, 'occlusion'), q = a.read.occlusion;
+    if (o == null) return { k: 'yet', t: "Sato has no eclipse profile yet" };
+    if (o === 'blind') return { k: 'blind', t: 'No star behind it, so Sato gets no eclipse profile' };
+    const d = Math.round(Math.min(0.99, o) * 100), cl = o >= 0.6 && q.den >= SIZE_DEN ? CLS[E.shipClass(a)] : null;
+    if (o >= 0.6) return { k: 'hull', size: cl ? cl + '-sized' : 'hull-sized', t: "Sato's eclipse profile: the star dims " + d + '% as it crosses, one solid shadow with hard edges, ' + (cl ? 'the length of a ' + cl : 'hull-sized; too early to say how long') };
+    if (o >= 0.35) return { k: 'ragged', t: "Sato's eclipse profile is ragged: the star dims " + d + '% in flickers, no single solid shape' };
+    return { k: 'none', t: "Sato's eclipse profile shows no shape: " + (d <= 5 ? 'the star hardly dims as it crosses' : 'the star dims only ' + d + '%, in scattered flickers') + ', nothing solid, nothing hull-sized' };
+  }
+  function interp(a) {   // Ostrow reads the three channels aloud: heat, reactor, then the profile
+    const h = val(a, 'thermal'), r = val(a, 'reactor');
     const hs = h == null || h === 'blind' ? 'no heat read yet' : h >= 0.65 ? 'warm' : h >= 0.3 ? 'faint heat' : 'cold';
     const rs = r == null || r === 'blind' ? 'no reactor read yet' : r >= 0.65 ? 'a live reactor' : r >= 0.3 ? 'a faint reactor flutter' : 'no reactor';
-    const os = o == null ? 'no eclipse read yet' : o === 'blind' ? 'nothing behind it to eclipse' : o >= 0.6 ? 'it blocks the stars' : 'Sato sees stars right through it';
-    return 'Contact ' + (a.id + 1) + ': ' + hs + ', ' + rs + ', and ' + os + '.';
+    return 'Contact ' + (a.id + 1) + ': ' + hs + ', ' + rs + '. ' + prof(a).t + '.';
   }
-  function concl(a) { const c = E.classify(S0, a), h = val(a, 'thermal');
-    return c.best === 'ghost' ? (typeof h === 'number' && h >= 0.65 ? 'Sun-warmed, but nothing alive in it: junk.' : 'Cold and drifting: junk.') : c.best === 'lure' ? 'Heat with no hull behind it: a decoy, a hot can left to drift.' : 'Not junk. Leave it.'; }
+  function concl(a) { const c = E.classify(S0, a), h = val(a, 'thermal'), p = prof(a), noHull = p.k === 'none' || p.k === 'ragged';
+    if (c.best === 'ghost') return (typeof h === 'number' && h >= 0.65 ? 'Sun-warmed, but nothing alive in it' : 'Cold and drifting, nothing alive in it') + (noHull ? ', and no hull in the profile' : '') + ': junk.';
+    if (c.best === 'lure') return noHull ? 'Heat, but the profile is no hull, just flickers: a decoy, a hot can left to drift.' : 'The heat and the reactor both read low for any warship, and there is no profile to say otherwise: a decoy, a hot can left to drift.';
+    return 'Not junk. Leave it.'; }
+  function idLine(a) {   // identification: the profile plus heat and reactor, never the eclipse alone
+    const h = val(a, 'thermal'), r = val(a, 'reactor'), p = prof(a), hot = typeof h === 'number' && h >= 0.65, live = typeof r === 'number' && r >= 0.65;
+    const core = (hot ? "a warship's heat" : 'heat') + (live ? ' and a live reactor' : '');
+    if (p.k === 'hull') return 'A solid, ' + p.size + ' profile with ' + core + ' inside it: a working ship, not junk and not a can.';
+    return (p.k === 'blind' ? 'No profile against the stars, but ' : 'No profile yet, but ') + core + ' that strong is more than any can puts out: a ship.';
+  }
 
   const cid = () => (C ? C.id + 1 : '?'), num = a => a.id + 1;
   const eyes = s => s.analysts.some(w => w.task === C.id);
@@ -93,7 +115,10 @@
   const fireHi = () => (view === 'tgt' ? ['#k-fire'] : ['#kv-tgt', '#k-tgt']);
   const landed = s => vols.length >= 2 && s.t >= vols[1].at + 0.05;
   const answered = s => s.tut.foeSure <= 0 && !s.inc.some(v => v.id === C.id);   // her one answer has landed
-  const invHi = (s, a) => (on(s, a) ? ['#sl' + a.id] : ['#sl' + a.id, '#k-inv']);
+  // the order keys act on the selected slip: outline a key only once its contact is selected, else just the slip (2026-11-03: INVESTIGATE
+  // was outlined while a ruled-out contact was still selected, so the key was dead and the press did nothing)
+  const sel = a => selId === a.id, keyHi = (a, k) => (sel(a) ? ['#sl' + a.id, k] : ['#sl' + a.id]);
+  const invHi = (s, a) => (on(s, a) ? ['#sl' + a.id] : keyHi(a, '#k-inv'));
   const AN = { thermal: 'dace', reactor: 'castellan', occlusion: 'quill' }, AN_NAME = { thermal: 'Riggs', reactor: 'Okafor', occlusion: 'Sato' }, CH_KEY = { thermal: 'H', reactor: 'R', occlusion: 'V' };
   const keepCh = a => a._keep || (a._keep = a.read.occlusion && a.read.occlusion.blind ? 'occlusion' : 'reactor');   // fixed when first asked, so the order never changes under the player   // who stays on her while we read a contact after the lock: Sato if there's nothing to eclipse there, else Okafor
   const INTRO = "One contact at a time, in order, all the way through. We don't fire on anything until we know what everything out there is. ";
@@ -107,7 +132,7 @@
     hi: s => (X.state === 'open' ? invHi(s, X) : ['#sl' + X.id]), done: () => X._tutOn && settled(X) });
   const ruleStep = X => ({ id: 'rule' + num(X), kind: 'rule', x: X.id, title: 'Rule out contact ' + num(X), auto: s => { if (X.state === 'open') oDismiss(s, X.id); }, autoSay: () => 'Contact ' + num(X) + ' is nothing. Dunne, rule it out.',
     say: () => (X.state !== 'open' ? 'Ruled out.' : !settled(X) ? 'Contact ' + num(X) + " hasn't settled. Let the bars fill." : interp(X) + ' ' + concl(X) + ' Select it and press DISMISS.'),
-    key: () => X.state + settled(X), hi: () => (X.state === 'open' ? ['#sl' + X.id, '#k-dis'] : ['#k-dis']), done: () => X.state !== 'open' });
+    key: () => X.state + settled(X), hi: () => (X.state === 'open' ? keyHi(X, '#k-dis') : ['#k-dis']), done: () => X.state !== 'open' });
   const checkStep = (X, first) => ({ id: 'check' + num(X), kind: 'check', x: X.id, title: 'Check contact ' + num(X),
     auto: s => { if (X.state === 'open' && !on(s, X)) E.investigate(s, X.id); if (!eyes(s)) E.assign(s, AN[keepCh(X)], C.id); },
     say: s => { const k = keepCh(X);
@@ -123,7 +148,7 @@
         say: () => "We're stopped. PAUSE holds the clock, and orders still go in while it's held. The speed keys set the pace: 1x is real time, 2x for the quiet stretches. Press RESUME (or P) to start.",
         hi: () => ['#k-pause', '#k-t0', '#k-t1', '#k-t2', '#r-clk'], done: () => !paused },
       { id: 'board', title: 'Read the board',
-        say: () => 'Four contacts on the board, left. Every slip reads ?: unknown. Above them, three analysts: Riggs reads heat (H), Okafor reactors (R), Sato watches for an eclipse (V). A solid hull blocks the stars behind it.',
+        say: () => 'Four contacts on the board, left. Every slip reads ?: unknown. Above them, three analysts: Riggs reads heat (H), Okafor reactors (R), Sato (V) watches each contact cross the stars behind it: the eclipse gives its profile, how big and how solid it is.',
         hi: () => ['#an0', '#an1', '#an2', '#ct .cslip'], done: () => acked });
     ORD.forEach((X, i) => {
       if (i < k) { STEPS.push(readStep(X, i === 0), ruleStep(X)); return; }
@@ -133,11 +158,11 @@
           say: () => (i === 0 ? INTRO : '') + 'Now contact ' + cid() + '. Select it and press INVESTIGATE. The readings decide what it is, not a hunch.',
           hi: s => invHi(s, C), done: s => idf(s) },
         { id: 'lock', title: 'Lock on', auto: s => { if (C.state === 'open') E.lockContact(s, C.id); }, autoSay: () => 'Dunne, lock contact ' + cid() + '.',
-          say: () => interp(C) + " Hot, live and solid: that's a ship. That'll be Corvane. Select her slip and press LOCK ON.",
-          hi: () => ['#sl' + C.id, '#k-lock'], done: () => C.state === 'locked' },
+          say: () => interp(C) + ' ' + idLine(C) + " That'll be Corvane. Select her slip and press LOCK ON.",
+          hi: () => keyHi(C, '#k-lock'), done: () => C.state === 'locked' },
         { id: 'track', title: 'Hold the track', auto: s => { if (!eyes(s)) E.assign(s, 'dace', C.id); }, autoSay: () => 'Riggs, stay on her.',
           say: s => (eyes(s) ? "Locked. Dunne solves from a live track: keep an analyst on her. The % on her slip is how sure we are of her: LOCK is fresh, TRACK ageing, LAST lost." : 'No eyes, no solution. Put an analyst back on her: INVESTIGATE with her slip selected, or click one H / R / V cell on it.'),
-          key: s => eyes(s), hi: s => (eyes(s) ? ['#sl' + C.id + ' .cod', '#sl' + C.id] : ['#sl' + C.id, '#k-inv']), done: s => eyes(s) && acked });
+          key: s => eyes(s), hi: s => (eyes(s) ? ['#sl' + C.id + ' .cod', '#sl' + C.id] : keyHi(C, '#k-inv')), done: s => eyes(s) && acked });
     });
     STEPS.push(
       { id: 'course', title: 'Set a course', auto: s => { const p = s.player; E.setRoute(s, [{ x: p.x + 12, y: p.y + (p.y < P.arena / 2 ? 24 : -24), speed: 'v2' }]); E.setSpeed(s, 'v2'); }, autoSay: () => 'Helm, give us a short leg.',
@@ -183,19 +208,35 @@
   }
 
   const box = document.createElement('div'); box.id = 'tutbox';
-  box.style.cssText = 'position:fixed;left:50%;top:10px;transform:translateX(-50%);z-index:80;width:min(640px,92vw);box-sizing:border-box;overflow:hidden auto;background:rgba(8,16,13,.96);border:1px solid #9fb7c8;color:#cfe3d8;font:12px/1.4 IBM Plex Mono,monospace;padding:5px 9px;box-shadow:0 6px 24px rgba(0,0,0,.5)';
+  box.style.cssText = 'position:fixed;left:50%;top:10px;transform:translateX(-50%);z-index:80;width:min(640px,92vw);box-sizing:border-box;overflow:hidden;display:flex;flex-direction:column;background:rgba(8,16,13,.96);border:1px solid #9fb7c8;color:#cfe3d8;font:' + BOX.font + 'px/1.4 IBM Plex Mono,monospace;padding:6px 10px;box-shadow:0 6px 24px rgba(0,0,0,.5)';
   document.body.appendChild(box);
   const css = document.createElement('style'); css.textContent = '.tut-hi{outline:3px solid #ffb454!important;outline-offset:2px;animation:tutp 1.2s ease-in-out infinite;z-index:5}@keyframes tutp{50%{outline-color:rgba(255,180,84,.25)}}' +
-    '.tut-hi.tut-beat{outline-color:#5fd0e0!important;animation:tutq .6s ease-in-out infinite}@keyframes tutq{50%{outline-color:rgba(95,208,224,.2)}}' +
-    '#tutbox button{font:inherit;font-size:.92em;padding:1px 8px;background:#13251e;color:#cfe3d8;border:1px solid #4d6b5e;cursor:pointer}#tutbox button:hover{border-color:#ffb454}#tutbox #tutnext{border-color:#ffb454;color:#ffb454}#tutbox .th{display:flex;align-items:center;gap:6px;font:700 .86em Chakra Petch,sans-serif;letter-spacing:.12em;color:#9fb7c8}#tutbox .th span{flex:1}#tutbox .th b{color:#5fd0e0;font-weight:700}' +
-    '#tutbox .tn{color:#ffb454;margin-top:2px}#tutbox .ts{display:flex;align-items:center;gap:8px;margin-top:3px}#tutbox .tb{flex:1;height:6px;background:#1b2b25;position:relative}#tutbox .tb i{position:absolute;left:0;top:0;bottom:0;background:#ffb454}#tutbox .tl{font-size:.86em;color:#9fb7c8;white-space:nowrap}#tutbox.rd{border-color:#ffb454}';
+    '.tut-hi.tut-beat{outline-color:#5fd0e0!important;animation:tutq .6s ease-in-out infinite}@keyframes tutq{50%{outline-color:rgba(95,208,224,.2)}}#cmenu{z-index:90}' +
+    '#tutbox button{font:inherit;font-size:.92em;padding:2px 10px;background:#13251e;color:#cfe3d8;border:1px solid #4d6b5e;cursor:pointer;flex:none;white-space:nowrap}#tutbox button:hover{border-color:#ffb454}#tutbox #tutnext{border-color:#ffb454;color:#ffb454}#tutbox .th{flex:none;display:flex;align-items:center;gap:8px;font:700 .86em Chakra Petch,sans-serif;letter-spacing:.12em;color:#9fb7c8;min-height:24px}#tutbox .th span{flex:1;min-width:0}#tutbox .th b{color:#5fd0e0;font-weight:700}' +
+    '#tutbox #tutbody{flex:0 1 auto;min-height:0;overflow:auto;margin-top:2px}#tutbox .tn{color:#ffb454;margin-top:2px}#tutbox .ts{flex:none;display:flex;align-items:center;gap:8px;margin-top:4px}#tutbox .tb{flex:1;height:6px;background:#1b2b25;position:relative}#tutbox .tb i{position:absolute;left:0;top:0;bottom:0;background:#ffb454}#tutbox .tl{font-size:.86em;color:#9fb7c8;white-space:nowrap}#tutbox.rd{border-color:#ffb454}';
   document.head.appendChild(css);
-  function place() {   // docked over the SHIP zone's bottom row, which the Tern hides (breach, spool, Pell): it covers no live control in any view
-    if (done) return; const sg = $('stage'), h = $('g-hull'), z = $('z-heat'); if (!sg || !h || !z) return;
-    const rs = sg.getBoundingClientRect(), rh = h.getBoundingClientRect(), rz = z.getBoundingClientRect(); if (!rz.width || !rh.height) return; const k = rs.width / 1366;
-    Object.assign(box.style, { left: rz.left + 'px', top: (rh.bottom + 2 * k) + 'px', width: rz.width + 'px', height: Math.max(40, rs.bottom - rh.bottom - 2 * k) + 'px', transform: 'none', fontSize: (11.5 * k) + 'px', maxWidth: 'none' });
+  // The box has its own band beside the console, never on it (2026-11-03, Dave: at 1155x890 the box docked over the SHIP zone was a
+  // squeezed 330 px strip). The console is fitted into the window minus that band: below it, or to its right when the window is wide
+  // enough that a side column costs the console less. The box keeps a fixed, readable size (BOX.font px text, BOX.h px tall below the
+  // console, BOX.w px wide beside it) and Understood / Skip step sit in its header, so they are always on screen. Nothing it covers is
+  // part of the console, in any view.
+  let geo = null;
+  layout = function () {   // replaces the page's layout() (resize, ResizeObserver and load all call it)
+    const W = innerWidth, H = innerHeight, g = BOX.gap, app = $('app');
+    const scB = Math.min(W / 1920, (H - BOX.h - 2 * g) / 1080), scS = Math.min((W - BOX.w - 3 * g) / 1920, (H - 2 * g) / 1080), side = scS > scB * 1.02;
+    SC = Math.max(0.15, side ? scS : scB); const sw = 1920 * SC, sh = 1080 * SC;
+    if (side) { const x = Math.max(0, (W - sw - g - BOX.w) / 2), y = Math.max(0, (H - sh) / 2); geo = { side, x, y, left: x + sw + g, top: y, width: BOX.w, maxH: sh }; }
+    else { const tot = sh + g + BOX.h, x = Math.max(0, (W - sw) / 2), y = Math.max(0, (H - tot) / 2), bw = Math.min(Math.max(sw, Math.min(W - 2 * g, 560)), BOX.maxW); geo = { side, x, y, left: (W - bw) / 2, top: y + sh + g, width: bw, h: BOX.h }; }
+    if (app) app.style.transform = 'translate(' + geo.x + 'px,' + geo.y + 'px) scale(' + SC + ')';
+    place();
+  };
+  function place() {
+    if (done || !geo) return;
+    Object.assign(box.style, { left: geo.left + 'px', top: geo.top + 'px', width: geo.width + 'px', height: geo.side ? 'auto' : geo.h + 'px', maxHeight: geo.side ? geo.maxH + 'px' : 'none', transform: 'none', fontSize: BOX.font + 'px', maxWidth: 'none', padding: '6px 10px' });
   }
-  addEventListener('resize', () => { place(); });
+  addEventListener('resize', () => { layout(); });
+  { let dn = null; box.addEventListener('mousedown', e => { dn = e.button === 0 && e.target.closest('button'); }, true);   // a button rebuilt under the pointer gets no click: finish the press (as the console does)
+    box.addEventListener('mouseup', e => { const b = dn; dn = null; if (!b || b.isConnected || e.button !== 0) return; const nb = b.id && document.getElementById(b.id); if (nb && nb.contains(e.target) && nb.onclick) nb.onclick(); }, true); }
   const visible = el => { if (el.closest('[hidden]') || el.closest('#legacy')) return false; const r = el.getBoundingClientRect(), cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none'; };
   const curHi = () => { if (done || collapsed || !C) return []; if (beats.length) return beats[0].hi; const st = STEPS[step]; return st && st.hi ? st.hi(S0) : []; };
   const hiOf = () => {   // if none of the controls is on screen (another view is open), point at the TACTICAL key instead
@@ -228,12 +269,12 @@
   function body(s) { return beats.length ? beats[0].text : say0(s); }
   function render(s) {
     const st = STEPS[step]; place();
-    if (!st && !beats.length) { collapsed = true; box.classList.remove('rd'); box.innerHTML = '<div class="th"><span>CAPTAIN OSTROW &middot; ALL ORDERS GIVEN</span></div><div>' + (s.inc.some(v => v.id === C.id) ? 'Her answer is in the air. Brace.' : 'Volleys away. Watch them land.') + '</div>' + solveLine(s); highlight(); return; }
+    if (!st && !beats.length) { collapsed = true; box.classList.remove('rd'); box.innerHTML = '<div class="th"><span>CAPTAIN OSTROW &middot; ALL ORDERS GIVEN</span></div><div id="tutbody">' + (s.inc.some(v => v.id === C.id) ? 'Her answer is in the air. Brace.' : 'Volleys away. Watch them land.') + '</div>' + solveLine(s); highlight(); return; }
     const bt = beats.length > 0; collapsed = false;
     box.classList.toggle('rd', reading);
     box.innerHTML = '<div class="th"><span>OSTROW &middot; ' + (st ? 'STEP ' + (step + 1) + ' OF ' + STEPS.length : 'ALL ORDERS GIVEN') + ' &middot; ' + (bt ? 'NOTE' : st.title.toUpperCase()) + (reading || paused ? ' &middot; <b>CLOCK STOPPED</b>' : '') + '</span>' +
       (reading ? '<button id="tutnext" type="button" title="Resume the clock">Understood</button>' : '') + (bt ? '' : '<button id="tutskip" type="button" title="Ostrow does this step for you">Skip step</button>') + '</div>' +
-      '<div>' + body(s) + '</div>' + (note && !bt ? '<div class="tn">' + note + '</div>' : '') + solveLine(s);
+      '<div id="tutbody"><div>' + body(s) + '</div>' + (note && !bt ? '<div class="tn">' + note + '</div>' : '') + '</div>' + solveLine(s);
     const n = document.getElementById('tutnext'); if (n) n.onclick = () => { if (beats.length) beats.shift(); else { acked = true; ackTxt = tkey(S0); } director(S0); };
     const k = document.getElementById('tutskip'); if (k) k.onclick = () => { forced = true; acked = true; ackTxt = tkey(S0); __tut.skips.push(st.id); director(S0); };
     hiKey = ''; highlight();
@@ -263,7 +304,7 @@
   function surrender(s) {
     done = true; setHold(s, false); try { paused = true; } catch (e) {} document.querySelectorAll('.tut-hi').forEach(e => e.classList.remove('tut-hi', 'tut-beat'));
     const line = vols.length ? "Enough, Ostrow. You've made your point, and I've made mine. Hold your fire. I'll take visitors. Send me the new one." : 'Enough, Ostrow. Nobody needs to die tonight. Send me the new one.';   // she stops it before we have fired a shot only if our hull went first
-    box.classList.remove('rd'); Object.assign(box.style, { left: '50%', top: '50%', width: 'min(640px,92vw)', height: 'auto', transform: 'translate(-50%,-50%)', fontSize: '13px', padding: '12px 16px' });
+    box.classList.remove('rd'); Object.assign(box.style, { left: '50%', top: '50%', width: 'min(640px,92vw)', height: 'auto', maxHeight: 'none', transform: 'translate(-50%,-50%)', fontSize: '13px', padding: '12px 16px' });
     box.innerHTML = '<div style="font:700 11px Chakra Petch,sans-serif;letter-spacing:.16em;color:#5fd0e0;margin-bottom:6px">SATO &middot; SENSORS</div><div>Laser on us, Captain. Low power, pulsed. It\'s not a weapon. It\'s a message.</div>' +
       '<div style="font:700 11px Chakra Petch,sans-serif;letter-spacing:.16em;color:#b69cf0;margin:12px 0 6px">CORVANE &middot; BY LASER</div><div style="font-style:italic">' + line + '</div>' +
       '<div style="font:700 11px Chakra Petch,sans-serif;letter-spacing:.16em;color:#9fb7c8;margin:12px 0 6px">CAPTAIN OSTROW</div><div>...She asked for you. Get to the airlock.</div>' +

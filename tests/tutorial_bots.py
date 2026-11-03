@@ -13,7 +13,12 @@
 # 'she' in Ostrow's box before the engine's readings identify it. literal, skipper: reach the surrender with Corvane alive and the
 # solution bar seen rising to 100%. literal: the solution goes from lock to ready within 90 s of running clock at 1x, no step was done
 # for it, and game time advances after each Understood. wander: Corvane alive (surrender reported, not required).
-# Run: python3 tests/tutorial_bots.py [literal|skipper|wander|idle ...]
+#   layout   (fast) Skip step / Understood through the whole tutorial at five window sizes (1155x890, Dave's 125%-scaled laptop;
+#            1280x720; 1100x800; 1366x768; 1920x900) with the order-box checks below.
+# The order box sits in its own band beside the console (below it, or to its right on a wide window): it must never overflow (box or
+# its text), never cover a live control or an outlined display, keep >= 12 px text and >= 330 px width on screen, and keep Understood /
+# Skip step inside it.
+# Run: python3 tests/tutorial_bots.py [layout|literal|skipper|wander|idle ...]
 import sys, time, random, os, re
 from playwright.sync_api import sync_playwright
 R = '/home/claude/interdict/'; bad = []
@@ -21,7 +26,7 @@ def chk(m, c):
     print('ok  ' if c else 'FAIL', m)
     if not c: bad.append(m)
 
-WATCH = r"""(() => { if (window.__m) return; const m = window.__m = { lockT: null, readyT: null, bars: [], hiBad: [], over: [], cover: [], steps: [], frozenBad: [], named: [], prev: null, runT: 0, readN: 0, hps: [], hull: [] };
+WATCH = r"""(() => { if (window.__m) return; const m = window.__m = { lockT: null, readyT: null, bars: [], hiBad: [], over: [], cover: [], steps: [], frozenBad: [], named: [], small: [], prev: null, runT: 0, readN: 0, hps: [], hull: [] };
   const boxR = () => { const b = document.getElementById('tutbox'); return b && !__tut.done ? b.getBoundingClientRect() : null; };
   setInterval(() => { if (!S || __tut.done) return; const C = S.an[__tut.corvane];
     const fr = __tut.reading || paused, key = __tut.step + ':' + __tut.beat + ':' + __tut.beatsSeen().length + ':' + paused + ':' + __tut.reading;
@@ -36,9 +41,13 @@ WATCH = r"""(() => { if (window.__m) return; const m = window.__m = { lockT: nul
     if (m.steps[m.steps.length - 1] !== __tut.id) m.steps.push(__tut.id);
     if (!__tut.identified && /\b(Corvane|her|she)\b|a ship/i.test(__tut.text)) m.named.push(__tut.id + ': ' + __tut.text.slice(0, 80));
     const tg = __tut.hiTargets(), vis = tg.flatMap(q => [...document.querySelectorAll(q)]).filter(__tut.visible);
-    if (tg.length && (!vis.length || !document.querySelector('.tut-hi'))) m.hiBad.push(__tut.id + ':' + tg.join(','));
-    const bx = document.getElementById('tutbox'); if (bx.scrollHeight > bx.clientHeight + 2) m.over.push(__tut.id + (__tut.beat ? '/' + __tut.beat : ''));
-    const r = boxR(); if (r) document.querySelectorAll('#stage [data-act]').forEach(e => { if (!__tut.visible(e)) return; const q = e.getBoundingClientRect(), ix = Math.min(r.right, q.right) - Math.max(r.left, q.left), iy = Math.min(r.bottom, q.bottom) - Math.max(r.top, q.top); if (ix > 4 && iy > 4) m.cover.push((e.id || e.dataset.act) + '@' + __tut.id); });
+    { const miss = tg.length && (!vis.length || !document.querySelector('.tut-hi')) ? __tut.id + ':' + tg.join(',') : null; if (miss && m.hiMiss === miss) m.hiBad.push(miss); m.hiMiss = miss; }   // outlines go on at the next frame: a miss counts when it lasts two samples
+    const bx = document.getElementById('tutbox'), bd = document.getElementById('tutbody'), tag = __tut.id + (__tut.beat ? '/' + __tut.beat : '');
+    if (bx.scrollHeight > bx.clientHeight + 2 || (bd && bd.scrollHeight > bd.clientHeight + 2)) m.over.push(tag);
+    const r = boxR(); if (r) document.querySelectorAll('#stage [data-act], .tut-hi').forEach(e => { if (!__tut.visible(e) || e === bx || bx.contains(e)) return; const q = e.getBoundingClientRect(), ix = Math.min(r.right, q.right) - Math.max(r.left, q.left), iy = Math.min(r.bottom, q.bottom) - Math.max(r.top, q.top); if (ix > 4 && iy > 4) m.cover.push((e.id || e.dataset.act || e.className) + '@' + __tut.id); });
+    if (r) {   // readable, on screen, and its buttons always visible inside it
+      const fs = parseFloat(getComputedStyle(bx).fontSize); if (fs < 12 || r.width < 330 || r.height < 60 || r.left < -1 || r.top < -1 || r.right > innerWidth + 1 || r.bottom > innerHeight + 1) m.small.push(tag + ' ' + [r.left, r.top, r.width, r.height, fs].map(Math.round).join(','));
+      ['tutnext', 'tutskip'].forEach(id => { const b = document.getElementById(id); if (!b) return; const q = b.getBoundingClientRect(); if (q.width < 20 || q.height < 12 || q.left < r.left - 1 || q.right > r.right + 1 || q.top < r.top - 1 || q.bottom > r.bottom + 1) m.small.push(tag + ' ' + id + ' clipped'); }); }
   }, 100); })()"""
 ST = "(() => { const C = S.an[__tut.corvane]; return { id: __tut.id, step: __tut.step, t: S.t, done: __tut.done, hp: C.hp, hpMax: C.hpMax, cstate: C.state, solve: C.solve || 0, hull: S.hull, view, vols: __tut.vols, reading: __tut.reading, paused, beat: __tut.beat, nxt: !!document.getElementById('tutnext'), skp: !!document.getElementById('tutskip'), hi: __tut.hiTargets() }; })()"
 DISPLAY = ('#an', '#ct .cslip', '#g-', '#ls-', '#d-', '#r-clk', '#k-t')
@@ -134,6 +143,8 @@ def common(name, pg, errs, m):
     if m['over']: print('   ', sorted(set(m['over'])))
     chk(name + ' order box covers no live control', not m['cover'])
     if m['cover']: print('   ', sorted(set(m['cover']))[:8])
+    chk(name + ' order box readable (>= 12 px text, >= 330 px wide), on screen, Understood / Skip step inside it', not m['small'])
+    if m['small']: print('   ', sorted(set(m['small']))[:6])
     chk(name + ' no page errors', not errs)
     if errs: print('   ', errs[:3])
 
@@ -149,8 +160,25 @@ def run_idle(b, page='web/hunt_rt.html?tutorial=tern&return=index.html', vp=(136
     chk('idle: game time frozen while an order box waits to be read (10 s)', a['reading'] and z['reading'] and a['t'] == z['t'] and z['id'] == a['id'])
     m = pg.evaluate("window.__m"); common('idle', pg, errs, m); pg.close()
 
+VIEWPORTS = [(1155, 890), (1280, 720), (1100, 800), (1366, 768), (1920, 900)]   # 1155x890: a 1440x1112 laptop at 125% scale (Dave)
+def run_layout(b, page='web/hunt_rt.html?tutorial=tern&return=index.html'):
+    # fast: at each window size, Skip step / Understood through the whole tutorial (engine ticks driven from the page), visiting every view,
+    # with the watcher's box checks (never overflows, covers no live control or outlined display, readable, buttons inside) sampling
+    for vp in VIEWPORTS:
+        pg, errs = open_page(b, page, vp); nm = 'layout %dx%d' % vp; done = False
+        for i in range(4000):
+            r = pg.evaluate("""i => { const n = document.getElementById('tutnext'), k = document.getElementById('tutskip'); if (k && window.__sk !== __tut.step) { window.__sk = __tut.step; k.click(); } else if (n) n.click();
+              if (i % 97 === 50) { const v = ['str', 'tgt', 'tac'][Math.floor(i / 97) % 3]; setView(v === 'tgt' && !S.an.some(a => a.state === 'locked') ? 'tac' : v); } E.tick(S, 0.1); return __tut.done; }""", i)
+            if r: done = True; break
+            if i % 3 == 0: pg.wait_for_timeout(35)
+        pg.wait_for_timeout(200); m = pg.evaluate("window.__m")
+        chk(nm + ' reaches the surrender', done)
+        m['frozenBad'] = []   # this run drives the engine from the page; the clock checks belong to the real-time players
+        common(nm, pg, errs, m); pg.close()
+
 def run(b, name, page='web/hunt_rt.html?tutorial=tern&return=index.html', vp=(1366, 768), limit_real=900):
     if name == 'idle': return run_idle(b, page, vp)
+    if name == 'layout': return run_layout(b, page)
     fn, speed, gap = BOTS[name]
     pg, errs = open_page(b, page, vp)
     chk(name + ' starts paused on step 1', pg.evaluate("paused && __tut.id === 'clock' && S.t === 0"))
@@ -190,6 +218,6 @@ def run(b, name, page='web/hunt_rt.html?tutorial=tern&return=index.html', vp=(13
 
 with sync_playwright() as p:
     b = p.chromium.launch()
-    for name in (sys.argv[1:] or ['literal', 'skipper', 'wander', 'idle']): run(b, name)
+    for name in (sys.argv[1:] or ['layout', 'literal', 'skipper', 'wander', 'idle']): run(b, name)
     b.close()
 print('FAILED' if bad else 'ALL OK'); sys.exit(1 if bad else 0)

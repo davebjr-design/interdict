@@ -182,7 +182,7 @@ function cTactical() {
   s += cplate(56, 53, 20, 4, 'COURSE LEGS COLORED BY DRIVE SETTING', { tag: 'plate 20x4u' });
   o += czone('SCOPE', 36, 8, 76, 66, 'SCOPE &amp; HELM', 'who is where, and how we move', s, { cls: 'blank', vz: 'tac' });
   // WEAPONS and COMMS
-  let w = ''; for (let i = 0; i < 3; i++) w += cgauge('g-tube' + i, i * 12, 3, 12, 8, { tag: 'M 12x8u', tip: 'Missile tube. Each takes about ' + ME().reload + ' minutes to reload after firing.' });
+  let w = ''; for (let i = 0; i < 3; i++) w += cgauge('g-tube' + i, i * 12, 3, 12, 8, { tag: 'M 12x8u', tip: 'Missile tube.' });
   w += cgauge('g-coil', 36, 3, 12, 8, { tag: 'M 12x8u', tip: 'Point-blank coilgun: instant, ignores scatter, only inside ' + ME().closeRange + ' km, and the flash is loud.' });
   w += croW('r-fly', 0, 11, 'IN FLIGHT', '88:88', 12, 4);
   w += ckeyW('k-tgt', 12, 11, 12, 4, 'TARGET &#9656;', '', CC.amber, { act: 'target', tag: 'K 12x4u', tip: 'Open the fire solution view for a locked contact. Fire from there.' });
@@ -301,7 +301,7 @@ function slipHtml(a, vm, full, y, sel) {
     inner += cwid('cls', 18, 0, 4, 4, cglyph(vm.kind, vm.gcol), { tag: 'cls 4x4u' });
     inner += cwid('od', 22, 0, 6, 4, `<b>${vm.odds}</b><span class="clg">${vm.ts ? vm.ts.state.toUpperCase() : 'ODDS'}</span>`, { tag: 'od 6x4u' });
     inner += cwid('rng', 28, 0, 8, 4, `${vm.rng}<small style="font-size:.7em;margin-left:.2em">km</small>`, { tag: 'rng 8x4u' });
-    vm.chans.forEach((c, i) => { const k = CHK[c.ch]; inner += cwid('ch', i * 12, 4, 12, 4, `<b>${k[0]}</b><div class="cbar"><i style="width:${c.sig}%;opacity:${c.op.toFixed(2)}"></i><u style="width:${c.prog}%"></u><s></s></div><span class="cn">${c.n}</span>`, { cls: (c.done && !c.off ? 'done ' : '') + (c.off ? 'off ' : '') + (c.hold ? 'hold ' : '') + (c.done && !c.off ? 'on' : ''), act: 'chan', arg: a.id + ':' + c.ch, style: `--cc:${k[2]}`, tag: 'ch 12x4u', tip: `${k[1]}: ${a.read[c.ch]?.blind ? (c.ch === 'occlusion' ? 'not backlit, no visual read' : 'blind') : 'strength bar, collection line underneath'}. Click to point ${E.ANALYSTS.find(z => z.ch === c.ch).name} at this contact: faster, cleaner reads, but it adds heat.` }); });
+    vm.chans.forEach((c, i) => { const k = CHK[c.ch]; inner += cwid('ch', i * 12, 4, 12, 4, `<b>${k[0]}</b><div class="cbar"><i style="width:${c.sig}%;opacity:${c.op.toFixed(2)}"></i><u style="width:${c.prog}%"></u><s></s></div><span class="cn">${c.n}</span>`, { cls: (c.done && !c.off ? 'done ' : '') + (c.off ? 'off ' : '') + (c.hold ? 'hold ' : '') + (c.done && !c.off ? 'on' : ''), act: 'chan', arg: a.id + ':' + c.ch, style: `--cc:${k[2]}`, tag: 'ch 12x4u', tip: `${k[1]}: ${a.read[c.ch]?.blind ? (c.ch === 'occlusion' ? 'not backlit, no eclipse profile' : 'blind') : c.ch === 'occlusion' ? 'eclipse profile against the star behind it: a long bar is one solid, hull-sized shadow, a short one no shape at all; collection line underneath' : 'strength bar, collection line underneath'}. Click to point ${E.ANALYSTS.find(z => z.ch === c.ch).name} at this contact: faster, cleaner reads, but it adds heat.` }); });
   } else {
     inner += cwid('st', 4, 0, 5, 4, `<i class="cled ${vm.led}${vm.fl ? ' fl' : ''}"></i>`, { tag: 'S 5x4u' });
     inner += cwid('cls', 9, 0, 4, 4, cglyph(vm.kind, vm.gcol), { tag: 'cls 4x4u' });
@@ -317,7 +317,7 @@ function cEvidence(a) {   // short certainty line and the evidence behind it
   if (vm.isH && a.state === 'open') return '<b>HOSTILE 100%</b> IT PINGED US. LOCK IT AND GO AFTER IT.';
   if (a.state === 'locked') return '<b>WARSHIP</b> ' + solTxt(a).toUpperCase();
   if (c.n < 1 && vm.nread < 1) return 'NO READINGS YET. INVESTIGATE TO PUT ALL THREE ANALYSTS ON IT.';
-  const ev = ['thermal', 'reactor', 'occlusion'].map(ch => { const q = a.read[ch], w = nm[ch].n.toUpperCase(); if (!q || (!q.blind && !(q.den > 0))) return w + ' ?'; if (q.blind) return w + (ch === 'occlusion' ? ' NOT BACKLIT' : ' BLIND'); const k = E.cat(Math.max(0, q.num / q.den)); return w + ' ' + (k === 'none' ? 'CLEAR' : k.toUpperCase()); }).join(' &middot; ');
+  const ev = ['thermal', 'reactor', 'occlusion'].map(ch => { const q = a.read[ch], w = nm[ch].n.toUpperCase(); if (!q || (!q.blind && !(q.den > 0))) return w + ' ?'; if (q.blind) return w + (ch === 'occlusion' ? ' NOT BACKLIT' : ' BLIND'); const k = E.cat(Math.max(0, q.num / q.den)); if (ch === 'occlusion') return w + ' ' + { strong: 'HULL PROFILE', faint: 'RAGGED PROFILE', none: 'NO SHAPE' }[k]; return w + ' ' + (k === 'none' ? 'CLEAR' : k.toUpperCase()); }).join(' &middot; ');
   const head = c.p >= 0.5 ? `<b>MOST LIKELY ${{ real: 'A WARSHIP', lure: 'A DECOY', ghost: 'STATIC' }[c.best]}, ${Math.min(99, Math.round(c.p * 100))}% CERTAIN</b>` : '<b>NOT SURE YET</b>';
   return head + ' &middot; ' + ev;
 }
@@ -392,8 +392,21 @@ function cHelm() {
   croSet('r-zoom', VZ.toFixed(1) + '&times;', CC.cyan); croSet('r-ring', ringKm(), CC.cyan); ckeySet('zfollow', { lit: follow });
 }
 // ----- weapons and comms -----
+// tube and coilgun tooltips follow the actual state, like the lamps (2026-11-03, Dave: with the SALVO lamps dark the tip still said loaded)
+const setTip = (id, t) => cOn(id, e => { if (e.dataset.tip !== t) e.dataset.tip = t; });
+function tubeTip(i) {
+  const x = S.tubes[i], eff = S.sysEff == null ? 1 : S.sysEff, n = 'Salvo ' + (i + 1) + ' (missile tube ' + (i + 1) + '): ';
+  const st = S.t >= x ? n + 'loaded, ready to fire.' + (S.t < S.quietUntil ? ' Held while we run quiet.' : '') : n + 'empty, reloading: loaded again in ' + fmtMin(x - S.t) + '.';
+  return st + ' A tube takes ' + fmtMin(ME().reload) + ' to reload after it fires.' + (eff < 0.9 ? ' Weapon systems damaged: ' + Math.round(eff * 100) + '% efficiency.' : '');
+}
+function coilTip(inR, d) {
+  const rdy = S.t >= S.cwCd, base = 'Point-blank coilgun: instant, ignores scatter, only inside ' + ME().closeRange + ' km, and the flash is loud. ';
+  if (!rdy) return base + 'Recharging: ready in ' + fmtMin(S.cwCd - S.t) + '.';
+  return base + (inR == null ? 'Charged.' : inR ? 'Charged, and the target is inside its range: it can fire.' : 'Charged, but the target is out of range (' + Math.round(d) + ' km).');
+}
 function cWeapons() {
   S.tubes.forEach((x, i) => { const rdy = S.t >= x, p = rdy ? 1 : 1 - (x - S.t) / ME().reload; csvg('g-tube' + i, csegSvg('SALVO ' + (i + 1), p, rdy ? CC.green : CC.amber, rdy ? 'READY' : 'RELOAD ' + fmtMin(x - S.t), 12, 8, [], 8)); });
+  S.tubes.forEach((x, i) => setTip('g-tube' + i, tubeTip(i))); setTip('g-coil', coilTip(null));
   const cwr = S.t >= S.cwCd; csvg('g-coil', csegSvg('COILGUN', cwr ? 1 : 0.3, cwr ? CC.green : CC.amber, cwr ? 'READY' : fmtMin(S.cwCd - S.t), 12, 8, [], 8));
   const vo = S.volleys.length ? Math.min(...S.volleys.map(v => v.at - S.t)) : null; croSet('r-fly', vo == null ? '--:--' : mmss(Math.max(0, vo)), vo == null ? '#6f877d' : CC.amber);
   const lk = S.an.filter(a => a.state === 'locked'), rd = lk.find(a => E.solveInfo(S, a).ready), t0 = rd || lk[0], si = t0 && E.solveInfo(S, t0);
@@ -415,6 +428,7 @@ function cUpdate() {
   const secs = [cRail, cHeat, cSig, cShip, cSensors, cSlips, cOrders, cBeacon, cHelm, cWeapons];
   secs.forEach(f => { try { f(); } catch (e) { if (errN++ < 6) console.error('console ' + f.name, e); } });
   document.body.classList.toggle('sweep', !!S.pending);
+  if (tipEl) { const t = $('ctip'); if (t && !t.hidden && tipEl.isConnected) { const h = tipHtml(tipEl); if (t.dataset.h !== h) { t.dataset.h = h; t.innerHTML = h; } } }   // a tip that is up follows the state under it
 }
 /* ---------- actions, hover previews, keys ---------- */
 const ACT = {
@@ -435,7 +449,16 @@ const ACT = {
   target() { const lk = S.an.filter(a => a.state === 'locked'); if (lk.length) openTarget((lk.find(a => E.solveInfo(S, a).ready) || lk[0]).id); },
   beacon() { const n = S._nx; if (n && n.id != null) { selId = n.id; uiUpdate(true); } },
 };
-document.addEventListener('click', e => { const el = e.target.closest && e.target.closest('#stage [data-act]'); if (!el || !S || el.classList.contains('dis') || el.id === 'stage') return; if (ACT[el.dataset.act]) { ACT[el.dataset.act](el); hideTip(); } });
+function runAct(el) { if (!el || !S || el.classList.contains('dis') || el.id === 'stage') return; if (ACT[el.dataset.act]) { ACT[el.dataset.act](el); hideTip(); } }
+// A press whose element is rebuilt under the pointer gets no click in Chromium: the slips are re-rendered (innerHTML) several times a
+// second while a contact is read or drifts, and when the node under mousedown is gone by mouseup no click is dispatched. The press was
+// then lost: the slip never got selected and the next INVESTIGATE acted on the old selection (often the contact the analysts were
+// already on, so it stood them down). Finish such a press on mouseup from the rebuilt element with the same action and argument.
+const actKey = el => el.dataset.act + '|' + (el.dataset.arg || '') + '|' + (el.id || '');
+let cDown = null, cFb = null;   // cFb: a press finished on mouseup; its own click, if the browser sends one anyway, is dropped (cleared by the next press)
+document.addEventListener('mousedown', e => { cFb = null; const el = e.button === 0 && e.target.closest && e.target.closest('#stage [data-act]'); cDown = el ? { t: e.target, k: actKey(el) } : null; }, true);
+document.addEventListener('mouseup', e => { const d = cDown; cDown = null; if (!d || e.button !== 0 || d.t.isConnected) return; const el = e.target.closest && e.target.closest('#stage [data-act]'); if (!el || actKey(el) !== d.k) return; cFb = { el, at: performance.now() }; runAct(el); }, true);
+document.addEventListener('click', e => { const el = e.target.closest && e.target.closest('#stage [data-act]'); if (cFb && performance.now() - cFb.at < 400 && el && (el === cFb.el || el.contains(cFb.el) || !cFb.el.isConnected)) { cFb = null; return; } cFb = null; runAct(el); });
 document.addEventListener('contextmenu', e => { const el = e.target.closest && e.target.closest('#ct .cslip'); if (el && S) { e.preventDefault(); selId = +el.dataset.arg; openMenu(selId, e.clientX, e.clientY); } });
 let tipEl = null;
 function hideTip() { tipEl = null; const t = $('ctip'); if (t) t.hidden = true; }
@@ -512,7 +535,7 @@ function cTarget() {
   d += ckeyW('k-thom', 12, 51, 12, 4, 'HOMING', 'EASY TO SPOT', CC.amber, { act: 'thom', tag: 'K 12x4u', tip: 'Homing seekers: tighter landings, but easy to spot, so the target is more likely to maneuver off its line.' });
   [['he', 'HE', 'STANDARD'], ['emp', 'EMP', ''], ['flare', 'FLARE', '']].forEach(([k, t, s], i) => { d += ckeyW('k-am-' + k, 24 + i * 8, 51, 8, 4, t, s, CC.amber, { act: 'tammo', arg: k, tag: 'K 8x4u' }); });
   d += cgauge('g-hit', 0, 55, 24, 8, { tag: 'M 24x8u', tip: 'Chance that a missile gets close enough to do something, from 400 trial volleys at the current aim point and cone.' });
-  [['tf-s0', 'SALVO 1'], ['tf-s1', 'SALVO 2'], ['tf-s2', 'SALVO 3'], ['tf-coil', 'COIL']].forEach(([id, lab], i) => { d += clampW(id, 24 + i * 6, 55, lab, { tip: id === 'tf-coil' ? 'Coilgun ready and the target is inside its range.' : 'This missile tube is loaded.' }); });
+  [['tf-s0', 'SALVO 1'], ['tf-s1', 'SALVO 2'], ['tf-s2', 'SALVO 3'], ['tf-coil', 'COIL']].forEach(([id, lab], i) => { d += clampW(id, 24 + i * 6, 55, lab, { tip: id === 'tf-coil' ? 'Coilgun.' : 'Missile tube.' }); });
   [['tf-heat', 'DET HEAT', 'Detonations this close will light us up.'], ['tf-aware', 'AWARE', 'The target has noticed us and may maneuver.'], ['tf-near', 'NEAR US', 'Danger close: our own missiles could land on us.'], ['tf-grid', 'GRID', 'We have a grid read on this target.']].forEach(([id, lab, tip], i) => { d += clampW(id, 24 + i * 6, 59, lab, { tip }); });
   d += ckeyW('k-fire', 0, 63, 36, 8, 'FIRE SALVO', 'NEEDS A READY SOLUTION', CC.red, { act: 'tfire', tag: 'K-XL 36x8u', cls: 'guard' }) + ckeyW('k-coilg', 36, 63, 12, 8, 'COILGUN', 'UNDER 18 KM', CC.amber, { act: 'tcoil', tag: 'K 12x8u', tip: 'Point-blank kinetic round. Instant, ignores scatter grids, only inside 18 km, and the flash is loud.' });
   o += czone('AIM', 64, 18, 48, 72, 'AIM &amp; FIRE', '', d, { vz: 'tgt' });
@@ -545,6 +568,7 @@ function cTgtUpdate(T) {
   ['he', 'emp', 'flare'].forEach(k => { ckeySet('k-am-' + k, { t: k.toUpperCase(), s: { he: 'STANDARD', emp: 'DISABLES', flare: 'BLINDS' }[k], lit: ammo === k }); cOn('k-am-' + k, e => { e.dataset.tip = E.WARHEAD[k].tip; }); });
   if (hitNow) { const hv = hitNow.hv; csvg('g-hit', csegSvg('HIT CHANCE', hv / 100, hv < 25 ? CC.red : hv < 55 ? CC.amber : CC.green, hv + '%', 24, 8, [], 20)); cOn('g-hit', e => { e.dataset.tip = $('ammotip').textContent; }); }
   S.tubes.forEach((x, i) => clampSet('tf-s' + i, S.t >= x, { col: 'g' })); clampSet('tf-coil', inR && cwr, { col: 'g' });
+  S.tubes.forEach((x, i) => setTip('tf-s' + i, tubeTip(i))); setTip('tf-coil', coilTip(inR, ci.d));
   clampSet('tf-heat', sr.dist < 24); clampSet('tf-aware', !!a.aware); clampSet('tf-near', dang, { fl: true, col: 'r' }); clampSet('tf-grid', !!a.flutter, { col: 'c' });
   const fb = $('fire'), kf = $('k-fire'); { const fireable = si.ready && rd && !si.stale; kf.classList.toggle('gd', fireable); kf.classList.toggle('cvd', !si.stale); { const cv = kf.querySelector('.cguard'), h = fireable ? '<b>LIFT GUARD</b><small>THEN PRESS TO FIRE</small>' : !si.ready ? '<b>SOLVING</b><small>' + (si.paused ? pauseWhy(si) : fmtMin(si.remain) + ' LEFT') + '</small>' : '<b>RELOADING</b><small>' + fmtMin(Math.min(...S.tubes.map(x => x - S.t))) + '</small>'; if (cv.dataset.h !== h) { cv.dataset.h = h; cv.innerHTML = h; } } if (!fireable) kf.classList.remove('armed'); }
   if (si.stale) ckeySet('k-fire', { t: 'REFRESH', s: 'SOLUTION IS STALE', guard: false, hot: false, dis: false, lit: true });
