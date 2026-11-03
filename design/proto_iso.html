@@ -21,13 +21,20 @@ canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block
 #job { top: 12px; left: 12px; max-width: 30%; }
 .lab { font: 500 11px var(--disp); letter-spacing: .16em; text-transform: uppercase; color: var(--dim); margin-bottom: 4px; }
 #job .k { font: 700 10px var(--disp); letter-spacing: .14em; color: var(--amber); } #job.done .k { color: var(--green); } #job.done .t { color: var(--dim); text-decoration: line-through; }
-#map { left: 12px; bottom: 12px; padding: 6px 10px 4px; } #map .lab { margin-bottom: 2px; font-size: 10px; }
+#map { left: 8px; bottom: 8px; padding: 4px 6px 2px; opacity: .8; } #map .lab { margin-bottom: 2px; font-size: 10px; }
 #tip { right: 12px; top: 12px; text-align: right; color: var(--cyan); font-size: 12px; }
 .panel { background: var(--panel); border: 1px solid var(--line); padding: 12px; display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 14px; align-items: start; min-height: 132px; }
 #por { width: 72px; height: 88px; border: 1px solid currentColor; display: grid; place-items: center; font: 700 38px var(--disp); background: #0c1713; }
 #nm { font: 700 13px var(--disp); letter-spacing: .16em; text-transform: uppercase; margin-bottom: 4px; }
 #tx { max-width: 70ch; } #fx { margin-top: 6px; color: var(--amber); font-size: 12px; }
-#ch { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+#dbox { position: absolute; left: 50%; top: 9%; transform: translateX(-50%); width: min(760px, 92%); z-index: 4; background: rgba(8, 16, 13, .97); border: 1px solid var(--amber); box-shadow: 0 8px 40px rgba(0,0,0,.7); min-height: 0; padding: 16px 18px; gap: 16px; }
+#dbox[hidden] { display: none; }
+#stage.talk::after { content: ''; position: absolute; inset: 0; background: rgba(0, 0, 0, .5); z-index: 3; pointer-events: none; }
+#opor { width: 72px; height: 88px; border: 1px solid currentColor; display: grid; place-items: center; font: 700 38px var(--disp); background: #0c1713; }
+#onm { font: 700 13px var(--disp); letter-spacing: .16em; text-transform: uppercase; margin-bottom: 6px; }
+#otx { font-size: 14px; line-height: 1.55; } #ofx { margin-top: 6px; color: var(--amber); font-size: 12px; }
+#stage.talk #map { display: none; }
+.ch, #ch { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 button { font: 500 13px var(--mono); background: #0c1713; color: var(--fg); border: 1px solid var(--line); padding: 8px 12px; cursor: pointer; text-align: left; }
 button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; } .row button { font: 700 12px var(--disp); letter-spacing: .12em; text-transform: uppercase; }
@@ -47,13 +54,14 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   <div id="stage">
     <canvas id="cv" width="1280" height="720"></canvas>
     <div id="job" class="hud"><div class="lab">Mission tracker</div><div class="k" id="jobk">BRIEFING</div><div class="t" id="jobt">Report to Captain Ostrow at the chart table</div></div>
-    <div id="map" class="hud"><div class="lab">Deck plan</div><svg id="plan" width="300" height="118" viewBox="0 0 240 98"></svg></div>
+    <div id="map" class="hud"><div class="lab">Deck plan</div><svg id="plan" width="168" height="69" viewBox="0 0 240 98"></svg></div>
     <div id="tip" class="hud" hidden></div><div id="room" class="hud" style="left:50%;transform:translateX(-50%);top:12px;font:700 12px var(--disp);letter-spacing:.2em;color:var(--amber)">CONTROL ROOM</div>
+    <div id="dbox" class="panel" hidden><div id="opor">&middot;</div><div><div id="onm"></div><div id="otx"></div><div id="ofx"></div><div id="och" class="ch"></div></div></div>
     <div id="curtain" class="on" data-phase="black"></div>
   </div>
   <div class="panel">
     <div id="por">&middot;</div>
-    <div><div id="nm">Ship log</div><div id="tx"></div><div id="fx"></div><div id="ch"></div></div>
+    <div><div id="nm">Ship log</div><div id="tx"></div><div id="fx"></div><div id="ch" class="ch"></div></div>
   </div>
   <div class="row"><button id="grid" type="button">Show walk grid</button><button id="reset" type="button">Restart at the Tern</button><button id="skipop" type="button" class="link" title="Testers: skip the wake-up and go straight to the briefing, with the saved name">Skip opening</button><button id="skip" type="button">Skip to Corvane's ship</button><button id="hunt" type="button">Run a hunt</button><button id="dock" type="button" hidden title="Dock at the next station. Crews check each other's ships at docks.">Dock at the next station</button><button id="dbgwire" type="button" title="Debug: the dialogue runner doesn't exist yet. Plays 1.6b as a text-only choice panel and sets the Pell gate.">Debug: play wiring scene</button><span id="trimline" class="note"></span></div>
   <p class="note">Hull revision 2: all twelve compartments are walkable. They chain end to end through bulkhead hatches, with ladders between decks at the junction and in engineering. Every room is scaled to the same walk-cell size, so the captain stays the same size throughout and the view only zooms enough to fill the stage. Room art is generated from the submarine brief in docs/room_art_brief_v2.md and keyed from magenta. Crew are Meshy models rendered to sprite sheets, drawn at 90% of a hatch height. Light flicker is drawn in code over the still art. Walk grids are fitted by hand; use Show walk grid to check them.</p>
@@ -210,11 +218,19 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   let briefed = false;
   setRoom('tern_control', [12, 2]);
 
+  const COL = { Ostrow: '#9fb7c8', Dunne: '#a8a08a', Ames: '#c7d9a8', Castellan: '#b69cf0', Fenwick: '#c9b458', Abara: '#e8853a', Quill: '#5fd0e0', Dace: '#e8c05a' };
+  let lastSaid = { nm: '', tx: '', fx: '' };
   function say(sp, text, fx, choices) {
-    const c = ({ Ostrow: '#9fb7c8', Dunne: '#a8a08a', Ames: '#c7d9a8', Castellan: '#b69cf0', Fenwick: '#c9b458', Abara: '#e8853a', Quill: '#5fd0e0', Dace: '#e8c05a' })[sp] || '#6f877d'; $('por').textContent = sp[0]; $('por').style.color = c; $('nm').textContent = sp; $('nm').style.color = c; $('tx').textContent = text; $('fx').textContent = fx ? 'EFFECT: ' + fx : '';
-    const ch = $('ch'); ch.innerHTML = ''; (choices || []).forEach(b0 => { const b = document.createElement('button'); b.type = 'button'; b.textContent = b0.t; b.onclick = b0.fn; ch.appendChild(b); }); dlg = !!(choices && choices.length);
+    const c = COL[sp] || '#6f877d', fxT = fx ? 'EFFECT: ' + fx : '', hasCh = !!(choices && choices.length), over = hasCh && sp !== 'Ship log';
+    const fill = (ids, host) => { $(ids[0]).textContent = sp[0]; $(ids[0]).style.color = c; $(ids[1]).textContent = sp; $(ids[1]).style.color = c; $(ids[2]).textContent = text; $(ids[3]).textContent = fxT;
+      host.innerHTML = ''; (choices || []).forEach(b0 => { const b = document.createElement('button'); b.type = 'button'; b.textContent = b0.t; b.onclick = b0.fn; host.appendChild(b); }); };
+    lastSaid = { nm: sp, tx: text, fx: fxT };
+    $('och').innerHTML = ''; $('ch').innerHTML = '';
+    if (over) { fill(['opor', 'onm', 'otx', 'ofx'], $('och')); $('dbox').hidden = false; $('stage').classList.add('talk'); }
+    else { $('dbox').hidden = true; $('stage').classList.remove('talk'); fill(['por', 'nm', 'tx', 'fx'], $('ch')); }
+    dlg = hasCh;
   }
-  const close = () => { $('ch').innerHTML = ''; dlg = false; };
+  const close = () => { $('ch').innerHTML = ''; $('och').innerHTML = ''; $('dbox').hidden = true; $('stage').classList.remove('talk'); dlg = false; };
   function talk(npc) {
     if (npc.name === 'Ostrow') {
       if (briefed && !hunted) return say('Ostrow', 'Stations. We find her first.', '', [{ t: 'Begin the hunt', fn: () => { location.href = 'hunt.html?tutorial=tern&return=' + encodeURIComponent(page()); } }, { t: 'Skip the hunt (demo)', fn: afterHunt }]);
@@ -430,7 +446,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     const inp = document.createElement('input'); inp.id = 'nameIn'; inp.type = 'text'; inp.maxLength = 12; inp.placeholder = 'Rookie'; inp.autocomplete = 'off'; inp.spellcheck = false; inp.setAttribute('aria-label', 'Your name');
     try { inp.value = cleanName(localStorage.getItem('interdict.pname')); } catch (e) {}
     inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); submit(); } });
-    $('ch').insertBefore(inp, $('ch').firstChild); setTimeout(() => { try { inp.focus(); } catch (e) {} }, 0);
+    $('och').insertBefore(inp, $('och').firstChild); setTimeout(() => { try { inp.focus(); } catch (e) {} }, 0);
   }
   // Arriving in the CIC on the first job starts the P1 briefing.
   function arrived() { if (reportCIC && room === ROOMS.tern_control && !briefed) { reportCIC = false; setJob('FIRST JOB', 'Report to the CIC', true); talk({ name: 'Ostrow' }); } }
@@ -511,6 +527,6 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     [['T', r.T], ['R', r.R], ['L', r.L], ['B', r.B]].forEach(([n, w]) => { const q = I(w); g.fillStyle = '#ff0'; g.beginPath(); g.arc(q[0], q[1], 6, 0, 7); g.fill(); g.fillStyle = '#000'; g.textAlign = 'center'; g.fillText(n, q[0], q[1] + 4); });
     return c.toDataURL('image/png');
   }
-  window.__iso = { me, go, bfs, ROOMS, setRoom, talk, devRender, get room() { return room; }, useDoor, get npcs() { return npcs; }, get cam() { return cam; }, get dlg() { return dlg; }, dockStep, inspectP: () => inspectP(DS.load()), get opening() { return opening; }, get reportCIC() { return reportCIC; }, get briefed() { return briefed; } };
+  window.__iso = { said: () => lastSaid, me, go, bfs, ROOMS, setRoom, talk, devRender, get room() { return room; }, useDoor, get npcs() { return npcs; }, get cam() { return cam; }, get dlg() { return dlg; }, dockStep, inspectP: () => inspectP(DS.load()), get opening() { return opening; }, get reportCIC() { return reportCIC; }, get briefed() { return briefed; } };
 })();
 </script>

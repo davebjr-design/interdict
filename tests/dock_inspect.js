@@ -16,7 +16,7 @@ let bad = 0; const chk = (m, c) => { console.log((c ? 'ok   ' : 'FAIL ') + m); i
   await set(16, 2, 70, 'loose'); const p2 = await pg.evaluate(() => __iso.inspectP()); await set(16, 2, 30, 'tight'); const p3 = await pg.evaluate(() => __iso.inspectP());
   chk('loose ship harder, tight easier', p2 > p1 && p3 < p1);
   await set(16, 2, 50, 'neutral');
-  const run = async r => { const res = await pg.evaluate(r => __iso.dockStep(r), r); const tx = await pg.textContent('#tx'); await pg.evaluate(() => __iso.dockStep()); return { res, tx, st: await pg.evaluate(() => DemoState.load()) }; };
+  const run = async r => { const res = await pg.evaluate(r => __iso.dockStep(r), r); const tx = await pg.evaluate(() => __iso.said().tx); await pg.evaluate(() => __iso.dockStep()); return { res, tx, st: await pg.evaluate(() => DemoState.load()) }; };
   let o = await run(0.1); chk('roll under p: found, audit_pending flag', o.res === 'found' && o.st.flags.inspection_found && o.st.flags.audit_pending && /Tally/.test(o.tx));
   chk('docking resets recent link use', o.st.pell.link_recent === 0);
   await set(16, 2, 50, 'neutral'); o = await run(0.3); chk('roll under 2p: questions, noticed flag', o.res === 'questions' && o.st.flags.inspection_noticed);

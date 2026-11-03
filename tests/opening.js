@@ -3,8 +3,8 @@
 const { chromium } = require('playwright');
 const FILE = 'file://' + require('path').resolve(__dirname, '../design/proto_iso.html');
 let bad = 0; const chk = (m, c) => { console.log((c ? 'ok   ' : 'FAIL ') + m); if (!c) bad++; };
-const txt = pg => pg.evaluate(() => ({ nm: document.getElementById('nm').textContent, tx: document.getElementById('tx').textContent, ch: [...document.querySelectorAll('#ch button')].map(b => b.textContent), job: document.getElementById('jobk').textContent + ' | ' + document.getElementById('jobt').textContent, jobHidden: document.getElementById('job').hidden, done: document.getElementById('job').classList.contains('done'), room: __iso.room.id }));
-const clickChoice = (pg, s) => pg.evaluate(s => { const b = [...document.querySelectorAll('#ch button')].find(b => b.textContent.indexOf(s) === 0); if (!b) return false; b.click(); return true; }, s);
+const txt = pg => pg.evaluate(() => ({ nm: __iso.said().nm, tx: __iso.said().tx, ch: [...document.querySelectorAll('.ch button')].map(b => b.textContent), job: document.getElementById('jobk').textContent + ' | ' + document.getElementById('jobt').textContent, jobHidden: document.getElementById('job').hidden, done: document.getElementById('job').classList.contains('done'), room: __iso.room.id }));
+const clickChoice = (pg, s) => pg.evaluate(s => { const b = [...document.querySelectorAll('.ch button')].find(b => b.textContent.indexOf(s) === 0); if (!b) return false; b.click(); return true; }, s);
 const cur = pg => pg.evaluate(() => { const c = document.getElementById('curtain'); return { ph: c.dataset.phase, op: +getComputedStyle(c).opacity }; });
 async function clickDoor(pg, id) {
   const pt = await pg.evaluate(id => { const I = __iso, d = I.room.doors.find(x => x.id === id), cv = document.getElementById('cv'), r = cv.getBoundingClientRect(), z = I.room.zoom || 1, c = I.cam;

@@ -11,18 +11,18 @@ let bad = 0; const chk = (m, c) => { console.log((c ? 'ok   ' : 'FAIL ') + m); i
   // red key in Corvane's control room, before the scene
   await pg.click('#skip'); await pg.waitForTimeout(300);
   const clickKey = async () => { const pt = await pg.evaluate(() => { const I = __iso, d = I.room.doors.find(x => x.id === 'redKey'), cv = document.getElementById('cv'), r = cv.getBoundingClientRect(), z = I.room.zoom || 1, c = I.cam; const wx = (d.rect[0] + d.rect[2]) / 2, wy = (d.rect[1] + d.rect[3]) / 2; return { x: r.left + (((wx - c.x) * z + 320) / 640) * r.width, y: r.top + (((wy - c.y) * z + 180) / 360) * r.height }; }); await pg.mouse.click(pt.x, pt.y); await pg.waitForTimeout(5000); };
-  await pg.evaluate(() => { const b = [...document.querySelectorAll('#ch button')]; if (b[0]) b[0].click(); });
-  await clickKey(); let tx = await pg.textContent('#tx'); chk('red key before 1.6b: dead switch line', /doesn't seem to do anything/.test(tx));
-  const ch = async s => pg.evaluate(s => { const b = [...document.querySelectorAll('#ch button')].find(b => b.textContent.indexOf(s) === 0); if (b) b.click(); return !!b; }, s);
+  await pg.evaluate(() => { const b = [...document.querySelectorAll('.ch button')]; if (b[0]) b[0].click(); });
+  await clickKey(); let tx = await pg.evaluate(() => __iso.said().tx); chk('red key before 1.6b: dead switch line', /doesn't seem to do anything/.test(tx));
+  const ch = async s => pg.evaluate(s => { const b = [...document.querySelectorAll('.ch button')].find(b => b.textContent.indexOf(s) === 0); if (b) b.click(); return !!b; }, s);
   chk('red key offers the debug scene', await ch('[Debug] Play the wiring'));
   await ch('Continue'); await ch('Continue');
-  const opts = await pg.evaluate(() => [...document.querySelectorAll('#ch button')].map(b => b.textContent)); console.log('   choices', opts); chk('four choices', opts.length === 4);
-  await ch('Seat it. Pell'); await ch("I'll tell you"); const fx = await pg.textContent('#fx'); await ch('Continue');
+  const opts = await pg.evaluate(() => [...document.querySelectorAll('.ch button')].map(b => b.textContent)); console.log('   choices', opts); chk('four choices', opts.length === 4);
+  await ch('Seat it. Pell'); await ch("I'll tell you"); const fx = await pg.evaluate(() => __iso.said().fx); await ch('Continue');
   let st = await pg.evaluate(() => JSON.parse(localStorage.getItem('interdict.state'))); console.log('   ', JSON.stringify(st.pell), JSON.stringify(st.tally), JSON.stringify(st.command));
   chk('option 1: wiring_seen, key live, trace 12, declared 0, style 52', st.pell.wiring_seen && st.pell.key === 'live' && st.tally.trace === 12 && st.tally.declared === 0 && st.command.style === 52);
   console.log('   fx:', fx); chk('trace never shown', !/trace|tally/i.test(fx) && !/\btrace\b|tally/i.test(await pg.evaluate(() => document.body.innerText)));
   chk('integration 10 saved', (await pg.evaluate(() => localStorage.getItem('interdict_integration'))) === '10');
-  await clickKey(); tx = await pg.textContent('#tx'); chk('red key after: live line', /amber/.test(tx)); await ch('Continue');
+  await clickKey(); tx = await pg.evaluate(() => __iso.said().tx); chk('red key after: live line', /amber/.test(tx)); await ch('Continue');
   h = await hunt(); chk('after 1.6b (live): gauge and PELL ASSIST shown and enabled, integration 10', h.ui && h.vis.every(v => v !== 'hidden') && !h.dis && h.integ === 10);
   // option 4 (log) and option 3 (decline) through the debug button
   await pg.click('#dbgwire'); await ch('Continue'); await ch('Continue'); await ch('Seat it. And it goes'); await ch('Pell?'); await ch('Continue');

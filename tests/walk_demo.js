@@ -9,8 +9,8 @@ async function clickObj(pg, roomDoorId) {   // click the centre of a door's rect
     const wx = (d.rect[0] + d.rect[2]) / 2, wy = (d.rect[1] + d.rect[3]) / 2; return { x: r.left + (((wx - c.x) * z + 320) / 640) * r.width, y: r.top + (((wy - c.y) * z + 180) / 360) * r.height }; }, roomDoorId);
   await pg.mouse.click(pt.x, pt.y);
 }
-const txt = pg => pg.evaluate(() => ({ nm: document.getElementById('nm').textContent, tx: document.getElementById('tx').textContent, ch: [...document.querySelectorAll('#ch button')].map(b => b.textContent), job: document.getElementById('jobk').textContent + ' | ' + document.getElementById('jobt').textContent, done: document.getElementById('job').classList.contains('done') }));
-const clickChoice = (pg, s) => pg.evaluate(s => { const b = [...document.querySelectorAll('#ch button')].find(b => b.textContent.indexOf(s) === 0); if (!b) return false; b.click(); return true; }, s);
+const txt = pg => pg.evaluate(() => ({ nm: __iso.said().nm, tx: __iso.said().tx, ch: [...document.querySelectorAll('.ch button')].map(b => b.textContent), job: document.getElementById('jobk').textContent + ' | ' + document.getElementById('jobt').textContent, done: document.getElementById('job').classList.contains('done') }));
+const clickChoice = (pg, s) => pg.evaluate(s => { const b = [...document.querySelectorAll('.ch button')].find(b => b.textContent.indexOf(s) === 0); if (!b) return false; b.click(); return true; }, s);
 (async () => {
   const b = await chromium.launch(); const pg = await b.newPage({ viewport: { width: 1400, height: 1000 } }); const errs = [];
   pg.on('pageerror', e => errs.push(e.message));
