@@ -307,7 +307,7 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
   }
   function afterHunt() {
     hunted = true; briefed = true; moveAmes(); setJob('MINI-MISSION', 'Report to the airlock (aft, then up the trunk)');
-    say('Ostrow', "She's holding still and her guns are cold. She asked for you, by name. I don't like that. Get to the airlock. Dunne and Ames are suiting up.", '', [{ t: 'Continue', fn: close }]);
+    say('Ostrow', "She's holding still and her guns are cold. She asked for the new hand. I don't like that. Get to the airlock. Dunne and Ames are suiting up.", '', [{ t: 'Continue', fn: close }]);
   }
   function boardPrompt() {
     say('Ship log', "The outer hatch. Corvane's ship is docked on the other side; the seal light is green. Dunne and Ames are suited and waiting.", '', [
@@ -467,7 +467,8 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     $('och').insertBefore(inp, $('och').firstChild); setTimeout(() => { try { inp.focus(); } catch (e) {} }, 0);
   }
   // Arriving in the CIC on the first job starts the P1 briefing.
-  function arrived() { if (reportCIC && room === ROOMS.tern_control && !briefed) { reportCIC = false; setJob('FIRST JOB', 'Report to the CIC', true); talk({ name: 'Ostrow' }); } }
+  function arrived() { if (reportCIC && room === ROOMS.tern_control && !briefed) { reportCIC = false; setJob('FIRST JOB', 'Report to the CIC', true); talk({ name: 'Ostrow' }); }
+    if (hunted && !amesTalked && briefed && (room === ROOMS.tern_junction || room === ROOMS.tern_airlock) && npcs.some(n => n.name === 'Ames' || room === ROOMS.tern_airlock)) amesBeat(room === ROOMS.tern_airlock); }   // Ames catches you in the corridor after the hunt (docs/scenes/p1_briefing.md)
   $('skip').onclick = () => { stopOpening(); insp = 0; briefed = true; hunted = true; moveAmes(); toCorvane(); };
   if (location.hash === '#after_hunt') { curtain('up'); setTimeout(afterHunt, 50); } else startOpening();
   if (!PITCHES_LIVE) putTrims([]);   // no stale trims leaking into hunts
@@ -480,10 +481,18 @@ button:hover { border-color: var(--amber); } button:focus-visible { outline: 2px
     const sh = o.img || (o.sprite ? spr : null), sc = (o.sc || SC) * CHAR;
     if (o.seated && SEATED && sh && sh.complete && sh.naturalWidth) {   // seated: real sit frame if there is one, else the lowered idle frame
       const di = DIRS.indexOf(o.dir), real = o.sprite && SIT_SHEET && SIT_SHEET.complete && SIT_SHEET.naturalWidth, H = (FEET[1] - 40) * sc, drop = real ? 0 : SIT_DROP * H, cut = real ? 0 : SIT_CLIP * H;
-      cx.save(); cx.beginPath(); cx.rect(x - CW * sc, y - CH * sc, CW * sc * 2, CH * sc + 2 - cut); cx.clip();
       if (real) cx.drawImage(SIT_SHEET, di * CW, 0, CW, CH, x - FEET[0] * sc, y - FEET[1] * sc, CW * sc, CH * sc);
-      else cx.drawImage(sh, di * CW, 4 * CH, CW, CH, x - FEET[0] * sc, y - FEET[1] * sc + drop, CW * sc, CH * sc);
-      cx.restore();
+      else {   // lowered idle frame, faded out toward the seat line instead of a hard clip (the hard edge read as a cut-off figure)
+        const w = Math.ceil(CW * sc), h = Math.ceil(CH * sc), oc = person.oc || (person.oc = document.createElement('canvas'));
+        if (oc.width !== w || oc.height !== h) { oc.width = w; oc.height = h; }
+        const ox = oc.getContext('2d'); ox.globalCompositeOperation = 'source-over'; ox.clearRect(0, 0, w, h);
+        ox.drawImage(sh, di * CW, 4 * CH, CW, CH, 0, drop, w, h);
+        const fade = 0.14 * H, y1 = Math.max(0, Math.min(h, h - (CH - FEET[1]) * sc - cut)), y0 = Math.max(0, y1 - fade);
+        ox.globalCompositeOperation = 'destination-out';
+        const g = ox.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,1)');
+        ox.fillStyle = g; ox.fillRect(0, y0, w, y1 - y0); ox.fillRect(0, y1, w, h - y1);
+        cx.drawImage(oc, x - FEET[0] * sc, y - FEET[1] * sc);
+      }
       cx.font = '700 15px Chakra Petch, sans-serif'; cx.textAlign = 'center'; cx.fillStyle = 'rgba(7,16,13,.75)'; cx.fillRect(x - 40, y - 168 * sc / SC + drop, 80, 18); cx.fillStyle = o.col; cx.fillText(o.name.toUpperCase(), x, y - 154 * sc / SC + drop); return;
     }
     cx.fillStyle = 'rgba(0,0,0,.45)'; cx.beginPath(); cx.ellipse(x, y + 2, 17, 8, 0, 0, 7); cx.fill();

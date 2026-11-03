@@ -28,7 +28,7 @@
 - Does the tutorial teach (highlights visible, fire step clear)? Can you get stuck?
 - Hunch-call popup: does it feel fair, fire at sensible moments, and are the labeled effects clear?
 - Hard preset and 3-ship hunts are too punishing (reader wins 4% on hard); aggressive-pinger margin is thin (43% vs 45% cap); `tac.tight_drill` trim is +9 points and too strong.
-- Open audit items: 7, 8, 14-18, 21, 22, 25, 27 (`docs/audit_playability.md`). Item 17: Ostrow's "She asked for you, by name" line.
+- Open audit items: 7, 8, 14-18, 21, 22, 25, 27 (`docs/audit_playability.md`). Item 17 (fixed: now "She asked for the new hand").
 - Writing flag: Castellan's "Atta girl." assumes a woman captain.
 
 ## 4. Decisions awaiting Dave

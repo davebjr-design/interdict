@@ -28,11 +28,13 @@ const clickChoice = (pg, s) => pg.evaluate(s => { const b = [...document.querySe
   await pg.waitForTimeout(1500); await clickObj(pg, 'toJct'); for (let t = 0; t < 40 && (await pg.evaluate(() => __iso.room.id)) !== 'tern_junction'; t++) await pg.waitForTimeout(250);
   chk('bunks hatch leads back to the junction', (await pg.evaluate(() => __iso.room.id)) === 'tern_junction');
   await pg.waitForTimeout(1500);
-  // outer hatch: one click, Ames, then the boarding prompt
+  s = await txt(pg);
+  chk('Ames catches you in the junction after the hunt', s.nm === 'Ames' && /hands shake/.test(s.tx));
+  await clickChoice(pg, 'Keep them busy'); await clickChoice(pg, 'Continue');
+  // outer hatch: one click, then the boarding prompt (Ames already spoke)
   await pg.evaluate(() => __iso.setRoom('tern_airlock', [3, 6])); await pg.waitForTimeout(300);
   await clickObj(pg, 'board'); await pg.waitForTimeout(5000); s = await txt(pg);
-  chk('outer hatch answers on the first click (Ames)', s.nm === 'Ames' && /hands shake/.test(s.tx));
-  await clickChoice(pg, 'Keep them busy'); await clickChoice(pg, 'Continue'); s = await txt(pg);
+  chk('outer hatch answers on the first click', s.ch.includes('Begin boarding'));
   chk('boarding prompt shown after Ames', s.ch.includes('Begin boarding') && s.ch.includes('Look around first'));
   await clickChoice(pg, 'Look around first'); await clickChoice(pg, 'Continue');
   await clickObj(pg, 'board'); await pg.waitForTimeout(800); s = await txt(pg);

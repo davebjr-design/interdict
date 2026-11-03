@@ -67,7 +67,7 @@ The hunt pauses. A low-power pulsed laser lights the Tern: the challenge-laser m
 - SATO: "Laser on us, Captain. Low power, pulsed. It's not a weapon. It's a message."
 - CORVANE (by laser): *"Hold your fire, Ostrow. I'll take visitors. Send me the new one."* (If our hull went under 45 before we fired a shot: *"Enough, Ostrow. Nobody needs to die tonight. Send me the new one."*)
 - OSTROW: "...She asked for you. Get to the airlock."
-Back on the Tern: "She's holding still and her guns are cold. She asked for you, by name. I don't like that." Tracker: *Report to the airlock.*
+Back on the Tern: "She's holding still and her guns are cold. She asked for the new hand. I don't like that." Tracker: *Report to the airlock.*
 
 ## Why "send me the new one"
 Corvane knows who is aboard the Tern (Pell told her, P3 POV sheet). Asking for the probationer is her first move in the standoff: she wants someone with no history to hear her case. It also seeds P3 R1, where she greets the player by role, and the R5 callback ("You asked Ostrow what happens if I'm right").

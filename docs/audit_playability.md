@@ -113,7 +113,7 @@ Fix: move Dunne and Ames into `tern_airlock` in `afterHunt()` and drop the "clim
 **17. "She asked for you, by name" contradicts the line the player just read.** *Should-fix.*
 Evidence: the laser message is "Send me the new one" (`tutorial.js`, `p2_tutorial_hunt.md`). Ostrow then says "She asked for you, by name" (`proto_iso.html` `afterHunt`, and the P2 doc's "Back on the Tern" line). P3 R1 has Corvane greet the player by role ("Ostrow's new hand"), and the P2 doc's own rationale says she asks for "the probationer". The player never has a name anywhere in canon. `storyboard.md` (P3 R1, "Corvane greets you by name") and `scene_outlines.md` (R1, "She names the player... Pell greets the boarders by name") are older and disagree with the P3 draft.
 Fix: "She asked for you. 'The new one.' I don't like that." Update the storyboard and outline rows to "greets by role".
-**Status (2026-11-02): open** (the walk demo's Ostrow still says "by name").
+**Status (2026-11-03): fixed.** Ostrow now says "She asked for the new hand."
 
 **18. The walk-demo briefing drops the choices P3 depends on.** *Should-fix.*
 Evidence: compared with `docs/scenes/p1_briefing.md`:
