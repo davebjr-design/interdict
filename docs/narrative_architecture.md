@@ -112,6 +112,22 @@ The newer `opening_sequence.md` supersedes the concept doc's "captain dies, you 
 3. **Interdicted.** The base closes and the Tally turns on *you*. Your own ledger does not balance, largely because of how much of Pell you let through. This is the game's title coming home: Corvane was interdicted for exactly this, and you are walking her road. Corvane returns (alive, free, or in Pell's logs).
 4. **Verdict.** The patron's real work, the believers, and the choice: finish the job, expose the patron, keep the tech, or walk away. Endings read integration, crew trust, Tally and Corvane together.
 
+### 3.1a Design note: the end of Act 2 is a turn, not a cliffhanger (2026-11-04, Dave)
+
+At the end of the second act (the close of "Contracts", the hinge into "Interdicted") the story needs a **revelation that changes its trajectory, escalates the tension, and forces a choice that commits the player to an irreversible course of action.** Three requirements, all of which must hold:
+
+1. **It changes the trajectory.** What the player believed the story was about stops being true. The Act 3 question must differ from the Act 2 question. (Act 2 asks "can I run this ship and keep the patron happy?"; Act 3 should not be asking that.)
+2. **It escalates.** The stakes rise from the ship and crew to something larger, and the antagonist pressure (the Tally, the CSRA, the patron, the believers) tightens rather than resolves. The player should leave Act 2 with *less* room to move than they entered it with.
+3. **It forces an irreversible choice.** A real decision made on-screen, not a cutscene: after it, at least one door is closed for good (a person, a faction, a piece of tech, an ending branch). Refusing to choose counts as a choice and has a cost. Both sides of the choice must be playable (the no-no-win rule in 3.2 applies).
+
+Design constraints:
+- **Built from what the player already holds.** The revelation should recontextualise material seeded in Acts 0-2 (the blessing sent eleven minutes before the standoff ended; the signal under the relay traffic; the wiring behind the pedestal and the box that weighs what a core weighs; Fenwick's survivor pockets; "the CSRA is not neutral"; Corvane's three secrets), not introduce a new fact from nowhere. Audit the seeds before writing it (see `docs/arc_stress_test.md`).
+- **The midpoint gave the patron leverage over you; this beat should take the choice back, at a price.** The Act 2 midpoint (the job that goes wrong) is something done *to* the player; this is something the player does.
+- **It reads state.** Integration, crew trust, Tally and Corvane's status decide who delivers the news, who stands with the player, and what the choice costs, but the revelation itself is fixed, so every player arrives at the same turn by a different road.
+- **It leads straight into "Interdicted".** The commitment is what makes the base close and the Tally turn on the captain; the player should feel that their own choice caused it.
+
+Open (for Dave): what the revelation is, and the shape of the forced choice. Candidate seams to develop, none decided: what the patron's blessing was really for; what the signal is and what it wants; what the Tally and the CSRA have been protecting; what Pell is a front for (the 75-tier truth in 3.2); where Corvane has been. Owner: narrative, before Act 2 scenes are outlined. Suggested next step: a short "Act 2 climax" scene outline in `docs/scene_outlines.md` once the revelation is chosen.
+
 ### 3.2 Pell and the firewalls: the Fable-style mechanic, dramatised
 
 `integration` already unlocks Pell's behaviour at 25 / 50 / 75 / 100. Make each tier a **story event** with three parts: what Pell can now do, one fragment of truth Pell can finally tell, and who reacts.
