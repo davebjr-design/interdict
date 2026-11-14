@@ -115,3 +115,52 @@ The three systems screens are additions to the image (it has no engineering or d
 2. Content for F2, F3, F5 (the sensing chain), then F4.
 3. F6, F7, F8 and the guarded fire interlock; then the three systems screens.
 4. Polish: bezel keys per screen, dim neighbours, miniature update rates, call highlighting on the wall.
+
+## 8. Sections, tiers, the walkable CIC, seats and bracing (Dave, 2026-11-14)
+
+Dave's vision: a **3D character walks the CIC**; stations **encircle the main map table or sit along the walls**; walking up to a station you can **zoom to the station as a whole, then to a panel**; in walk mode **F keys cut to a station**, then within it F keys cut to screens. Question: is that too chopped up, and should it be total / section / screen? Also: **chairs and the general setup, since physics can be extreme and people must be secured before jumps and combat manoeuvres.**
+
+### 8.1 The screens group into four sections
+| Section | Key | Contents | Officer |
+|---|---|---|---|
+| **TABLE** (the CO's station, centre of the room) | **F1** | The map table: the **scope** (Tactical Nav, route, heat cost of course change). The scope-view session now means "what is the map table". | CO (Helm orders are given here; Abara executes) |
+| **SENSORS** bank | **F2** | Contact Picture, Signal Fusion, Target ID | Quill |
+| **ATTACK** bank | **F3** | TMA / Fire Control, Engagement and Defence, Payload Readiness, Strike Control (with the guarded FIRE) | Abara |
+| **SYSTEMS** bank | **F4** | Engineering / Thermal, Damage Control, Comms / Reports | Pell's pedestal; Castellan and Dace on the intercom from Engineering and Thermal control (they sit at their own mounts, per the crew roster); Fenwick comes to damage control at action stations |
+So the answer to "three stations?" is **three banks around a central table** (four sections including the table). 11 screens total, as in s7, regrouped by who owns them.
+
+### 8.2 Three tiers, one rule for keys (not too chopped)
+- **ROOM** (total view): the CIC, the table, all banks, officers, the annunciator overhead. Calls, rail and the walking character live here.
+- **SECTION** (a bank, or the table): the bank framed as a whole with its officer and couch, **all 3-4 of its screens visible at once at readable size**. **Most hands-on play should happen at this tier**, as in a real console where an operator sees the whole bank.
+- **SCREEN**: one screen fills the view with live bezel keys and extra panes, a maximise for fine work (TMA, the salvo planner). **No critical action may require this tier.**
+- **Keys, one meaning each, from any tier:** **F1-F4 cut to a section** (a quick camera cut, not a walk). **Q W E R pick the 1st-4th screen of the current section** (stays in the section, goes to screen tier; the same key again, or **Esc**, steps back out one tier). **Mouse wheel** moves continuously between tiers; clicking a screen or bank zooms into it. **Tab** cycles to the next section needing attention (the call rail's target). Shift+F is no longer needed.
+- This avoids the "F key means different things at different levels" trap: **F is always a section, QWER is always a screen within it.**
+- Three tiers are right; two would lose the "see my officer and the whole bank" view, and four would be chopping. The earlier flat wall (s7) is the same three tiers in 2D: the wall is ROOM, a bank is SECTION, a zoomed screen is SCREEN. The 3D CIC replaces the shell later without changing the screens.
+
+### 8.3 What walking is for
+- **Walking is atmosphere and choice, not a throttle on control.** The CO can operate any screen from any seat through **couch repeaters**, so the body's location never slows a hunt. F cuts move the camera instantly; the character walks (or is shown seated) in the background.
+- Walking matters **between hunts and in calm moments** (talk to crew, inspect, the existing walk demo), and for **bracing** (below). Optional flavour to test later: standing at a bank gives faster officer acknowledgements (face to face).
+- Under no circumstances should walking be needed to answer a call.
+
+### 8.4 Seats, restraints and the room (physics can be extreme)
+Design principle: **the room is built to survive hard manoeuvres, and the crew's safety state is a game rule, not decoration.**
+- **Acceleration couches, not office chairs.** Each crew position is a **crash couch**: reclines and tilts to line the spine up with the thrust, **5-point harness** (open, strapped), padded headrest and arm supports, a hand controller (**the CO's armrests carry the call-deck keys**: the chips, Enter, Stand by), a foot rest. The couch **rotates or gimbals** so "down" follows the load. A harness-open couch and a strapped couch are visibly different, so the state reads at a glance.
+- **Banks are built for it:** curved consoles with padded surrounds, no loose objects (everything stowed or magnetised), **grab rails and handholds** along every route, **foot loops**, floor tracks for **magnetic boots**, screens on **articulated arms** that swing to the seated eyeline. Standing places have shoulder and chest restraints for light loads only.
+- **Orientation:** the CIC deck is **perpendicular to the main drive axis**, so under main thrust "down" is aft and the couches recline toward it. In **coast (0 g)** people float or are tethered. Strong **lateral** load (an evasive manoeuvre) is exactly why the couches gimbal.
+- **Table:** a central **holo or sphere map table**; under load its surround holds the CO's couch. The CO's couch sits at the table's head with a clear view of the table and the banks.
+- **Who sits where:** CO at the table, Quill at SENSORS, Abara at ATTACK, a jump seat at SYSTEMS for Fenwick; Castellan and Dace are strapped in at their own mounts in Engineering and Thermal control; the new hand (Ames) has a fold-down seat. Pell has a pedestal, not a couch.
+
+### 8.5 The brace rule (a real mechanic)
+- **Three body states:** **FREE** (moving about), **BRACING** (heading to a couch and strapping in, takes seconds, longer if far or the crew are slow), **SECURE** (seated and harnessed).
+- **What needs SECURE:** any burn above a **g threshold** (tune; roughly above a few tenths of a g), any **combat manoeuvre**, the **jump spool and breach drive**, and **incoming impact** when a vampire's ETA is short. Light coasting and low-thrust running allow FREE.
+- **The order:** **B = "Brace"** (also from the radial menu and the helm's pre-burn call). Pell's PA calls "All hands, brace." Crew in distant rooms strap in at their own mounts. A SECURE indicator per officer shows on the annunciator strip and the banks.
+- **If a manoeuvre order arrives and crew are not secure**, a new call fires, **H4 "Crew not secure"**, priority 3: chips **Brace first (about 6 s)**, **Go now (injury risk)**, **Cancel**; default **Brace first**; cost **delay**. **Go now** risks **injuries** (an officer is hurt, their station degraded: slower acks, worse analysis) and is the lever for desperate moves.
+- **When the CO is SECURE**, walking is unavailable but nothing else changes: F cuts and QWER still work through the couch repeaters; the camera goes where the CO looks, the body stays strapped.
+- **Surprise is the cost:** a late-detected vampire or an enemy that closes inside brace time means **no time to brace**, so hits injure the crew. That gives early warning, and the call rhythm, a physical stake.
+- **Catalog additions (contract s3):** **H4** crew not secure (pri 3, above); **H5** "Brace complete" (pri 1, info); **D4** "Crew injured at <station>" (pri 3, chips: Send Fenwick, Carry on); annunciator tiles **BRACE** (advisory: bracing or secure) and **UNSECURE** (caution when a burn or jump is ordered with crew free).
+- **Engine needs:** a per-crew body state with transition time; a g-load or burn threshold (needs the Newtonian burn model, so a stub now: use speed rungs and the jump spool as triggers); injury effects as station slowdowns; the jump and breach spool already exist and are the first natural trigger.
+
+### 8.6 Build and art implications
+- The **flat wall (s7) stays the first build** and implements the same tiers in 2D; brace state, H4 and the annunciator tiles can ship in it (the body state shown as a per-officer SECURE lamp on the banks).
+- The **3D CIC** (later, credits permitting) needs: the room (table, three banks, couches with open and strapped states, grab rails), rigs for Quill, Abara and Castellan/Dace/Fenwick as needed, **sit, strap-in and brace animations**, a **float** idle, and screens as live canvas textures. The zoom spike already proves the camera approach and the live-screen texture.
+- **Scope session:** the scope is now the **map table**. The A, B and C options (polar, 3D sphere, flat) become table treatments, and a 3D sphere over a table is an obvious fit.
