@@ -75,7 +75,7 @@ with sync_playwright() as p:
     views = {}
     for k in ['F2', 'F3', 'F4', 'F6', 'F7', 'F8', 'F5', 'F1']:
         pg.keyboard.press(k); pg.wait_for_timeout(250); views[k] = pg.evaluate("view")
-        if k == 'F4': pg.wait_for_timeout(300); pg.screenshot(path=OUT + 'calldeck_3_station_F4.png'); wp = pg.evaluate("$('dkp-wpn').textContent")
+        if k == 'F4': pg.wait_for_timeout(300); pg.screenshot(path=OUT + 'calldeck_3_station_F4.png'); wp = pg.evaluate("$('ss-main').textContent.toUpperCase()")
     print('    views', views)
     chk('F1-F8 move between station screens', views == {'F2': 'sen', 'F3': 'fc', 'F4': 'wpn', 'F6': 'eng', 'F7': 'dmg', 'F8': 'com', 'F5': 'str', 'F1': 'tac'})
     chk('the weapons station shows the magazine, presets and the not-yet-simulated flags', 'MAGAZINE' in wp and 'AMBUSH' in wp and 'NOT YET SIMULATED' in wp)

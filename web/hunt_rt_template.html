@@ -119,6 +119,7 @@ button.fire{background:var(--red);color:#fff;border-color:var(--red);padding:12p
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
 /*CONSOLECSS*/
 /*DECKCSS*/
+/*SCREENSCSS*/
 </style>
 <div id="app"><div id="stage"></div></div>
 <div id="ctip" hidden></div>
@@ -448,7 +449,8 @@ function setView(v) {
   if (v === 'tgt') buildEngage(); layout(); if (S) { if (v === 'str') { drawMap(); } if (v === 'tgt') engUpdate(true); }
 }
 function layout() {
-  SC = Math.min(innerWidth / 1920, innerHeight / 1080); const app = $('app'); app.style.transform = 'translate(' + ((innerWidth - 1920 * SC) / 2) + 'px,' + ((innerHeight - 1080 * SC) / 2) + 'px) scale(' + SC + ')';
+  const W0 = document.body.classList.contains('ss-on') ? 2088 : 1920;   // the station screens add the annunciator column (web/station_screens.css)
+  SC = Math.min(innerWidth / W0, innerHeight / 1080); const app = $('app'); app.style.transform = 'translate(' + ((innerWidth - W0 * SC) / 2) + 'px,' + ((innerHeight - 1080 * SC) / 2) + 'px) scale(' + SC + ')';
 }
 addEventListener('resize', () => { layout(); if (S && view !== 'tac') { if (view === 'str') { drawMap(); } else engUpdate(true); } });
 $('tabs').onclick = e => { const b = e.target.closest('button'); if (b && !b.disabled) setView(b.dataset.v); };
@@ -780,5 +782,6 @@ function drawWorld() {
 }
 $('symkey').innerHTML = Object.entries(SYM).map(([k, v]) => `<div style="text-align:center;width:84px;font-size:10px"><svg viewBox="0 0 64 64" width="40" height="40" style="color:#cfe3da">${v.items.map(([d, m]) => m === 'fill' ? `<path d="${d}" fill="currentColor"/>` : m === 'evenodd' ? `<path d="${d}" fill="currentColor" fill-rule="evenodd"/>` : m === 'stroke_cut' ? `<path d="${d}" fill="none" stroke="#0a0e0d" stroke-opacity=".55" stroke-width="2.5"/>` : `<path d="${d}" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>`).join('')}</svg><br>${v.name}</div>`).join('');
 /*CALLDECK*/
+/*SCREENS*/
 layout(); try { new ResizeObserver(() => layout()).observe($('scopebox')); } catch (e) {} addEventListener('load', layout); start(); requestAnimationFrame(frame);
 </script>

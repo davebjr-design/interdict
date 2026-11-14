@@ -13,13 +13,12 @@ var DECK = (() => {   // var, not const: the console code checks typeof DECK bef
     { k: 'F3', id: 'fc', name: 'FIRE CTL', view: 'fc', st: ['fire'] }, { k: 'F4', id: 'wpn', name: 'WEAPONS', view: 'wpn', st: ['weapons'] },
     { k: 'F5', id: 'helm', name: 'HELM', view: 'str', st: ['helm'] }, { k: 'F6', id: 'eng', name: 'ENGINEER', view: 'eng', st: ['engineering', 'thermal'] },
     { k: 'F7', id: 'dmg', name: 'DAMAGE', view: 'dmg', st: ['damage'] }, { k: 'F8', id: 'com', name: 'COMMS', view: 'com', st: ['comms'] }];
-  const NEWV = ['sen', 'fc', 'wpn', 'eng', 'dmg', 'com'];
   const AUT = [['sensors', 'Sensors', 'Quill'], ['fire', 'Fire control', 'Abara'], ['weapons', 'Weapons', 'Abara'], ['helm', 'Helm', 'Abara'], ['engineering', 'Engineering', 'Castellan'], ['thermal', 'Thermal', 'Dace'], ['damage', 'Damage control', 'Fenwick'], ['comms', 'Comms', 'Pell']];
   const REPORT_KEY = { s: 'sensors', f: 'fire', w: 'weapons', h: 'helm', e: 'engineering', d: 'damage', c: 'comms' };
   const PCOL = { 1: '#566b62', 2: '#6fc3d0', 3: '#ffb454', 4: '#ff6b5a' }, FACE = { Quill: '#b79cff', Abara: '#ffb454', Castellan: '#6fc3d0', Dace: '#ff8a4c', Fenwick: '#8fd694', Pell: '#c58cff', Captain: '#cfe3da' };
   const RAD = [['classify', 'Classify', 'C', 'sensors'], ['track', 'Track', 'T', 'sensors'], ['probe', 'Probe', 'P', 'weapons'], ['fire', 'Fire', 'F', 'weapons']];
   const W = typeof window !== 'undefined' ? window : {};
-  let cfg = { autonomy: {}, preset: 'ambush', compress: 1 };
+  let cfg = { autonomy: {}, preset: 'ambush', compress: 1, annSound: true };
   try { Object.assign(cfg, JSON.parse(localStorage.getItem('interdict.deck') || '{}')); } catch (e) {}
   const saveCfg = () => { try { localStorage.setItem('interdict.deck', JSON.stringify(cfg)); } catch (e) {} };
   let A = null, cur = null, chips = false, last = null, toastT = 0, vHeld = false, vUsed = false, radial = null, flash = {}, panelT = 0, speakTok = 0;
@@ -45,16 +44,6 @@ var DECK = (() => {   // var, not const: the console code checks typeof DECK bef
       <div id="dk-rail" class="dk-rail"></div><div id="dk-stn" class="dk-stn">${STN.map(s => `<button data-f="${s.k}" id="dkf-${s.id}" title="${s.name}: station screen (${s.k})"><kbd>${s.k}</kbd><span>${s.name}</span></button>`).join('')}</div>
       <div id="dk-toast" class="dk-toast" hidden></div><div id="dk-vhint" class="dk-toast dk-v" hidden>REPORT: <b>S</b>ENSORS <b>F</b>IRE <b>W</b>EAPONS <b>H</b>ELM <b>E</b>NGINEERING <b>D</b>AMAGE <b>C</b>OMMS</div>
       <div id="dk-drawer" class="dk-drawer" hidden></div>`);
-    // station panels: new flat panels where nothing exists; the left column and the bottom row stay (they are the widgets every station reuses)
-    let p = '';
-    p += czone('STN-SEN', 36, 8, 76, 66, 'SENSORS', 'Quill &middot; tracks, quality, who is reading what', '<div class="dk-pan" id="dkp-sen"></div>', { vz: 'sen' });
-    p += czone('STN-FC', 36, 8, 76, 66, 'FIRE CONTROL', 'Abara &middot; solutions and baseline', '<div class="dk-pan" id="dkp-fc"></div>', { vz: 'fc' });
-    p += czone('STN-WPN', 36, 8, 76, 66, 'WEAPONS', 'Abara &middot; magazine, salvo presets, point defence', '<div class="dk-pan" id="dkp-wpn"></div>', { vz: 'wpn' });
-    p += czone('STN-ENG', 36, 8, 76, 66, 'ENGINEERING', 'Castellan, Dace &middot; heat, drive, vents', '<div class="dk-pan" id="dkp-eng"></div>', { vz: 'eng' });
-    p += czone('STN-DMG', 36, 8, 76, 66, 'DAMAGE CONTROL', 'Fenwick &middot; hull and systems', '<div class="dk-pan" id="dkp-dmg"></div>', { vz: 'dmg' });
-    p += czone('STN-COM', 36, 8, 76, 66, 'COMMS', 'calls and the log', '<div class="dk-pan" id="dkp-com"></div>', { vz: 'com' });
-    st.insertAdjacentHTML('afterbegin', p);
-    document.querySelectorAll('#stage [data-vz]').forEach(z => { if (/^(SENSORS|CONTACTS|ORDERS|WEAPONS|COMMS) /.test(z.dataset.z || '')) z.dataset.vz += ' ' + NEWV.join(' '); });
     // the F-key station keys take the place of the three view keys and the caution plate in the top rail; MENU moves left
     ['kv-tac', 'kv-str', 'kv-tgt'].forEach(id => { const el = $(id); if (el) el.style.display = 'none'; });
     document.querySelectorAll('#stage .cplate').forEach(el => { if (/MASTER CAUTION/.test(el.textContent)) el.style.display = 'none'; });
@@ -66,7 +55,7 @@ var DECK = (() => {   // var, not const: the console code checks typeof DECK bef
     $('dk-radial').addEventListener('click', e => { const b = e.target.closest('button'); if (b && !b.disabled) radialPick(b.dataset.v); });
     $('dk-drawer').addEventListener('change', drawerChange); $('dk-drawer').addEventListener('input', drawerChange);
     $('dk-drawer').addEventListener('click', e => { const b = e.target.closest('[data-x]'); if (b && b.dataset.x === 'close') drawer(false); });
-    document.querySelectorAll('.dk-pan').forEach(el => el.addEventListener('click', e => { const b = e.target.closest('[data-dk]'); if (b) panelAct(b.dataset.dk, b.dataset.arg); }));
+    if (typeof SCREENS !== 'undefined') SCREENS.build();   // the station screens and the annunciator (web/station_screens.js)
   }
 
   // ---------- hunt lifecycle ----------
@@ -84,7 +73,8 @@ var DECK = (() => {   // var, not const: the console code checks typeof DECK bef
     if (cur && cur.state === 'reported' && cur._end && performance.now() > cur._end) clear('read');
     if (!cur) { const nx = A.model.pending().find(c => c.pri >= 3); if (nx) show(nx); }
     ring(); if (toastT && performance.now() > toastT) { $('dk-toast').hidden = true; toastT = 0; }
-    if (performance.now() - panelT > 250) { panelT = performance.now(); rail(); panels(); stnBar(); }
+    if (performance.now() - panelT > 250) { panelT = performance.now(); rail(); stnBar(); }
+    if (typeof SCREENS !== 'undefined') SCREENS.frame();
   }
   function handle(ev) {
     if (ev.type === 'raise') {
@@ -158,8 +148,8 @@ var DECK = (() => {   // var, not const: the console code checks typeof DECK bef
   }
   const row = (cells, cls) => `<tr class="${cls || ''}">${cells.map(c => `<td>${c}</td>`).join('')}</tr>`;
   const key = (dk, arg, t, s, lit, dis) => `<button class="dk-k${lit ? ' lit' : ''}" data-dk="${dk}" data-arg="${arg == null ? '' : arg}" ${dis ? 'disabled' : ''}><b>${t}</b><small>${s || ''}</small></button>`;
-  function panels() {
-    if (!S || !NEWV.includes(view)) return; const el = $('dkp-' + view); if (!el) return; let h = '';
+  function panelHtml(view) {   // the flat station panels (interim content inside the station screen frame)
+    if (!S) return ''; let h = '';
     if (view === 'sen') {
       h = '<table class="dk-t"><tr><th>TRACK</th><th>STATE</th><th>QUALITY</th><th>CALL</th><th>H R V</th><th>LAST READ</th><th>ANALYSTS</th></tr>' + S.an.map(a => {
         const c = E.classify(S, a), q = a.idStatus === 'hostile' || a.idStatus === 'plan' ? 'AFFIRMED' : c.n >= 2 && c.p >= 0.8 ? 'PASSIVE' : 'SUSPECTED', on = S.analysts.filter(w => w.task === a.id).map(w => crewName(w.name)).join(' ');
@@ -192,7 +182,7 @@ var DECK = (() => {   // var, not const: the console code checks typeof DECK bef
       h = '<div class="dk-sub">CALLS</div><table class="dk-t">' + cs.map(c => row([fmtMin(c.at / P.secPerMin), esc(crewName(c.officer)), esc(c.line), (c.state === 'answered' ? 'ANSWERED: ' : c.state === 'defaulted' ? 'DEFAULT: ' : c.state === 'settled' ? 'DOCTRINE: ' : '') + (c.opts && c.choice != null ? esc(c.opts[c.choice].label) : c.state.toUpperCase())])).join('') + '</table>';
       h += '<div class="dk-sub">LOG</div><table class="dk-t">' + S.log.slice(-10).reverse().map(l => row([fmtMin(l.t), esc(crewName(l.who)), esc(l.text)], l.kind)).join('') + '</table>';
     }
-    if (el.dataset.h !== h) { el.dataset.h = h; el.innerHTML = h; }
+    return h;
   }
   function panelAct(k, arg) {
     if (!S || S.over) return;
@@ -228,8 +218,9 @@ var DECK = (() => {   // var, not const: the console code checks typeof DECK bef
       <table class="dk-t dk-aut">${AUT.map(([k, lab, who]) => { const m = (A ? A.model.autonomy[k] : cfg.autonomy[k]) || 'auto'; return `<tr><td>${lab}<small>${crewName(who)}</small></td>${['auto', 'supervised', 'hands-on'].map(x => `<td><label class="${m === x ? 'on' : ''}"><input type="radio" name="aut-${k}" data-aut="${k}" value="${x}" ${m === x ? 'checked' : ''}>${x === 'supervised' ? 'SUPERVISED' : x.toUpperCase()}</label></td>`).join('')}</tr>`; }).join('')}</table>
       <div class="dk-sub">CAPTAIN'S VOICE</div><div class="dk-row">${['m', 'f'].map(g => `<label class="dk-opt ${cap === g ? 'on' : ''}"><input type="radio" name="dk-cap" data-cap="${g}" ${cap === g ? 'checked' : ''}>${g === 'm' ? 'MALE' : 'FEMALE'}</label>`).join('')}</div>
       <div class="dk-sub">VOICE VOLUME</div><div class="dk-row"><input type="range" min="0" max="100" value="${Math.round((vs.volume == null ? 1 : vs.volume) * 100)}" data-vol="1"><label class="dk-opt ${vs.enabled === false ? 'on' : ''}"><input type="checkbox" data-mute="1" ${vs.enabled === false ? 'checked' : ''}>MUTE (TEXT ONLY)</label></div>
+      <div class="dk-sub">ANNUNCIATOR SOUND <em>a soft chime for a caution, a two-tone for a warning</em></div><div class="dk-row"><label class="dk-opt ${cfg.annSound !== false ? 'on' : ''}"><input type="checkbox" data-annsnd="1" ${cfg.annSound !== false ? 'checked' : ''}>${cfg.annSound !== false ? 'ON' : 'OFF'}</label></div>
       <div class="dk-sub">TIME COMPRESSION <em>drops to 1x on any urgent call</em></div><div class="dk-row">${[1, 2].map(x => `<label class="dk-opt ${tscale === x ? 'on' : ''}"><input type="radio" name="dk-tc" data-tc="${x}" ${tscale === x ? 'checked' : ''}>${x}X</label>`).join('')}</div>
-      <div class="dk-note">No pause in a hunt. Stand by (Backspace) holds a call; the rail keeps the queue. Keys: 1-4 answer, Enter recommended, Space next, R say again, Esc dismiss, F1-F8 stations, hold V + letter for a report.</div>`;
+      <div class="dk-note">No pause in a hunt. Stand by (Backspace) holds a call; the rail keeps the queue. Keys: 1-4 answer, Enter recommended, Space next, R say again, Esc dismiss, F1-F8 stations, Shift+F1-F8 softkeys, A acknowledge the annunciator, hold V + letter for a report.</div>`;
   }
   function drawerChange(e) {
     const t = e.target;
@@ -238,6 +229,7 @@ var DECK = (() => {   // var, not const: the console code checks typeof DECK bef
     else if (t.dataset.vol) { VO && VO.set({ volume: +t.value / 100 }); }
     else if (t.dataset.mute) { VO && VO.set({ enabled: !t.checked }); drawerFill(); }
     else if (t.dataset.tc) { setTime(+t.dataset.tc); drawerFill(); }
+    else if (t.dataset.annsnd) { cfg.annSound = t.checked; saveCfg(); drawerFill(); }
   }
 
   // ---------- keys ----------
@@ -245,7 +237,7 @@ var DECK = (() => {   // var, not const: the console code checks typeof DECK bef
   function keydown(e) {
     if (blocked(e)) return; const k = e.key, lk = k.length === 1 ? k.toLowerCase() : k;
     const eat = () => { e.preventDefault(); e.stopImmediatePropagation(); };
-    if (/^F[1-8]$/.test(k)) { eat(); station(k); return; }
+    if (/^F[1-8]$/.test(k)) { eat(); if (e.shiftKey && typeof SCREENS !== 'undefined') SCREENS.softkey(+k.slice(1) - 1); else station(k); return; }
     if (radial) { const r = RAD.find(x => x[2].toLowerCase() === lk) || ({ 1: RAD[0], 2: RAD[1], 3: RAD[2], 4: RAD[3] })[k]; if (r) { eat(); const b = document.querySelector(`#dk-radial button[data-v="${r[0]}"]`); if (b && !b.disabled) radialPick(r[0]); return; } if (k === 'Escape') { eat(); radialClose(); return; } }
     if (k === 'Escape' && !$('dk-drawer').hidden) { eat(); drawer(false); return; }
     if (lk === 'v') { eat(); if (!e.repeat && !vHeld) { vHeld = true; vUsed = false; $('dk-vhint').hidden = false; } return; }
@@ -275,6 +267,6 @@ var DECK = (() => {   // var, not const: the console code checks typeof DECK bef
     }, true);
     const slip0 = ACT.slip; ACT.slip = el => { slip0(el); const r = el.getBoundingClientRect(); radialAt(+el.dataset.arg, r.right + 140, r.top + r.height / 2); };
   }
-  return { on, begin, frame, show, answer, take, standBy, sayAgain, dismiss, station, report, radialAt, radialPick, radialClose, drawer, statusText,
+  return { on, begin, frame, show, answer, take, standBy, sayAgain, dismiss, station, report, radialAt, radialPick, radialClose, drawer, statusText, panelHtml, panelAct, saveCfg, cfg,
     get adapter() { return A; }, get cur() { return cur; }, get chipsShown() { return chips; }, get radialOpen() { return !!radial; }, STN };
 })();

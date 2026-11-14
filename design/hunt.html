@@ -336,6 +336,122 @@ body.sweep #stage{box-shadow:inset 0 0 0 4px #ff6b5a}
 .dk-rb:hover:not(:disabled){box-shadow:inset 0 0 0 2px #ffb454}.dk-rb:disabled{opacity:.42;cursor:default}
 .dk-rb.r0{left:71px;top:0}.dk-rb.r1{left:142px;top:72px}.dk-rb.r2{left:71px;top:144px}.dk-rb.r3{left:0;top:72px}
 
+/* ===== Station screens (web/station_screens.js): the frame, the windowed panels and the annunciator. Normal hunts only (body.ss). ===== */
+body.ss-on #app{width:2088px}
+body.ss-on #stage{width:calc(var(--u)*174)}
+/* --- frame: the stage below the top rail, x 0..160, y 8..90 --- */
+.ss{position:absolute;left:0;top:calc(var(--u)*8);width:calc(var(--u)*160);height:calc(var(--u)*82);--ac:#86a9cc;--ln:#22312c;--ln2:#2e423b;--dim:#6f877d;--ink:#cfe3da;
+ background:#060a09;background-image:linear-gradient(rgba(120,160,145,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(120,160,145,.035) 1px,transparent 1px);background-size:calc(var(--u)*2) calc(var(--u)*2);
+ box-shadow:inset 0 0 0 calc(var(--u)*.14) #1a2622;font-family:'Bahnschrift','Arial Narrow','Liberation Sans Narrow','DejaVu Sans Condensed',sans-serif;text-transform:uppercase}
+.ss[hidden]{display:none}
+.ss .m,.ss td,.ss .num{font-family:'IBM Plex Mono','DejaVu Sans Mono',monospace}
+/* top bar */
+.ss-hd{position:absolute;left:calc(var(--u)*.4);right:calc(var(--u)*.4);top:calc(var(--u)*.4);height:calc(var(--u)*3.6);display:flex;align-items:stretch;gap:calc(var(--u)*.4);
+ background:linear-gradient(180deg,#111a17,#0b1210);box-shadow:inset 0 0 0 1px var(--ln2),inset 0 calc(var(--u)*-.25) 0 color-mix(in srgb,var(--ac) 40%,transparent)}
+.ss-hd>div{display:flex;align-items:center}
+.hd-k{min-width:calc(var(--u)*5.2);justify-content:center;background:var(--ac);color:#071010;font:700 calc(var(--u)*1.9) 'IBM Plex Mono',monospace;letter-spacing:.02em}
+.hd-n{gap:calc(var(--u)*1.1);padding:0 calc(var(--u)*.6)}.hd-n b{font-size:calc(var(--u)*2.05);letter-spacing:.16em;color:#eef8f3}.hd-n span{color:var(--ac);font-size:calc(var(--u)*1.35);letter-spacing:.12em;font-weight:700}
+.hd-m{margin:calc(var(--u)*.55) 0;padding:0 calc(var(--u)*.9);font:700 calc(var(--u)*1.25) 'IBM Plex Mono',monospace;letter-spacing:.1em;border-radius:calc(var(--u)*.2)}
+.hd-m.m-auto{color:#9fb4ad;box-shadow:inset 0 0 0 1px #4a5d56}.hd-m.m-supervised{color:#e8f4ef;box-shadow:inset 0 0 0 calc(var(--u)*.14) #c9d6d1}.hd-m.m-handson{color:#071010;background:var(--ac)}
+.hd-p{flex:1;padding-left:calc(var(--u)*1.2);color:var(--dim);font-size:calc(var(--u)*1.3);letter-spacing:.2em;font-weight:700}
+.hd-f{flex-direction:column;justify-content:center;align-items:flex-start!important;padding:0 calc(var(--u)*1.1);box-shadow:inset 1px 0 0 var(--ln);min-width:calc(var(--u)*8)}
+.hd-f span{font-size:calc(var(--u)*.95);color:var(--dim);letter-spacing:.16em}.hd-f b{font:700 calc(var(--u)*1.55) 'IBM Plex Mono',monospace;color:#e3f2ec;line-height:1.05}.hd-f i{font-style:normal;font-size:calc(var(--u)*.95);color:#8fa89d;letter-spacing:.06em}
+.hd-f.clk b{color:#a8e6ad}.pz-cold{color:#7fc6d0!important}.pz-warm{color:#e8c06a!important}.pz-hot{color:#ff8a7a!important}
+.hd-f:first-of-type{}
+/* left function tabs */
+.ss-tabs{position:absolute;left:calc(var(--u)*.4);top:calc(var(--u)*4.4);width:calc(var(--u)*11);bottom:calc(var(--u)*19.8);display:flex;flex-direction:column;gap:calc(var(--u)*.4)}
+.ss-tab{height:calc(var(--u)*5);border:0;border-radius:calc(var(--u)*.25);background:linear-gradient(180deg,#121b18,#0c1311);box-shadow:inset 0 0 0 1px var(--ln2);color:#9fb4ad;cursor:pointer;
+ font:700 calc(var(--u)*1.3) 'Bahnschrift','Arial Narrow','Liberation Sans Narrow',sans-serif;letter-spacing:.1em;text-align:left;padding:0 calc(var(--u)*1);display:flex;flex-direction:column;justify-content:center;gap:calc(var(--u)*.15);text-transform:uppercase}
+.ss-tab small{font:500 calc(var(--u)*.9) 'IBM Plex Mono',monospace;color:var(--dim);letter-spacing:.08em}
+.ss-tab.on{background:linear-gradient(90deg,color-mix(in srgb,var(--ac) 26%,#0c1311),#0f1816);color:#f1fbf6;box-shadow:inset calc(var(--u)*.45) 0 0 var(--ac),inset 0 0 0 1px color-mix(in srgb,var(--ac) 60%,transparent)}
+.ss-tab.on small{color:var(--ac)}
+.ss-tfn{margin-top:auto;color:#3f534b;font-size:calc(var(--u)*.9);letter-spacing:.14em;line-height:1.3;padding:calc(var(--u)*.5);box-shadow:inset 0 1px 0 var(--ln)}
+/* mode banner */
+.ss-ban{position:absolute;left:calc(var(--u)*11.8);right:calc(var(--u)*.4);top:calc(var(--u)*4.4);height:calc(var(--u)*2.8);display:flex;align-items:center;gap:calc(var(--u)*.8);padding:0 calc(var(--u)*.4);
+ background:#0a100e;box-shadow:inset 0 0 0 1px var(--ln);overflow:hidden;white-space:nowrap}
+.ss-ban .bm{font:700 calc(var(--u)*1.1) 'IBM Plex Mono',monospace;letter-spacing:.08em;padding:calc(var(--u)*.3) calc(var(--u)*.7);border-radius:calc(var(--u)*.2);flex:none}
+.ss-ban .bm.a{color:#9fb4ad;box-shadow:inset 0 0 0 1px #4a5d56}.ss-ban .bm.s{color:#071010;background:#c9d6d1}.ss-ban .bm.h{color:#071010;background:var(--ac)}
+.ss-ban span{color:#b5cbc2;font-size:calc(var(--u)*1.2);letter-spacing:.06em;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.ss-ban .rl{text-transform:none;font-family:'IBM Plex Mono',monospace;color:#f1fbf6;flex:1}
+.bchip{flex:none;height:calc(var(--u)*2.1);border:0;border-radius:calc(var(--u)*.25);background:#16211e;box-shadow:inset 0 0 0 1px #3a4d46;color:#d9ebe3;font:700 calc(var(--u)*1.05) 'Bahnschrift','Arial Narrow',sans-serif;letter-spacing:.06em;padding:0 calc(var(--u)*.8);cursor:pointer;text-transform:uppercase}
+.bchip.rec{box-shadow:inset 0 0 0 calc(var(--u)*.16) #c9d6d1;color:#fff}
+/* main windowed area */
+.ss-main{position:absolute;left:calc(var(--u)*11.8);right:calc(var(--u)*.4);top:calc(var(--u)*7.6);bottom:calc(var(--u)*19.8);display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:calc(var(--u)*.5);min-height:0}
+.sp{position:relative;min-width:0;min-height:0;display:flex;flex-direction:column;background:linear-gradient(180deg,#0c1311,#090e0d);box-shadow:inset 0 0 0 1px var(--ln2)}
+.spt{flex:none;height:calc(var(--u)*2.3);display:flex;align-items:center;gap:calc(var(--u)*.9);padding:0 calc(var(--u)*.8);background:#101917;box-shadow:inset 0 -1px 0 var(--ln2),inset calc(var(--u)*.3) 0 0 var(--ac)}
+.spt b{color:#d4e6de;font-size:calc(var(--u)*1.2);letter-spacing:.18em}.spt em{font-style:normal;color:var(--dim);font-size:calc(var(--u)*1);letter-spacing:.08em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.spb{flex:1;min-height:0;overflow:hidden;padding:calc(var(--u)*.6) calc(var(--u)*.8);position:relative;font-size:calc(var(--u)*1.3);color:var(--ink)}
+.spb.sc{overflow:auto}
+.nys{display:inline-block;font:700 calc(var(--u)*.95) 'IBM Plex Mono',monospace;letter-spacing:.06em;color:#c58f4a;box-shadow:inset 0 0 0 1px #6b4d2a;padding:calc(var(--u)*.1) calc(var(--u)*.45);border-radius:calc(var(--u)*.15);background:repeating-linear-gradient(135deg,rgba(197,143,74,.08) 0 calc(var(--u)*.5),transparent calc(var(--u)*.5) calc(var(--u)*1))}
+/* keys inside panels */
+.sk2{height:calc(var(--u)*3.6);min-width:calc(var(--u)*9);border:0;border-radius:calc(var(--u)*.25);background:linear-gradient(180deg,#1a2622,#111a17);box-shadow:inset 0 0 0 1px #3a4d46,inset 0 calc(var(--u)*-.2) 0 rgba(0,0,0,.4);color:#dcebe4;cursor:pointer;
+ display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:calc(var(--u)*.1);padding:0 calc(var(--u)*.7);font:700 calc(var(--u)*1.2) 'Bahnschrift','Arial Narrow','Liberation Sans Narrow',sans-serif;letter-spacing:.07em;text-transform:uppercase;vertical-align:top}
+.sk2 small{font-size:calc(var(--u)*.85);color:#7d958b;font-weight:400;letter-spacing:.04em}
+.sk2:hover:not(:disabled){box-shadow:inset 0 0 0 calc(var(--u)*.14) var(--ac)}
+.sk2.lit{background:linear-gradient(180deg,color-mix(in srgb,var(--ac) 30%,#16211e),#121b18);box-shadow:inset 0 0 0 calc(var(--u)*.16) var(--ac);color:#fff}
+.sk2.warn{box-shadow:inset 0 0 0 calc(var(--u)*.16) #d0705f}
+.sk2:disabled{cursor:default;opacity:.38}.sk2.ro:disabled{opacity:.55;background:#0d1412;box-shadow:inset 0 0 0 1px #24332e;color:#8fa89d}
+.sk2.stub:disabled{opacity:.7;background:repeating-linear-gradient(135deg,#14110c 0 calc(var(--u)*.5),#0e0d0a calc(var(--u)*.5) calc(var(--u)*1));box-shadow:inset 0 0 0 1px #4d3a22;color:#a07a48}
+.sk2.stub small{color:#c58f4a}
+.krow{display:flex;gap:calc(var(--u)*.45);flex-wrap:wrap;align-items:center}
+/* softkeys */
+.ss-sk{position:absolute;left:calc(var(--u)*.4);right:calc(var(--u)*.4);bottom:calc(var(--u)*14.6);height:calc(var(--u)*4.8);display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:calc(var(--u)*.4)}
+.ss-skb,.ss-sk0{position:relative;border:0;border-radius:calc(var(--u)*.25);background:linear-gradient(180deg,#18231f,#0f1715);box-shadow:inset 0 0 0 1px #34483f,inset 0 calc(var(--u)*-.3) 0 rgba(0,0,0,.45);color:#dcebe4;cursor:pointer;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;gap:calc(var(--u)*.1);font:700 calc(var(--u)*1.25) 'Bahnschrift','Arial Narrow','Liberation Sans Narrow',sans-serif;letter-spacing:.08em;text-transform:uppercase;padding:0 calc(var(--u)*.4);overflow:hidden;white-space:nowrap}
+.ss-sk0{background:#0a0f0e;box-shadow:inset 0 0 0 1px #1a2622;cursor:default}
+.ss-skb kbd,.ss-sk0 kbd{position:absolute;left:calc(var(--u)*.45);top:calc(var(--u)*.3);font:500 calc(var(--u)*.85) 'IBM Plex Mono',monospace;color:#5d7369;border:0;padding:0;margin:0}
+.ss-sk0 kbd{color:#2c3b36}
+.ss-skb small{font-size:calc(var(--u)*.85);color:#7d958b;font-weight:400;letter-spacing:.04em}
+.ss-skb:hover:not(:disabled){box-shadow:inset 0 0 0 calc(var(--u)*.14) var(--ac)}
+.ss-skb.lit{box-shadow:inset 0 0 0 calc(var(--u)*.16) var(--ac);color:#fff}
+.ss-skb:disabled{cursor:default;opacity:.4}.ss-skb.ro:disabled{opacity:.6;color:#8fa89d}.ss-skb.stub:disabled{opacity:.75;color:#a07a48;box-shadow:inset 0 0 0 1px #4d3a22}
+.ss-skb[data-sk="7"]{background:linear-gradient(180deg,color-mix(in srgb,var(--ac) 18%,#16211e),#0f1715)}
+/* message line */
+.ss-msg{position:absolute;left:calc(var(--u)*.4);right:calc(var(--u)*.4);bottom:calc(var(--u)*11.6);height:calc(var(--u)*2.6);display:flex;align-items:center;gap:calc(var(--u)*1);padding:0 calc(var(--u)*.8);background:#050807;box-shadow:inset 0 0 0 1px var(--ln)}
+.ml-k{font:700 calc(var(--u)*.95) 'IBM Plex Mono',monospace;color:var(--dim);letter-spacing:.14em}.ml-t{flex:1;font:500 calc(var(--u)*1.3) 'IBM Plex Mono',monospace;color:#bfe9c6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ml-s{display:flex;gap:calc(var(--u)*.3)}.ml-s i{font:700 calc(var(--u)*.9) 'IBM Plex Mono',monospace;font-style:normal;padding:calc(var(--u)*.15) calc(var(--u)*.5);color:#33453e;box-shadow:inset 0 0 0 1px #1d2b26}
+.ml-s i.p{color:#7da687;box-shadow:inset 0 0 0 1px #2d4a35}.ml-s i.c{color:#071010;background:#9fd8a6}
+/* call band: the call deck strip sits here on every station screen */
+.ss-cb{position:absolute;left:calc(var(--u)*.4);right:calc(var(--u)*.4);bottom:calc(var(--u)*.4);height:calc(var(--u)*10.8);background:#070b0a;box-shadow:inset 0 0 0 1px var(--ln);display:flex;align-items:center;gap:calc(var(--u)*1);padding:0 calc(var(--u)*1.2)}
+.ss-cbl{font:700 calc(var(--u)*1) 'IBM Plex Mono',monospace;letter-spacing:.2em;color:#3f534b;writing-mode:vertical-rl;transform:rotate(180deg)}
+.ss-cbe{color:#4f655c;font-size:calc(var(--u)*1.2);letter-spacing:.12em}
+body.ss-on:is([data-view=sen],[data-view=fc],[data-view=wpn],[data-view=str],[data-view=eng],[data-view=dmg],[data-view=com]) #deck{left:calc(var(--u)*3.2);bottom:calc(var(--u)*.85);width:calc(var(--u)*118);min-height:calc(var(--u)*9.9)}
+body.ss-on:is([data-view=sen],[data-view=fc],[data-view=wpn],[data-view=str],[data-view=eng],[data-view=dmg],[data-view=com]) #dk-rail{left:calc(var(--u)*122.5);top:calc(var(--u)*80.2);width:calc(var(--u)*37);flex-direction:row;flex-wrap:wrap}
+body.ss-on:is([data-view=sen],[data-view=fc],[data-view=wpn],[data-view=str],[data-view=eng],[data-view=dmg],[data-view=com]) #dk-rail .dk-ri{width:calc(var(--u)*3.2)}
+body.ss-on:is([data-view=sen],[data-view=fc],[data-view=wpn],[data-view=str],[data-view=eng],[data-view=dmg],[data-view=com]) .dk-toast{left:calc(var(--u)*12);top:calc(var(--u)*76);width:calc(var(--u)*120);height:calc(var(--u)*2.6)}
+body.ss-on:is([data-view=sen],[data-view=fc],[data-view=wpn],[data-view=str],[data-view=eng],[data-view=dmg],[data-view=com]) .dk-v{top:calc(var(--u)*72.8)}
+/* F5: the existing strategic map window, unchanged, framed as the helm screen's main window */
+body.ss-on[data-view=str] .cz[data-z^="MAP "]{left:calc(var(--u)*12.2)!important;top:calc(var(--u)*15.6)!important;transform:scale(.828);transform-origin:0 0;z-index:2}
+/* interim flat panels inside the frame */
+.ss-int{position:relative;overflow:auto;padding:calc(var(--u)*.8);box-shadow:inset 0 0 0 1px var(--ln2);background:#090e0d}
+.ss-int .dk-k:disabled{opacity:.4}
+/* --- annunciator: right edge, x 160..174, every screen --- */
+.ann{position:absolute;left:calc(var(--u)*160);top:0;width:calc(var(--u)*14);height:calc(var(--u)*90);z-index:36;padding:calc(var(--u)*.5) calc(var(--u)*.5);display:flex;flex-direction:column;gap:calc(var(--u)*.45);
+ background:linear-gradient(180deg,#0b0f0e,#070a09);box-shadow:inset calc(var(--u)*.14) 0 0 #26332e,inset 0 0 0 calc(var(--u)*.08) #000;font-family:'Bahnschrift','Arial Narrow','Liberation Sans Narrow','DejaVu Sans Condensed',sans-serif}
+.ann-m{display:flex;flex-direction:column;gap:calc(var(--u)*.4);padding:calc(var(--u)*.4);background:#030505;border-radius:calc(var(--u)*.3);box-shadow:inset 0 0 0 1px #1a2421}
+.annM{height:calc(var(--u)*3.6);border:0;border-radius:calc(var(--u)*.25);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;font:700 calc(var(--u)*1.15) 'Bahnschrift','Arial Narrow','Liberation Sans Narrow',sans-serif;letter-spacing:.1em;text-transform:uppercase}
+.annM b{font-size:calc(var(--u)*.85);letter-spacing:.2em;font-weight:700}
+.annM.w{background:#1a0907;color:#5a2620;box-shadow:inset 0 0 0 1px #3d1712}.annM.c{background:#171006;color:#5a4218;box-shadow:inset 0 0 0 1px #3d2c10}
+.annM.w.lit{background:#3a120d;color:#d06a5c}.annM.c.lit{background:#33240c;color:#d39a45}
+.annM.w.fl{animation:annW .5s steps(2) infinite}.annM.c.fl{animation:annC .5s steps(2) infinite}
+@keyframes annW{0%{background:#ff4936;color:#fff;box-shadow:0 0 calc(var(--u)*1.2) rgba(255,73,54,.7)}100%{background:#3a120d;color:#d06a5c}}
+@keyframes annC{0%{background:#ffb02e;color:#1a0f00;box-shadow:0 0 calc(var(--u)*1.2) rgba(255,176,46,.6)}100%{background:#33240c;color:#d39a45}}
+.ann-g{background:#030505;border-radius:calc(var(--u)*.3);box-shadow:inset 0 0 0 1px #1a2421;padding:calc(var(--u)*.3) calc(var(--u)*.35) calc(var(--u)*.4)}
+.ann-gh{display:flex;align-items:center;gap:calc(var(--u)*.4);height:calc(var(--u)*1.5);color:#566b62;font-size:calc(var(--u)*.9);letter-spacing:.12em;font-weight:700;white-space:nowrap;overflow:hidden}
+.ann-gh kbd{font:700 calc(var(--u)*.85) 'IBM Plex Mono',monospace;color:#8fa89d;border:0;padding:0;margin:0}
+.ann-gt{display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--u)*.3)}
+.annT{height:calc(var(--u)*2.95);border:0;border-radius:calc(var(--u)*.15);cursor:pointer;padding:0;font:700 calc(var(--u)*1.08) 'Bahnschrift','Arial Narrow','Liberation Sans Narrow',sans-serif;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-transform:uppercase}
+.annT.off{background:#070908;color:#232c29;box-shadow:inset 0 0 0 1px #121816;cursor:default}
+.annT.normal{background:#08100c;color:#3f7550;box-shadow:inset 0 0 0 1px #1d3a27}
+.annT.advisory{background:#cfe7ec;color:#0a1517;box-shadow:0 0 calc(var(--u)*.7) rgba(190,230,238,.35)}
+.annT.caution{background:#ffb02e;color:#1d1100;box-shadow:0 0 calc(var(--u)*.8) rgba(255,176,46,.45)}
+.annT.warning{background:#ff4936;color:#fff;box-shadow:0 0 calc(var(--u)*.9) rgba(255,73,54,.55)}
+.annT.caution.fl{animation:annTc .5s steps(2) infinite}.annT.warning.fl{animation:annTw .5s steps(2) infinite}
+@keyframes annTc{100%{background:#2b1d07;color:#ffb02e;box-shadow:inset 0 0 0 1px #ffb02e}}
+@keyframes annTw{100%{background:#2b0c08;color:#ff7b6b;box-shadow:inset 0 0 0 1px #ff4936}}
+.ann-f{margin-top:auto;text-align:center;color:#3f534b;font:700 calc(var(--u)*.9) 'IBM Plex Mono',monospace;letter-spacing:.12em}
+@media(prefers-reduced-motion:reduce){.annT.fl,.annM.fl{outline:calc(var(--u)*.2) dashed #fff;outline-offset:calc(var(--u)*-.35)}}
+
 </style>
 <div id="app"><div id="stage"></div></div>
 <div id="ctip" hidden></div>
@@ -1700,6 +1816,137 @@ window.VOICE_MANIFEST = {"quill_new_thermal":{"file":"quill_new_thermal.mp3","ms
   root.StationAdapter = API; if (typeof module !== 'undefined') module.exports = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
+/* Annunciator (docs/station_screens.md s1): the standard alert and caution light panel. No DOM, no engine import.
+ *
+ *   Annunciator.derive({ s, model, E })   -> { id: { state, why } }   pure: lamp states from engine state and station-model calls
+ *   const P = Annunciator.create();  P.update({ s, model, E }) -> { lamps: { id: { state, flash, acked, why } }, master: { warning, caution }, onset: [...] }
+ *   P.ack(id) / P.ackAll()                 acknowledging stops the flash, not the condition; the lamp clears when the condition does
+ * States: warning (red) > caution (amber) > advisory (white-cyan) > normal (dim green) > off (dark, not simulated / not applicable).
+ * Ship-systems colours, never contact colours (contact symbols keep reds/yellows = affirmed, blues/greens = suspected).
+ * E (HuntRT) is optional: with it the fire-control lamps use E.solveInfo / E.trackState; without it they read the raw fields.
+ */
+(function (root) {
+  'use strict';
+  const GROUPS = [
+    { st: 'sen', key: 'F2', name: 'SENSORS' }, { st: 'fc', key: 'F3', name: 'FIRE CTL' }, { st: 'wpn', key: 'F4', name: 'WEAPONS' },
+    { st: 'helm', key: 'F5', name: 'HELM' }, { st: 'eng', key: 'F6', name: 'ENG/THERM' }, { st: 'dmg', key: 'F7', name: 'DAMAGE' }, { st: 'com', key: 'F8', name: 'COMMS/PRB' }];
+  // fixed positions: the order here is the order on every screen. stub: not simulated yet, so the lamp stays dark (off)
+  const TILES = [
+    ['newtrk', 'NEW TRK', 'sen', 'A new thermal return was called in the last few seconds.'],
+    ['pinghrd', 'PING HRD', 'sen', 'An enemy active ping reached us: she is hunting.'],
+    ['trklost', 'TRK LOST', 'sen', 'A locked track was lost (marked as a thermal ghost) or a bearing slipped.'],
+    ['sensfld', 'SENS FLD', 'sen', 'Sensors fouled: hull damage below 60% slows every read (advisory: sensors dark while quiet).'],
+    ['detect', 'DETECTED', 'sen', 'An enemy has a fix on us: one pip caution, three pips (a firm solution) warning.'],
+    ['solrdy', 'SOL RDY', 'fc', 'A firing solution is ready on a locked track.'],
+    ['solstl', 'STALE', 'fc', 'A firing solution has gone stale: refresh it.'],
+    ['brgonly', 'BRG ONLY', 'fc', 'A locked track is down to a bearing and a guess (track state LAST).'],
+    ['incoming', 'INCOMING', 'wpn', 'Enemy missiles in flight toward us. Vampire.'],
+    ['maglow', 'MAG LOW', 'wpn', 'Twelve missiles or fewer left (warning: empty).'],
+    ['pdarm', 'PD ARMED', 'wpn', 'Point defence armed and cold.'],
+    ['pdact', 'PD ACTV', 'wpn', 'Point defence active: radars lit, anything looking can see us.'],
+    ['salvo', 'MSL AWAY', 'wpn', 'Our salvo or probe missiles are in flight.'],
+    ['burn', 'BURN', 'helm', 'The drive is at full burn (100%) or a burn call is open.'],
+    ['linkbrk', 'LINK BRK', 'helm', 'Laser or wire link broken by a manoeuvre. Not yet simulated.', true],
+    ['crschg', 'CRS CHG', 'helm', 'Course or stance changed in the last few seconds.'],
+    ['runhot', 'RUN HOT', 'eng', 'Our signature is HOT: anything listening can hear us.'],
+    ['sinkhi', 'SINK HI', 'eng', 'Heat sink at 80% or more (warning at 95%).'],
+    ['venting', 'VENTING', 'eng', 'Cooling fins are out: we are fully visible (caution when the vent was forced).'],
+    ['redline', 'REDLINE', 'eng', 'Redline burn running: the sink fills in seconds.'],
+    ['hull', 'HULL', 'dmg', 'Hull integrity below 70% (warning below 40%).'],
+    ['fire', 'FIRE', 'dmg', 'Coolant failing or a fire aboard: the sink is pegged and systems are cooking.'],
+    ['breach', 'BREACH', 'dmg', 'Hull breach: integrity below 25% or a breach call.'],
+    ['linkofr', 'LINK OFR', 'com', 'An ally offers a data link (an emission), or Pell offers to take a station.'],
+    ['prblink', 'PRB LINK', 'com', 'Probe link state. Probe sets are not yet simulated.', true],
+    ['prbout', 'PRB OUT', 'com', 'Probe sets deployed. Not yet simulated.', true],
+    ['prblost', 'PRB LOST', 'com', 'Probe set lost or link dropped. Not yet simulated.', true]
+  ].map(([id, label, st, tip, stub]) => ({ id, label, st, tip, stub: !!stub, key: GROUPS.find(g => g.st === st).key }));
+  const RANK = { off: 0, normal: 1, advisory: 2, caution: 3, warning: 4 };
+  // catalog row -> tile (every row lands in its own station's group)
+  const ROW_TILE = { S1: 'newtrk', S8: 'newtrk', S6: 'pinghrd', S4: 'trklost', S5: 'trklost', X1: 'detect', X2: 'detect', X3: 'detect', X4: 'detect', X5: 'newtrk',
+    W1: 'brgonly', W3: 'solstl', W2: 'solrdy', W5: 'incoming', W8: 'maglow', W9: 'salvo', W4: 'salvo', W6: 'salvo', W7: 'hull',
+    H1: 'burn', H2: 'linkbrk', H3: 'crschg', E1: 'runhot', E2: 'venting', E3: 'venting', E4: 'redline', D1: 'hull', D2: 'fire', D3: 'breach', C1: 'linkofr', C3: 'linkofr' };
+  const STATION_TILE = { sensors: 'newtrk', fire: 'solrdy', weapons: 'incoming', helm: 'crschg', engineering: 'redline', thermal: 'runhot', damage: 'hull', comms: 'linkofr' };
+  const STATION_GROUP = { sensors: 'sen', fire: 'fc', weapons: 'wpn', helm: 'helm', engineering: 'eng', thermal: 'eng', damage: 'dmg', comms: 'com' };
+  const MAG_LOW = 12;
+
+  function derive(inp) {
+    const s = inp && inp.s, model = inp && inp.model, E = inp && inp.E, L = {};
+    for (const t of TILES) L[t.id] = { state: t.stub ? 'off' : 'normal', why: '' };
+    const lift = (id, st, why) => { const l = L[id]; if (l && RANK[st] > RANK[l.state]) { l.state = st; l.why = why || ''; } };
+    if (s) {
+      const t = s.t || 0, evts = s.evts || [], recent = (type, win) => evts.some(e => e.type === type && t - e.t <= win);
+      // sensors
+      if (recent('ping_alert', 1)) lift('pinghrd', 'caution', 'enemy ping');
+      if (recent('track_lost', 1.5)) lift('trklost', 'caution', 'track lost');
+      if (s.hull < 60) lift('sensfld', 'caution', 'sensor mounts fouled'); else if (t < (s.quietUntil || 0)) lift('sensfld', 'advisory', 'sensors dark (quiet)');
+      if (s.stage >= 3) lift('detect', 'warning', 'firm enemy solution'); else if (s.stage >= 1) lift('detect', 'caution', 'enemy fix ' + s.stage);
+      // fire control
+      for (const a of s.an || []) {
+        if (a.state !== 'locked') continue;
+        const si = E ? E.solveInfo(s, a) : { ready: (a.solve || 0) >= 1 && !a.stale, stale: !!a.stale };
+        const ts = E ? E.trackState(s, a) : { state: a.stale ? 'last' : 'track' };
+        if (si.ready && !si.stale) lift('solrdy', 'advisory', 'S' + (a.id + 1));
+        if (si.stale || a.stale) lift('solstl', 'caution', 'S' + (a.id + 1));
+        if (ts.state === 'last') lift('brgonly', 'caution', 'S' + (a.id + 1));
+      }
+      // weapons
+      const inc = (s.inc || []).filter(v => v.foe !== false).length, warned = (s.warn || []).some(w => t >= w.t && t < w.t + (w.lead || 0));
+      if (inc || warned || recent('vampire', 0.5)) lift('incoming', 'warning', inc ? inc + ' inbound' : 'vampire');
+      if (s.mag) { if (s.mag.total <= 0) lift('maglow', 'warning', 'magazine empty'); else if (s.mag.total <= MAG_LOW) lift('maglow', 'caution', s.mag.total + ' left'); }
+      if (s.pd === 'armed') lift('pdarm', 'advisory', 'armed, cold'); else if (s.pd === 'active') lift('pdact', 'caution', 'radars lit');
+      if ((s.volleys || []).length || (s.probes || []).length) lift('salvo', 'advisory', ((s.volleys || []).length + (s.probes || []).length) + ' in flight');
+      // helm
+      if (s.speed === 'v5' && ['route', 'close', 'separate', 'evade', 'orbit'].includes(s.posture)) lift('burn', 'advisory', 'full burn');
+      // engineering and thermal
+      if (s.heat === 'hot') lift('runhot', 'caution', 'signature hot');
+      const h = s.sink ? s.sink.h : 0; if (h >= 0.95) lift('sinkhi', 'warning', Math.round(h * 100) + '%'); else if (h >= 0.8) lift('sinkhi', 'caution', Math.round(h * 100) + '%');
+      if (s.vent && s.vent.on) lift('venting', s.vent.forced ? 'caution' : 'advisory', s.vent.forced ? 'forced vent' : 'fins out');
+      if (s.burn) lift('redline', 'caution', 'redline burn');
+      // damage
+      if (s.hull < 40) lift('hull', 'warning', Math.round(s.hull) + '%'); else if (s.hull < 70) lift('hull', 'caution', Math.round(s.hull) + '%');
+      if ((s.melt || 0) > 0.05) lift('fire', 'warning', 'coolant failing');
+      if (s.hull < 25) lift('breach', 'warning', 'hull ' + Math.round(s.hull) + '%');
+    }
+    if (model) {   // calls: a priority 3 call lights its station's caution, a priority 4 call a warning; a waiting priority 2 call an advisory
+      const now = model.now || 0;
+      for (const c of model.calls || []) {
+        const id = ROW_TILE[c.row] || STATION_TILE[c.station]; if (!id) continue;
+        const open = c.state === 'raised' || c.state === 'queued', fresh = now - (c.raisedAt != null ? c.raisedAt : c.at) <= 8;
+        if (open && c.pri >= 4) lift(id, 'warning', 'call: ' + c.line);
+        else if (open && c.pri === 3) lift(id, 'caution', 'call: ' + c.line);
+        else if ((open && c.pri === 2 && c.state === 'raised') || (fresh && (c.state === 'reported' || c.state === 'logged' || c.state === 'settled') && c.row !== 'CO' && !c.report)) lift(id, 'advisory', c.line);
+      }
+    }
+    return L;
+  }
+
+  function create() {
+    const mem = {};   // id -> { state, acked }
+    let last = null;
+    function update(inp) {
+      const L = derive(inp), out = { lamps: {}, master: { warning: { lit: false, flash: false }, caution: { lit: false, flash: false } }, onset: [] };
+      for (const t of TILES) {
+        const st = L[t.id].state, m = mem[t.id] || (mem[t.id] = { state: 'normal', acked: true });
+        const alarm = st === 'warning' || st === 'caution';
+        if (alarm && RANK[st] > RANK[m.state]) { m.acked = false; out.onset.push({ id: t.id, state: st }); }   // a new or worse alarm flashes until acknowledged
+        if (!alarm) m.acked = true;
+        m.state = st;
+        const flash = alarm && !m.acked;
+        out.lamps[t.id] = { state: st, flash, acked: alarm && m.acked, why: L[t.id].why };
+        if (st === 'warning') { out.master.warning.lit = true; if (flash) out.master.warning.flash = true; }
+        if (st === 'caution') { out.master.caution.lit = true; if (flash) out.master.caution.flash = true; }
+      }
+      last = out; return out;
+    }
+    function ack(id) { const m = mem[id]; if (!m) return false; const was = !m.acked; m.acked = true; if (last && last.lamps[id]) last.lamps[id].flash = false; return was; }
+    function ackAll() { let n = 0; for (const id in mem) if (!mem[id].acked) { mem[id].acked = true; n++; } return n; }
+    function ackLevel(level) { let n = 0; for (const id in mem) if (!mem[id].acked && mem[id].state === level) { mem[id].acked = true; n++; } return n; }
+    return { update, ack, ackAll, ackLevel, get last() { return last; } };
+  }
+  const API = { TILES, GROUPS, RANK, ROW_TILE, STATION_TILE, STATION_GROUP, derive, create };
+  root.Annunciator = API; if (typeof module !== 'undefined') module.exports = API;
+})(typeof window !== 'undefined' ? window : globalThis);
+
 const E = HuntRT, P = E.P, $ = id => document.getElementById(id);
 function ME() { try { return (S && S.me) || E.PLAYER; } catch (e) { return E.PLAYER; } }   // this hunt's player profile (trimmed), or the defaults before a hunt exists
 const QS = (() => { try { return new URLSearchParams(location.search); } catch (e) { return new URLSearchParams(''); } })();
@@ -2866,7 +3113,8 @@ function setView(v) {
   if (v === 'tgt') buildEngage(); layout(); if (S) { if (v === 'str') { drawMap(); } if (v === 'tgt') engUpdate(true); }
 }
 function layout() {
-  SC = Math.min(innerWidth / 1920, innerHeight / 1080); const app = $('app'); app.style.transform = 'translate(' + ((innerWidth - 1920 * SC) / 2) + 'px,' + ((innerHeight - 1080 * SC) / 2) + 'px) scale(' + SC + ')';
+  const W0 = document.body.classList.contains('ss-on') ? 2088 : 1920;   // the station screens add the annunciator column (web/station_screens.css)
+  SC = Math.min(innerWidth / W0, innerHeight / 1080); const app = $('app'); app.style.transform = 'translate(' + ((innerWidth - W0 * SC) / 2) + 'px,' + ((innerHeight - 1080 * SC) / 2) + 'px) scale(' + SC + ')';
 }
 addEventListener('resize', () => { layout(); if (S && view !== 'tac') { if (view === 'str') { drawMap(); } else engUpdate(true); } });
 $('tabs').onclick = e => { const b = e.target.closest('button'); if (b && !b.disabled) setView(b.dataset.v); };
@@ -3212,13 +3460,12 @@ var DECK = (() => {   // var, not const: the console code checks typeof DECK bef
     { k: 'F3', id: 'fc', name: 'FIRE CTL', view: 'fc', st: ['fire'] }, { k: 'F4', id: 'wpn', name: 'WEAPONS', view: 'wpn', st: ['weapons'] },
     { k: 'F5', id: 'helm', name: 'HELM', view: 'str', st: ['helm'] }, { k: 'F6', id: 'eng', name: 'ENGINEER', view: 'eng', st: ['engineering', 'thermal'] },
     { k: 'F7', id: 'dmg', name: 'DAMAGE', view: 'dmg', st: ['damage'] }, { k: 'F8', id: 'com', name: 'COMMS', view: 'com', st: ['comms'] }];
-  const NEWV = ['sen', 'fc', 'wpn', 'eng', 'dmg', 'com'];
   const AUT = [['sensors', 'Sensors', 'Quill'], ['fire', 'Fire control', 'Abara'], ['weapons', 'Weapons', 'Abara'], ['helm', 'Helm', 'Abara'], ['engineering', 'Engineering', 'Castellan'], ['thermal', 'Thermal', 'Dace'], ['damage', 'Damage control', 'Fenwick'], ['comms', 'Comms', 'Pell']];
   const REPORT_KEY = { s: 'sensors', f: 'fire', w: 'weapons', h: 'helm', e: 'engineering', d: 'damage', c: 'comms' };
   const PCOL = { 1: '#566b62', 2: '#6fc3d0', 3: '#ffb454', 4: '#ff6b5a' }, FACE = { Quill: '#b79cff', Abara: '#ffb454', Castellan: '#6fc3d0', Dace: '#ff8a4c', Fenwick: '#8fd694', Pell: '#c58cff', Captain: '#cfe3da' };
   const RAD = [['classify', 'Classify', 'C', 'sensors'], ['track', 'Track', 'T', 'sensors'], ['probe', 'Probe', 'P', 'weapons'], ['fire', 'Fire', 'F', 'weapons']];
   const W = typeof window !== 'undefined' ? window : {};
-  let cfg = { autonomy: {}, preset: 'ambush', compress: 1 };
+  let cfg = { autonomy: {}, preset: 'ambush', compress: 1, annSound: true };
   try { Object.assign(cfg, JSON.parse(localStorage.getItem('interdict.deck') || '{}')); } catch (e) {}
   const saveCfg = () => { try { localStorage.setItem('interdict.deck', JSON.stringify(cfg)); } catch (e) {} };
   let A = null, cur = null, chips = false, last = null, toastT = 0, vHeld = false, vUsed = false, radial = null, flash = {}, panelT = 0, speakTok = 0;
@@ -3244,16 +3491,6 @@ var DECK = (() => {   // var, not const: the console code checks typeof DECK bef
       <div id="dk-rail" class="dk-rail"></div><div id="dk-stn" class="dk-stn">${STN.map(s => `<button data-f="${s.k}" id="dkf-${s.id}" title="${s.name}: station screen (${s.k})"><kbd>${s.k}</kbd><span>${s.name}</span></button>`).join('')}</div>
       <div id="dk-toast" class="dk-toast" hidden></div><div id="dk-vhint" class="dk-toast dk-v" hidden>REPORT: <b>S</b>ENSORS <b>F</b>IRE <b>W</b>EAPONS <b>H</b>ELM <b>E</b>NGINEERING <b>D</b>AMAGE <b>C</b>OMMS</div>
       <div id="dk-drawer" class="dk-drawer" hidden></div>`);
-    // station panels: new flat panels where nothing exists; the left column and the bottom row stay (they are the widgets every station reuses)
-    let p = '';
-    p += czone('STN-SEN', 36, 8, 76, 66, 'SENSORS', 'Quill &middot; tracks, quality, who is reading what', '<div class="dk-pan" id="dkp-sen"></div>', { vz: 'sen' });
-    p += czone('STN-FC', 36, 8, 76, 66, 'FIRE CONTROL', 'Abara &middot; solutions and baseline', '<div class="dk-pan" id="dkp-fc"></div>', { vz: 'fc' });
-    p += czone('STN-WPN', 36, 8, 76, 66, 'WEAPONS', 'Abara &middot; magazine, salvo presets, point defence', '<div class="dk-pan" id="dkp-wpn"></div>', { vz: 'wpn' });
-    p += czone('STN-ENG', 36, 8, 76, 66, 'ENGINEERING', 'Castellan, Dace &middot; heat, drive, vents', '<div class="dk-pan" id="dkp-eng"></div>', { vz: 'eng' });
-    p += czone('STN-DMG', 36, 8, 76, 66, 'DAMAGE CONTROL', 'Fenwick &middot; hull and systems', '<div class="dk-pan" id="dkp-dmg"></div>', { vz: 'dmg' });
-    p += czone('STN-COM', 36, 8, 76, 66, 'COMMS', 'calls and the log', '<div class="dk-pan" id="dkp-com"></div>', { vz: 'com' });
-    st.insertAdjacentHTML('afterbegin', p);
-    document.querySelectorAll('#stage [data-vz]').forEach(z => { if (/^(SENSORS|CONTACTS|ORDERS|WEAPONS|COMMS) /.test(z.dataset.z || '')) z.dataset.vz += ' ' + NEWV.join(' '); });
     // the F-key station keys take the place of the three view keys and the caution plate in the top rail; MENU moves left
     ['kv-tac', 'kv-str', 'kv-tgt'].forEach(id => { const el = $(id); if (el) el.style.display = 'none'; });
     document.querySelectorAll('#stage .cplate').forEach(el => { if (/MASTER CAUTION/.test(el.textContent)) el.style.display = 'none'; });
@@ -3265,7 +3502,7 @@ var DECK = (() => {   // var, not const: the console code checks typeof DECK bef
     $('dk-radial').addEventListener('click', e => { const b = e.target.closest('button'); if (b && !b.disabled) radialPick(b.dataset.v); });
     $('dk-drawer').addEventListener('change', drawerChange); $('dk-drawer').addEventListener('input', drawerChange);
     $('dk-drawer').addEventListener('click', e => { const b = e.target.closest('[data-x]'); if (b && b.dataset.x === 'close') drawer(false); });
-    document.querySelectorAll('.dk-pan').forEach(el => el.addEventListener('click', e => { const b = e.target.closest('[data-dk]'); if (b) panelAct(b.dataset.dk, b.dataset.arg); }));
+    if (typeof SCREENS !== 'undefined') SCREENS.build();   // the station screens and the annunciator (web/station_screens.js)
   }
 
   // ---------- hunt lifecycle ----------
@@ -3283,7 +3520,8 @@ var DECK = (() => {   // var, not const: the console code checks typeof DECK bef
     if (cur && cur.state === 'reported' && cur._end && performance.now() > cur._end) clear('read');
     if (!cur) { const nx = A.model.pending().find(c => c.pri >= 3); if (nx) show(nx); }
     ring(); if (toastT && performance.now() > toastT) { $('dk-toast').hidden = true; toastT = 0; }
-    if (performance.now() - panelT > 250) { panelT = performance.now(); rail(); panels(); stnBar(); }
+    if (performance.now() - panelT > 250) { panelT = performance.now(); rail(); stnBar(); }
+    if (typeof SCREENS !== 'undefined') SCREENS.frame();
   }
   function handle(ev) {
     if (ev.type === 'raise') {
@@ -3357,8 +3595,8 @@ var DECK = (() => {   // var, not const: the console code checks typeof DECK bef
   }
   const row = (cells, cls) => `<tr class="${cls || ''}">${cells.map(c => `<td>${c}</td>`).join('')}</tr>`;
   const key = (dk, arg, t, s, lit, dis) => `<button class="dk-k${lit ? ' lit' : ''}" data-dk="${dk}" data-arg="${arg == null ? '' : arg}" ${dis ? 'disabled' : ''}><b>${t}</b><small>${s || ''}</small></button>`;
-  function panels() {
-    if (!S || !NEWV.includes(view)) return; const el = $('dkp-' + view); if (!el) return; let h = '';
+  function panelHtml(view) {   // the flat station panels (interim content inside the station screen frame)
+    if (!S) return ''; let h = '';
     if (view === 'sen') {
       h = '<table class="dk-t"><tr><th>TRACK</th><th>STATE</th><th>QUALITY</th><th>CALL</th><th>H R V</th><th>LAST READ</th><th>ANALYSTS</th></tr>' + S.an.map(a => {
         const c = E.classify(S, a), q = a.idStatus === 'hostile' || a.idStatus === 'plan' ? 'AFFIRMED' : c.n >= 2 && c.p >= 0.8 ? 'PASSIVE' : 'SUSPECTED', on = S.analysts.filter(w => w.task === a.id).map(w => crewName(w.name)).join(' ');
@@ -3391,7 +3629,7 @@ var DECK = (() => {   // var, not const: the console code checks typeof DECK bef
       h = '<div class="dk-sub">CALLS</div><table class="dk-t">' + cs.map(c => row([fmtMin(c.at / P.secPerMin), esc(crewName(c.officer)), esc(c.line), (c.state === 'answered' ? 'ANSWERED: ' : c.state === 'defaulted' ? 'DEFAULT: ' : c.state === 'settled' ? 'DOCTRINE: ' : '') + (c.opts && c.choice != null ? esc(c.opts[c.choice].label) : c.state.toUpperCase())])).join('') + '</table>';
       h += '<div class="dk-sub">LOG</div><table class="dk-t">' + S.log.slice(-10).reverse().map(l => row([fmtMin(l.t), esc(crewName(l.who)), esc(l.text)], l.kind)).join('') + '</table>';
     }
-    if (el.dataset.h !== h) { el.dataset.h = h; el.innerHTML = h; }
+    return h;
   }
   function panelAct(k, arg) {
     if (!S || S.over) return;
@@ -3427,8 +3665,9 @@ var DECK = (() => {   // var, not const: the console code checks typeof DECK bef
       <table class="dk-t dk-aut">${AUT.map(([k, lab, who]) => { const m = (A ? A.model.autonomy[k] : cfg.autonomy[k]) || 'auto'; return `<tr><td>${lab}<small>${crewName(who)}</small></td>${['auto', 'supervised', 'hands-on'].map(x => `<td><label class="${m === x ? 'on' : ''}"><input type="radio" name="aut-${k}" data-aut="${k}" value="${x}" ${m === x ? 'checked' : ''}>${x === 'supervised' ? 'SUPERVISED' : x.toUpperCase()}</label></td>`).join('')}</tr>`; }).join('')}</table>
       <div class="dk-sub">CAPTAIN'S VOICE</div><div class="dk-row">${['m', 'f'].map(g => `<label class="dk-opt ${cap === g ? 'on' : ''}"><input type="radio" name="dk-cap" data-cap="${g}" ${cap === g ? 'checked' : ''}>${g === 'm' ? 'MALE' : 'FEMALE'}</label>`).join('')}</div>
       <div class="dk-sub">VOICE VOLUME</div><div class="dk-row"><input type="range" min="0" max="100" value="${Math.round((vs.volume == null ? 1 : vs.volume) * 100)}" data-vol="1"><label class="dk-opt ${vs.enabled === false ? 'on' : ''}"><input type="checkbox" data-mute="1" ${vs.enabled === false ? 'checked' : ''}>MUTE (TEXT ONLY)</label></div>
+      <div class="dk-sub">ANNUNCIATOR SOUND <em>a soft chime for a caution, a two-tone for a warning</em></div><div class="dk-row"><label class="dk-opt ${cfg.annSound !== false ? 'on' : ''}"><input type="checkbox" data-annsnd="1" ${cfg.annSound !== false ? 'checked' : ''}>${cfg.annSound !== false ? 'ON' : 'OFF'}</label></div>
       <div class="dk-sub">TIME COMPRESSION <em>drops to 1x on any urgent call</em></div><div class="dk-row">${[1, 2].map(x => `<label class="dk-opt ${tscale === x ? 'on' : ''}"><input type="radio" name="dk-tc" data-tc="${x}" ${tscale === x ? 'checked' : ''}>${x}X</label>`).join('')}</div>
-      <div class="dk-note">No pause in a hunt. Stand by (Backspace) holds a call; the rail keeps the queue. Keys: 1-4 answer, Enter recommended, Space next, R say again, Esc dismiss, F1-F8 stations, hold V + letter for a report.</div>`;
+      <div class="dk-note">No pause in a hunt. Stand by (Backspace) holds a call; the rail keeps the queue. Keys: 1-4 answer, Enter recommended, Space next, R say again, Esc dismiss, F1-F8 stations, Shift+F1-F8 softkeys, A acknowledge the annunciator, hold V + letter for a report.</div>`;
   }
   function drawerChange(e) {
     const t = e.target;
@@ -3437,6 +3676,7 @@ var DECK = (() => {   // var, not const: the console code checks typeof DECK bef
     else if (t.dataset.vol) { VO && VO.set({ volume: +t.value / 100 }); }
     else if (t.dataset.mute) { VO && VO.set({ enabled: !t.checked }); drawerFill(); }
     else if (t.dataset.tc) { setTime(+t.dataset.tc); drawerFill(); }
+    else if (t.dataset.annsnd) { cfg.annSound = t.checked; saveCfg(); drawerFill(); }
   }
 
   // ---------- keys ----------
@@ -3444,7 +3684,7 @@ var DECK = (() => {   // var, not const: the console code checks typeof DECK bef
   function keydown(e) {
     if (blocked(e)) return; const k = e.key, lk = k.length === 1 ? k.toLowerCase() : k;
     const eat = () => { e.preventDefault(); e.stopImmediatePropagation(); };
-    if (/^F[1-8]$/.test(k)) { eat(); station(k); return; }
+    if (/^F[1-8]$/.test(k)) { eat(); if (e.shiftKey && typeof SCREENS !== 'undefined') SCREENS.softkey(+k.slice(1) - 1); else station(k); return; }
     if (radial) { const r = RAD.find(x => x[2].toLowerCase() === lk) || ({ 1: RAD[0], 2: RAD[1], 3: RAD[2], 4: RAD[3] })[k]; if (r) { eat(); const b = document.querySelector(`#dk-radial button[data-v="${r[0]}"]`); if (b && !b.disabled) radialPick(r[0]); return; } if (k === 'Escape') { eat(); radialClose(); return; } }
     if (k === 'Escape' && !$('dk-drawer').hidden) { eat(); drawer(false); return; }
     if (lk === 'v') { eat(); if (!e.repeat && !vHeld) { vHeld = true; vUsed = false; $('dk-vhint').hidden = false; } return; }
@@ -3474,8 +3714,206 @@ var DECK = (() => {   // var, not const: the console code checks typeof DECK bef
     }, true);
     const slip0 = ACT.slip; ACT.slip = el => { slip0(el); const r = el.getBoundingClientRect(); radialAt(+el.dataset.arg, r.right + 140, r.top + r.height / 2); };
   }
-  return { on, begin, frame, show, answer, take, standBy, sayAgain, dismiss, station, report, radialAt, radialPick, radialClose, drawer, statusText,
+  return { on, begin, frame, show, answer, take, standBy, sayAgain, dismiss, station, report, radialAt, radialPick, radialClose, drawer, statusText, panelHtml, panelAct, saveCfg, cfg,
     get adapter() { return A; }, get cur() { return cur; }, get chipsShown() { return chips; }, get radialOpen() { return !!radial; }, STN };
+})();
+
+/* ===== Station screens (docs/station_screens.md): the multifunction console family over the hunt page. Inlined into hunt_rt.html after the call deck.
+ * Normal hunts only (same switch as the call deck: never on the Tern tutorial, ?calldeck=0 turns it off). F1 stays the existing console.
+ * Frame on every station screen F2-F8: top bar (station, officer, autonomy badge, clock, posture), left function tabs, windowed panels,
+ * softkeys (Shift+F1..F8), message line (the last order's lifecycle), the call strip at the bottom. The annunciator strip is on every screen.
+ * Autonomy (station model): Auto = a live read-only view of what the officer is doing; Supervised = the pending recommendation (approve it);
+ * Hands-on = the controls are live. Anything the engine cannot do yet is a clearly marked NOT YET SIMULATED stub with no behaviour.
+ */
+var SCREENS = (() => {
+  const on = typeof DECK !== 'undefined' && DECK.on;
+  const AN = window.Annunciator;
+  const VIEWS = {
+    sen: { k: 'F2', name: 'SENSORS', st: ['sensors'], who: ['Quill'], ac: '#86a9cc', fn: 'CONTACT MANAGEMENT' },
+    fc: { k: 'F3', name: 'FIRE CONTROL', st: ['fire'], who: ['Abara'], ac: '#c7a782', fn: 'TARGET MOTION ANALYSIS' },
+    wpn: { k: 'F4', name: 'WEAPONS', st: ['weapons'], who: ['Abara'], ac: '#c4908a', fn: 'PAYLOAD CONTROL' },
+    str: { k: 'F5', name: 'HELM', st: ['helm'], who: ['Abara'], ac: '#8fc4a4', fn: 'NAVIGATION' },
+    eng: { k: 'F6', name: 'ENGINEERING', st: ['engineering', 'thermal'], who: ['Castellan', 'Dace'], ac: '#c4b886', fn: 'PLATFORM: POWER AND HEAT' },
+    dmg: { k: 'F7', name: 'DAMAGE CONTROL', st: ['damage'], who: ['Fenwick'], ac: '#b394c7', fn: 'PLATFORM: HULL AND SYSTEMS' },
+    com: { k: 'F8', name: 'COMMS', st: ['comms'], who: ['Pell'], ac: '#84c2c4', fn: 'REPORTS AND LINKS' }
+  };
+  const MODES = ['auto', 'supervised', 'hands-on'], MODE_TAG = { auto: 'AUTO', supervised: 'SUPV', 'hands-on': 'HANDS-ON' };
+  const PAGES = {};            // view -> { tabs: [[id, label]], render(tab, ctx) -> html, soft(tab, ctx) -> [softkeys] }
+  const tab = {};              // view -> current tab id
+  const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  let built = false, P = AN ? AN.create() : null, annOut = null, annT = 0, renT = 0, actx = null, toneT = 0, down = false, mainKey = '', curSoft = [];
+  if (on) document.body.classList.add('ss-on');
+
+  // ---------- helpers every page uses ----------
+  const A = () => DECK.adapter, M = () => DECK.adapter && DECK.adapter.model;
+  const modeOf = v => { const m = M(); if (!m || !VIEWS[v]) return 'auto'; const ms = VIEWS[v].st.map(k => m.autonomy[k] || 'auto'); return ms.sort((a, b) => MODES.indexOf(b) - MODES.indexOf(a))[0]; };
+  const live = () => modeOf(view) === 'hands-on';
+  // a control key: live only in Hands-on (data-c); a view key (data-v) works in every mode
+  function key(o) {
+    const ro = o.ctl !== false && !live(), dis = o.dis || ro;
+    return `<button class="sk2${o.lit ? ' lit' : ''}${o.warn ? ' warn' : ''}${o.stub ? ' stub' : ''}${ro && !o.dis ? ' ro' : ''} ${o.cls || ''}" data-a="${o.act || ''}" data-arg="${esc(o.arg == null ? '' : o.arg)}" ${dis ? 'disabled' : ''} ${o.tip ? `title="${esc(o.tip)}"` : ''}><b>${o.t}</b>${o.s ? `<small>${o.s}</small>` : ''}</button>`;
+  }
+  const panel = (id, title, sub, body, cls) => `<section class="sp ${cls || ''}" id="sp-${id}"><header class="spt"><b>${title}</b>${sub ? `<em>${sub}</em>` : ''}</header><div class="spb">${body}</div></section>`;
+  const stub = (t) => `<span class="nys">NOT YET SIMULATED${t ? ': ' + t : ''}</span>`;
+  const pct = v => Math.round(v * 100) + '%';
+  const brg = n => String(((Math.round(n) % 360) + 360) % 360).padStart(3, '0');
+  function obsPos(a) { return a.idStatus === 'plan' ? E.truePos(a, S.t) : E.displayPos(S, a); }   // what we believe (the honest picture), never ground truth for a hostile or unknown
+  function quality(a) {
+    if (a.idStatus === 'plan') return 'ALLY';
+    const c = E.classify(S, a); return a.idStatus === 'hostile' || a.idStatus === 'confirmed' ? 'AFFIRMED' : c.n >= 2 && c.p >= 0.8 ? 'PASSIVE' : 'SUSPECTED';
+  }
+
+  // ---------- build ----------
+  function build() {
+    if (!on || built) return; const st = $('stage'); if (!st) return; built = true;
+    const tabsH = '<nav class="ss-tabs" id="ss-tabs"></nav>';
+    st.insertAdjacentHTML('afterbegin', `<div id="ss" class="ss" data-vz="${Object.keys(VIEWS).join(' ')}">
+      <div class="ss-hd" id="ss-hd"></div>${tabsH}<div class="ss-ban" id="ss-ban"></div><div class="ss-main" id="ss-main"></div>
+      <div class="ss-sk" id="ss-sk"></div><div class="ss-msg" id="ss-msg"></div><div class="ss-cb"><span class="ss-cbl">CALLS</span><span class="ss-cbe" id="ss-cbe">NO CALL UP &middot; SPACE TAKES THE NEXT WAITING CALL</span></div></div>`);
+    st.insertAdjacentHTML('beforeend', annHtml());
+    // the strategic map is F5's main window in the frame; the console's side columns stay on F1 only
+    document.querySelectorAll('#stage .cz[data-vz]').forEach(z => { const n = (z.dataset.z || '').split(' ')[0]; if (['SENSORS', 'CONTACTS', 'ORDERS', 'COMMS'].includes(n)) z.dataset.vz = 'tac'; if (n === 'LEGS') z.dataset.vz = 'none'; });
+    document.querySelectorAll('#stage > .cz:not([data-vz])').forEach(z => { if (/^(HEAT|SIGNATURE|SHIP) /.test(z.dataset.z || '')) z.dataset.vz = 'tac tgt'; });   // the console's right column belongs to F1 (and the target view)
+    cViews(view);
+    $('ss').addEventListener('pointerdown', onDown); addEventListener('pointerup', () => { down = false; });
+    $('ann').addEventListener('pointerdown', e => { const b = e.target.closest('[data-t],[data-m]'); if (!b) return; e.preventDefault(); unlockAudio();
+      if (b.dataset.m) { P.ackLevel(b.dataset.m); annT = 0; return; }
+      const t = AN.TILES.find(x => x.id === b.dataset.t); P.ack(t.id); annT = 0; DECK.station(t.key); });
+    addEventListener('pointerdown', unlockAudio, true); addEventListener('keydown', unlockAudio, true);
+    addEventListener('keydown', e => { if (!on || !S || briefing || e.ctrlKey || e.metaKey || e.altKey || (e.target && e.target.tagName === 'INPUT' && e.target.type === 'text')) return;
+      if ((e.key === 'a' || e.key === 'A') && !e.repeat) { if (P) { P.ackAll(); annT = 0; } e.preventDefault(); } }, true);
+  }
+  function annHtml() {
+    let h = '<div id="ann" class="ann" aria-label="Annunciator panel"><div class="ann-m"><button class="annM w" data-m="warning" id="ann-mw" title="Master warning: a warning lamp is unacknowledged. Click or press A to acknowledge."><b>MASTER</b>WARNING</button><button class="annM c" data-m="caution" id="ann-mc" title="Master caution: a caution lamp is unacknowledged. Click or press A to acknowledge."><b>MASTER</b>CAUTION</button></div>';
+    for (const g of AN.GROUPS) {
+      h += `<div class="ann-g"><div class="ann-gh"><kbd>${g.key}</kbd>${g.name}</div><div class="ann-gt">`;
+      for (const t of AN.TILES.filter(x => x.st === g.st)) h += `<button class="annT off" data-t="${t.id}" id="ann-${t.id}" title="${esc(t.label + ': ' + t.tip + ' Click: acknowledge and go to ' + g.key + '.')}">${t.label}</button>`;
+      h += '</div></div>';
+    }
+    return h + '<div class="ann-f">A &middot; ACK ALL</div></div>';
+  }
+
+  // ---------- annunciator ----------
+  function annUpdate() {
+    if (!P || !S) return; annOut = P.update({ s: S, model: M(), E });
+    for (const t of AN.TILES) { const l = annOut.lamps[t.id], el = $('ann-' + t.id); if (!el) continue; const k = l.state + (l.flash ? ' fl' : ''); if (el.dataset.k !== k) { el.dataset.k = k; el.className = 'annT ' + k; } const tip = t.label + (l.why ? ' (' + l.why + ')' : '') + ': ' + t.tip; if (el.title.indexOf(tip) !== 0) el.title = tip + ' Click: acknowledge and go to ' + t.key + '.'; }
+    const mw = annOut.master.warning, mc = annOut.master.caution;
+    $('ann-mw').className = 'annM w' + (mw.flash ? ' fl' : mw.lit ? ' lit' : ''); $('ann-mc').className = 'annM c' + (mc.flash ? ' fl' : mc.lit ? ' lit' : '');
+    sound(annOut);
+  }
+  function unlockAudio() { if (actx || !on) return; try { const C = window.AudioContext || window.webkitAudioContext; if (C) actx = new C(); } catch (e) { actx = null; } }
+  function soundOn() { const c = DECK.cfg || {}; if (c.annSound === false) return 0; let vs = {}; try { vs = window.Voice ? Voice.state() : {}; } catch (e) {} if (vs.enabled === false) return 0; return vs.volume == null ? 1 : vs.volume; }
+  function beep(freqs, dur, type, gain) {
+    if (!actx || actx.state === 'suspended') { try { actx && actx.resume(); } catch (e) {} if (!actx || actx.state !== 'running') return false; }
+    try { const t0 = actx.currentTime; freqs.forEach((f, i) => { const o = actx.createOscillator(), g = actx.createGain(), ts = t0 + i * dur; o.type = type; o.frequency.value = f; g.gain.setValueAtTime(0, ts); g.gain.linearRampToValueAtTime(gain, ts + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, ts + dur * 0.95); o.connect(g); g.connect(actx.destination); o.start(ts); o.stop(ts + dur); }); return true; } catch (e) { return false; }
+  }
+  function sound(o) {
+    const v = soundOn(); if (!v) return; const now = performance.now();
+    const w = o.onset.some(x => x.state === 'warning'), c = o.onset.some(x => x.state === 'caution');
+    if (w || (o.master.warning.flash && now - toneT > 4500)) { toneT = now; beep([880, 660, 880, 660], 0.16, 'triangle', 0.05 * v); }   // warning: a quiet two-tone, repeated while unacknowledged
+    else if (c) beep([1320, 990], 0.28, 'sine', 0.035 * v);                                                                             // caution: a single soft chime
+  }
+
+  // ---------- per-frame ----------
+  function frame() {
+    if (!on || !built || !S) return; const t = performance.now();
+    if (t - annT > 150) { annT = t; annUpdate(); }
+    if (!VIEWS[view] || down) return;
+    if (t - renT > 250) { renT = t; render(); }
+  }
+  function render() {
+    const v = view, V = VIEWS[v], pg = PAGES[v]; if (!V || !pg) return; const ss = $('ss'); ss.style.setProperty('--ac', V.ac); ss.dataset.v = v;
+    if (!tab[v] || !pg.tabs.some(x => x[0] === tab[v])) tab[v] = pg.tabs[0][0];
+    const T = tab[v], mode = modeOf(v), ctx = { v, mode, live: mode === 'hands-on' };
+    set('ss-hd', header(v, V, mode, T));
+    set('ss-tabs', pg.tabs.map(([id, lab], i) => `<button class="ss-tab${id === T ? ' on' : ''}" data-tab="${id}"><small>P${i + 1}</small>${lab}</button>`).join('') + `<div class="ss-tfn">${V.fn}</div>`);
+    set('ss-ban', banner(v, V, mode));
+    const body = pg.render(T, ctx); if (mainKey !== body) { mainKey = body; $('ss-main').innerHTML = body; $('ss-main').className = 'ss-main pg-' + v + '-' + T; if (pg.after) pg.after(T, ctx); } else if (pg.after) pg.after(T, ctx, true);
+    curSoft = (pg.soft ? pg.soft(T, ctx) : []).slice(0, 7); while (curSoft.length < 7) curSoft.push(null);
+    curSoft.push({ t: 'MODE ' + MODE_TAG[mode], s: 'CYCLE AUTONOMY', act: 'mode', ctl: false, tip: 'Cycle this station\'s autonomy: Auto (the officer runs it, the screen is read-only), Supervised (the officer recommends, you approve), Hands-on (the controls are yours).' });
+    set('ss-sk', curSoft.map((o, i) => o ? softHtml(o, i) : `<div class="ss-sk0"><kbd>&#8679;F${i + 1}</kbd></div>`).join(''));
+    set('ss-msg', msgLine(v));
+    const cb = $('ss-cbe'); if (cb) { const n = M() ? M().pending().length : 0; const tx = DECK.cur ? '' : n ? n + ' CALL' + (n > 1 ? 'S' : '') + ' WAITING &middot; SPACE TAKES THE NEXT' : 'NO CALLS WAITING'; if (cb.innerHTML !== tx) cb.innerHTML = tx; }
+  }
+  function set(id, h) { const el = $(id); if (el && el.dataset.h !== h) { el.dataset.h = h; el.innerHTML = h; } }
+  function softHtml(o, i) {
+    const ro = o.ctl !== false && !live(), dis = o.dis || ro;
+    return `<button class="ss-skb${o.lit ? ' lit' : ''}${o.stub ? ' stub' : ''}${ro && !o.dis ? ' ro' : ''}" data-a="${o.act || ''}" data-arg="${esc(o.arg == null ? '' : o.arg)}" data-sk="${i}" ${dis ? 'disabled' : ''} ${o.tip ? `title="${esc(o.tip)}"` : ''}><kbd>&#8679;F${i + 1}</kbd><b>${o.t}</b><small>${o.s || ''}</small></button>`;
+  }
+  function header(v, V, mode, T) {
+    const who = V.who.map(n => crewName(n).toUpperCase()).join(' &middot; '), heat = (S.heat || 'cold').toUpperCase(), sp = E.SPEED[S.speed];
+    const stance = { still: 'HOLDING', route: 'ON PLAN', evade: 'EVASIVE', close: 'CLOSING', separate: 'OPENING', orbit: 'CIRCLING' }[S.posture] || String(S.posture).toUpperCase();
+    const sel = selId != null && S.an[selId] ? 'S' + (selId + 1) : '--', lab = (PAGES[v].tabs.find(x => x[0] === T) || ['', ''])[1];
+    return `<div class="hd-k">${V.k}</div><div class="hd-n"><b>${V.name}</b><span>${who}</span></div><div class="hd-m m-${mode.replace('-', '')}" title="Autonomy: ${mode}">${MODE_TAG[mode]}</div><div class="hd-p">${lab}</div>`
+      + `<div class="hd-f"><span>SEL</span><b>${sel}</b></div><div class="hd-f"><span>POSTURE</span><b class="pz-${S.heat || 'cold'}">${heat}</b><i>${stance} &middot; ${sp ? sp.label.toUpperCase() : ''}</i></div><div class="hd-f clk"><span>MISSION</span><b>${mmss(S.t)}</b></div>`;
+  }
+  function activity(v) {   // what the officer is doing right now (the Auto view's live line)
+    const lk = S.an.filter(a => a.state === 'locked');
+    if (v === 'sen') { const on = S.analysts.filter(w => w.task != null); const best = S.an.filter(a => a.state === 'open' && a.idStatus !== 'plan').map(a => ({ a, c: E.classify(S, a) })).filter(x => x.c.n > 0).sort((x, y) => y.c.p - x.c.p)[0];
+      return (on.length ? on.map(w => crewName(w.name).toUpperCase() + ' ON S' + (w.task + 1)).join(', ') : 'SWEEPING ALL TRACKS') + (best ? ` &middot; S${best.a.id + 1} CLASSIFY ${pct(best.c.p)} ${({ real: 'WARSHIP', lure: 'DECOY', ghost: 'STATIC' })[best.c.best]}` : ''); }
+    if (v === 'fc') return lk.length ? lk.map(a => { const si = E.solveInfo(S, a); return 'S' + (a.id + 1) + (si.ready ? ' SOLUTION READY' : si.stale ? ' STALE' : ' SOLVING ' + pct(si.prog)); }).join(' &middot; ') : 'NO LOCKS: NOTHING TO SOLVE';
+    if (v === 'wpn') { const rd = S.tubes.filter(x => S.t >= x).length; return `${rd}/${S.tubes.length} TUBES READY &middot; MAG ${S.mag.total}/${S.mag.max} &middot; PRESET ${A().salvo.name.toUpperCase()} &middot; PD ${S.pd.toUpperCase()}`; }
+    if (v === 'str') { const left = S.route.length - S.routeI; return (S.posture === 'route' && left ? `ON PLAN, ${left} WAYPOINT${left > 1 ? 'S' : ''} LEFT` : S.posture === 'still' ? 'HOLDING POSITION' : String(S.posture).toUpperCase()) + ' &middot; DRIVE ' + E.SPEED[S.speed].label.toUpperCase(); }
+    if (v === 'eng') { const r = E.heatRate(S); return `SINK ${pct(S.sink.h)} ${S.vent.on ? 'VENTING' : r > 0.0003 ? 'FILLING' : r < -0.0003 ? 'DRAINING' : 'STEADY'} &middot; FINS ${S.vent.on ? 'OUT' : 'IN'} &middot; SIGNATURE ${(S.heat || 'cold').toUpperCase()}`; }
+    if (v === 'dmg') return `HULL ${Math.round(S.hull)}% &middot; SYSTEMS ${pct(S.sysEff)} &middot; PRIORITY ${(S.dmgPriority || 'sink').toUpperCase()}`;
+    return 'LISTENING &middot; NOTHING ON THE LINK';
+  }
+  function banner(v, V, mode) {
+    const who = crewName(V.who[0]).toUpperCase();
+    if (mode === 'auto') return `<b class="bm a">AUTO &middot; READ-ONLY</b><span>${who}: ${activity(v)}</span>`;
+    if (mode === 'hands-on') return `<b class="bm h">HANDS-ON &middot; CONTROLS LIVE</b><span>${who} ACKS YOUR ORDERS &middot; ${activity(v)}</span>`;
+    const c = M() ? M().pending().find(x => V.st.includes(x.station) && x.opts) : null;
+    if (!c) return `<b class="bm s">SUPERVISED</b><span>${who}: NO RECOMMENDATION PENDING &middot; ${activity(v)}</span>`;
+    const rec = M().defaultIndex(c);
+    return `<b class="bm s">SUPERVISED &middot; ${who} RECOMMENDS</b><span class="rl">${esc(c.line)}</span>` + c.opts.slice(0, 4).map((o, i) => `<button class="bchip${i === rec ? ' rec' : ''}" data-a="answer" data-arg="${c.id}:${i}">${i === rec ? '&#10003; APPROVE: ' : ''}${esc(o.label)}</button>`).join('');
+  }
+  function msgLine(v) {
+    const m = M(); if (!m) return ''; const V = VIEWS[v], os = m.orders; let o = null;
+    for (let i = os.length - 1; i >= 0; i--) if (V.st.includes(os[i].station)) { o = os[i]; break; }
+    if (!o) o = os[os.length - 1];
+    if (!o) return '<span class="ml-k">ORDERS</span><span class="ml-t">NO ORDERS YET</span>';
+    const who = crewName(o.officer).toUpperCase(), lab = esc(Stations.captainLine(o.label).replace(/\.$/, '')).toUpperCase(), stg = ['issued', 'acked', 'executing', 'reported'], si = stg.indexOf(o.stage);
+    const by = o.by === 'co' ? 'CAPTAIN' : o.by === 'doctrine' ? 'DOCTRINE' : 'DEFAULT';
+    const txt = si === 0 ? `${by} &rarr; ${who}: ${lab}` : si === 1 ? `${who}: AYE, ${lab}` : si === 2 ? `${who}: ${lab}, EXECUTING` : `${who}: ${lab}, DONE`;
+    return `<span class="ml-k">LAST ORDER</span><span class="ml-t">${txt}</span><span class="ml-s">${['ISSUED', 'ACKED', 'EXEC', 'DONE'].map((x, i) => `<i class="${i < si ? 'p' : i === si ? 'c' : ''}">${x}</i>`).join('')}</span>`;
+  }
+
+  // ---------- input ----------
+  function onDown(e) {
+    const tb = e.target.closest('[data-tab]'); if (tb) { e.preventDefault(); tab[view] = tb.dataset.tab; mainKey = ''; render(); return; }
+    const b = e.target.closest('button[data-a],[data-sel],button[data-dk]'); if (!b || b.disabled) { down = true; return; }
+    e.preventDefault(); act(b);
+  }
+  function act(b) {
+    if (!S || S.over) return;
+    if (b.dataset.sel != null) { selId = +b.dataset.sel; mainKey = ''; uiUpdate(true); render(); return; }
+    if (b.dataset.dk) { if (!live()) return; DECK.panelAct(b.dataset.dk, b.dataset.arg); mainKey = ''; render(); return; }
+    const a = b.dataset.a, arg = b.dataset.arg;
+    if (a === 'mode') { cycleMode(view); return; }
+    if (a === 'answer') { const [id, i] = arg.split(':').map(Number); M() && M().answer(id, i); render(); return; }
+    if (a === 'tab') { tab[view] = arg; mainKey = ''; render(); return; }
+    const pg = PAGES[view]; if (pg && pg.act) { if (b.classList.contains('ro')) return; pg.act(a, arg, b); mainKey = ''; uiUpdate(true); render(); }
+  }
+  function cycleMode(v) {
+    const m = M(); if (!m || !VIEWS[v]) return; const cur = modeOf(v), nx = MODES[(MODES.indexOf(cur) + 1) % 3];
+    VIEWS[v].st.forEach(k => { m.setAutonomy(k, nx); if (DECK.cfg) DECK.cfg.autonomy[k] = nx; }); DECK.saveCfg && DECK.saveCfg(); mainKey = ''; render();
+  }
+  function softkey(i) { if (!on || !VIEWS[view]) return false; const o = curSoft[i]; if (!o) return false; const b = document.querySelector(`#ss-sk [data-sk="${i}"]`); if (b && !b.disabled) act(b); return true; }
+
+  return { on, build, frame, softkey, render, cycleMode, PAGES, VIEWS, tab, helpers: { key, panel, stub, pct, brg, obsPos, quality, esc, live, modeOf },
+    ackAll: () => { if (P) { P.ackAll(); annT = 0; } }, get ann() { return annOut; }, annUpdate, get audio() { return actx ? actx.state : 'none'; } };
+})();
+
+/* ===== Station pages (docs/station_screens.md s3): what each F-key screen shows inside the frame of web/station_screens.js.
+ * Each page: { tabs: [[id, label]], render(tab, ctx) -> html, soft(tab, ctx) -> softkeys, act(action, arg) }. Inlined after station_screens.js.
+ */
+(() => {
+  if (typeof SCREENS === 'undefined' || !SCREENS.on) return;
+  const { PAGES, VIEWS } = SCREENS;
+  // interim: the call deck's flat panels inside the frame (replaced station by station)
+  const interim = v => ({ tabs: [['main', VIEWS[v].name]], render: () => `<div class="ss-int">${DECK.panelHtml(v)}</div>`, soft: () => [] });
+  ['sen', 'fc', 'wpn', 'eng', 'dmg', 'com'].forEach(v => { PAGES[v] = interim(v); });
+  PAGES.str = { tabs: [['plan', 'ROUTE']], render: () => '<div class="ss-mapgap"></div>', soft: () => [] };
 })();
 
 layout(); try { new ResizeObserver(() => layout()).observe($('scopebox')); } catch (e) {} addEventListener('load', layout); start(); requestAnimationFrame(frame);
