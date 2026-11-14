@@ -33,6 +33,16 @@ Today speed is a continuous setting (five rungs plus Redline) and heat comes fro
 - **Why this works for the story:** the captain's best tool becomes patience; the expensive decisions (course changes) happen on the captain's order, which is where the command model lives.
 - **Risk:** this changes the balance tables (hunts today are won by pinging and firing, with plenty of free manoeuvre). Re-run the 240-hunt bots and re-tune enemy `cunning`. Hunts will be slower and tenser.
 
+### 2.1a DECISION (Dave, 2026-11-14): full Newtonian, not the Burn surcharge
+Dave chose **full Newtonian motion**: a ship keeps its velocity until it burns. This supersedes the "burn surcharge on top of continuous speed" version in 2.1 (the Burn *event* idea still applies, now as the only way velocity changes). Consequences to design before building:
+- **Coasting is free and quiet** (reactor heat only, no plume). **Thrust is the only cost**: a burn adds heat and a visibility flare proportional to the change in velocity (delta-v). Redline is a long, hard burn.
+- **The five speed rungs go away** as a speed setting. Replace with *burn orders* (set a heading and a delta-v or a target velocity) and *thrust levels* (gentle, firm, hard: more delta-v per minute, a bigger flare).
+- **A coasting ship is predictable.** Anyone who has a track can extrapolate it, so tracks are easy to hold on a coaster and every burn is a *break in the track* (this is exactly "a course change should feel like a big deal"). It also changes firing solutions (lead is simple for coasters) and the hunter's search (they search where a ship *can* be after a burn).
+- **Hold still** means cancelling velocity (a burn) and then coasting at about zero relative speed; it is the quietest state and the costliest to reach.
+- **Planned paths become manoeuvre plans**: straight coasting legs joined by burn nodes (as in the mock-ups), each node showing delta-v, heat and flare, previewed before commit.
+- **Likely a propellant or delta-v budget**: DECIDE whether burns also spend reaction mass (a hard limit that forces choices) or only heat and visibility.
+- **Rewrite scope:** the speed ladder, `exposure`, navigation menus, enemy movement and search, the tutorial and every balance table. This is the largest item in this plan, so it needs its own design pass and a prototype before the engine changes.
+
 ### 2.2 The Wake: a lingering signature
 - A burn leaves a **wake knot** at the place and moment it happened: position, vector, age, size. Knots spread and fade (the plume cloud), with a lifetime of several game minutes.
 - **A searcher detects a wake only by passing through it or sensing it with a probe-like sensor**, and then learns where we *were*, our approximate vector and speed, and how old it is. It does not give a current position; it gives a lead, which is how real trail-following works.
@@ -134,7 +144,7 @@ Tests at every step: the bots (`tests/tutorial_bots.py`, `tests/hunt_pages.py`, 
 
 ## 6. DECIDE (Dave)
 1. **Scope:** polar scope first (A), true 3D (B), or flat map with new colours (C)? Recommend A.
-2. **Manoeuvre model:** the Burn (steady cheap, change loud) or full Newtonian? Recommend the Burn.
-3. **Order:** mock-up first (Phase 0), or straight into the colours and Burn in the live console?
+2. ~~Manoeuvre model~~ **Decided: full Newtonian** (2.1a). Open: propellant budget or heat-and-flare only?
+3. ~~Order~~ **Decided: mock-up first.** Done: `design/mockups/scope_A_polar.png`, `scope_B_3d.png`, `scope_C_flat.png` (page `scope_mock.html?m=A|B|C`). Dave is choosing between them.
 4. **Wake:** a separate later phase, or part of the first pass?
 5. **Transponder:** can the captain ever broadcast?
