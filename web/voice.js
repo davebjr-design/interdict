@@ -18,7 +18,7 @@
  */
 (function (root) {
   'use strict';
-  const S = { enabled: true, rate: 1, volume: 1, maxQueue: 6, subtitle: null };
+  const S = { enabled: true, rate: 1, volume: 1, captain: 'm', maxQueue: 6, subtitle: null };   // captain: 'm' or 'f' picks the player's voice
   // pitch 0.1-2, rate 0.1-10 (kept near 1). prefer: substrings of voice names, tried in order; gender is a soft hint.
   const WHO = {
     Quill:     { pitch: 1.25, rate: 1.08, gender: 'f', prefer: ['Samantha', 'Google UK English Female', 'Zira', 'Aria'] },
@@ -28,6 +28,7 @@
     Fenwick:   { pitch: 0.85, rate: 0.92, gender: 'm', prefer: ['Fred', 'Tom', 'James'] },
     Pell:      { pitch: 0.55, rate: 0.85, gender: 'f', prefer: ['Moira', 'Tessa', 'Libby', 'Susan'] },
     Ostrow:    { pitch: 0.80, rate: 0.95, gender: 'm', prefer: ['Daniel', 'Oliver', 'George'] },
+    Captain:   { pitch: 0.80, rate: 1.00, gender: 'm', prefer: ['Daniel', 'Alex', 'Google UK English Male'] },
     Ames:      { pitch: 1.10, rate: 1.05, gender: 'm', prefer: ['Aaron', 'Evan', 'Nathan'] },
     Dunne:     { pitch: 1.05, rate: 1.00, gender: 'f', prefer: ['Victoria', 'Allison', 'Ava'] },
     default:   { pitch: 1.00, rate: 1.00, gender: '',  prefer: [] }
@@ -40,7 +41,7 @@
     try { const v = JSON.parse(localStorage.getItem('interdict.voice') || 'null'); if (v && typeof v === 'object') Object.assign(S, v); } catch (e) {}
   }
   function save() {
-    try { localStorage.setItem('interdict.voice', JSON.stringify({ enabled: S.enabled, rate: S.rate, volume: S.volume })); } catch (e) {}
+    try { localStorage.setItem('interdict.voice', JSON.stringify({ enabled: S.enabled, rate: S.rate, volume: S.volume, captain: S.captain })); } catch (e) {}
   }
   function synth() { return root.speechSynthesis && root.SpeechSynthesisUtterance ? root.speechSynthesis : null; }
   function words(t) { return String(t).trim().split(/\s+/).filter(Boolean).length; }
@@ -78,7 +79,7 @@
     const rate = (job.profile.rate || 1) * S.rate;
     try { job.onStart && job.onStart(); } catch (e) {}
     if (S.subtitle) try { S.subtitle(job); } catch (e) {}
-    const clip = job.id && clips[job.id];
+    const clip = job.id && (job.who === 'Captain' ? clips[job.id + '_' + S.captain] : clips[job.id]);   // the captain has a male and a female take of every line
     if (S.enabled && clip && S.volume > 0 && root.Audio) {   // pre-rendered neural line (tools/tts/render.py)
       const t0 = Date.now(); let done = false; const end = ok => { if (!done) { done = true; finish(job, ok); } };
       try {

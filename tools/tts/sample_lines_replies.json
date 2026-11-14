@@ -1,0 +1,287 @@
+[
+ {
+  "id": "cap_quill_new_thermal_0_m",
+  "who": "CaptainM",
+  "text": "Isolate and classify."
+ },
+ {
+  "id": "cap_quill_new_thermal_0_f",
+  "who": "CaptainF",
+  "text": "Isolate and classify."
+ },
+ {
+  "id": "ack_quill_new_thermal_0",
+  "who": "Quill",
+  "text": "Aye. Isolating and classifying."
+ },
+ {
+  "id": "cap_quill_new_thermal_1_m",
+  "who": "CaptainM",
+  "text": "Mark it and continue."
+ },
+ {
+  "id": "cap_quill_new_thermal_1_f",
+  "who": "CaptainF",
+  "text": "Mark it and continue."
+ },
+ {
+  "id": "ack_quill_new_thermal_1",
+  "who": "Quill",
+  "text": "Marked. Continuing the sweep."
+ },
+ {
+  "id": "cap_quill_new_thermal_2_m",
+  "who": "CaptainM",
+  "text": "Ignore it."
+ },
+ {
+  "id": "cap_quill_new_thermal_2_f",
+  "who": "CaptainF",
+  "text": "Ignore it."
+ },
+ {
+  "id": "ack_quill_new_thermal_2",
+  "who": "Quill",
+  "text": "Ignoring."
+ },
+ {
+  "id": "cap_abara_range_0_m",
+  "who": "CaptainM",
+  "text": "Give me the baseline."
+ },
+ {
+  "id": "cap_abara_range_0_f",
+  "who": "CaptainF",
+  "text": "Give me the baseline."
+ },
+ {
+  "id": "ack_abara_range_0",
+  "who": "Abara",
+  "text": "Aye. Taking a leg to range her."
+ },
+ {
+  "id": "cap_abara_range_1_m",
+  "who": "CaptainM",
+  "text": "Hold silent. Stay cold."
+ },
+ {
+  "id": "cap_abara_range_1_f",
+  "who": "CaptainF",
+  "text": "Hold silent. Stay cold."
+ },
+ {
+  "id": "ack_abara_range_1",
+  "who": "Abara",
+  "text": "Holding silent."
+ },
+ {
+  "id": "cap_abara_range_2_m",
+  "who": "CaptainM",
+  "text": "Wait."
+ },
+ {
+  "id": "cap_abara_range_2_f",
+  "who": "CaptainF",
+  "text": "Wait."
+ },
+ {
+  "id": "ack_abara_range_2",
+  "who": "Abara",
+  "text": "Standing by."
+ },
+ {
+  "id": "cap_castellan_hot_0_m",
+  "who": "CaptainM",
+  "text": "Burn as ordered."
+ },
+ {
+  "id": "cap_castellan_hot_0_f",
+  "who": "CaptainF",
+  "text": "Burn as ordered."
+ },
+ {
+  "id": "ack_castellan_hot_0",
+  "who": "Castellan",
+  "text": "Burning as ordered. She will run hot."
+ },
+ {
+  "id": "cap_castellan_hot_1_m",
+  "who": "CaptainM",
+  "text": "Shorter burn."
+ },
+ {
+  "id": "cap_castellan_hot_1_f",
+  "who": "CaptainF",
+  "text": "Shorter burn."
+ },
+ {
+  "id": "ack_castellan_hot_1",
+  "who": "Castellan",
+  "text": "Shorter burn. Aye."
+ },
+ {
+  "id": "cap_castellan_hot_2_m",
+  "who": "CaptainM",
+  "text": "Abort the burn."
+ },
+ {
+  "id": "cap_castellan_hot_2_f",
+  "who": "CaptainF",
+  "text": "Abort the burn."
+ },
+ {
+  "id": "ack_castellan_hot_2",
+  "who": "Castellan",
+  "text": "Burn aborted."
+ },
+ {
+  "id": "cap_dace_vent_0_m",
+  "who": "CaptainM",
+  "text": "Vent now."
+ },
+ {
+  "id": "cap_dace_vent_0_f",
+  "who": "CaptainF",
+  "text": "Vent now."
+ },
+ {
+  "id": "ack_dace_vent_0",
+  "who": "Dace",
+  "text": "Venting now."
+ },
+ {
+  "id": "cap_dace_vent_1_m",
+  "who": "CaptainM",
+  "text": "Hold. We will risk it."
+ },
+ {
+  "id": "cap_dace_vent_1_f",
+  "who": "CaptainF",
+  "text": "Hold. We will risk it."
+ },
+ {
+  "id": "ack_dace_vent_1",
+  "who": "Dace",
+  "text": "Holding. Watching the sink."
+ },
+ {
+  "id": "cap_dace_vent_2_m",
+  "who": "CaptainM",
+  "text": "Cut thrust."
+ },
+ {
+  "id": "cap_dace_vent_2_f",
+  "who": "CaptainF",
+  "text": "Cut thrust."
+ },
+ {
+  "id": "ack_dace_vent_2",
+  "who": "Dace",
+  "text": "Thrust cut."
+ },
+ {
+  "id": "cap_abara_vampire_0_m",
+  "who": "CaptainM",
+  "text": "Go active."
+ },
+ {
+  "id": "cap_abara_vampire_0_f",
+  "who": "CaptainF",
+  "text": "Go active."
+ },
+ {
+  "id": "ack_abara_vampire_0",
+  "who": "Abara",
+  "text": "Point defence active."
+ },
+ {
+  "id": "cap_abara_vampire_1_m",
+  "who": "CaptainM",
+  "text": "Stay cold."
+ },
+ {
+  "id": "cap_abara_vampire_1_f",
+  "who": "CaptainF",
+  "text": "Stay cold."
+ },
+ {
+  "id": "ack_abara_vampire_1",
+  "who": "Abara",
+  "text": "Point defence cold. Holding."
+ },
+ {
+  "id": "cap_pell_offer_0_m",
+  "who": "CaptainM",
+  "text": "Do it, Pell."
+ },
+ {
+  "id": "cap_pell_offer_0_f",
+  "who": "CaptainF",
+  "text": "Do it, Pell."
+ },
+ {
+  "id": "ack_pell_offer_0",
+  "who": "Pell",
+  "text": "Understood. Taking the sensors."
+ },
+ {
+  "id": "cap_pell_offer_1_m",
+  "who": "CaptainM",
+  "text": "Not yet."
+ },
+ {
+  "id": "cap_pell_offer_1_f",
+  "who": "CaptainF",
+  "text": "Not yet."
+ },
+ {
+  "id": "ack_pell_offer_1",
+  "who": "Pell",
+  "text": "Understood, Captain."
+ },
+ {
+  "id": "cap_fenwick_breach_0_m",
+  "who": "CaptainM",
+  "text": "Save the sink."
+ },
+ {
+  "id": "cap_fenwick_breach_0_f",
+  "who": "CaptainF",
+  "text": "Save the sink."
+ },
+ {
+  "id": "ack_fenwick_breach_0",
+  "who": "Fenwick",
+  "text": "Aye. Sink first."
+ },
+ {
+  "id": "cap_fenwick_breach_1_m",
+  "who": "CaptainM",
+  "text": "Save the drive."
+ },
+ {
+  "id": "cap_fenwick_breach_1_f",
+  "who": "CaptainF",
+  "text": "Save the drive."
+ },
+ {
+  "id": "ack_fenwick_breach_1",
+  "who": "Fenwick",
+  "text": "Drive first. On it."
+ },
+ {
+  "id": "cap_fenwick_breach_2_m",
+  "who": "CaptainM",
+  "text": "Seal it and sacrifice the stores."
+ },
+ {
+  "id": "cap_fenwick_breach_2_f",
+  "who": "CaptainF",
+  "text": "Seal it and sacrifice the stores."
+ },
+ {
+  "id": "ack_fenwick_breach_2",
+  "who": "Fenwick",
+  "text": "Sealing the stores."
+ }
+]

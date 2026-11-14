@@ -167,3 +167,9 @@ The hunt is real time, but **the player never loses more than they can bear to a
 - **Browser speech is not reliable enough to carry the dialogue.** In headless Chrome it fails with `synthesis-failed`; the first version let a failed line end instantly, so chips appeared with no sound. Fixed (a failed line now takes its natural length), but quality and availability still vary by device.
 - **Recommended pipeline: pre-rendered neural voice (Piper).** `tools/tts/render.py` turns a lines file into mp3 clips plus a manifest, re-rendering only changed lines; casting lives in `tools/tts/cast.json`; `voice.js` plays a clip when one exists (`Voice.loadClips`), else browser speech, else timed text. Measured: 0.2-2 s CPU per line, about 30 KB per 4-second line (1,000 lines is about 30 MB). One multi-speaker model offers 904 voices for casting (audition grid in `web/voice_demo.html`).
 - **Limits:** still synthetic; dynamic numbers (bearings, ranges) need digit clips or templates; a human or paid voice service is a later upgrade for key scenes with no code change.
+
+### 8.2 The captain's voice (2026-11-14)
+- When the player picks a chip, **the captain speaks the order**, the officer **repeats it back**, then the order executes (stations doc s2.3). Lines are `cap_<call>_<n>_m|f` and `ack_<call>_<n>`.
+- The captain has **a male (deep) and a female take of every line** (setting `Voice.set({captain:'m'|'f'})`), so the player's character is not fixed by the engine. Casting: speaker 105 (about 98 Hz) and 77 (about 170 Hz) of the 904-voice model; placeholders until Dave auditions.
+- Cost: every captain line is rendered twice. At about 30 KB per line that is cheap, but it doubles the captain's script; keep captain replies short.
+- Open: does the captain's gender also change what crew say ("Skipper", "Captain", the "Atta girl" line), which is already an open item.

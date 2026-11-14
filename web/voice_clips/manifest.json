@@ -47,5 +47,404 @@
   "text": "Skipper, breach in aft stores and a fire. Which first, the sink or the drive?",
   "ms": 4562,
   "key": "54ac42278673"
+ },
+ "cap_quill_new_thermal_0_m": {
+  "file": "cap_quill_new_thermal_0_m.mp3",
+  "who": "CaptainM",
+  "text": "Isolate and classify.",
+  "ms": 1648,
+  "key": "85804f84c297"
+ },
+ "cap_quill_new_thermal_0_f": {
+  "file": "cap_quill_new_thermal_0_f.mp3",
+  "who": "CaptainF",
+  "text": "Isolate and classify.",
+  "ms": 1462,
+  "key": "d2008962445c"
+ },
+ "ack_quill_new_thermal_0": {
+  "file": "ack_quill_new_thermal_0.mp3",
+  "who": "Quill",
+  "text": "Aye. Isolating and classifying.",
+  "ms": 2160,
+  "key": "005baa5d7fb0"
+ },
+ "cap_quill_new_thermal_1_m": {
+  "file": "cap_quill_new_thermal_1_m.mp3",
+  "who": "CaptainM",
+  "text": "Mark it and continue.",
+  "ms": 1044,
+  "key": "a4c3e41efa1a"
+ },
+ "cap_quill_new_thermal_1_f": {
+  "file": "cap_quill_new_thermal_1_f.mp3",
+  "who": "CaptainF",
+  "text": "Mark it and continue.",
+  "ms": 1346,
+  "key": "f867dcf298c8"
+ },
+ "ack_quill_new_thermal_1": {
+  "file": "ack_quill_new_thermal_1.mp3",
+  "who": "Quill",
+  "text": "Marked. Continuing the sweep.",
+  "ms": 2000,
+  "key": "d6a8e720948d"
+ },
+ "cap_quill_new_thermal_2_m": {
+  "file": "cap_quill_new_thermal_2_m.mp3",
+  "who": "CaptainM",
+  "text": "Ignore it.",
+  "ms": 580,
+  "key": "0c032fbdccb9"
+ },
+ "cap_quill_new_thermal_2_f": {
+  "file": "cap_quill_new_thermal_2_f.mp3",
+  "who": "CaptainF",
+  "text": "Ignore it.",
+  "ms": 731,
+  "key": "a8baca1a0da7"
+ },
+ "ack_quill_new_thermal_2": {
+  "file": "ack_quill_new_thermal_2.mp3",
+  "who": "Quill",
+  "text": "Ignoring.",
+  "ms": 768,
+  "key": "30c752517c96"
+ },
+ "cap_abara_range_0_m": {
+  "file": "cap_abara_range_0_m.mp3",
+  "who": "CaptainM",
+  "text": "Give me the baseline.",
+  "ms": 1068,
+  "key": "ee92de26c70a"
+ },
+ "cap_abara_range_0_f": {
+  "file": "cap_abara_range_0_f.mp3",
+  "who": "CaptainF",
+  "text": "Give me the baseline.",
+  "ms": 1126,
+  "key": "888c6ef666c3"
+ },
+ "ack_abara_range_0": {
+  "file": "ack_abara_range_0.mp3",
+  "who": "Abara",
+  "text": "Aye. Taking a leg to range her.",
+  "ms": 2066,
+  "key": "54ccebc1413f"
+ },
+ "cap_abara_range_1_m": {
+  "file": "cap_abara_range_1_m.mp3",
+  "who": "CaptainM",
+  "text": "Hold silent. Stay cold.",
+  "ms": 1497,
+  "key": "e13064bd3105"
+ },
+ "cap_abara_range_1_f": {
+  "file": "cap_abara_range_1_f.mp3",
+  "who": "CaptainF",
+  "text": "Hold silent. Stay cold.",
+  "ms": 1973,
+  "key": "687b5b5e3d00"
+ },
+ "ack_abara_range_1": {
+  "file": "ack_abara_range_1.mp3",
+  "who": "Abara",
+  "text": "Holding silent.",
+  "ms": 998,
+  "key": "b35f71acfbc3"
+ },
+ "cap_abara_range_2_m": {
+  "file": "cap_abara_range_2_m.mp3",
+  "who": "CaptainM",
+  "text": "Wait.",
+  "ms": 417,
+  "key": "c82f2ef47215"
+ },
+ "cap_abara_range_2_f": {
+  "file": "cap_abara_range_2_f.mp3",
+  "who": "CaptainF",
+  "text": "Wait.",
+  "ms": 545,
+  "key": "5ba4deaf2963"
+ },
+ "ack_abara_range_2": {
+  "file": "ack_abara_range_2.mp3",
+  "who": "Abara",
+  "text": "Standing by.",
+  "ms": 882,
+  "key": "b957560d75e1"
+ },
+ "cap_castellan_hot_0_m": {
+  "file": "cap_castellan_hot_0_m.mp3",
+  "who": "CaptainM",
+  "text": "Burn as ordered.",
+  "ms": 777,
+  "key": "d6e602ae9e37"
+ },
+ "cap_castellan_hot_0_f": {
+  "file": "cap_castellan_hot_0_f.mp3",
+  "who": "CaptainF",
+  "text": "Burn as ordered.",
+  "ms": 882,
+  "key": "ec4308dc409f"
+ },
+ "ack_castellan_hot_0": {
+  "file": "ack_castellan_hot_0.mp3",
+  "who": "Castellan",
+  "text": "Burning as ordered. She will run hot.",
+  "ms": 2928,
+  "key": "7e799dac0ddf"
+ },
+ "cap_castellan_hot_1_m": {
+  "file": "cap_castellan_hot_1_m.mp3",
+  "who": "CaptainM",
+  "text": "Shorter burn.",
+  "ms": 824,
+  "key": "6dd9a82e9eaf"
+ },
+ "cap_castellan_hot_1_f": {
+  "file": "cap_castellan_hot_1_f.mp3",
+  "who": "CaptainF",
+  "text": "Shorter burn.",
+  "ms": 743,
+  "key": "b7a6efd96d2c"
+ },
+ "ack_castellan_hot_1": {
+  "file": "ack_castellan_hot_1.mp3",
+  "who": "Castellan",
+  "text": "Shorter burn. Aye.",
+  "ms": 1456,
+  "key": "d099e56a4bb4"
+ },
+ "cap_castellan_hot_2_m": {
+  "file": "cap_castellan_hot_2_m.mp3",
+  "who": "CaptainM",
+  "text": "Abort the burn.",
+  "ms": 893,
+  "key": "fc3f0a8abc9b"
+ },
+ "cap_castellan_hot_2_f": {
+  "file": "cap_castellan_hot_2_f.mp3",
+  "who": "CaptainF",
+  "text": "Abort the burn.",
+  "ms": 1126,
+  "key": "e3bf3911b8b1"
+ },
+ "ack_castellan_hot_2": {
+  "file": "ack_castellan_hot_2.mp3",
+  "who": "Castellan",
+  "text": "Burn aborted.",
+  "ms": 1344,
+  "key": "c859c14abb52"
+ },
+ "cap_dace_vent_0_m": {
+  "file": "cap_dace_vent_0_m.mp3",
+  "who": "CaptainM",
+  "text": "Vent now.",
+  "ms": 568,
+  "key": "475363c4aca5"
+ },
+ "cap_dace_vent_0_f": {
+  "file": "cap_dace_vent_0_f.mp3",
+  "who": "CaptainF",
+  "text": "Vent now.",
+  "ms": 824,
+  "key": "c11fa8c395ef"
+ },
+ "ack_dace_vent_0": {
+  "file": "ack_dace_vent_0.mp3",
+  "who": "Dace",
+  "text": "Venting now.",
+  "ms": 777,
+  "key": "002feab0e9d6"
+ },
+ "cap_dace_vent_1_m": {
+  "file": "cap_dace_vent_1_m.mp3",
+  "who": "CaptainM",
+  "text": "Hold. We will risk it.",
+  "ms": 1532,
+  "key": "4a8b138cf507"
+ },
+ "cap_dace_vent_1_f": {
+  "file": "cap_dace_vent_1_f.mp3",
+  "who": "CaptainF",
+  "text": "Hold. We will risk it.",
+  "ms": 1602,
+  "key": "6e2310d5294d"
+ },
+ "ack_dace_vent_1": {
+  "file": "ack_dace_vent_1.mp3",
+  "who": "Dace",
+  "text": "Holding. Watching the sink.",
+  "ms": 1358,
+  "key": "eca36a778dac"
+ },
+ "cap_dace_vent_2_m": {
+  "file": "cap_dace_vent_2_m.mp3",
+  "who": "CaptainM",
+  "text": "Cut thrust.",
+  "ms": 626,
+  "key": "8a96ac8636d6"
+ },
+ "cap_dace_vent_2_f": {
+  "file": "cap_dace_vent_2_f.mp3",
+  "who": "CaptainF",
+  "text": "Cut thrust.",
+  "ms": 847,
+  "key": "72a57eff3cb7"
+ },
+ "ack_dace_vent_2": {
+  "file": "ack_dace_vent_2.mp3",
+  "who": "Dace",
+  "text": "Thrust cut.",
+  "ms": 684,
+  "key": "3d51a449ad85"
+ },
+ "cap_abara_vampire_0_m": {
+  "file": "cap_abara_vampire_0_m.mp3",
+  "who": "CaptainM",
+  "text": "Go active.",
+  "ms": 801,
+  "key": "17709f6eacb2"
+ },
+ "cap_abara_vampire_0_f": {
+  "file": "cap_abara_vampire_0_f.mp3",
+  "who": "CaptainF",
+  "text": "Go active.",
+  "ms": 940,
+  "key": "6c20f566f743"
+ },
+ "ack_abara_vampire_0": {
+  "file": "ack_abara_vampire_0.mp3",
+  "who": "Abara",
+  "text": "Point defence active.",
+  "ms": 1369,
+  "key": "e5d2f72a95e0"
+ },
+ "cap_abara_vampire_1_m": {
+  "file": "cap_abara_vampire_1_m.mp3",
+  "who": "CaptainM",
+  "text": "Stay cold.",
+  "ms": 650,
+  "key": "f4610770f080"
+ },
+ "cap_abara_vampire_1_f": {
+  "file": "cap_abara_vampire_1_f.mp3",
+  "who": "CaptainF",
+  "text": "Stay cold.",
+  "ms": 1010,
+  "key": "ea5c824f4cdf"
+ },
+ "ack_abara_vampire_1": {
+  "file": "ack_abara_vampire_1.mp3",
+  "who": "Abara",
+  "text": "Point defence cold. Holding.",
+  "ms": 1834,
+  "key": "39fa68923f8c"
+ },
+ "cap_pell_offer_0_m": {
+  "file": "cap_pell_offer_0_m.mp3",
+  "who": "CaptainM",
+  "text": "Do it, Pell.",
+  "ms": 777,
+  "key": "c9dd7a56718e"
+ },
+ "cap_pell_offer_0_f": {
+  "file": "cap_pell_offer_0_f.mp3",
+  "who": "CaptainF",
+  "text": "Do it, Pell.",
+  "ms": 870,
+  "key": "d753b353c8b8"
+ },
+ "ack_pell_offer_0": {
+  "file": "ack_pell_offer_0.mp3",
+  "who": "Pell",
+  "text": "Understood. Taking the sensors.",
+  "ms": 2848,
+  "key": "418bf4b7f8a2"
+ },
+ "cap_pell_offer_1_m": {
+  "file": "cap_pell_offer_1_m.mp3",
+  "who": "CaptainM",
+  "text": "Not yet.",
+  "ms": 708,
+  "key": "9d93b117f02d"
+ },
+ "cap_pell_offer_1_f": {
+  "file": "cap_pell_offer_1_f.mp3",
+  "who": "CaptainF",
+  "text": "Not yet.",
+  "ms": 870,
+  "key": "27d01a9385d1"
+ },
+ "ack_pell_offer_1": {
+  "file": "ack_pell_offer_1.mp3",
+  "who": "Pell",
+  "text": "Understood, Captain.",
+  "ms": 1840,
+  "key": "e04a0fb3ae1e"
+ },
+ "cap_fenwick_breach_0_m": {
+  "file": "cap_fenwick_breach_0_m.mp3",
+  "who": "CaptainM",
+  "text": "Save the sink.",
+  "ms": 801,
+  "key": "410518a0c4de"
+ },
+ "cap_fenwick_breach_0_f": {
+  "file": "cap_fenwick_breach_0_f.mp3",
+  "who": "CaptainF",
+  "text": "Save the sink.",
+  "ms": 928,
+  "key": "6fa63bfe9fb6"
+ },
+ "ack_fenwick_breach_0": {
+  "file": "ack_fenwick_breach_0.mp3",
+  "who": "Fenwick",
+  "text": "Aye. Sink first.",
+  "ms": 1137,
+  "key": "c3ba8e725360"
+ },
+ "cap_fenwick_breach_1_m": {
+  "file": "cap_fenwick_breach_1_m.mp3",
+  "who": "CaptainM",
+  "text": "Save the drive.",
+  "ms": 905,
+  "key": "64b8d88ab47b"
+ },
+ "cap_fenwick_breach_1_f": {
+  "file": "cap_fenwick_breach_1_f.mp3",
+  "who": "CaptainF",
+  "text": "Save the drive.",
+  "ms": 998,
+  "key": "f61ed21abc50"
+ },
+ "ack_fenwick_breach_1": {
+  "file": "ack_fenwick_breach_1.mp3",
+  "who": "Fenwick",
+  "text": "Drive first. On it.",
+  "ms": 1335,
+  "key": "fd2b71776d33"
+ },
+ "cap_fenwick_breach_2_m": {
+  "file": "cap_fenwick_breach_2_m.mp3",
+  "who": "CaptainM",
+  "text": "Seal it and sacrifice the stores.",
+  "ms": 1904,
+  "key": "aa0fe62388e0"
+ },
+ "cap_fenwick_breach_2_f": {
+  "file": "cap_fenwick_breach_2_f.mp3",
+  "who": "CaptainF",
+  "text": "Seal it and sacrifice the stores.",
+  "ms": 2008,
+  "key": "3ddb6fe8bd83"
+ },
+ "ack_fenwick_breach_2": {
+  "file": "ack_fenwick_breach_2.mp3",
+  "who": "Fenwick",
+  "text": "Sealing the stores.",
+  "ms": 1149,
+  "key": "84788ebf5d8a"
  }
 }
