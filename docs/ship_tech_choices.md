@@ -82,17 +82,22 @@ The trick is that a retrofit gives you **the same trade-off as the designed-in v
 - **Dock time is a cost:** the Tally, the patron's clock and rivals all keep moving while you are in the yard, so a deep refit is a bet.
 - **Mix and match, the sub way:** real boats can switch pumps off and run on convection at low speed. That is a hunt-time toggle available on a hybrid loop: a ship that carries both loops, at the price of mass and a big thermal footprint. A third option for the cooling fork: **hybrid**, flexible but never best at either.
 
-## 3. Maker doctrines (the national-design-school idea, fictionalised)
+## 3. War lineages: a nod, not a system (Dave, 2026-11-13)
 
-The three makers already exist (Orrin light, Vask heavy, Halden medium). Give each a **design philosophy** so a part reads as a choice about who you trust, and so set bonuses mean something. Mapping, not copying:
+Nothing new is being built in the Quiet. **Every part on every ship is war-era**: salvaged, surplus, mended. The war was fought by several Powers (and by special-operations branches inside them), and each built to a different **design philosophy**. We do not need a tech-tree for this. We need parts to *carry a lineage*, so that players run into the differences now and then and feel the war in the hardware.
 
-| Maker | Doctrine | Tends to build | Weakness |
+- **Lineage is flavour first, a small rule second.** Each part has a lineage tag and a one-line description in that lineage's voice. The only mechanical effect is the one we already have: mixing lineages costs efficiency (friction), because the standards do not line up (power buses, coolant fittings, mounts, firmware). Matched sets get the set bonus. That is enough to make "all one lineage" a recognisable playstyle without any new tables.
+- **The existing makers are the lineages.** Keep Orrin, Vask and Halden, now read as war-era design houses (PROPOSAL: the arsenals of three Powers, or the contractors that served them) with the doctrines below. Origin tags (recon, freighter, battleship, station) stay as the hull role the part came off.
+- **Differences you meet in the field**, which is the point of the nod: a derelict's lineage is readable from its profile and heat, an inspector at a dock remarks on a mismatched fitting, a crewmate (Castellan, Abara) can say "that's a line-fleet loop, you'll hear it from a day away". Lineage becomes part of identification (section 5) and part of the dock conversation.
+
+| Lineage | War-era philosophy | Tends to build | Weakness |
 |---|---|---|---|
-| **Orrin** | Never be found: small, quiet, delicate | Compact hulls, passive sinks, ducted bells, directional dishes | Soft; loses any exchange it does not avoid |
-| **Vask** | Win the exchange: big, armoured, loud | Armoured hulls, pumped sinks, big batteries, all-round arrays | Seen from a long way off |
-| **Halden** | Make it work: cheap, adaptable, catching up | Mixed, repairable, open bells, trailed lines | Efficiency lost to mixing makers; slower to improve |
+| **Orrin** | Recon and special-operations school: never be found | Compact hulls, passive sinks, ducted bells, directional dishes, cold paint | Fragile; loses any exchange it does not avoid; hard to maintain |
+| **Vask** | Line-fleet school: win the exchange | Armoured hulls, pumped sinks, heavy batteries, all-round arrays | Seen from a long way off; thirsty |
+| **Halden** | Logistics and station school: make it work and keep it working | Mixed, repairable, open bells, trailed lines | Efficiency lost to mixing; rarely the best at anything |
 
-The existing friction rule (extra makers or origins cost efficiency) then models what real navies find: mixing a Western quiet reactor with a Russian hull gets you neither.
+- **Special operations** deserve a lineage of their own (DECIDE whether to add a fourth, possibly unnamed): exotic, extremely quiet or extremely lethal, short service life, hard to repair, and very often AI-touched. They are the natural source of the best-and-riskiest parts in section 4.
+- **No faction story required.** The Powers need no names, maps or politics beyond what `universe_background.md` already says. A lineage is a taste of the war, not a faction the player joins.
 
 ## 4. The Clean axis: the best option is always AI-touched
 
@@ -134,4 +139,4 @@ If enemies use the same menu, the identification work we just taught becomes ric
 3. Do we want heading-dependent sensors (2.4), or keep sensors all-round and let the choice be range vs warning time?
 4. How many fittings can a ship hold: the existing four slots, plus one **hull** and one **crew mode** slot, for six choices total? (Under 2a the hull is the frame and is not fitted, so it may be four slots plus the crew mode.)
 5b. Frame: do we ever let the player acquire a second hull (and so a new frame), or stay on Corvane's ship for the whole campaign? Recommend one frame-change moment late, as a story beat.
-5. Do maker doctrines (section 3) read as intended, or is the "national school" mapping too close to real navies?
+5. Do the lineages (section 3) read as intended as war-era design philosophies, and do you want a fourth, special-operations lineage?
