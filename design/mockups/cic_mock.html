@@ -1,0 +1,188 @@
+<!doctype html><html><head><meta charset="utf-8"><title>CIC mock-up</title>
+<style>
+:root{--bg:#050b09;--line:#1d3a34;--txt:#b9d3c9;--dim:#6f8f85;--amber:#e8a33a;--teal:#35d3c8}
+html,body{margin:0;height:100%;background:var(--bg);overflow:hidden;font:13px/1.35 ui-monospace,Consolas,monospace;color:var(--txt)}
+canvas#gl{display:block;width:100vw;height:100vh}
+.box{position:fixed;background:rgba(8,20,18,.86);border:1px solid var(--line);padding:9px 12px}
+#tier{right:14px;top:14px;text-align:right}#tier b{color:var(--amber);letter-spacing:.12em}
+#keys{left:14px;top:14px}#keys .k{color:var(--amber);display:inline-block;min-width:62px}
+#cap{left:50%;transform:translateX(-50%);bottom:16px;width:760px;border-color:#7a5a1d}
+#cap .n{color:var(--amber);font-weight:bold;letter-spacing:.08em}#cap .l{font-size:16px;margin:3px 0 7px}
+.chip{display:inline-block;border:1px solid #3b7a8a;padding:3px 9px;margin-right:8px;border-radius:3px}.chip b{color:var(--amber)}.chip.r{border-color:var(--amber)}
+#state{left:14px;bottom:16px;max-width:370px;color:var(--dim)}
+</style></head><body><canvas id="gl"></canvas>
+<div class="box" id="keys"></div><div class="box" id="tier"></div><div class="box" id="cap"></div><div class="box" id="state"></div>
+<script src="three.min.js"></script><script src="GLTFLoader.js"></script>
+<script>
+'use strict';
+const Q = new URLSearchParams(location.search), SHOT = Q.get('shot') || 'room_free';
+const GLB = '../assets/meshy_output/crew/captain2/walk.glb';
+const BRACE = /brace/.test(SHOT);
+const cv = document.getElementById('gl');
+const R = new THREE.WebGLRenderer({ canvas: cv, antialias: true, preserveDrawingBuffer: true });
+R.setPixelRatio(1); R.outputEncoding = THREE.sRGBEncoding; R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = 1.25;
+R.shadowMap.enabled = true; R.shadowMap.type = THREE.PCFSoftShadowMap; R.setClearColor(0x040807);
+const S = new THREE.Scene(); S.fog = new THREE.Fog(0x040807, 9, 22);
+const cam = new THREE.PerspectiveCamera(40, 16 / 9, 0.05, 80);
+const mat = (c, r = .7, m = .3, e, ei) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m, emissive: e || 0x000000, emissiveIntensity: ei || 0 });
+const M = { floor: mat(0x1b2624, .8, .35), wall: mat(0x20302c, .7, .3), trim: mat(0x0f3a35, .5, .6), con: mat(0x2b3836, .55, .5), dark: mat(0x111918, .6, .4), pad: mat(0x28332f, .9, .1), strap: mat(0xd2561c, .8, 0), metal: mat(0x9aa7a3, .35, .9), rail: mat(0xd9b22e, .5, .6), table: mat(0x1c2927, .5, .5) };
+function box(w, h, d, m, x, y, z, p) { const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); o.position.set(x || 0, y || 0, z || 0); o.castShadow = o.receiveShadow = true; (p || S).add(o); return o; }
+function cyl(r1, r2, h, m, x, y, z, p, seg) { const o = new THREE.Mesh(new THREE.CylinderGeometry(r1, r2, h, seg || 24), m); o.position.set(x || 0, y || 0, z || 0); o.castShadow = o.receiveShadow = true; (p || S).add(o); return o; }
+function limb(a, b, r, m, p) { const A = new THREE.Vector3(...a), B = new THREE.Vector3(...b), d = B.clone().sub(A), L = d.length(); const o = new THREE.Mesh(new THREE.CylinderGeometry(r, r * .9, L, 10), m); o.position.copy(A).add(B).multiplyScalar(.5); o.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize()); o.castShadow = true; p.add(o); return o; }
+
+// ---------- canvas helpers ----------
+function mk(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return [c, c.getContext('2d')]; }
+const C = { bg: '#04100e', line: '#1d4a42', txt: '#b9d3c9', dim: '#5d8a7f', amber: '#e8a33a', sus: '#4a78f0', pas: '#35d3c8', aff: '#f2d03b', hos: '#ff4a3d', ok: '#3fd38a' };
+function frame(g, W, H, title, accent, sub) {
+  g.fillStyle = C.bg; g.fillRect(0, 0, W, H);
+  g.fillStyle = accent + '33'; g.fillRect(0, 0, W, 54); g.fillStyle = accent; g.font = 'bold 30px monospace'; g.textBaseline = 'middle'; g.fillText(title, 18, 28);
+  g.fillStyle = C.dim; g.font = '20px monospace'; g.textAlign = 'right'; g.fillText(sub || '', W - 16, 28); g.textAlign = 'left';
+  g.strokeStyle = accent + '88'; g.lineWidth = 2; g.strokeRect(2, 2, W - 4, H - 4);
+  g.fillStyle = 'rgba(0,0,0,.14)'; for (let y = 56; y < H; y += 4) g.fillRect(0, y, W, 1);
+}
+let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+function heat(v) { v = Math.max(0, Math.min(1, v)); const st = [[0, 4, 14, 40], [.35, 12, 60, 120], [.6, 20, 170, 190], [.82, 240, 210, 70], [1, 255, 90, 50]]; for (let i = 1; i < st.length; i++) if (v <= st[i][0]) { const a = st[i - 1], b = st[i], t = (v - a[0]) / (b[0] - a[0]); return `rgb(${a[1] + (b[1] - a[1]) * t | 0},${a[2] + (b[2] - a[2]) * t | 0},${a[3] + (b[3] - a[3]) * t | 0})`; } return '#fff'; }
+const SCR = {
+  contacts(g, W, H) { frame(g, W, H, 'CONTACT PICTURE', C.pas, 'F2 · Q · SENSORS · QUILL');
+    const cols = [18, 120, 330, 440, 560, 670], hd = ['TRK', 'QUALITY', 'BRG', 'RNG', 'AGE', 'CLASS']; g.font = 'bold 20px monospace'; g.fillStyle = C.dim; hd.forEach((h, i) => g.fillText(h, cols[i], 84));
+    const rows = [['S1', 'AFFIRMED', '062', '72k', '0:12', 'WARSHIP', C.aff], ['S2', 'PASSIVE', '210', '38k', '0:41', 'UNKNOWN', C.pas], ['S3', 'SUSPECT', '153', '62k', '1:20', '?', C.sus], ['R4', 'AFFIRMED', '059', '50k', '0:05', 'WARSHIP', C.hos], ['S5', 'PASSIVE', '313', '80k', '2:02', 'FREIGHTER', C.pas], ['S6', 'SUSPECT', '271', '95k', '3:30', '?', C.sus], ['G7', 'GHOST', '118', '--', '0:28', 'RULED OUT', '#55706a'], ['V8', 'VAMPIRE', '210', '12k', 'ETA 0:41', 'ORDNANCE', C.hos]];
+    g.font = '22px monospace'; rows.forEach((r, i) => { const y = 122 + i * 40; if (i === 3) { g.fillStyle = '#ffffff12'; g.fillRect(10, y - 18, W - 20, 36); } g.fillStyle = r[6]; g.fillRect(12, y - 14, 6, 28); r.slice(0, 6).forEach((t, k) => { g.fillStyle = k === 0 || k === 1 ? r[6] : C.txt; g.fillText(t, cols[k] + (k === 0 ? 14 : 0), y); }); });
+    g.fillStyle = C.dim; g.font = '18px monospace'; g.fillText('FILTER  ALL   THREAT   GHOSTS        SEARCH ___', 18, H - 22); },
+  waterfall(g, W, H) { frame(g, W, H, 'SIGNAL FUSION', '#4aa8ff', 'F2 · W · CONE 30° · ALL-ROUND');
+    const bands = ['HEAT', 'REACTOR', 'ECLIPSE'], bh = (H - 120) / 3 - 10; bands.forEach((b, bi) => { const y0 = 70 + bi * (bh + 14), x0 = 78, w = W - x0 - 18; g.fillStyle = '#4aa8ff'; g.font = 'bold 18px monospace'; g.fillText(b, 8, y0 + 14);
+      const cw = 6, ch = 6, nx = w / cw | 0, ny = bh / ch | 0; for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) { let v = .1 + rnd() * .12; const tr = [[.18, .0], [.52, .003], [.8, -.002]]; tr.forEach((t, ti) => { const bx = t[0] + t[1] * (ny - j) * 3; if (Math.abs(i / nx - bx) < .007 && (bi !== 2 || ti !== 2)) v += .55 - (ny - j) * .004 + (bi === 0 && ti === 0 ? .15 : 0); }); if (bi === 0 && j % 37 === 0) v += .35; g.fillStyle = heat(v); g.fillRect(x0 + i * cw, y0 + j * ch, cw, ch); }
+      g.strokeStyle = C.line; g.strokeRect(x0, y0, w, bh); });
+    g.fillStyle = C.dim; g.font = '16px monospace'; g.fillText('000          090          180          270          360  BEARING', 78, H - 18); },
+  tid(g, W, H) { frame(g, W, H, 'TARGET ID · S1', C.aff, 'F2 · E · AFFIRMED · 62% WARSHIP');
+    const T = (x, y, w, h, t) => { g.strokeStyle = C.line; g.strokeRect(x, y, w, h); g.fillStyle = C.dim; g.font = '16px monospace'; g.fillText(t, x + 8, y + 16); };
+    T(14, 70, 320, 250, 'HEAT SPECTRUM'); g.strokeStyle = C.ok; g.beginPath(); for (let i = 0; i < 300; i++) { const x = 24 + i, p = Math.exp(-Math.pow((i - 90) / 22, 2)) * 150 + Math.exp(-Math.pow((i - 210) / 14, 2)) * 90 + rnd() * 10; i ? g.lineTo(x, 300 - p) : g.moveTo(x, 300 - p); } g.stroke();
+    T(344, 70, 320, 250, 'REACTOR LINE'); g.strokeStyle = C.aff; [60, 110, 135, 200, 255].forEach((x, i) => { g.beginPath(); g.moveTo(364 + x, 300); g.lineTo(364 + x, 300 - [90, 160, 70, 120, 50][i]); g.stroke(); });
+    T(674, 70, 336, 250, 'ECLIPSE PROFILE'); g.strokeStyle = C.pas; g.beginPath(); g.arc(842, 205, 80, 0, 6.3); g.stroke(); g.beginPath(); for (let a = 0; a < 6.3; a += .05) { const r = 60 + 25 * Math.sin(a * 3) + 12 * Math.sin(a * 7); g.lineTo(842 + r * Math.cos(a), 205 + r * Math.sin(a)); } g.closePath(); g.strokeStyle = C.aff; g.stroke();
+    T(14, 334, 650, 330, 'LINEAGE CLUES'); g.font = '24px monospace'; g.fillStyle = C.txt; ['pumped loop, hot sink', 'armoured plating, wide bell', 'all-round array', '=> VASK line-fleet: soaks first volley', '   runs hot, hit it twice'].forEach((t, i) => { g.fillStyle = i === 3 ? C.aff : C.txt; g.fillText(t, 30, 392 + i * 44); });
+    T(674, 334, 336, 330, '3D IMAGE'); g.fillStyle = '#ffffff18'; g.fillRect(690, 368, 304, 270); g.fillStyle = C.dim; g.font = '22px monospace'; g.fillText('NO PROBE FIX', 730, 500); },
+  tma(g, W, H) { frame(g, W, H, 'TMA · FIRE CONTROL', C.ok, 'F3 · Q · S1 · SOLUTION ON');
+    const P = (x, y, w, h, t) => { g.strokeStyle = C.line; g.strokeRect(x, y, w, h); g.fillStyle = C.dim; g.font = '16px monospace'; g.fillText(t, x + 8, y + 16); };
+    P(14, 70, 500, 300, 'BEARING-TIME'); g.fillStyle = C.ok; for (let i = 0; i < 60; i++) { const x = 30 + i * 8, y = 330 - i * 3.2 + (rnd() - .5) * 26; g.fillRect(x, y, 5, 5); } g.strokeStyle = C.aff; g.beginPath(); g.moveTo(30, 340); g.lineTo(510, 140); g.stroke();
+    P(524, 70, 486, 300, 'GEOMETRY · OWN LEGS'); g.strokeStyle = C.txt; g.beginPath(); g.moveTo(560, 330); g.lineTo(720, 300); g.lineTo(840, 220); g.stroke(); g.setLineDash([8, 6]); g.strokeStyle = C.aff; g.beginPath(); g.moveTo(960, 120); g.lineTo(780, 200); g.stroke(); g.setLineDash([]);
+    P(14, 384, 500, 280, 'RANGE BAND (ALONG BEARING)'); g.fillStyle = '#35d3c840'; g.fillRect(120, 470, 300, 60); g.fillStyle = C.aff; g.fillRect(250, 450, 6, 100); g.fillStyle = C.txt; g.font = '20px monospace'; g.fillText('52 km  ±14', 130, 600);
+    P(524, 384, 486, 280, 'SOLUTION'); g.font = '26px monospace'; ['CONFIDENCE   63%', 'AGE          0:12', 'BASELINE     STUB', 'LOCK         ON'].forEach((t, i) => { g.fillStyle = i === 2 ? C.dim : C.txt; g.fillText(t, 544, 450 + i * 48); }); },
+  engage(g, W, H) { frame(g, W, H, 'ENGAGEMENT & DEFENCE', C.hos, 'F3 · W · PD ARMED · 1 VAMPIRE');
+    g.strokeStyle = C.line; g.beginPath(); g.arc(300, 380, 240, 0, 6.3); g.stroke(); g.beginPath(); g.arc(300, 380, 120, 0, 6.3); g.stroke(); [[210, 12, C.hos], [62, 72, C.aff], [153, 62, C.sus]].forEach(([b, r, c]) => { const a = (b - 90) * Math.PI / 180, d = r * 3.1; g.strokeStyle = c; g.lineWidth = 3; g.beginPath(); g.moveTo(300, 380); g.lineTo(300 + 240 * Math.cos(a), 380 + 240 * Math.sin(a)); g.stroke(); g.fillStyle = c; g.beginPath(); g.arc(300 + d * Math.cos(a), 380 + d * Math.sin(a), 8, 0, 6.3); g.fill(); }); g.lineWidth = 2;
+    g.fillStyle = C.hos; g.font = 'bold 30px monospace'; g.fillText('V8  VAMPIRE  ETA 0:41', 580, 120); g.fillStyle = C.txt; g.font = '22px monospace'; g.fillText('THEIR PICTURE OF US', 580, 190); ['S1  CLOSING', 'R4  FIRM', 'S2  AWARE'].forEach((t, i) => { g.fillStyle = [C.aff, C.hos, C.pas][i]; g.fillText(t, 580, 238 + i * 44); g.fillStyle = '#ffffff22'; g.fillRect(780, 224 + i * 44, 200, 18); g.fillStyle = [C.aff, C.hos, C.pas][i]; g.fillRect(780, 224 + i * 44, [120, 190, 60][i], 18); });
+    g.fillStyle = C.txt; g.fillText('POINT DEFENCE', 580, 420); ['OFF', 'ARMED', 'ACTIVE'].forEach((t, i) => { g.strokeStyle = i === 1 ? C.ok : C.line; g.strokeRect(580 + i * 140, 440, 125, 44); g.fillStyle = i === 1 ? C.ok : C.dim; g.fillText(t, 600 + i * 140, 470); }); g.fillStyle = C.dim; g.font = '18px monospace'; g.fillText('INTERCEPT  ARMED 30%   ACTIVE 100% (VISIBLE)', 580, 530); },
+  payload(g, W, H) { frame(g, W, H, 'PAYLOAD READINESS', '#c58cff', 'F3 · E · MAG 54/60'); g.font = '22px monospace';
+    g.fillStyle = C.txt; g.fillText('MAGAZINE', 20, 92); for (let s = 0; s < 10; s++) for (let k = 0; k < 6; k++) { g.fillStyle = s * 6 + k < 54 ? '#c58cff' : '#2a2438'; g.fillRect(20 + k * 30 + (s % 5) * 190, 112 + ((s / 5) | 0) * 56, 24, 40); }
+    g.fillStyle = C.dim; g.font = '18px monospace'; g.fillText('HE 48     EMP 6     FLARE 6', 20, 250); g.font = '22px monospace'; g.fillStyle = C.txt; g.fillText('UNMANNED · PROBE SETS (RACK OF 2)', 20, 310);
+    [['SET A · ORRIN', '4 PROBES · LASER+RADIO · QUIET', 'STOWED'], ['SET B · VASK', '6 PROBES · RADIO · LOUD', 'STOWED']].forEach((s, i) => { g.strokeStyle = C.line; g.strokeRect(20 + i * 500, 330, 480, 140); g.fillStyle = '#c58cff'; g.font = 'bold 22px monospace'; g.fillText(s[0], 36 + i * 500, 364); g.fillStyle = C.txt; g.font = '18px monospace'; g.fillText(s[1], 36 + i * 500, 400); g.fillStyle = C.dim; g.fillText(s[2] + '   DEPLOY / RECOVER  (not yet simulated)', 36 + i * 500, 440); });
+    g.fillStyle = C.txt; g.font = '22px monospace'; g.fillText('COUNTERMEASURES   FLARE 6   DECOY --', 20, 520); },
+  strike(g, W, H) { frame(g, W, H, 'STRIKE CONTROL', C.amber, 'F3 · R · PRESET AMBUSH');
+    g.font = '22px monospace'; ['AMBUSH', 'SNAP SHOT', 'PROBE', 'SATURATION'].forEach((t, i) => { g.strokeStyle = i === 0 ? C.amber : C.line; g.strokeRect(20 + i * 250, 74, 235, 48); g.fillStyle = i === 0 ? C.amber : C.dim; g.fillText(t, 40 + i * 250, 106); });
+    g.fillStyle = C.txt; ['PATTERN   SPREAD', 'RUN-TO-ENABLE  24 s', 'HOMING  ON  (EMISSION)', 'WIRE  OFF', 'WARHEAD  HE   x6'].forEach((t, i) => g.fillText(t, 24, 176 + i * 40));
+    g.fillStyle = C.dim; g.font = '18px monospace'; g.fillText('LAUNCH TIMELINE', 520, 160); g.fillStyle = '#ffffff18'; g.fillRect(520, 176, 480, 30); g.fillStyle = '#35d3c8'; g.fillRect(520, 176, 160, 30); g.fillStyle = C.amber; g.fillRect(680, 176, 140, 30); g.fillStyle = C.hos + '99'; g.fillRect(780, 170, 200, 42); g.fillStyle = C.txt; g.fillText('DARK RUN', 530, 196); g.fillText('SEEKER', 700, 196); g.fillText('ENEMY PD WINDOW', 790, 196);
+    g.fillStyle = '#5a1410'; g.fillRect(560, 330, 420, 150); g.strokeStyle = C.hos; g.lineWidth = 4; g.strokeRect(560, 330, 420, 150); g.lineWidth = 2; g.fillStyle = C.hos; g.font = 'bold 34px monospace'; g.fillText('GUARDED  FIRE', 620, 395); g.font = '20px monospace'; g.fillStyle = C.txt; g.fillText('LIFT GUARD · HOLD TO FIRE', 620, 440);
+    g.fillStyle = C.ok; g.fillText('SOLUTION  GOOD     ROE  FIRE ON SOLUTION', 24, 600); },
+  thermal(g, W, H) { frame(g, W, H, 'ENGINEERING / THERMAL', '#ff9a4a', 'F4 · Q · DACE · CASTELLAN (INTERCOM)');
+    g.strokeStyle = C.line; g.strokeRect(30, 80, 90, 500); g.fillStyle = '#ff9a4a'; g.fillRect(34, 440, 82, 136); g.fillStyle = C.dim; g.font = '18px monospace'; g.fillText('SINK 27%', 30, 600);
+    g.strokeStyle = '#ff9a4a'; g.lineWidth = 8; g.beginPath(); g.arc(380, 330, 150, 2.4, 6.9); g.stroke(); g.lineWidth = 2; g.strokeStyle = C.txt; g.beginPath(); g.moveTo(380, 330); g.lineTo(450, 220); g.stroke(); g.fillStyle = C.txt; g.font = '24px monospace'; g.fillText('HEAT RATE +4/min', 290, 520);
+    g.strokeStyle = C.line; g.strokeRect(600, 100, 400, 220); g.strokeStyle = '#ff9a4a'; g.beginPath(); g.moveTo(610, 300); g.lineTo(760, 280); g.lineTo(880, 200); g.lineTo(990, 150); g.stroke(); g.fillStyle = C.dim; g.fillText('SINK TREND', 610, 124);
+    ['VENT', 'REDLINE', 'CUT THRUST'].forEach((t, i) => { g.strokeStyle = C.line; g.strokeRect(610 + i * 130, 380, 120, 50); g.fillStyle = C.txt; g.font = '16px monospace'; g.fillText(t, 622 + i * 130, 410); }); },
+  damage(g, W, H) { frame(g, W, H, 'DAMAGE CONTROL', '#ff5a8a', 'F4 · W · FENWICK');
+    const rooms = [['BRIDGE', 60, 100, 220, 120, C.ok], ['DRIVE', 560, 100, 220, 120, C.ok], ['SINK', 310, 100, 220, 120, '#ff9a4a'], ['STORES', 60, 260, 220, 120, C.hos], ['MAG', 310, 260, 220, 120, C.ok], ['AFT', 560, 260, 220, 120, C.aff]];
+    rooms.forEach(r => { g.strokeStyle = r[5]; g.lineWidth = 3; g.strokeRect(r[1], r[2], r[3], r[4]); g.fillStyle = r[5]; g.font = '22px monospace'; g.fillText(r[0], r[1] + 14, r[2] + 36); }); g.lineWidth = 2; g.fillStyle = C.hos; g.fillText('FIRE', 80, 340); g.fillStyle = C.aff; g.fillText('BREACH', 580, 340);
+    g.fillStyle = C.txt; g.fillText('HULL 68%', 800, 140); g.fillText('REPAIR QUEUE', 800, 200); g.font = '18px monospace'; g.fillStyle = C.dim; ['1 STORES FIRE', '2 AFT BREACH', '3 SINK COOLANT'].forEach((t, i) => g.fillText(t, 800, 240 + i * 32)); },
+  comms(g, W, H) { frame(g, W, H, 'COMMS / REPORTS', '#8ad1ff', 'F4 · E · PELL ON LINE'); g.font = '22px monospace'; [['00:02', 'QUILL', 'New thermal return, Sierra 1.'], ['00:41', 'DACE', 'Running hot. Anything listening can hear us.'], ['01:10', 'ABARA', 'Solution good on Sierra 1. Tubes ready.'], ['01:12', 'CAPT', 'Hold. We will wait.'], ['01:33', 'PELL', 'I can run the sensors. It would be seen.'], ['02:05', 'COMMS', 'Ally link offered. Emission risk.']].forEach((r, i) => { g.fillStyle = C.dim; g.fillText(r[0], 20, 100 + i * 52); g.fillStyle = '#8ad1ff'; g.fillText(r[1], 110, 100 + i * 52); g.fillStyle = C.txt; g.fillText(r[2], 240, 100 + i * 52); }); }
+};
+function screenTex(name, W = 1024, H = 700) { const [c, g] = mk(W, H); seed = 7; SCR[name](g, W, H); const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; return t; }
+function annTex() { const [c, g] = mk(1536, 220); g.fillStyle = '#060d0c'; g.fillRect(0, 0, 1536, 220); const groups = [['SENSORS', ['NEW TRK', 'PING HEARD', 'TRK LOST', 'SENS FOUL']], ['FIRE CTL', ['SOL READY', 'SOL STALE', 'BRG ONLY', '']], ['WEAPONS', ['INCOMING', 'MAG LOW', 'PD ARMED', 'PD ACTIVE']], ['HELM', ['BURN', 'LINK BRK', 'COURSE', 'BRACE']], ['ENG/THRM', ['RUN HOT', 'SINK HIGH', 'VENTING', 'REDLINE']], ['DAMAGE', ['HULL', 'FIRE', 'BREACH', 'UNSECURE']]];
+  const st = BRACE ? { BRACE: 'a', 'INCOMING': 'w', 'PD ARMED': 'n', 'RUN HOT': 'c', 'NEW TRK': 'n' } : { 'NEW TRK': 'n', 'PD ARMED': 'n', 'RUN HOT': 'c', 'SOL READY': 'n', UNSECURE: 'c' };
+  groups.forEach((gr, gi) => { const x0 = 14 + gi * 252; g.fillStyle = '#6f8f85'; g.font = '16px monospace'; g.fillText(gr[0], x0, 24); gr[1].forEach((t, i) => { const x = x0 + (i % 2) * 120, y = 36 + ((i / 2) | 0) * 84; if (!t) return; const s = st[t]; const col = s === 'w' ? '#ff3b30' : s === 'c' ? '#ffb020' : s === 'a' ? '#dff6ff' : s === 'n' ? '#bfe8ff' : '#1d3a34'; g.fillStyle = s ? col + 'ee' : '#0b1816'; g.fillRect(x, y, 112, 70); g.strokeStyle = s ? col : '#1d3a34'; g.lineWidth = 2; g.strokeRect(x, y, 112, 70); g.fillStyle = s ? '#061010' : '#3b5a52'; g.font = 'bold 16px monospace'; g.textAlign = 'center'; g.fillText(t, x + 56, y + 40); g.textAlign = 'left'; }); });
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t; }
+
+// ---------- room ----------
+const floorTex = (() => { const [c, g] = mk(1024, 1024); g.fillStyle = '#1b2624'; g.fillRect(0, 0, 1024, 1024); g.strokeStyle = '#2a3b37'; g.lineWidth = 2; for (let y = 0; y < 1024; y += 64) for (let x = 0; x < 1024; x += 74) { const ox = (y / 64 % 2) * 37; g.beginPath(); for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3 + .52; g.lineTo(x + ox + 30 * Math.cos(a), y + 30 * Math.sin(a)); } g.closePath(); g.stroke(); } const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(3, 3); return t; })();
+const floor = new THREE.Mesh(new THREE.CylinderGeometry(6.2, 6.2, .2, 64), new THREE.MeshStandardMaterial({ map: floorTex, roughness: .8, metalness: .4 })); floor.position.y = -.1; floor.receiveShadow = true; S.add(floor);
+for (const r of [1.6, 3.1, 4.6]) { const t = new THREE.Mesh(new THREE.TorusGeometry(r, .018, 6, 96), new THREE.MeshStandardMaterial({ color: 0x0b3a34, emissive: 0x35d3c8, emissiveIntensity: .55 })); t.rotation.x = Math.PI / 2; t.position.y = .012; S.add(t); }
+// back wall (cutaway: open toward the camera)
+{ const w = new THREE.Mesh(new THREE.CylinderGeometry(6.0, 6.0, 3.4, 64, 1, true, Math.PI * .72, Math.PI * .56 * 2 - .0), new THREE.MeshStandardMaterial({ color: 0x1d2b28, roughness: .7, metalness: .35, side: THREE.DoubleSide })); w.position.y = 1.7; w.receiveShadow = true; S.add(w);
+  for (let i = 0; i < 14; i++) { const a = Math.PI * .72 + i * (Math.PI * 1.12) / 13; box(.16, 3.4, .16, M.trim, 5.95 * Math.sin(a + Math.PI), 1.7, 5.95 * Math.cos(a + Math.PI) * -1, S).rotation.y = -a; } }
+for (let i = 0; i < 5; i++) cyl(.07, .07, 12, mat(0x2a3a36, .5, .7), 0, 3.35 - i * .18, 0, S, 10).rotation.z = Math.PI / 2, S.children[S.children.length - 1].position.set(0, 3.3 - i * .0, -5.2 + i * .22);
+// ---------- couch + occupant ----------
+function couch(opts) { // faces -z. opts: recline (rad), strapped, suit color, occupied
+  const g = new THREE.Group(); const rec = opts.recline || 0;
+  cyl(.2, .26, .42, M.dark, 0, .21, 0, g); const ring = new THREE.Mesh(new THREE.TorusGeometry(.3, .03, 8, 32), M.metal); ring.rotation.x = Math.PI / 2; ring.position.y = .44; g.add(ring);
+  const seat = new THREE.Group(); seat.position.set(0, .52, 0); seat.rotation.x = 0; g.add(seat); // seat pan stays level; back reclines
+  box(.52, .09, .52, M.pad, 0, 0, -.02, seat); box(.6, .04, .6, M.trim, 0, -.07, -.02, seat);
+  const back = new THREE.Group(); back.position.set(0, .04, .26); back.rotation.x = rec; seat.add(back);
+  box(.52, .78, .1, M.pad, 0, .39, 0, back); box(.3, .22, .1, M.pad, 0, .9, 0, back); box(.04, .78, .12, M.strap, .2, .39, .0, back).scale.set(.4, 1, 1); box(.04, .78, .12, M.strap, -.2, .39, 0, back).scale.set(.4, 1, 1);
+  [-1, 1].forEach(s => { const arm = box(.08, .07, .5, M.pad, s * .33, .16, -.08, seat); arm.rotation.x = rec * .35; box(.07, .02, .16, mat(0x1b3a35, .4, .4, 0x35d3c8, .9), s * .33, .205, -.2, seat).rotation.x = rec * .35; box(.03, .22, .03, M.metal, s * .33, .06, .1, seat); });
+  const foot = box(.5, .05, .22, M.pad, 0, -.08 + .0, -.52 - rec * .1, seat); foot.rotation.x = -rec * .6; box(.04, .3, .04, M.metal, .15, -.2, -.38, seat); box(.04, .3, .04, M.metal, -.15, -.2, -.38, seat);
+  if (opts.occupied !== false) { const sm = mat(opts.suit || 0x3a4a63, .85, .05), skin = mat(0xc9a082, .8, 0), hair = mat(0x3a2a20, .9, 0); const torso = new THREE.Group(); back.add(torso);
+    box(.36, .5, .2, sm, 0, .38, -.15, back); box(.4, .12, .22, sm, 0, .66, -.15, back); const head = new THREE.Mesh(new THREE.SphereGeometry(.115, 20, 16), skin); head.position.set(0, .8, -.13); head.castShadow = true; back.add(head); const hr = new THREE.Mesh(new THREE.SphereGeometry(.12, 16, 12, 0, 6.3, 0, 1.6), hair); hr.position.set(0, .83, -.11); back.add(hr); box(.06, .08, .06, skin, 0, .7, -.14, back);
+    [-1, 1].forEach(s => { limb([s * .22, .64, -.15], [s * .3, .42, -.32], .045, sm, back); limb([s * .3, .42, -.32], [s * .33, .26 + rec * .1, -.46], .04, sm, back); limb([s * .1, .1, -.1], [s * .12, .12 + Math.sin(rec) * .35, -.5], .075, sm, seat); limb([s * .12, .12 + Math.sin(rec) * .35, -.5], [s * .12, -.1 - Math.sin(rec) * .1 + .08, -.62 - rec * .1], .06, mat(0x1a1f22, .8, .1), seat); });
+    // harness: shoulder straps + lap belt + buckle
+    if (opts.strapped) { [-1, 1].forEach(s => { limb([s * .14, .74, -.27], [s * .03, .2, -.28], .018, M.strap, back); }); limb([-.2, .04, -.1], [.2, .04, -.1], .02, M.strap, seat); box(.06, .06, .02, M.metal, 0, .04, -.12, seat); }
+    else { [-1, 1].forEach(s => { limb([s * .2, .76, .05], [s * .26, .2, .12], .016, M.strap, back); limb([s * .26, .06, .08], [s * .38, -.12, .0], .016, M.strap, seat); }); } }
+  else if (opts.strapped === false || !opts.strapped) { [-1, 1].forEach(s => { limb([s * .2, .76, -.06], [s * .27, .2, .0], .016, M.strap, back); limb([s * .26, .06, .0], [s * .4, -.14, -.05], .016, M.strap, seat); }); }
+  g.traverse(o => { if (o.isMesh) o.castShadow = o.receiveShadow = true; }); return g; }
+// ---------- bank ----------
+function bank(def) { const g = new THREE.Group(); const n = def.screens.length, cols = def.cols, rows = Math.ceil(n / cols), sw = 1.1, sh = .77;
+  // desk: arc of panels
+  for (let i = 0; i < cols; i++) { const a = (i - (cols - 1) / 2) * (cols > 2 ? .42 : .3); const p = new THREE.Group(); p.position.set(Math.sin(a) * 1.55 * (cols > 1 ? 1 : 0), 0, (cols > 1 ? (1 - Math.cos(a)) * 1.55 * .5 : 0)); p.rotation.y = -a * .55; g.add(p);
+    box(1.15, .88, .62, M.con, 0, .44, -.1, p); box(1.2, .05, .66, M.trim, 0, .9, -.1, p); const rail = new THREE.Mesh(new THREE.CylinderGeometry(.02, .02, 1.15, 8), M.rail); rail.rotation.z = Math.PI / 2; rail.position.set(0, .96, .27); p.add(rail);
+    for (let k = 0; k < 8; k++) box(.07, .02, .05, mat(0x14302b, .4, .4, k % 3 ? 0x35d3c8 : 0xe8a33a, .55), -.42 + k * .12, .93, .12, p).rotation.x = -.35;
+    for (let r = 0; r < rows; r++) { const idx = r * cols + i; if (idx >= n) continue; const y = 1.42 + (rows - 1 - r) * (sh + .08) - (rows > 1 ? .0 : 0), sc = new THREE.Group(); sc.position.set(0, rows > 1 ? (r === 0 ? 1.95 : 1.12) : 1.5, -.28); sc.rotation.x = -.16; p.add(sc);
+      box(sw + .12, sh + .12, .08, M.dark, 0, 0, 0, sc); const sm = new THREE.Mesh(new THREE.PlaneGeometry(sw, sh), new THREE.MeshBasicMaterial({ map: screenTex(def.screens[idx]), toneMapped: false })); sm.position.z = .045; sc.add(sm); sc.userData.screen = idx;
+      for (let k = 0; k < 6; k++) box(.05, .07, .03, mat(0x14302b, .4, .4, 0x35d3c8, .6), sw / 2 + .1, .28 - k * .11, .0, sc); for (let k = 0; k < 8; k++) box(.07, .035, .03, mat(0x14302b, .4, .4, 0xe8a33a, .5), -.4 + k * .115, -sh / 2 - .06, 0, sc);
+      const L = new THREE.PointLight(0x35d3c8, .5, 3.2); L.position.set(0, 0, .5); sc.add(L); } }
+  g.userData.def = def; return g; }
+const banks = [
+  { name: 'sensors', phi: -58, cols: 3, screens: ['contacts', 'waterfall', 'tid'], officer: 'Quill', suit: 0x5a4a8a },
+  { name: 'attack', phi: 58, cols: 2, screens: ['tma', 'engage', 'payload', 'strike'], officer: 'Abara', suit: 0x2f6a5e },
+  { name: 'systems', phi: 0, cols: 3, screens: ['thermal', 'damage', 'comms'], officer: null }];
+const RB = 4.3, bankObjs = {};
+banks.forEach(b => { const g = bank(b), a = b.phi * Math.PI / 180; g.position.set(Math.sin(a) * RB, 0, -Math.cos(a) * RB); g.rotation.y = Math.atan2(-g.position.x, -g.position.z); S.add(g); bankObjs[b.name] = g;
+  const cg = couch({ recline: BRACE ? 1.0 : .22, strapped: BRACE, suit: b.suit, occupied: !!b.officer }); const p = new THREE.Vector3(0, 0, 1.7).applyEuler(new THREE.Euler(0, g.rotation.y, 0)).add(g.position); cg.position.copy(p); cg.rotation.y = g.rotation.y + Math.PI; S.add(cg); b.couch = cg; });
+// systems bank: Fenwick jump seat folded (no occupant) + Pell pedestal
+{ const pd = new THREE.Group(); pd.position.set(-2.3, 0, -3.55); cyl(.28, .36, 1.1, M.con, 0, .55, 0, pd); const core = new THREE.Mesh(new THREE.SphereGeometry(.17, 20, 16), mat(0x1a3a52, .2, .1, 0x4aa8ff, 1.6)); core.position.y = 1.3; pd.add(core); cyl(.3, .3, .03, mat(0x0f3a35, .4, .6, 0x4aa8ff, .5), 0, 1.12, 0, pd); S.add(pd); const pl = new THREE.PointLight(0x4aa8ff, .9, 3); pl.position.set(-2.3, 1.4, -3.45); S.add(pl); }
+// overhead annunciator
+{ const o = new THREE.Mesh(new THREE.PlaneGeometry(4.4, .63), new THREE.MeshBasicMaterial({ map: annTex(), toneMapped: false })); o.position.set(0, 2.85, -5.05); S.add(o); box(4.6, .75, .1, M.dark, 0, 2.85, -5.12); }
+// ---------- table with hologram ----------
+const tbl = new THREE.Group(); S.add(tbl); cyl(.55, .8, .86, M.table, 0, .43, 0, tbl, 40); cyl(1.1, 1.1, .1, M.con, 0, .9, 0, tbl, 48); cyl(.92, .92, .03, mat(0x061a18, .15, .6, 0x0a4a44, .5), 0, .965, 0, tbl, 48);
+{ const r = new THREE.Mesh(new THREE.TorusGeometry(1.14, .035, 10, 64), M.rail); r.rotation.x = Math.PI / 2; r.position.y = 1.0; tbl.add(r); for (let i = 0; i < 6; i++) { const a = i * Math.PI / 3 + .3; cyl(.02, .02, .09, M.metal, 1.14 * Math.cos(a), .95, 1.14 * Math.sin(a), tbl, 8); } }
+const holo = new THREE.Group(); holo.position.y = 1.5; tbl.add(holo); const hm = (c, o) => new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: o, wireframe: true, toneMapped: false });
+holo.add(new THREE.Mesh(new THREE.SphereGeometry(.5, 24, 16), hm(0x35d3c8, .22))); holo.add(new THREE.Mesh(new THREE.SphereGeometry(.5, 24, 16), new THREE.MeshBasicMaterial({ color: 0x0a4a44, transparent: true, opacity: .14, toneMapped: false })));
+for (const rr of [.17, .33]) { const t = new THREE.Mesh(new THREE.TorusGeometry(rr, .003, 6, 64), new THREE.MeshBasicMaterial({ color: 0x35d3c8, transparent: true, opacity: .6, toneMapped: false })); t.rotation.x = Math.PI / 2; holo.add(t); }
+function blip(x, y, z, col, ring) { const m = new THREE.Mesh(new THREE.SphereGeometry(.022, 10, 8), new THREE.MeshBasicMaterial({ color: col, toneMapped: false })); m.position.set(x, y, z); holo.add(m); const st = new THREE.Mesh(new THREE.CylinderGeometry(.002, .002, Math.abs(y), 4), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: .5, toneMapped: false })); st.position.set(x, y / 2, z); holo.add(st); const fl = new THREE.Mesh(new THREE.RingGeometry(.02, .028, 16), new THREE.MeshBasicMaterial({ color: col, side: THREE.DoubleSide, toneMapped: false })); fl.rotation.x = -Math.PI / 2; fl.position.set(x, 0, z); holo.add(fl); if (ring) { const q = new THREE.Mesh(new THREE.RingGeometry(.05, .056, 24), new THREE.MeshBasicMaterial({ color: col, side: THREE.DoubleSide, toneMapped: false })); q.lookAt(0, 3, 0); q.position.set(x, y, z); holo.add(q); } }
+blip(.3, .12, -.2, 0xf2d03b, true); blip(-.25, -.08, -.28, 0x35d3c8, true); blip(.1, .2, .34, 0x4a78f0, false); blip(.38, -.05, .1, 0xff4a3d, true); blip(-.35, .1, .2, 0x35d3c8, false);
+{ const me = new THREE.Mesh(new THREE.OctahedronGeometry(.035), new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false })); holo.add(me); const cv2 = new THREE.CatmullRomCurve3([new THREE.Vector3(-.4, -.1, .1), new THREE.Vector3(-.2, 0, .03), new THREE.Vector3(0, 0, 0), new THREE.Vector3(.2, .03, -.1)]); holo.add(new THREE.Mesh(new THREE.TubeGeometry(cv2, 30, .004, 6), new THREE.MeshBasicMaterial({ color: 0xe8a33a, toneMapped: false })));
+  const cone = new THREE.Mesh(new THREE.ConeGeometry(.12, .3, 24, 1, true), new THREE.MeshBasicMaterial({ color: 0xf2d03b, transparent: true, opacity: .16, side: THREE.DoubleSide, toneMapped: false })); cone.position.set(.18, .1, -.14); cone.rotation.set(0, 0, -1.4); holo.add(cone); }
+const tl = new THREE.PointLight(0x35d3c8, 1.6, 6); tl.position.set(0, 1.7, 0); S.add(tl);
+// CO couch at the table head
+const co = couch({ recline: BRACE ? 1.0 : .15, strapped: BRACE, suit: 0x6a4a2a, occupied: BRACE || SHOT === 'table' }); co.position.set(0, 0, 2.15); S.add(co);
+// ---------- lights ----------
+S.add(new THREE.HemisphereLight(0x6f9a90, 0x10201c, .55)); const key = new THREE.DirectionalLight(0xbfe8ff, .55); key.position.set(3, 7, 5); key.castShadow = true; key.shadow.mapSize.set(2048, 2048); Object.assign(key.shadow.camera, { left: -8, right: 8, top: 8, bottom: -8, near: 1, far: 20 }); S.add(key);
+const sp = new THREE.SpotLight(BRACE ? 0xff7a40 : 0xfff0cc, BRACE ? 1.1 : 1.4, 14, .7, .5); sp.position.set(0, 5.2, 0); sp.target.position.set(0, .8, 0); S.add(sp, sp.target);
+if (BRACE) { const rl = new THREE.PointLight(0xff4a2a, 1.1, 9); rl.position.set(0, 3, -1); S.add(rl); }
+// ---------- captain (GLB) standing near the table, not in brace ----------
+let model = null;
+if (!BRACE && /room|table/.test(SHOT)) new THREE.GLTFLoader().load(GLB, gl => { model = gl.scene; model.traverse(o => { if (o.isMesh) { o.castShadow = true; o.frustumCulled = false; } }); model.updateMatrixWorld(true);
+  const bb = new THREE.Box3(); model.traverse(o => { if (o.isBone) bb.expandByPoint(new THREE.Vector3().setFromMatrixPosition(o.matrixWorld)); }); const wrap = new THREE.Group(); wrap.add(model); model.position.set(-(bb.min.x + bb.max.x) / 2, -bb.min.y + .03, -(bb.min.z + bb.max.z) / 2); wrap.position.set(SHOT === 'table' ? -1.5 : 1.55, 0, SHOT === 'table' ? 1.3 : .9); wrap.rotation.y = SHOT === 'table' ? Math.PI * .85 : Math.PI * 1.08; S.add(wrap); const mx = new THREE.AnimationMixer(model); if (gl.animations[0]) { const a = mx.clipAction(gl.animations[0]); a.play(); mx.setTime(.3); } window.ready = true; }, undefined, e => { window.ready = true; });
+else window.ready = true;
+// ---------- cameras and overlays ----------
+function toWorld(b, v) { const g = bankObjs[b]; return new THREE.Vector3(...v).applyEuler(new THREE.Euler(0, g.rotation.y, 0)).add(g.position); }
+const SHOTS = {
+  room_free: { cam: [0.4, 3.6, 9.2], at: [0, 1.0, -1.2], fov: 42, tier: 'ROOM', sub: 'total view · F1-F4 cut to a section · walk with click', keys: [['F1', 'TABLE'], ['F2', 'SENSORS'], ['F3', 'ATTACK'], ['F4', 'SYSTEMS'], ['Tab', 'next call'], ['B', 'brace']], state: 'BODY: FREE · couches open · coasting 0.0 g', call: ['QUILL · SENSORS · URGENT', 'Sierra 2 has noticed us.', ['1 Go quiet ✓', '2 Evade', '3 Hold']] },
+  room_brace: { cam: [0.4, 3.6, 9.2], at: [0, 1.0, -1.2], fov: 42, tier: 'ROOM', sub: 'all hands secure · burn in 6 s', keys: [['F1-F4', 'sections'], ['B', 'brace'], ['Esc', 'cancel']], state: 'BODY: SECURE · harnesses on · couches reclined · 3.2 g burn ordered', call: ['PELL · PA', 'All hands, brace. Burn in six seconds.', ['1 Go now', '2 Cancel burn']] },
+  sensors: { cam: () => toWorld('sensors', [1.35, 1.65, 3.1]), at: () => toWorld('sensors', [-.1, 1.25, 0]), fov: 46, tier: 'SECTION', sub: 'SENSORS bank · Quill · 3 screens', keys: [['F2', 'this bank'], ['Q W E', 'screens'], ['Esc', 'back to room'], ['wheel', 'zoom']], state: 'Quill: AUTO · sweeping, S3 classify 60%', call: ['QUILL · SENSORS', 'New thermal return, Sierra 7.', ['1 Isolate and classify', '2 Mark and continue ✓', '3 Ignore']] },
+  attack: { cam: () => toWorld('attack', [-1.2, 1.7, 3.2]), at: () => toWorld('attack', [0, 1.35, 0]), fov: 46, tier: 'SECTION', sub: 'ATTACK bank · Abara · 4 screens', keys: [['F3', 'this bank'], ['Q W E R', 'screens'], ['Esc', 'back to room']], state: 'Abara: HANDS-ON · fire control, weapons, helm (bottleneck)', call: ['ABARA · WEAPONS', 'Solution good on Sierra 1. Tubes ready.', ['1 Fire (Ambush) ✓', '2 Probe', '3 Hold']] },
+  screen: { cam: () => toWorld('sensors', [.02, 1.47, 2.0]), at: () => toWorld('sensors', [0, 1.47, 0]), fov: 30, tier: 'SCREEN', sub: 'SIGNAL FUSION · full bezel keys live', keys: [['W', 'this screen'], ['Q E', 'neighbours'], ['Esc', 'back to bank'], ['A', 'ack lamps']], state: 'cone 30° · heat/reactor/eclipse · ping armed', call: null },
+  table: { cam: [1.0, 1.95, 3.7], at: [0, 1.35, 0], fov: 44, tier: 'TABLE', sub: 'F1 · the scope is a 3D map table (scope options A/B/C become table treatments)', keys: [['F1', 'table'], ['click', 'radial menu'], ['wheel', 'scale']], state: 'S1 affirmed · S2 passive · S3 suspect · R4 hostile · our burn path in amber', call: ['QUILL · SENSORS', 'Sierra 1 firming. Warship.', ['1 Track her ✓', '2 Keep scanning']] }
+};
+const sh = SHOTS[SHOT] || SHOTS.room_free; const val = v => typeof v === 'function' ? v() : new THREE.Vector3(...v);
+cam.position.copy(val(sh.cam)); cam.lookAt(val(sh.at)); cam.fov = sh.fov; function rs() { R.setSize(innerWidth, innerHeight, false); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); } addEventListener('resize', rs); rs();
+document.getElementById('tier').innerHTML = `<b>${sh.tier}</b><div style="color:#6f8f85">${sh.sub}</div>`;
+document.getElementById('keys').innerHTML = '<div style="color:#e8a33a;letter-spacing:.12em;margin-bottom:4px">KEYS</div>' + sh.keys.map(k => `<div><span class="k">${k[0]}</span>${k[1]}</div>`).join('');
+document.getElementById('state').textContent = sh.state;
+if (sh.call) document.getElementById('cap').innerHTML = `<div class="n">${sh.call[0]}</div><div class="l">${sh.call[1]}</div>` + sh.call[2].map((c, i) => `<span class="chip ${/✓/.test(c) ? 'r' : ''}"><b>${c.slice(0, 1)}</b>${c.slice(1)}</span>`).join(''); else document.getElementById('cap').style.display = 'none';
+function frame1() { R.render(S, cam); window.done = true; } setTimeout(frame1, 400); setInterval(() => R.render(S, cam), 1500);
+</script></body></html>
