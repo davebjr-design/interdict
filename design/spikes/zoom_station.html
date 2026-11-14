@@ -1,0 +1,322 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Spike: ship-to-station zoom</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--bg:#050b09;--chrome:#0c1c19;--line:#1d3a34;--txt:#b9d3c9;--dim:#6f8f85;--amber:#e8a33a}
+html,body{margin:0;height:100%;background:var(--bg);overflow:hidden;font:13px/1.35 ui-monospace,Consolas,monospace;color:var(--txt)}
+canvas#gl{display:block;width:100vw;height:100vh}
+#hud{position:fixed;left:14px;top:14px;background:rgba(8,20,18,.86);border:1px solid var(--line);padding:10px 12px;min-width:250px}
+#hud h1{margin:0 0 6px;font-size:13px;letter-spacing:.12em;color:var(--amber)}
+#hud .k{color:var(--amber);display:inline-block;min-width:54px}
+#hud .row{white-space:nowrap}
+#tier{position:fixed;right:14px;top:14px;background:rgba(8,20,18,.86);border:1px solid var(--line);padding:8px 12px;text-align:right}
+#tier b{color:var(--amber);letter-spacing:.1em}
+#bar{height:4px;background:var(--line);margin-top:6px;position:relative}
+#bar i{position:absolute;left:0;top:0;bottom:0;background:var(--amber)}
+#stats{position:fixed;right:14px;bottom:14px;color:var(--dim);background:rgba(8,20,18,.7);padding:4px 8px;border:1px solid var(--line)}
+</style></head><body>
+<canvas id="gl"></canvas>
+<div id="hud"><h1>ZOOM SPIKE · CIC</h1>
+<div class="row"><span class="k">1 2 3</span>ship · room · station</div>
+<div class="row"><span class="k">wheel</span>continuous zoom</div>
+<div class="row"><span class="k">F1</span>main console (captain)</div>
+<div class="row"><span class="k">F2</span>nav console</div>
+<div class="row"><span class="k">F3</span>sensor console</div>
+<div class="row"><span class="k">F4</span>plot table</div>
+<div class="row"><span class="k">F5 F6</span>ship / room (= 1 / 2)</div>
+<div class="row"><span class="k">P</span>pose: bind / walk frame</div>
+</div>
+<div id="tier"><b id="tname">L0 SHIP / ISO</b><div id="tsub" style="color:var(--dim)"></div><div id="bar"><i id="barfill"></i></div></div>
+<div id="stats">loading…</div>
+<script src="three.min.js"></script><script src="GLTFLoader.js"></script>
+<script>
+'use strict';
+const T0 = performance.now();
+const GLB = '../assets/meshy_output/crew/captain2/walk.glb';
+const COL = { bg:0x050b09, line:'#1d3a34', ring:'#2c5a50', txt:'#b9d3c9', dim:'#6f8f85', amber:'#e8a33a',
+  sus:'#3f6fe0', pas:'#35d3c8', aff:'#f2d03b', hos:'#ff4a3d', us:'#ffffff' };
+
+// ---------- renderer / scene ----------
+const cv = document.getElementById('gl');
+const R = new THREE.WebGLRenderer({ canvas: cv, antialias: true, preserveDrawingBuffer: true });
+R.setPixelRatio(1); R.outputEncoding = THREE.sRGBEncoding;
+R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = 1.15;
+R.shadowMap.enabled = true; R.shadowMap.type = THREE.PCFSoftShadowMap;
+R.setClearColor(COL.bg);
+const S = new THREE.Scene();
+S.fog = new THREE.Fog(COL.bg, 400, 900);
+const cam = new THREE.PerspectiveCamera(30, 16 / 9, 0.05, 1000);
+
+// ---------- materials ----------
+const M = {
+  floor: new THREE.MeshStandardMaterial({ color: 0x1b2624, roughness: .85, metalness: .2 }),
+  wall: new THREE.MeshStandardMaterial({ color: 0x22302d, roughness: .7, metalness: .3 }),
+  trim: new THREE.MeshStandardMaterial({ color: 0x0f3a35, roughness: .5, metalness: .6 }),
+  con: new THREE.MeshStandardMaterial({ color: 0x2b3836, roughness: .55, metalness: .5 }),
+  conDark: new THREE.MeshStandardMaterial({ color: 0x141c1b, roughness: .6, metalness: .4 }),
+  amber: new THREE.MeshStandardMaterial({ color: 0x3a2508, emissive: 0xe8a33a, emissiveIntensity: 1.4 }),
+  teal: new THREE.MeshStandardMaterial({ color: 0x062420, emissive: 0x35d3c8, emissiveIntensity: .9 }),
+  chair: new THREE.MeshStandardMaterial({ color: 0x3b2f26, roughness: .8 }),
+  ghost: new THREE.MeshStandardMaterial({ color: 0x18211f, roughness: .9 }),
+  ghostWall: new THREE.MeshStandardMaterial({ color: 0x1c2826, roughness: .9 }),
+};
+function box(w, h, d, mat, x, y, z, parent = S) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+  m.position.set(x, y, z); m.castShadow = m.receiveShadow = true; parent.add(m); return m;
+}
+function canvasTex(w, h, draw) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); draw(g, w, h);
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.anisotropy = R.capabilities.getMaxAnisotropy();
+  t.userData = { c, g }; return t;
+}
+
+// ---------- CIC room (8 x 6 m, cut-away: back + left walls only) ----------
+const floorTex = canvasTex(512, 384, (g, w, h) => {
+  g.fillStyle = '#1b2624'; g.fillRect(0, 0, w, h); g.strokeStyle = '#2a3a37'; g.lineWidth = 2;
+  for (let x = 0; x <= w; x += 64) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke(); }
+  for (let y = 0; y <= h; y += 64) { g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke(); }
+  g.fillStyle = '#e8a33a55'; g.fillRect(0, h - 10, w, 10);
+});
+const floorMat = M.floor.clone(); floorMat.map = floorTex;
+box(8, .1, 6, floorMat, 0, -.05, 0);
+box(8, 2.8, .15, M.wall, 0, 1.4, -3.075);
+box(.15, 2.8, 6, M.wall, -4.075, 1.4, 0);
+box(8, .12, .2, M.trim, 0, 2.86, -3.0); box(.2, .12, 6, M.trim, -4.0, 2.86, 0);
+box(8, .06, .04, M.amber, 0, .12, -2.98);              // floor-level amber strip
+for (let i = -3; i <= 3; i++) box(.06, 2.5, .05, M.trim, i * 1.15, 1.35, -2.98); // wall ribs
+const plaque = canvasTex(512, 128, (g, w, h) => {
+  g.fillStyle = '#0b1716'; g.fillRect(0, 0, w, h); g.strokeStyle = '#e8a33a'; g.lineWidth = 4; g.strokeRect(6, 6, w - 12, h - 12);
+  g.fillStyle = '#e8a33a'; g.font = 'bold 64px monospace'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('C I C', w / 2, h / 2 + 4);
+});
+const pl = new THREE.Mesh(new THREE.PlaneGeometry(1.4, .35), new THREE.MeshBasicMaterial({ map: plaque, toneMapped: false }));
+pl.position.set(-1.9, 2.35, -2.99); S.add(pl);
+
+// ---------- console builder ----------
+const screens = [];
+function consoleBlock(x, z, rotY, w, screenTex, name) {
+  const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = rotY; S.add(g);
+  box(w, .78, .62, M.con, 0, .39, 0, g);                       // desk body
+  const top = box(w + .04, .05, .66, M.conDark, 0, .8, .02, g); // desk top
+  box(w - .1, .04, .2, M.teal, 0, .83, .18, g);                 // lit keyboard strip
+  const head = new THREE.Group(); head.position.set(0, .82, -.22); head.rotation.x = -.26; g.add(head);
+  box(w, .72, .07, M.conDark, 0, .38, 0, head);                 // screen housing
+  const sw = w - .14, sh = .58;
+  const scr = new THREE.Mesh(new THREE.PlaneGeometry(sw, sh), new THREE.MeshBasicMaterial({ map: screenTex, toneMapped: false }));
+  scr.position.set(0, .39, .037); head.add(scr);
+  const glow = new THREE.PointLight(0x35d3c8, .9, 2.6, 2); glow.position.set(0, .4, .5); head.add(glow);
+  box(w + .02, .03, .09, M.amber, 0, .76, 0, head);              // amber header lip
+  screens.push({ name, mesh: scr, group: g });
+  return { g, head, scr };
+}
+
+// ---------- live tactical-scope canvas ----------
+const SCOPE_W = 1024, SCOPE_H = 640;
+const scopeTex = canvasTex(SCOPE_W, SCOPE_H, () => {});
+const contacts = [
+  { n: 'S-1', c: COL.sus, r: .62, a: 2.4, w: .05, lbl: 'SUSPECT' },
+  { n: 'P-2', c: COL.pas, r: .38, a: 4.1, w: -.08, lbl: 'PASSIVE' },
+  { n: 'P-3', c: COL.pas, r: .8, a: 5.3, w: .03, lbl: 'PASSIVE' },
+  { n: 'A-4', c: COL.aff, r: .5, a: .7, w: .06, lbl: 'AFFIL' },
+  { n: 'H-5', c: COL.hos, r: .72, a: 1.3, w: -.04, lbl: 'HOSTILE' },
+];
+function drawScope(t) {
+  const g = scopeTex.userData.g, W = SCOPE_W, H = SCOPE_H;
+  g.fillStyle = '#04100d'; g.fillRect(0, 0, W, H);
+  // header
+  g.fillStyle = '#0c1c19'; g.fillRect(0, 0, W, 56);
+  g.fillStyle = COL.amber; g.font = 'bold 30px monospace'; g.textBaseline = 'middle'; g.fillText('TACTICAL SCOPE · PASSIVE', 20, 29);
+  g.fillStyle = COL.dim; g.font = '24px monospace'; g.textAlign = 'right'; g.fillText('T+' + (t | 0).toString().padStart(4, '0') + 's', W - 20, 29); g.textAlign = 'left';
+  // rings
+  const cx = 360, cy = 350, RR = 270;
+  g.strokeStyle = COL.ring; g.lineWidth = 2;
+  for (let k = 1; k <= 4; k++) { g.beginPath(); g.arc(cx, cy, RR * k / 4, 0, 7); g.stroke(); }
+  g.beginPath(); g.moveTo(cx - RR, cy); g.lineTo(cx + RR, cy); g.moveTo(cx, cy - RR); g.lineTo(cx, cy + RR); g.stroke();
+  g.fillStyle = COL.dim; g.font = '20px monospace';
+  for (let k = 1; k <= 4; k++) g.fillText((k * 25) + 'k', cx + 6, cy - RR * k / 4 + 18);
+  // sweep
+  const sa = t * .9;
+  const grad = g.createConicGradient ? g.createConicGradient(sa - .6, cx, cy) : null;
+  if (grad) { grad.addColorStop(0, 'rgba(53,211,200,0)'); grad.addColorStop(.095, 'rgba(53,211,200,.22)'); grad.addColorStop(.096, 'rgba(53,211,200,0)');
+    g.fillStyle = grad; g.beginPath(); g.arc(cx, cy, RR, 0, 7); g.fill(); }
+  g.strokeStyle = 'rgba(53,211,200,.7)'; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + Math.cos(sa) * RR, cy + Math.sin(sa) * RR); g.stroke();
+  // own ship
+  g.fillStyle = COL.us; g.beginPath(); g.moveTo(cx, cy - 12); g.lineTo(cx + 9, cy + 9); g.lineTo(cx - 9, cy + 9); g.fill();
+  // contacts + side list
+  g.font = 'bold 22px monospace';
+  contacts.forEach((k, i) => {
+    const a = k.a + k.w * t, x = cx + Math.cos(a) * k.r * RR, y = cy + Math.sin(a) * k.r * RR;
+    g.fillStyle = k.c; g.strokeStyle = k.c; g.lineWidth = 3;
+    g.beginPath(); g.arc(x, y, 9, 0, 7); g.fill();
+    g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a + Math.PI / 2 * Math.sign(k.w)) * 28, y + Math.sin(a + Math.PI / 2 * Math.sign(k.w)) * 28); g.stroke();
+    g.fillText(k.n, x + 13, y - 12);
+    const ly = 110 + i * 82;
+    g.fillStyle = '#0c1c19'; g.fillRect(680, ly - 30, 324, 70);
+    g.fillStyle = k.c; g.fillRect(680, ly - 30, 8, 70);
+    g.font = 'bold 26px monospace'; g.fillText(k.n + '  ' + k.lbl, 700, ly - 6);
+    g.fillStyle = COL.txt; g.font = '21px monospace';
+    g.fillText('RNG ' + (k.r * 100).toFixed(0) + 'k  BRG ' + ((a * 57.3 % 360 + 360) % 360).toFixed(0).padStart(3, '0'), 700, ly + 22);
+    g.font = 'bold 22px monospace';
+  });
+  g.strokeStyle = COL.line; g.lineWidth = 2; g.strokeRect(1, 1, W - 2, H - 2);
+  scopeTex.needsUpdate = true;
+}
+drawScope(0);
+const navTex = canvasTex(512, 320, (g, w, h) => {
+  g.fillStyle = '#04100d'; g.fillRect(0, 0, w, h); g.fillStyle = COL.amber; g.font = 'bold 24px monospace'; g.fillText('NAV · PLOT', 14, 30);
+  g.strokeStyle = COL.pas; g.lineWidth = 3; g.beginPath(); g.moveTo(40, 280); g.bezierCurveTo(160, 120, 300, 260, 470, 70); g.stroke();
+  g.fillStyle = COL.txt; g.font = '18px monospace'; g.fillText('BURN 2  Δv 14.2', 14, 306);
+});
+const sensTex = canvasTex(512, 320, (g, w, h) => {
+  g.fillStyle = '#04100d'; g.fillRect(0, 0, w, h); g.fillStyle = COL.amber; g.font = 'bold 24px monospace'; g.fillText('SENSORS', 14, 30);
+  g.strokeStyle = COL.aff; g.lineWidth = 2; g.beginPath();
+  for (let x = 0; x < w; x += 4) g.lineTo(x, 190 + Math.sin(x * .05) * 40 * Math.sin(x * .011)); g.stroke();
+});
+
+const main = consoleBlock(0, -1.45, 0, 1.5, scopeTex, 'main');
+consoleBlock(-3.55, -.2, Math.PI / 2, 1.3, navTex, 'nav');
+consoleBlock(2.55, -2.4, 0, 1.3, sensTex, 'sensors');
+// plot table (station 4)
+const tableTex = canvasTex(512, 512, (g, w, h) => {
+  g.fillStyle = '#031210'; g.fillRect(0, 0, w, h); g.strokeStyle = '#1f6b62'; g.lineWidth = 2;
+  for (let k = 1; k <= 5; k++) { g.beginPath(); g.arc(w / 2, h / 2, k * 45, 0, 7); g.stroke(); }
+  g.fillStyle = COL.hos; g.beginPath(); g.arc(340, 170, 10, 0, 7); g.fill(); g.fillStyle = COL.aff; g.beginPath(); g.arc(150, 330, 10, 0, 7); g.fill();
+});
+box(1.4, .85, 1.0, M.con, 1.9, .425, .9);
+const tt = new THREE.Mesh(new THREE.PlaneGeometry(1.3, .9), new THREE.MeshBasicMaterial({ map: tableTex, toneMapped: false }));
+tt.rotation.x = -Math.PI / 2; tt.position.set(1.9, .86, .9); S.add(tt);
+
+// chair (pushed aside, character stands)
+const chair = new THREE.Group(); chair.position.set(-1.05, 0, -.45); chair.rotation.y = .7; S.add(chair);
+box(.5, .08, .5, M.chair, 0, .48, 0, chair); box(.5, .6, .08, M.chair, 0, .82, .24, chair);
+box(.06, .44, .06, M.conDark, 0, .24, 0, chair); box(.6, .04, .08, M.conDark, 0, .03, 0, chair); box(.08, .04, .6, M.conDark, 0, .03, 0, chair);
+
+// ---------- placeholder ship around the CIC (grey blocks: only so L0 reads as "ship") ----------
+const ghost = new THREE.Group(); S.add(ghost);
+function ghostRoom(x, z, w, d) {
+  box(w, .1, d, M.ghost, x, -.05, z, ghost);
+  box(w, .9, .1, M.ghostWall, x, .45, z - d / 2, ghost); box(.1, .9, d, M.ghostWall, x - w / 2, .45, z, ghost);
+}
+ghostRoom(-8.5, 0, 9, 6); ghostRoom(8.5, 0, 9, 6); ghostRoom(0, 6.5, 8, 7); ghostRoom(-8.5, 6.5, 9, 7); ghostRoom(8.5, 6.5, 9, 7);
+box(26, .1, 1.2, M.ghost, 0, -.05, 3.6, ghost);          // corridor
+box(34, .25, .25, M.trim, 0, .12, -3.3, ghost); box(34, .25, .25, M.trim, 0, .12, 10.3, ghost); // hull rails
+
+// ---------- lights: cool fill, warm keys, cyan screen glows ----------
+S.add(new THREE.HemisphereLight(0x8fb4c8, 0x2a2018, .55));
+const key = new THREE.DirectionalLight(0xbfd8ff, .7); key.position.set(-6, 12, 8); key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048); Object.assign(key.shadow.camera, { left: -7, right: 7, top: 7, bottom: -7, near: 1, far: 40 }); key.shadow.bias = -.0005; S.add(key);
+const warm1 = new THREE.SpotLight(0xffb060, 2.2, 9, .7, .6, 1.6); warm1.position.set(.6, 2.75, .6); warm1.target.position.set(0, 1, -1.2); warm1.castShadow = true; warm1.shadow.mapSize.set(1024, 1024); S.add(warm1, warm1.target);
+const warm2 = new THREE.PointLight(0xffa040, .8, 6, 2); warm2.position.set(-2.5, 2.6, -2.4); S.add(warm2);
+const warm3 = new THREE.PointLight(0xffa040, .6, 6, 2); warm3.position.set(2.4, 2.6, .6); S.add(warm3);
+
+// ---------- camera rig ----------
+// Each tier: target, azimuth (deg, around +y from +z), elevation (deg), visible height H at target (m), fov (deg).
+// Distance is derived: d = H / (2 tan(fov/2)) -> dolly zoom. Small FOV + huge distance at L0 = near-orthographic iso.
+const TIERS = [
+  { name: 'L0 SHIP / ISO', sub: 'fov 4°, near-ortho dolly', t: new THREE.Vector3(0, 0, 3.5), az: 45, el: 35, H: 25, fov: 4 },
+  { name: 'L1 ROOM', sub: 'perspective', t: new THREE.Vector3(-.3, .9, -.6), az: 38, el: 30, H: 6.2, fov: 30 },
+  null, // L2 comes from the selected station
+];
+function fromPosTarget(p, t, fov) {
+  const v = p.clone().sub(t), d = v.length();
+  return { t: t.clone(), az: Math.atan2(v.x, v.z) * 57.2958, el: Math.asin(v.y / d) * 57.2958, H: 2 * d * Math.tan(fov / 2 / 57.2958), fov };
+}
+const STATIONS = {
+  main:    fromPosTarget(new THREE.Vector3(.36, 1.92, .5),  new THREE.Vector3(-.02, 1.12, -1.55), 46),
+  nav:     fromPosTarget(new THREE.Vector3(-1.6, 1.8, .45), new THREE.Vector3(-3.45, 1.15, -.2), 46),
+  sensors: fromPosTarget(new THREE.Vector3(2.9, 1.85, -.4), new THREE.Vector3(2.55, 1.15, -2.55), 46),
+  table:   fromPosTarget(new THREE.Vector3(1.9, 2.4, 2.4),  new THREE.Vector3(1.9, .86, .8), 46),
+};
+let station = 'main';
+TIERS[2] = Object.assign({ name: 'L2 STATION · OVER THE SHOULDER', sub: 'main console' }, STATIONS.main);
+const lerp = (a, b, k) => a + (b - a) * k;
+function lerpAng(a, b, k) { let d = ((b - a + 540) % 360) - 180; return a + d * k; }
+function pose(z) {
+  const i = Math.min(1, Math.floor(z)), k = z - i, A = TIERS[i], B = TIERS[i + 1];
+  const e = k * k * (3 - 2 * k); // smoothstep inside each segment
+  return { t: A.t.clone().lerp(B.t, e), az: lerpAng(A.az, B.az, e), el: lerp(A.el, B.el, e),
+    H: Math.exp(lerp(Math.log(A.H), Math.log(B.H), e)), fov: Math.exp(lerp(Math.log(A.fov), Math.log(B.fov), e)) };
+}
+function applyPose(P) {
+  const d = P.H / (2 * Math.tan(P.fov / 2 / 57.2958)), az = P.az / 57.2958, el = P.el / 57.2958;
+  cam.fov = P.fov; cam.near = Math.max(.03, d * .02); cam.far = d * 4 + 60; cam.updateProjectionMatrix();
+  cam.position.set(P.t.x + d * Math.cos(el) * Math.sin(az), P.t.y + d * Math.sin(el), P.t.z + d * Math.cos(el) * Math.cos(az));
+  cam.lookAt(P.t); return d;
+}
+let zCur = 0, zGoal = 0, tween = null;
+const easeIO = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+function goTier(z, instant) {
+  if (instant) { zCur = zGoal = z; tween = null; return; }
+  tween = { from: zCur, to: z, t0: performance.now(), dur: 1100 + 500 * Math.abs(z - zCur) }; zGoal = z;
+}
+function setStation(name, instant) {
+  station = name; const sub = { main: 'main console', nav: 'nav console', sensors: 'sensor console', table: 'plot table' }[name];
+  const s = STATIONS[name];
+  if (zCur > 1.5 && !instant) { // already close: hop via room level
+    TIERS[2] = Object.assign(TIERS[2], { pending: { s, sub } }); goTier(1); tween.after = () => { Object.assign(TIERS[2], s, { sub }); goTier(2); };
+  } else { Object.assign(TIERS[2], s, { sub }); goTier(2, instant); }
+}
+addEventListener('wheel', e => { e.preventDefault(); tween = null; zGoal = Math.min(2, Math.max(0, zGoal - e.deltaY * .0012)); }, { passive: false });
+addEventListener('keydown', e => {
+  const k = e.key;
+  if (/^F[1-6]$/.test(k)) e.preventDefault();
+  if (k === '1' || k === 'F5') goTier(0); if (k === '2' || k === 'F6') goTier(1); if (k === '3') goTier(2);
+  if (k === 'F1') setStation('main'); if (k === 'F2') setStation('nav'); if (k === 'F3') setStation('sensors'); if (k === 'F4') setStation('table');
+  if (k === 'p' || k === 'P') togglePose();
+});
+
+// ---------- character ----------
+let model = null, mixer = null, clipAction = null, walkPose = false, modelInfo = null;
+new THREE.GLTFLoader().load(GLB, gl => {
+  const tLoad = performance.now() - T0;
+  model = gl.scene; let tris = 0, verts = 0, meshes = 0, maps = [], bones = 0;
+  model.traverse(o => {
+    if (o.isMesh) { meshes++; o.castShadow = o.receiveShadow = true; o.frustumCulled = false;
+      const g = o.geometry; verts += g.attributes.position.count; tris += g.index ? g.index.count / 3 : g.attributes.position.count / 3;
+      const mm = Array.isArray(o.material) ? o.material : [o.material];
+      mm.forEach(m => ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'emissiveMap'].forEach(s => { if (m[s]) maps.push(s + ' ' + m[s].image.width + 'x' + m[s].image.height); })); }
+    if (o.isBone) bones++;
+  });
+  const bb = new THREE.Box3().setFromObject(model), h = bb.max.y - bb.min.y, sc = 1.76 / h;
+  model.scale.setScalar(sc); model.updateMatrixWorld(true);
+  const bb2 = new THREE.Box3().setFromObject(model);
+  const wrap = new THREE.Group(); wrap.add(model);
+  model.position.set(-(bb2.min.x + bb2.max.x) / 2, -bb2.min.y, -(bb2.min.z + bb2.max.z) / 2);
+  wrap.position.set(.05, 0, -.62); wrap.rotation.y = Math.PI; // face the main console (-z)
+  S.add(wrap);
+  mixer = new THREE.AnimationMixer(model);
+  if (gl.animations[0]) { clipAction = mixer.clipAction(gl.animations[0]); }
+  modelInfo = { file: GLB, loadMs: Math.round(tLoad), tris, verts, meshes, bones, maps, rawHeight: +h.toFixed(3), clips: gl.animations.map(a => a.name + ' ' + a.duration.toFixed(2) + 's') };
+  window.modelInfo = modelInfo; window.ready = true;
+}, undefined, e => { window.err = String(e && e.message || e); document.getElementById('stats').textContent = 'GLB load failed: ' + window.err; });
+function togglePose() {
+  if (!clipAction) return; walkPose = !walkPose;
+  if (walkPose) { clipAction.play(); mixer.setTime(.3); } else { clipAction.stop(); mixer.setTime(0); model.traverse(o => { if (o.isSkinnedMesh) o.skeleton.pose(); }); }
+}
+
+// ---------- loop ----------
+function resize() { const w = innerWidth, h = innerHeight; R.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); }
+addEventListener('resize', resize); resize();
+let last = performance.now(), ft = 0, frames = 0, simT = 0;
+const ui = { n: document.getElementById('tname'), s: document.getElementById('tsub'), b: document.getElementById('barfill'), st: document.getElementById('stats') };
+function step(now) {
+  const dt = Math.min(.1, (now - last) / 1000); last = now; simT += dt;
+  if (tween) { const k = Math.min(1, (now - tween.t0) / tween.dur); zCur = lerp(tween.from, tween.to, easeIO(k)); if (k >= 1) { const a = tween.after; tween = null; if (a) a(); } }
+  else zCur += (zGoal - zCur) * (1 - Math.exp(-dt * 8));
+  const P = pose(zCur), d = applyPose(P);
+  if ((frames & 1) === 0) drawScope(simT);
+  const t0 = performance.now(); R.render(S, cam); ft = ft * .9 + (performance.now() - t0) * .1; frames++;
+  const ti = Math.round(zCur); ui.n.textContent = TIERS[ti].name; ui.s.textContent = (ti === 2 ? TIERS[2].sub + ' · ' : '') + 'zoom ' + zCur.toFixed(2) + ' · fov ' + P.fov.toFixed(1) + '° · dist ' + d.toFixed(1) + ' m';
+  ui.b.style.width = (zCur / 2 * 100) + '%';
+  if (frames % 15 === 0) ui.st.textContent = (modelInfo ? (modelInfo.tris / 1000).toFixed(0) + 'k tris · ' : 'loading GLB… · ') + 'cpu render ' + ft.toFixed(1) + ' ms · draw calls ' + R.info.render.calls;
+  requestAnimationFrame(step);
+}
+requestAnimationFrame(step);
+
+// ---------- test hooks (Playwright) ----------
+window.setTier = (z, instant = true) => { goTier(z, instant); };
+window.setStationNow = n => setStation(n, true);
+window.bench = (n = 60) => { // synchronous render timing incl. GPU flush (readPixels)
+  const gl = R.getContext(), px = new Uint8Array(4), ts = [];
+  for (let i = 0; i < n; i++) { const t = performance.now(); drawScope(simT + i * .02); R.render(S, cam); gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px); ts.push(performance.now() - t); }
+  ts.sort((a, b) => a - b); return { median: +ts[n >> 1].toFixed(1), p90: +ts[(n * .9) | 0].toFixed(1), calls: R.info.render.calls, tris: R.info.render.triangles };
+};
+</script></body></html>
