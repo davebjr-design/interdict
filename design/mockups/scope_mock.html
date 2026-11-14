@@ -1,0 +1,132 @@
+<!doctype html><meta charset="utf-8"><title>Scope mock-up</title>
+<style>html,body{margin:0;background:#050b09}canvas{display:block}</style>
+<canvas id="c" width="1600" height="960"></canvas>
+<script>
+const Q = new URLSearchParams(location.search), MODE = Q.get('m') || 'A';
+const cv = document.getElementById('c'), g = cv.getContext('2d'), W = 1600, H = 960;
+const COL = { bg: '#050b09', line: '#1d3a34', ring: '#244a42', txt: '#b9d3c9', dim: '#6f8f85', amber: '#e8a33a',
+  sus: '#3f6fe0', pas: '#35d3c8', pas2: '#6fe08a', aff: '#f2d03b', aff2: '#f29b30', hos: '#ff4a3d', us: '#ffffff', wake: '#5aa7ff' };
+const CFG = { A: { e: 52 * Math.PI / 180, yaw: -0.35, k: 3.55, z: 0, shell: false, label: 'OPTION A  POLAR SCOPE  (planar simulation, sphere display)' },
+              B: { e: 40 * Math.PI / 180, yaw: -0.5, k: 3.35, z: 1, shell: true,  label: 'OPTION B  TRUE 3D  (elevation in the simulation)' },
+              C: { e: 90 * Math.PI / 180, yaw: 0, k: 3.75, z: 0, shell: false, label: 'OPTION C  FLAT MAP  (today\'s view, new colours and paths)' } }[MODE];
+const OX = 565, OY = 520;   // screen position of the ship
+function P(x, y, z = 0) { const c = Math.cos(CFG.yaw), s = Math.sin(CFG.yaw), xr = x * c - y * s, yr = x * s + y * c;
+  return [OX + xr * CFG.k, OY - (yr * Math.sin(CFG.e) + z * CFG.z * Math.cos(CFG.e)) * CFG.k, yr]; }
+function rgba(h, a) { const n = parseInt(h.slice(1), 16); return `rgba(${n >> 16},${n >> 8 & 255},${n & 255},${a})`; }
+function path(pts, close) { g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); if (close) g.closePath(); }
+function circ(cx, cy, cz, r, n = 72) { const a = []; for (let i = 0; i < n; i++) { const t = i / n * 6.2832; a.push(P(cx + r * Math.cos(t), cy + r * Math.sin(t), cz)); } return a; }
+function txt(s, x, y, o = {}) { g.font = (o.b ? '700 ' : '') + (o.s || 14) + 'px DejaVu Sans Mono, monospace'; g.fillStyle = o.c || COL.txt; g.textAlign = o.a || 'left'; g.fillText(s, x, y); }
+
+// ---- scene (km) ----
+const hz = CFG.z;
+const us = { x: 0, y: 0, z: 0 };
+const contacts = [
+  { id: 4, n: 'CONTACT 4', st: 'hos', x: -34, y: -66, z: 14 * hz, u: 3, hd: 1.2, lab: 'HOSTILE  fired on us 0:41', dist: 78, cert: 91, age: '0:08' },
+  { id: 1, n: 'CONTACT 1', st: 'aff', x: 40, y: 58, z: 7 * hz, u: 5, hd: 0.2, lab: 'AFFIRMED  pinged fix, hot bloom', dist: 62, cert: 74, age: '0:21' },
+  { id: 3, n: 'CONTACT 3', st: 'pas', x: 92, y: 22, z: -9 * hz, u: 14, hd: 2.6, lab: 'PASSIVE  cold mass, firming', dist: 88, cert: 52, age: '1:05' },
+  { id: 2, n: 'CONTACT 2', st: 'sus', x: -66, y: 44, z: -12 * hz, u: 22, hd: 0, lab: 'SUSPECTED  faint heat', dist: 71, cert: 18, age: '4:40' },
+  { id: 5, n: 'KESTREL', st: 'code', x: -22, y: 88, z: 20 * hz, u: 1.5, hd: 4.0, lab: 'FREIGHTER  transponder reply', dist: 94, cert: 100, age: 'live' }];
+const stCol = { hos: COL.hos, aff: COL.aff, pas: COL.pas, sus: COL.sus, code: COL.aff2 };
+const bodies = [{ n: 'PLANET', x: 84, y: -40, z: 0, r: 13, col: '#2e4f58' }, { n: 'STAR', x: 118, y: -78, z: 0, r: 12, col: '#f2e6b0', star: 1 }];
+const route = [{ x: 0, y: 0 }, { x: 36, y: 20 }, { x: 62, y: 2 }, { x: 66, y: -24 }];
+const routeCost = [0.15, 0.1, 0.55];   // steady coasting is cheap; the cost sits at the burns
+const burns = [{ i: 1, t: 'BURN 1', d: 'dv 0.4  +9% sink  flare 2:30', cost: 0.3 }, { i: 2, t: 'BURN 2', d: 'dv 1.1  +21% sink  flare 5:00', cost: 0.85 }];
+const knots = [[-52, -32, 5, 0.18], [-40, -24, 7, 0.28], [-28, -17, 11, 0.7], [-16, -9, 6, 0.4], [-6, -3, 4, 0.55]];
+const ghost = { x: 24, y: -16, r: 15 };
+
+// ---- background ----
+g.fillStyle = COL.bg; g.fillRect(0, 0, W, H);
+const grd = g.createRadialGradient(OX, OY, 40, OX, OY, 560); grd.addColorStop(0, '#0b1a16'); grd.addColorStop(1, '#050b09'); g.fillStyle = grd; g.fillRect(0, 0, 1130, H);
+g.strokeStyle = COL.line; g.lineWidth = 1; g.strokeRect(14.5, 14.5, 1101, 931);
+
+// ---- range structure ----
+function shellBack() {
+  if (!CFG.shell) return; const R = 110; g.lineWidth = 1;
+  for (const lat of [-60, -30, 30, 60]) { const a = lat * Math.PI / 180; path(circ(0, 0, R * Math.sin(a) / CFG.z * 1, R * Math.cos(a)), true); g.strokeStyle = rgba(COL.ring, 0.45); g.stroke(); }
+  for (let az = 0; az < 180; az += 30) { const t = az * Math.PI / 180, pts = []; for (let i = 0; i <= 72; i++) { const u = i / 72 * 6.2832; pts.push(P(R * Math.cos(u) * Math.cos(t), R * Math.cos(u) * Math.sin(t), R * Math.sin(u))); } path(pts); g.strokeStyle = rgba(COL.ring, 0.3); g.stroke(); }
+}
+function rings() {
+  for (const r of [25, 50, 75, 100, 125]) { path(circ(0, 0, 0, r), true); g.strokeStyle = r === 100 ? rgba(COL.ring, 1) : rgba(COL.ring, 0.7); g.lineWidth = 1; g.setLineDash(r % 50 ? [2, 5] : []); g.stroke(); g.setLineDash([]);
+    const p = P(r * Math.cos(2.15), r * Math.sin(2.15)); txt(r + ' km', p[0] + 4, p[1] - 3, { c: COL.dim, s: 12 }); }
+  // bearing ring + ticks
+  for (let b = 0; b < 360; b += 10) { const t = (90 - b) * Math.PI / 180, major = b % 30 === 0, a = P(125 * Math.cos(t), 125 * Math.sin(t)), c = P((125 + (major ? 7 : 3.5)) * Math.cos(t), (125 + (major ? 7 : 3.5)) * Math.sin(t));
+    g.strokeStyle = COL.ring; g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(c[0], c[1]); g.stroke(); if (major) { const l = P(137 * Math.cos(t), 137 * Math.sin(t)); txt(String(b).padStart(3, '0'), l[0], l[1] + 4, { a: 'center', c: COL.dim, s: 12 }); } }
+  // crosshair axes
+  g.strokeStyle = rgba(COL.ring, 0.5); for (const t of [0, Math.PI / 2]) { const a = P(125 * Math.cos(t), 125 * Math.sin(t)), b = P(-125 * Math.cos(t), -125 * Math.sin(t)); g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.stroke(); }
+}
+function bodyDraw(b) { const p = P(b.x, b.y, b.z), r = b.r * CFG.k;
+  if (b.star) { const gr = g.createRadialGradient(p[0], p[1], 2, p[0], p[1], r * 2.6); gr.addColorStop(0, 'rgba(255,240,190,.9)'); gr.addColorStop(0.3, 'rgba(255,220,140,.35)'); gr.addColorStop(1, 'rgba(255,200,120,0)'); g.fillStyle = gr; g.beginPath(); g.arc(p[0], p[1], r * 2.6, 0, 7); g.fill(); g.fillStyle = '#fff3c4'; g.beginPath(); g.arc(p[0], p[1], r * 0.45, 0, 7); g.fill(); txt('STAR  glare', p[0], p[1] + r * 0.45 + 22, { a: 'center', c: '#cdb87a', s: 12 }); return; }
+  g.fillStyle = '#16282b'; g.strokeStyle = '#3e6b75'; g.lineWidth = 2; path(circ(b.x, b.y, b.z, b.r, 60), true); g.fill(); g.stroke(); txt(b.n + '  blocks sight', p[0], p[1] + 5, { a: 'center', c: '#6fa0ab', s: 12 });
+  // shadow wedge behind the planet (away from the star)
+  const dx = b.x - 118, dy = b.y + 78, L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, nx = -uy, ny = ux, f = 70;
+  g.fillStyle = 'rgba(0,0,0,.35)'; path([P(b.x + nx * b.r, b.y + ny * b.r), P(b.x + ux * f + nx * b.r * .7, b.y + uy * f + ny * b.r * .7), P(b.x + ux * f - nx * b.r * .7, b.y + uy * f - ny * b.r * .7), P(b.x - nx * b.r, b.y - ny * b.r)], true); g.fill();
+  txt('COLD SHADOW', P(b.x + ux * 48, b.y + uy * 48)[0], P(b.x + ux * 48, b.y + uy * 48)[1], { a: 'center', c: '#4c7a86', s: 11 }); }
+
+// ---- wake, paths, picture ----
+function wake() { for (const [x, y, r, a] of knots) { const p = P(x, y), rr = r * CFG.k * 0.6; const gr = g.createRadialGradient(p[0], p[1], 1, p[0], p[1], rr); gr.addColorStop(0, rgba(COL.wake, a)); gr.addColorStop(1, rgba(COL.wake, 0)); g.fillStyle = gr; g.beginPath(); g.ellipse(p[0], p[1], rr, rr * Math.sin(CFG.e), 0, 0, 7); g.fill(); }
+  g.setLineDash([2, 6]); g.strokeStyle = rgba(COL.wake, 0.5); g.lineWidth = 1.5; path(knots.map(k => P(k[0], k[1])).concat([P(0, 0)])); g.stroke(); g.setLineDash([]);
+  const q = P(-28, -17); txt('OUR WAKE  burn 4:10 ago', q[0] + 10, q[1] - 26, { c: rgba(COL.wake, 0.95), s: 12, a: 'right' }); }
+function heatCol(v) { return v < .35 ? COL.pas : v < .6 ? COL.aff : v < .8 ? COL.aff2 : COL.hos; }
+function routeDraw() {
+  for (let i = 0; i < route.length - 1; i++) { const a = P(route[i].x, route[i].y), b = P(route[i + 1].x, route[i + 1].y); g.strokeStyle = heatCol(routeCost[i]); g.lineWidth = 3; g.setLineDash([10, 5]); g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.stroke(); g.setLineDash([]);
+    const m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]; txt(i === 1 ? 'COAST' : i === 0 ? 'COAST' : 'COAST', m[0], m[1] - 8, { a: 'center', c: rgba(COL.txt, .7), s: 11 }); }
+  burns.forEach((bn, k) => { const r = route[bn.i], p = P(r.x, r.y), c = heatCol(bn.cost); g.fillStyle = COL.bg; g.strokeStyle = c; g.lineWidth = 2.5; g.beginPath(); g.moveTo(p[0], p[1] - 9); g.lineTo(p[0] + 9, p[1]); g.lineTo(p[0], p[1] + 9); g.lineTo(p[0] - 9, p[1]); g.closePath(); g.fill(); g.stroke();
+    const bx = p[0] + (k ? 26 : -226), by = p[1] + (k ? -8 : -58); g.fillStyle = 'rgba(5,11,9,.92)'; g.strokeStyle = c; g.lineWidth = 1.5; g.fillRect(bx, by, 214, 40); g.strokeRect(bx, by, 214, 40); g.strokeStyle = rgba(c, .6); g.beginPath(); g.moveTo(p[0], p[1]); g.lineTo(bx + (k ? 0 : 214), by + (k ? 20 : 40)); g.stroke(); txt(bn.t, bx + 8, by + 16, { c, b: 1, s: 13 }); txt(bn.d, bx + 8, by + 32, { s: 11.5 }); });
+  const e = P(route[3].x, route[3].y); txt('ends in the planet\'s cold shadow', e[0] + 12, e[1] + 22, { c: COL.dim, s: 11 }); }
+function ghostDraw() { const p = P(ghost.x, ghost.y), hp = P(-34, -66, 14 * hz);
+  g.fillStyle = rgba(COL.aff2, 0.12); g.strokeStyle = rgba(COL.aff2, 0.85); g.lineWidth = 2; g.setLineDash([7, 6]); path(circ(ghost.x, ghost.y, 0, ghost.r, 60), true); g.fill(); g.stroke(); g.setLineDash([]);
+  g.setLineDash([2, 6]); g.strokeStyle = rgba(COL.hos, .55); g.beginPath(); g.moveTo(hp[0], hp[1]); g.lineTo(p[0], p[1]); g.stroke(); g.setLineDash([]);
+  txt('THEIR PICTURE OF US', p[0] + 6, p[1] + ghost.r * CFG.k * Math.sin(CFG.e) + 22, { c: COL.aff2, s: 12, b: 1, a: 'center' }); txt('closing 58%  off by 28 km', p[0] + 6, p[1] + ghost.r * CFG.k * Math.sin(CFG.e) + 38, { c: rgba(COL.aff2, .85), s: 11, a: 'center' }); }
+function usDraw() { const p = P(0, 0), hd = Math.atan2(20, 36), a = [P(0, 0), P(10 * Math.cos(hd), 10 * Math.sin(hd))];
+  g.strokeStyle = COL.us; g.lineWidth = 2; g.fillStyle = COL.bg; g.beginPath(); g.arc(p[0], p[1], 9, 0, 7); g.fill(); g.stroke(); g.beginPath(); g.moveTo(p[0], p[1]); g.lineTo(a[1][0], a[1][1] + 0); g.stroke();
+  g.strokeStyle = rgba('#ffffff', .8); g.lineWidth = 2.5; const t = P(16 * Math.cos(hd), 16 * Math.sin(hd)); g.beginPath(); g.moveTo(p[0], p[1]); g.lineTo(t[0], t[1]); g.stroke();
+  txt('TERN  coasting, drive off', p[0] - 14, p[1] + 30, { a: 'right', c: COL.us, b: 1, s: 13 }); }
+function stalk(c) { if (!CFG.z) return; const a = P(c.x, c.y, 0), b = P(c.x, c.y, c.z); g.strokeStyle = rgba(stCol[c.st], .45); g.lineWidth = 1; g.setLineDash([3, 3]); g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.stroke(); g.setLineDash([]); g.fillStyle = rgba(stCol[c.st], .5); g.beginPath(); g.ellipse(a[0], a[1], 4, 2, 0, 0, 7); g.fill(); }
+function contactDraw(c, hl) { stalk(c); const p = P(c.x, c.y, c.z), col = stCol[c.st], rr = c.u * CFG.k;
+  // uncertainty
+  g.lineWidth = 1.5; g.strokeStyle = rgba(col, c.st === 'sus' ? .55 : .8); g.fillStyle = rgba(col, c.st === 'sus' ? .06 : .1); g.setLineDash(c.st === 'sus' ? [3, 5] : c.st === 'pas' ? [8, 4] : []); path(circ(c.x, c.y, c.z, c.u, 48), true); g.fill(); g.stroke(); g.setLineDash([]);
+  // glyph
+  g.lineWidth = 2.5; g.strokeStyle = col; g.fillStyle = col; const s = 10;
+  if (c.st === 'sus') { g.setLineDash([2, 3]); g.strokeRect(p[0] - 8, p[1] - 8, 16, 16); g.setLineDash([]); }
+  else if (c.st === 'pas') { g.save(); g.translate(p[0], p[1]); g.rotate(Math.PI / 4); g.strokeRect(-8, -8, 16, 16); g.restore(); }
+  else if (c.st === 'aff') { g.save(); g.translate(p[0], p[1]); g.rotate(-c.hd); g.beginPath(); g.moveTo(14, 0); g.lineTo(-9, 9); g.lineTo(-5, 0); g.lineTo(-9, -9); g.closePath(); g.fill(); g.restore(); }
+  else if (c.st === 'hos') { g.save(); g.translate(p[0], p[1]); g.rotate(-c.hd); g.beginPath(); g.moveTo(15, 0); g.lineTo(-10, 10); g.lineTo(-6, 0); g.lineTo(-10, -10); g.closePath(); g.fill(); g.restore(); g.strokeStyle = rgba(COL.hos, .5); g.lineWidth = 2; g.beginPath(); g.arc(p[0], p[1], 20, 0, 7); g.stroke(); g.beginPath(); g.arc(p[0], p[1], 27, 0, 7); g.strokeStyle = rgba(COL.hos, .22); g.stroke(); }
+  else { g.beginPath(); g.arc(p[0], p[1], 9, 0, 7); g.stroke(); g.beginPath(); g.arc(p[0], p[1], 3, 0, 7); g.fill(); }
+  txt(c.n, p[0] + 16, p[1] - 6, { c: col, b: 1, s: 13 }); txt(c.lab.split('  ')[0] + '  ' + c.dist + ' km', p[0] + 16, p[1] + 9, { c: rgba(COL.txt, .8), s: 11 }); }
+
+// ---- compose ----
+shellBack(); rings(); bodies.forEach(bodyDraw); wake(); ghostDraw(); routeDraw();
+contacts.slice().sort((a, b) => P(a.x, a.y, a.z)[2] - P(b.x, b.y, b.z)[2]).forEach(c => contactDraw(c)); usDraw();
+
+// ---- header / clocks ----
+txt(CFG.label, 34, 46, { c: COL.amber, b: 1, s: 17 });
+txt('MOCK-UP: not interactive. Same scene in all three options. Fake data.', 34, 68, { c: COL.dim, s: 12 });
+function clock(x, y, lab, val, col) { g.fillStyle = 'rgba(8,20,17,.9)'; g.strokeStyle = COL.line; g.fillRect(x, y, 250, 56); g.strokeRect(x + .5, y + .5, 250, 56); txt(lab, x + 10, y + 19, { c: COL.dim, s: 11.5 }); txt(val, x + 10, y + 46, { c: col, b: 1, s: 24 }); }
+clock(850, 30, 'SINK FULL IN', '07:01', COL.amber); clock(850, 94, 'HUNTER FIX ON US IN', '~ 06:40', COL.aff2);
+txt('Coasting is quiet. Every change is a burn.', 34, 922, { c: COL.dim, s: 13 });
+if (MODE === 'B') { txt('sphere = range shell; stalks drop to the orbital plane', 34, 900, { c: COL.dim, s: 12 }); }
+if (MODE === 'A') { txt('tilted disc = the plane; contacts sit on it', 34, 900, { c: COL.dim, s: 12 }); }
+if (MODE === 'C') { txt('top-down, no sphere; panning and ring zoom as today', 34, 900, { c: COL.dim, s: 12 }); }
+
+// ---- right panel: overview + layers + legend ----
+const RX = 1140; g.fillStyle = '#08130f'; g.fillRect(RX, 14, 446, 932); g.strokeStyle = COL.line; g.strokeRect(RX + .5, 14.5, 445, 931);
+txt('OVERVIEW', RX + 16, 44, { c: COL.amber, b: 1, s: 15 }); txt('sorted by threat', RX + 130, 44, { c: COL.dim, s: 12 });
+txt('', 0, 0); const cols = [['', 0], ['NAME', 34], ['STATE', 150], ['KM', 296], ['CERT', 340], ['AGE', 396]]; cols.forEach(([t, x]) => txt(t, RX + 14 + x, 74, { c: COL.dim, s: 11.5 }));
+const order = ['hos', 'aff', 'code', 'pas', 'sus']; const rows = contacts.slice().sort((a, b) => order.indexOf(a.st) - order.indexOf(b.st));
+const stName = { hos: 'HOSTILE', aff: 'AFFIRMED', code: 'TRANSPONDER', pas: 'PASSIVE', sus: 'SUSPECTED' };
+rows.forEach((c, i) => { const y = 96 + i * 46, col = stCol[c.st]; g.fillStyle = i === 0 ? 'rgba(255,74,61,.10)' : 'rgba(255,255,255,.02)'; g.fillRect(RX + 8, y - 6, 430, 40); g.strokeStyle = rgba(col, .45); g.strokeRect(RX + 8.5, y - 5.5, 429, 39);
+  g.fillStyle = col; g.strokeStyle = col; g.lineWidth = 2; const cx = RX + 28, cy = y + 14;
+  if (c.st === 'sus') { g.setLineDash([2, 2]); g.strokeRect(cx - 6, cy - 6, 12, 12); g.setLineDash([]); } else if (c.st === 'pas') { g.save(); g.translate(cx, cy); g.rotate(Math.PI / 4); g.strokeRect(-6, -6, 12, 12); g.restore(); } else if (c.st === 'code') { g.beginPath(); g.arc(cx, cy, 7, 0, 7); g.stroke(); g.beginPath(); g.arc(cx, cy, 2.5, 0, 7); g.fill(); } else { g.beginPath(); g.moveTo(cx + 9, cy); g.lineTo(cx - 6, cy + 7); g.lineTo(cx - 3, cy); g.lineTo(cx - 6, cy - 7); g.closePath(); g.fill(); }
+  txt(c.n, RX + 48, y + 18, { c: col, b: 1, s: 12.5 }); txt(stName[c.st], RX + 164, y + 18, { c: col, s: 12 }); txt(String(c.dist), RX + 310, y + 18, { s: 12.5, a: 'right' }); txt(c.cert + '%', RX + 354, y + 18, { s: 12.5, a: 'right' }); txt(c.age, RX + 414, y + 18, { s: 12.5, a: 'right', c: c.age === 'live' ? COL.aff2 : COL.dim }); });
+// layer bar
+let ly = 96 + 5 * 46 + 22; txt('LAYERS', RX + 16, ly, { c: COL.amber, b: 1, s: 15 });
+[['PASSIVE', 1], ['ACTIVE', 1], ['WAKES', 1], ['THEIR PICTURE', 1], ['PATHS', 1], ['BODIES', 1]].forEach(([t, on], i) => { const x = RX + 16 + (i % 3) * 140, y = ly + 14 + Math.floor(i / 3) * 36; g.fillStyle = on ? 'rgba(53,211,200,.14)' : 'transparent'; g.strokeStyle = on ? COL.pas : COL.line; g.fillRect(x, y, 128, 28); g.strokeRect(x + .5, y + .5, 128, 28); txt(t, x + 64, y + 19, { a: 'center', c: on ? COL.pas : COL.dim, s: 11.5 }); });
+// legend
+let gy = ly + 112; txt('COLOUR GRAMMAR', RX + 16, gy, { c: COL.amber, b: 1, s: 15 });
+txt('cool = suspected or passive    warm = affirmed', RX + 16, gy + 20, { c: COL.dim, s: 11.5 });
+[[COL.sus, 'dotted', 'Suspected   one faint trace, no track'], [COL.pas, 'dashed', 'Passive   a real track, we have not revealed ourselves'], [COL.aff, 'solid', 'Affirmed   ping fix, transponder reply, vent seen'], [COL.hos, 'halo', 'Hostile   has fired or holds a lock on us'], [COL.us, 'white', 'Us   heading tick, never one of the above'], [COL.aff2, 'ghost', 'Their picture of us   what the hunter believes']].forEach(([c, k, t], i) => { const y = gy + 44 + i * 30; g.fillStyle = c; g.strokeStyle = c; g.lineWidth = 2.5; if (k === 'dotted') { g.setLineDash([2, 3]); g.strokeRect(RX + 18, y - 9, 14, 14); g.setLineDash([]); } else if (k === 'dashed') { g.save(); g.translate(RX + 25, y - 2); g.rotate(Math.PI / 4); g.strokeRect(-6, -6, 12, 12); g.restore(); } else if (k === 'ghost') { g.setLineDash([4, 3]); g.beginPath(); g.arc(RX + 25, y - 2, 8, 0, 7); g.stroke(); g.setLineDash([]); } else if (k === 'white') { g.beginPath(); g.arc(RX + 25, y - 2, 7, 0, 7); g.stroke(); } else { g.beginPath(); g.moveTo(RX + 34, y - 2); g.lineTo(RX + 18, y + 6); g.lineTo(RX + 21, y - 2); g.lineTo(RX + 18, y - 10); g.closePath(); g.fill(); if (k === 'halo') { g.beginPath(); g.arc(RX + 25, y - 2, 12, 0, 7); g.globalAlpha = .5; g.stroke(); g.globalAlpha = 1; } }
+  txt(t, RX + 46, y + 3, { s: 11.5 }); });
+const by2 = gy + 44 + 6 * 30 + 12; txt('PATH COLOUR = HEAT COST', RX + 16, by2, { c: COL.amber, b: 1, s: 15 });
+const gr2 = g.createLinearGradient(RX + 16, 0, RX + 420, 0); gr2.addColorStop(0, COL.pas); gr2.addColorStop(.4, COL.aff); gr2.addColorStop(.75, COL.aff2); gr2.addColorStop(1, COL.hos); g.fillStyle = gr2; g.fillRect(RX + 16, by2 + 12, 404, 10); txt('cheap coast', RX + 16, by2 + 40, { c: COL.dim, s: 11 }); txt('big burn', RX + 420, by2 + 40, { c: COL.dim, s: 11, a: 'right' });
+window.__done = true;
+</script>
