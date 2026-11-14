@@ -56,8 +56,8 @@ const M = {
   amber: new THREE.MeshStandardMaterial({ color: 0x3a2508, emissive: 0xe8a33a, emissiveIntensity: 1.4 }),
   teal: new THREE.MeshStandardMaterial({ color: 0x062420, emissive: 0x35d3c8, emissiveIntensity: .9 }),
   chair: new THREE.MeshStandardMaterial({ color: 0x3b2f26, roughness: .8 }),
-  ghost: new THREE.MeshStandardMaterial({ color: 0x18211f, roughness: .9 }),
-  ghostWall: new THREE.MeshStandardMaterial({ color: 0x1c2826, roughness: .9 }),
+  ghost: new THREE.MeshStandardMaterial({ color: 0x0b1110, roughness: .95 }),
+  ghostWall: new THREE.MeshStandardMaterial({ color: 0x121b19, roughness: .95 }),
 };
 function box(w, h, d, mat, x, y, z, parent = S) {
   const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
@@ -220,7 +220,7 @@ function fromPosTarget(p, t, fov) {
   return { t: t.clone(), az: Math.atan2(v.x, v.z) * 57.2958, el: Math.asin(v.y / d) * 57.2958, H: 2 * d * Math.tan(fov / 2 / 57.2958), fov };
 }
 const STATIONS = {
-  main:    fromPosTarget(new THREE.Vector3(.36, 1.92, .5),  new THREE.Vector3(-.02, 1.12, -1.55), 46),
+  main:    fromPosTarget(new THREE.Vector3(.5, 1.9, .55),  new THREE.Vector3(.12, 1.1, -1.55), 44),
   nav:     fromPosTarget(new THREE.Vector3(-1.6, 1.8, .45), new THREE.Vector3(-3.45, 1.15, -.2), 46),
   sensors: fromPosTarget(new THREE.Vector3(2.9, 1.85, -.4), new THREE.Vector3(2.55, 1.15, -2.55), 46),
   table:   fromPosTarget(new THREE.Vector3(1.9, 2.4, 2.4),  new THREE.Vector3(1.9, .86, .8), 46),
@@ -275,16 +275,18 @@ new THREE.GLTFLoader().load(GLB, gl => {
       mm.forEach(m => ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'emissiveMap'].forEach(s => { if (m[s]) maps.push(s + ' ' + m[s].image.width + 'x' + m[s].image.height); })); }
     if (o.isBone) bones++;
   });
-  const bb = new THREE.Box3().setFromObject(model), h = bb.max.y - bb.min.y, sc = 1.76 / h;
-  model.scale.setScalar(sc); model.updateMatrixWorld(true);
-  const bb2 = new THREE.Box3().setFromObject(model);
+  // Box3 on a SkinnedMesh uses the unskinned geometry (cm units, armature scaled 0.01) -> wrong size.
+  // Measure from bone world positions instead; the rig is already ~1.78 m, so no rescale.
+  model.updateMatrixWorld(true);
+  const bb = new THREE.Box3(); model.traverse(o => { if (o.isBone) bb.expandByPoint(new THREE.Vector3().setFromMatrixPosition(o.matrixWorld)); });
+  const h = bb.max.y - bb.min.y;
   const wrap = new THREE.Group(); wrap.add(model);
-  model.position.set(-(bb2.min.x + bb2.max.x) / 2, -bb2.min.y, -(bb2.min.z + bb2.max.z) / 2);
-  wrap.position.set(.05, 0, -.62); wrap.rotation.y = Math.PI; // face the main console (-z)
+  model.position.set(-(bb.min.x + bb.max.x) / 2, -bb.min.y + .04, -(bb.min.z + bb.max.z) / 2);
+  wrap.position.set(-.32, 0, -.6); wrap.rotation.y = Math.PI; // face the main console (-z)
   S.add(wrap);
   mixer = new THREE.AnimationMixer(model);
   if (gl.animations[0]) { clipAction = mixer.clipAction(gl.animations[0]); }
-  modelInfo = { file: GLB, loadMs: Math.round(tLoad), tris, verts, meshes, bones, maps, rawHeight: +h.toFixed(3), clips: gl.animations.map(a => a.name + ' ' + a.duration.toFixed(2) + 's') };
+  modelInfo = { file: GLB, loadMs: Math.round(tLoad), tris, verts, meshes, bones, maps, boneSpanH: +h.toFixed(3), boneMinY: +bb.min.y.toFixed(3), clips: gl.animations.map(a => a.name + ' ' + a.duration.toFixed(2) + 's') };
   window.modelInfo = modelInfo; window.ready = true;
 }, undefined, e => { window.err = String(e && e.message || e); document.getElementById('stats').textContent = 'GLB load failed: ' + window.err; });
 function togglePose() {
