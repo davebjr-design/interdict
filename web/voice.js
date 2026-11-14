@@ -5,6 +5,8 @@
  * can show a track, chip or subtitle after the line. If speech is unavailable, muted, or stalls, a timed
  * fallback (about 0.33 s per word) stands in, so the game never depends on audio working.
  *
+ *   Voice.loadClips(manifest, 'voice_clips/')  then  Voice.speak({id:'quill_new_thermal', who:'Quill', text:'...'}) plays the neural clip if one exists,
+ *   else browser speech, else timed text.
  *   Voice.speak({who:'Quill', text:'New thermal, bearing two-eight-zero.', priority:2}).then(...)
  *   Voice.cancel(); Voice.set({enabled:false, rate:1.1, volume:0.8}); Voice.who -> profiles
  *
@@ -30,6 +32,7 @@
     Dunne:     { pitch: 1.05, rate: 1.00, gender: 'f', prefer: ['Victoria', 'Allison', 'Ava'] },
     default:   { pitch: 1.00, rate: 1.00, gender: '',  prefer: [] }
   };
+  let clips = {}, clipBase = '', audioEl = null;
   const q = [];            // {job, pri, seq}
   let cur = null, seq = 0, timer = null, watchdog = null;
 
@@ -70,6 +73,17 @@
     const rate = (job.profile.rate || 1) * S.rate;
     try { job.onStart && job.onStart(); } catch (e) {}
     if (S.subtitle) try { S.subtitle(job); } catch (e) {}
+    const clip = job.id && clips[job.id];
+    if (S.enabled && clip && S.volume > 0 && root.Audio) {   // pre-rendered neural line (tools/tts/render.py)
+      let done = false; const end = ok => { if (!done) { done = true; finish(job, ok); } };
+      try {
+        audioEl = new root.Audio(clipBase + clip.file); audioEl.volume = S.volume; audioEl.playbackRate = S.rate;
+        audioEl.onended = () => end(true); audioEl.onerror = () => end(false);
+        const pr = audioEl.play(); if (pr && pr.catch) pr.catch(() => end(false));     // blocked autoplay: fall back to timed text
+        watchdog = setTimeout(() => { try { audioEl.pause(); } catch (e) {} end(false); }, (clip.ms || estMs(job.text, rate)) * 2 + 2000);
+      } catch (e) { end(false); }
+      return;
+    }
     if (!S.enabled || !sy || S.volume <= 0) {            // timed fallback: the line "plays" silently for its natural length
       timer = setTimeout(() => finish(job, false), estMs(job.text, rate));
       return;
@@ -96,7 +110,7 @@
 
   function interrupt() {
     if (!cur) return;
-    const sy = synth(); try { sy && sy.cancel(); } catch (e) {}
+    const sy = synth(); try { sy && sy.cancel(); } catch (e) {} try { audioEl && audioEl.pause(); } catch (e) {}
     const c = cur; clearTimeout(timer); clearTimeout(watchdog); cur = null;
     try { c.job.onEnd && c.job.onEnd(false); } catch (e) {} c.resolve(false);
   }
@@ -104,7 +118,7 @@
   function speak(o) {
     const pri = Math.max(1, Math.min(4, o.priority || 2));
     const profile = WHO[o.who] || WHO.default;
-    const job = { who: o.who || 'default', text: String(o.text || ''), priority: pri, profile, onStart: o.onStart, onEnd: o.onEnd };
+    const job = { id: o.id, who: o.who || 'default', text: String(o.text || ''), priority: pri, profile, onStart: o.onStart, onEnd: o.onEnd };
     if (!job.text) return Promise.resolve(false);
     return new Promise(resolve => {
       // a backed-up queue drops routine chatter rather than falling behind events
@@ -116,14 +130,15 @@
   }
 
   function cancel() {
-    const sy = synth(); try { sy && sy.cancel(); } catch (e) {}
+    const sy = synth(); try { sy && sy.cancel(); } catch (e) {} try { audioEl && audioEl.pause(); } catch (e) {}
     while (q.length) { const n = q.shift(); n.resolve(false); }
     if (cur) { const c = cur; clearTimeout(timer); clearTimeout(watchdog); cur = null; c.resolve(false); }
   }
+  function loadClips(manifest, base) { clips = manifest || {}; clipBase = base || ''; }
   function set(o) { Object.assign(S, o || {}); save(); }
   function state() { return { enabled: S.enabled, rate: S.rate, volume: S.volume, speaking: !!cur, queued: q.length, available: !!synth() }; }
 
   load();
-  root.Voice = { speak, cancel, set, state, who: WHO, _estMs: estMs, _pickVoice: pickVoice };
+  root.Voice = { speak, loadClips, cancel, set, state, who: WHO, _estMs: estMs, _pickVoice: pickVoice };
   if (typeof module !== 'undefined') module.exports = root.Voice;
 })(typeof window !== 'undefined' ? window : globalThis);

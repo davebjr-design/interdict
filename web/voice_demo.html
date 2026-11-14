@@ -1,38 +1,65 @@
-<!doctype html><meta charset="utf-8"><title>Voice demo</title>
+<!doctype html><meta charset="utf-8"><title>Voice viability demo</title>
 <style>
-body{background:#0b1418;color:#cfe;font:15px/1.4 system-ui;margin:0;padding:24px;max-width:860px}
-h1{font-size:18px;color:#f0b050} button{background:#16303a;color:#cfe;border:1px solid #2c5a68;padding:8px 12px;margin:3px;border-radius:4px;cursor:pointer}
-button:hover{background:#1f4452} .row{margin:10px 0} #deck{margin-top:22px;border:1px solid #2c5a68;padding:14px;border-radius:6px;min-height:120px;background:#0e1d23}
-#line{font-size:17px;min-height:48px} #who{color:#f0b050;font-weight:bold} .chip{display:inline-block;margin:6px 6px 0 0;padding:6px 10px;border:1px solid #3b7a8a;border-radius:4px}
-.chip b{color:#f0b050} .rec{border-color:#f0b050} small{color:#7aa}
+body{background:#0b1418;color:#cfe;font:15px/1.45 system-ui;margin:0;padding:24px;max-width:900px}
+h1{font-size:19px;color:#f0b050;margin:0 0 4px} h2{font-size:15px;color:#f0b050;margin:26px 0 6px;border-bottom:1px solid #234;padding-bottom:4px}
+button{background:#16303a;color:#cfe;border:1px solid #2c5a68;padding:7px 11px;margin:3px;border-radius:4px;cursor:pointer}button:hover{background:#1f4452}
+small,.dim{color:#7aa} .line{display:flex;gap:10px;align-items:center;margin:5px 0} .line b{width:86px;color:#f0b050}
+#deck{border:1px solid #2c5a68;border-radius:6px;padding:12px;background:#0e1d23;min-height:90px;margin-top:8px}
+.chip{display:inline-block;margin:6px 6px 0 0;padding:5px 9px;border:1px solid #3b7a8a;border-radius:4px}.chip b{color:#f0b050}.rec{border-color:#f0b050}
+#log{font:12px/1.4 ui-monospace,monospace;background:#071014;padding:8px;border-radius:4px;max-height:180px;overflow:auto;white-space:pre-wrap}
+table{border-collapse:collapse;width:100%;font-size:13px}td,th{border:1px solid #234;padding:5px 8px;text-align:left;vertical-align:top}th{color:#f0b050}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.grid div{border:1px solid #234;padding:6px;border-radius:4px;font-size:12px}audio{width:100%;height:30px}
 </style>
-<h1>Crew voices and the call deck (prototype)</h1>
-<p><small>Uses your browser's built-in voices, so they differ by device. Audio first: the chips appear only after the line ends. Keys: 1-4 answer, Enter takes the recommendation, R replays, Backspace stands by.</small></p>
-<div class="row">Volume <input id="vol" type="range" min="0" max="1" step=".1" value="1"> Speed <input id="rate" type="range" min=".7" max="1.4" step=".05" value="1">
- <label><input id="mute" type="checkbox"> mute (timed text only)</label></div>
-<div class="row" id="btns"></div>
-<div id="deck"><div><span id="who"></span></div><div id="line"></div><div id="chips"></div><div id="res"><small></small></div></div>
+<h1>Is generated speech viable for the dialogue?</h1>
+<div class="dim">Three tests on one page: (1) pre-rendered neural voices, (2) casting audition, (3) your browser's built-in speech, with a diagnostic so we can see why it fails. Serve this folder (or open from the repo's web/ folder).</div>
+
+<h2>1. Pre-rendered neural voices (Piper, generated offline, played as ordinary audio)</h2>
+<div id="clips"></div>
+<div id="deck"><div id="who" style="color:#f0b050"></div><div id="ln" style="font-size:17px;min-height:26px"></div><div id="chips"></div></div>
+<div class="dim" style="margin-top:6px">Press a line: the text appears when speech starts, the answer chips only after it ends (audio first, picture second). Keys 1-4 pick a chip.</div>
+
+<h2>2. Casting audition: one line, 16 different voices from one model (904 available)</h2>
+<div class="grid" id="aud"></div>
+
+<h2>3. Browser built-in speech (diagnostic)</h2>
+<div class="line"><button id="rawtest">Raw test: say a sentence</button><button id="vlist">List voices</button><button id="viaVoice">Test through voice.js</button></div>
+<div id="log"></div>
+
+<h2>4. What it means for a large amount of dialogue</h2>
+<table>
+<tr><th></th><th>Browser speech</th><th>Pre-rendered neural (Piper)</th></tr>
+<tr><td>Cost</td><td>Free, nothing to ship</td><td>Free; about 30 KB of audio per 4-second line, so 1,000 lines is about 30 MB</td></tr>
+<tr><td>Quality</td><td>Varies by device and browser; often flat; cannot be tuned</td><td>Consistent everywhere; clearly better than typical built-in voices; still synthetic</td></tr>
+<tr><td>Control</td><td>Pitch and rate only</td><td>Per-character voice, pace and variation; re-render a single line in about 1-2 seconds</td></tr>
+<tr><td>Reliability</td><td>Failed for you; needs a user gesture, voices load late, differs per OS</td><td>Plain audio files: works anywhere audio works</td></tr>
+<tr><td>Workflow</td><td>None needed</td><td>Write lines, run one script, only changed lines are re-rendered</td></tr>
+<tr><td>Dynamic lines (numbers, bearings, track names)</td><td>Fine</td><td>Needs a template (e.g. "bearing" + digit clips) or a browser fallback</td></tr>
+</table>
+<p class="dim">Recommendation: write dialogue as data, render with Piper at build time, keep browser speech only as a fallback for lines not yet rendered. A professional voice service or human actors would be a later upgrade for key scenes; the pipeline does not change.</p>
+
 <script src="voice.js"></script>
 <script>
-const CALLS=[
- {who:'Quill',pri:2,text:'Conn, Sensors. New thermal return, bearing two-eight-zero.',opts:['Isolate and classify','Mark and continue','Ignore'],rec:0},
- {who:'Abara',pri:2,text:'Conn, Fire control. Bearing only on Sierra Two. I need a leg to range her.',opts:['Give a baseline','Hold silent','Wait'],rec:1},
- {who:'Castellan',pri:3,text:'Conn, Engineering. Burn will run hot. Recommend a shorter one.',opts:['Burn as ordered','Shorter burn','Abort'],rec:1},
- {who:'Dace',pri:3,text:'Conn, Thermal. Sink at eighty percent. Forced vent in twenty seconds.',opts:['Vent now','Hold and risk it','Cut thrust'],rec:0},
- {who:'Abara',pri:4,text:'Vampire, vampire. Bearing two-one-zero, impact in forty-five.',opts:['Go active','Stay cold'],rec:0},
- {who:'Pell',pri:2,text:'Captain, I can run the sensors for you. It would be faster. It would also be seen.',opts:['Do it','Not yet'],rec:1},
- {who:'Fenwick',pri:2,text:'Skipper, breach in aft stores and a fire. Which first, the sink or the drive?',opts:['Save the sink','Save the drive','Seal and sacrifice'],rec:0}
-];
-let cur=null,ready=false;
-const $=id=>document.getElementById(id);
-function play(c){cur=c;ready=false;$('who').textContent=c.who+' · priority '+c.pri;$('chips').innerHTML='';$('res').firstChild.textContent='';$('line').textContent='';
- Voice.speak({who:c.who,text:c.text,priority:c.pri,onStart:()=>{$('line').textContent=c.text}}).then(()=>{if(cur!==c)return;ready=true;
-  $('chips').innerHTML=c.opts.map((o,i)=>'<span class="chip'+(i===c.rec?' rec':'')+'"><b>'+(i+1)+'</b> '+o+(i===c.rec?' ✓':'')+'</span>').join('')});}
-function ans(i){if(!ready||!cur)return;$('res').firstChild.textContent='Order: '+cur.opts[i]+'. Acknowledged.';
- Voice.speak({who:cur.who,text:cur.who==='Pell'?'Understood.':'Aye. '+cur.opts[i]+'.',priority:2});ready=false;$('chips').innerHTML=''}
-CALLS.forEach(c=>{const b=document.createElement('button');b.textContent=c.who+(c.pri>=4?' (critical)':'');b.onclick=()=>play(c);$('btns').appendChild(b)});
-$('vol').oninput=e=>Voice.set({volume:+e.target.value});$('rate').oninput=e=>Voice.set({rate:+e.target.value});$('mute').onchange=e=>Voice.set({enabled:!e.target.checked});
-addEventListener('keydown',e=>{if(/^[1-4]$/.test(e.key))ans(+e.key-1);else if(e.key==='Enter'&&cur)ans(cur.rec);else if(e.key==='r'||e.key==='R'){if(cur)play(cur)}});
-if(!Voice.state().available){$('res').firstChild.textContent='No speech engine in this viewer: lines run as timed text only. Open the file in a normal browser tab (Chrome, Edge, Safari) to hear voices.';}
-else if(typeof speechSynthesis!=='undefined'&&'onvoiceschanged' in speechSynthesis)speechSynthesis.onvoiceschanged=()=>{};
+const $=id=>document.getElementById(id), log=t=>{const l=$('log');l.textContent+=t+'\n';l.scrollTop=1e9};
+const OPTS={quill_new_thermal:[['Isolate and classify','Mark and continue','Ignore'],0],abara_range:[['Give a baseline','Hold silent','Wait'],1],castellan_hot:[['Burn as ordered','Shorter burn','Abort'],1],
+ dace_vent:[['Vent now','Hold and risk it','Cut thrust'],0],abara_vampire:[['Go active','Stay cold'],0],pell_offer:[['Do it','Not yet'],1],fenwick_breach:[['Save the sink','Save the drive','Seal and sacrifice'],0]};
+let cur=null,ready=false,MF={};
+fetch('voice_clips/manifest.json').then(r=>r.json()).then(m=>{MF=m;Voice.loadClips(m,'voice_clips/');
+ Object.entries(m).forEach(([id,c])=>{const d=document.createElement('div');d.className='line';d.innerHTML='<b>'+c.who+'</b>';const b=document.createElement('button');b.textContent='▶ '+c.text;b.onclick=()=>play(id);d.appendChild(b);$('clips').appendChild(d)})})
+ .catch(e=>{$('clips').textContent='Could not load voice_clips/manifest.json ('+e+'). Serve the web/ folder over http (python3 -m http.server) rather than opening the file directly.'});
+function play(id){const c=MF[id],o=OPTS[id];cur=id;ready=false;$('who').textContent=c.who;$('ln').textContent='';$('chips').innerHTML='';
+ Voice.speak({id,who:c.who,text:c.text,priority:2,onStart:()=>{$('ln').textContent=c.text}}).then(()=>{if(cur!==id)return;ready=true;
+  $('chips').innerHTML=o[0].map((t,i)=>'<span class="chip'+(i===o[1]?' rec':'')+'"><b>'+(i+1)+'</b> '+t+(i===o[1]?' ✓':'')+'</span>').join('')})}
+addEventListener('keydown',e=>{if(ready&&/^[1-4]$/.test(e.key)){const o=OPTS[cur][0][+e.key-1];if(o){$('chips').innerHTML='<span class="dim">Order: '+o+'. Acknowledged.</span>';ready=false}}});
+[3,17,42,77,105,160,222,301,388,470,555,640,712,790,850,900].forEach(i=>{const d=document.createElement('div');d.innerHTML='Speaker '+i+'<audio controls preload="none" src="voice_samples/aud_s'+i+'.mp3"></audio>';$('aud').appendChild(d)});
+// diagnostics
+const ss=window.speechSynthesis;
+log('speechSynthesis: '+(ss?'present':'MISSING')+'; Utterance: '+(window.SpeechSynthesisUtterance?'present':'MISSING')+'; userAgent: '+navigator.userAgent);
+if(ss){const rep=()=>log('voices now: '+ss.getVoices().length);rep();ss.onvoiceschanged=rep;
+ log('speaking='+ss.speaking+' pending='+ss.pending+' paused='+ss.paused);if(ss.paused){ss.resume();log('was paused: resumed')}}
+$('vlist').onclick=()=>{if(!ss)return log('no speech engine');const v=ss.getVoices();log(v.length+' voices:\n'+v.map(x=>x.name+' ['+x.lang+(x.localService?', local':', network')+(x.default?', default':'')+']').join('\n'))};
+$('rawtest').onclick=()=>{if(!ss)return log('no speech engine');try{ss.cancel();const u=new SpeechSynthesisUtterance('Conn, Sensors. New thermal return, bearing two eight zero.');
+ u.onstart=()=>log('event: start');u.onend=()=>log('event: end');u.onerror=e=>log('event: ERROR '+(e.error||''));u.onpause=()=>log('event: pause');u.onboundary=e=>{if(e.name==='word')log('  word @'+e.charIndex)};
+ log('calling speak()...');ss.speak(u);setTimeout(()=>log('after 2s: speaking='+ss.speaking+' pending='+ss.pending),2000)}catch(e){log('threw: '+e)}};
+$('viaVoice').onclick=()=>{log('voice.js state: '+JSON.stringify(Voice.state()));const t0=performance.now();
+ Voice.speak({who:'Quill',text:'Testing the voice module through the browser speech engine.',priority:2,onStart:()=>log('voice.js start')}).then(ok=>log('voice.js resolved ok='+ok+' after '+Math.round(performance.now()-t0)+' ms (ok=false and a short time means speech failed and timed text took over)'))};
 </script>

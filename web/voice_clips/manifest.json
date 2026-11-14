@@ -1,0 +1,51 @@
+{
+ "quill_new_thermal": {
+  "file": "quill_new_thermal.mp3",
+  "who": "Quill",
+  "text": "Conn, Sensors. New thermal return, bearing two-eight-zero.",
+  "ms": 3760,
+  "key": "b08252726e53"
+ },
+ "abara_range": {
+  "file": "abara_range.mp3",
+  "who": "Abara",
+  "text": "Conn, Fire control. Bearing only on Sierra Two. I need a leg to range her.",
+  "ms": 4887,
+  "key": "7734ee249862"
+ },
+ "castellan_hot": {
+  "file": "castellan_hot.mp3",
+  "who": "Castellan",
+  "text": "Conn, Engineering. Burn will run hot. Recommend a shorter one.",
+  "ms": 4480,
+  "key": "4fc5530bce49"
+ },
+ "dace_vent": {
+  "file": "dace_vent.mp3",
+  "who": "Dace",
+  "text": "Conn, Thermal. Sink at eighty percent. Forced vent in twenty seconds.",
+  "ms": 3935,
+  "key": "0f86ad67bdd8"
+ },
+ "abara_vampire": {
+  "file": "abara_vampire.mp3",
+  "who": "Abara",
+  "text": "Vampire, vampire. Bearing two-one-zero, impact in forty-five.",
+  "ms": 5340,
+  "key": "c218ae43bc84"
+ },
+ "pell_offer": {
+  "file": "pell_offer.mp3",
+  "who": "Pell",
+  "text": "Captain, I can run the sensors for you. It would be faster. It would also be seen.",
+  "ms": 5984,
+  "key": "6a8a32c5ce70"
+ },
+ "fenwick_breach": {
+  "file": "fenwick_breach.mp3",
+  "who": "Fenwick",
+  "text": "Skipper, breach in aft stores and a fire. Which first, the sink or the drive?",
+  "ms": 4562,
+  "key": "54ac42278673"
+ }
+}

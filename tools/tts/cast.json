@@ -1,0 +1,9 @@
+{
+ "Quill":     {"model": "en-gb-southern_english_female-low.onnx", "length_scale": 0.92},
+ "Abara":     {"model": "en-us-libritts-high.onnx", "speaker": 17},
+ "Castellan": {"model": "en-gb-alan-low.onnx", "length_scale": 1.08},
+ "Dace":      {"model": "en-us-ryan-high.onnx", "length_scale": 0.92},
+ "Pell":      {"model": "en-us-amy-low.onnx", "length_scale": 1.12, "noise_scale": 0.4},
+ "Fenwick":   {"model": "en-us-libritts-high.onnx", "speaker": 640},
+ "default":   {"model": "en-us-libritts-high.onnx", "speaker": 42}
+}
