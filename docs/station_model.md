@@ -155,3 +155,10 @@ The hunt is real time, but **the player never loses more than they can bear to a
 - Patience values per command style (tuning).
 - Do **Abara's three roles** become a bottleneck by design (my proposal: yes, it is a lever for Pell's value and for hiring a fifth officer later)?
 - Voice: text-to-speech, recorded lines, or text with sound cues? (Audio-first means this needs an answer before Phase 4. Placeholder: text with cue sounds and a short typed-on delay.)
+
+## 8. Decisions (Dave, 2026-11-14, second pass) and voice
+- **Radial menu on the scope: yes.** Click a track, pick classify / track / probe / fire. Same verb grammar as the hotkeys, so the two never disagree.
+- **Magazine: 10 salvos of 6 = 60 missiles** (miniaturisation). Probing salvos draw from it. Resupply and per-kind split still to tune; with 60 rounds the magazine pressure shifts from "can I afford a probe" to "how many salvos of a kind do I want in the racks".
+- **Abara is a deliberate bottleneck.** Keep her three stations as a lever for Pell's value and a later fifth officer.
+- **Scope view (A/B/C): needs a dedicated session.** Not decided; do not build the Conn scope until then.
+- **Text to speech: implemented** as `web/voice.js` (Web Speech API; per-crew voice profiles; priority queue; critical interrupt; timed fallback when audio is unavailable or muted; promise resolves when the line ends so the UI can follow the audio). Tests: `tests/voice_test.js`. Demo: `web/voice_demo.html`. Limits: voices vary by device, no radio filter, a browser may need a click before it will speak. Upgrade path: replace `speakNow()` with recorded or cloud voice; the queue and callbacks stay.

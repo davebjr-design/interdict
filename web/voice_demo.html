@@ -1,0 +1,37 @@
+<!doctype html><meta charset="utf-8"><title>Voice demo</title>
+<style>
+body{background:#0b1418;color:#cfe;font:15px/1.4 system-ui;margin:0;padding:24px;max-width:860px}
+h1{font-size:18px;color:#f0b050} button{background:#16303a;color:#cfe;border:1px solid #2c5a68;padding:8px 12px;margin:3px;border-radius:4px;cursor:pointer}
+button:hover{background:#1f4452} .row{margin:10px 0} #deck{margin-top:22px;border:1px solid #2c5a68;padding:14px;border-radius:6px;min-height:120px;background:#0e1d23}
+#line{font-size:17px;min-height:48px} #who{color:#f0b050;font-weight:bold} .chip{display:inline-block;margin:6px 6px 0 0;padding:6px 10px;border:1px solid #3b7a8a;border-radius:4px}
+.chip b{color:#f0b050} .rec{border-color:#f0b050} small{color:#7aa}
+</style>
+<h1>Crew voices and the call deck (prototype)</h1>
+<p><small>Uses your browser's built-in voices, so they differ by device. Audio first: the chips appear only after the line ends. Keys: 1-4 answer, Enter takes the recommendation, R replays, Backspace stands by.</small></p>
+<div class="row">Volume <input id="vol" type="range" min="0" max="1" step=".1" value="1"> Speed <input id="rate" type="range" min=".7" max="1.4" step=".05" value="1">
+ <label><input id="mute" type="checkbox"> mute (timed text only)</label></div>
+<div class="row" id="btns"></div>
+<div id="deck"><div><span id="who"></span></div><div id="line"></div><div id="chips"></div><div id="res"><small></small></div></div>
+<script src="voice.js"></script>
+<script>
+const CALLS=[
+ {who:'Quill',pri:2,text:'Conn, Sensors. New thermal return, bearing two-eight-zero.',opts:['Isolate and classify','Mark and continue','Ignore'],rec:0},
+ {who:'Abara',pri:2,text:'Conn, Fire control. Bearing only on Sierra Two. I need a leg to range her.',opts:['Give a baseline','Hold silent','Wait'],rec:1},
+ {who:'Castellan',pri:3,text:'Conn, Engineering. Burn will run hot. Recommend a shorter one.',opts:['Burn as ordered','Shorter burn','Abort'],rec:1},
+ {who:'Dace',pri:3,text:'Conn, Thermal. Sink at eighty percent. Forced vent in twenty seconds.',opts:['Vent now','Hold and risk it','Cut thrust'],rec:0},
+ {who:'Abara',pri:4,text:'Vampire, vampire. Bearing two-one-zero, impact in forty-five.',opts:['Go active','Stay cold'],rec:0},
+ {who:'Pell',pri:2,text:'Captain, I can run the sensors for you. It would be faster. It would also be seen.',opts:['Do it','Not yet'],rec:1},
+ {who:'Fenwick',pri:2,text:'Skipper, breach in aft stores and a fire. Which first, the sink or the drive?',opts:['Save the sink','Save the drive','Seal and sacrifice'],rec:0}
+];
+let cur=null,ready=false;
+const $=id=>document.getElementById(id);
+function play(c){cur=c;ready=false;$('who').textContent=c.who+' · priority '+c.pri;$('chips').innerHTML='';$('res').firstChild.textContent='';$('line').textContent='';
+ Voice.speak({who:c.who,text:c.text,priority:c.pri,onStart:()=>{$('line').textContent=c.text}}).then(()=>{if(cur!==c)return;ready=true;
+  $('chips').innerHTML=c.opts.map((o,i)=>'<span class="chip'+(i===c.rec?' rec':'')+'"><b>'+(i+1)+'</b> '+o+(i===c.rec?' ✓':'')+'</span>').join('')});}
+function ans(i){if(!ready||!cur)return;$('res').firstChild.textContent='Order: '+cur.opts[i]+'. Acknowledged.';
+ Voice.speak({who:cur.who,text:cur.who==='Pell'?'Understood.':'Aye. '+cur.opts[i]+'.',priority:2});ready=false;$('chips').innerHTML=''}
+CALLS.forEach(c=>{const b=document.createElement('button');b.textContent=c.who+(c.pri>=4?' (critical)':'');b.onclick=()=>play(c);$('btns').appendChild(b)});
+$('vol').oninput=e=>Voice.set({volume:+e.target.value});$('rate').oninput=e=>Voice.set({rate:+e.target.value});$('mute').onchange=e=>Voice.set({enabled:!e.target.checked});
+addEventListener('keydown',e=>{if(/^[1-4]$/.test(e.key))ans(+e.key-1);else if(e.key==='Enter'&&cur)ans(cur.rec);else if(e.key==='r'||e.key==='R'){if(cur)play(cur)}});
+if(speechSynthesis&&speechSynthesis.onvoiceschanged!==undefined)speechSynthesis.onvoiceschanged=()=>{};
+</script>
