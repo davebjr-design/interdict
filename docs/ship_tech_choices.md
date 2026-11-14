@@ -55,6 +55,33 @@ Each is a **fork between two or three real options at the dock**, never a ladder
 - **Sub:** payload capacity competes with quiet, speed and size.
 - **Here:** magazine depth (how many salvos before you must loot and reload at dock) vs cold. A deep magazine is hot (supercooled missiles are quieter but need refrigeration) and heavy. A thin magazine means every salvo is a decision. Pairs with `salvo_design.md`: tight vs wide cone matters more when you only have two.
 
+## 2a. How permanent is each choice? (Dave, 2026-11-13: you can't change a hull on the fly, but you can retrofit convincingly)
+
+Not every fork above can be made at the dock. Sort them by how hard they are to change, and give each tier its own price. This also fixes the structure: **the frame is a story decision, the refit is a dock decision, the loadout is a per-hunt decision.**
+
+| Tier | What it covers | Changed by | Price |
+|---|---|---|---|
+| **Frame** (permanent) | Hull form (compact or armoured base), where the sensor sphere and tubes sit, bunk count, reactor type | Getting a different ship. The player inherits Corvane's ship (a story event), so the frame is a given and not a shopping choice | Never refit; a new frame is a major beat (a prize hull, a purchase, a hard-won derelict) |
+| **Refit** (dock, days, salvage kg) | Cooling loop (radiators, coolant loop), armour plating, drive bell, sensor mast or dish, trailed-line winch, tubes and magazine | A yard or a hide, using salvage and parts | Time at dock, kg of salvage, and a **retrofit penalty** (below) |
+| **Consumables** (every dock) | Cold paint and absorber tiles, magazine fill, coolant, spares | Paying at any dock | Cheap, wears off, forces a routine |
+| **Hunt-time** (free, reversible) | Stance, speed rung, vent, which pumps run, trailed line out or in, dish heading, who is on which contact | The player, in the hunt | Decisions and risk only |
+
+### Retrofits that stay convincing
+The trick is that a retrofit gives you **the same trade-off as the designed-in version, weaker and with an ugly side effect**, as in reality:
+- **Armour applique (added plating):** adds hull and mass; the profile grows a little; heat mass rises, so cooling slows; the drive loses a rung of thrust. It gives maybe two thirds of what an armoured frame gets, and it is visible: an enemy reads "bolted plates" in the eclipse profile.
+- **Cooling swap (fin panels, a pumped loop, or a reservoir):** the most believable retrofit. A pumped loop bolted onto a passive frame adds capacity and a pump whine; panels add capacity and a bigger thermal profile. Existing parts (Fin radiator, Haul coil, Reservoir, Bastion) already do this.
+- **Drive swap:** the biggest refit; needs a yard, days and a lot of kg. A re-engined ship has a **mismatch** (thrust mounts, a duct that does not quite fit), so a ducted bell on an open-bell ship keeps part of its knee penalty.
+- **Sensors:** easy. A mast, dish or trailed line is a bolt-on and a winch, which is the cheapest believable upgrade, so sensors are the first thing a poor crew changes.
+- **Cold paint and tiles:** a consumable. Anechoic-style cold paint gives a real signature reduction that ablates in a few hunts and has to be reapplied at every dock.
+
+**Retrofit penalty** is one rule, not many: a fitting from outside the frame's own design family costs efficiency (friction), mass, or both, in the same units as the maker friction already in the parts table (0.07 per extra maker, 0.04 per extra origin). It means a frame built for passive cooling is simply better at it than a frame that has been patched, and a patched ship is readable as patched.
+
+### Refits create the dock story
+- **Licensed yard vs hide:** a licensed yard refits quickly but inspects (it sees AI-touched parts and logs them: the Tally); a hide (unlisted berth) will fit anything and ask nothing, at a price and a risk. This gives the hides a gameplay job.
+- **Reversible or not:** the part swap is reversible for a fee; AI-touched integration is not (one-way, as `integration` already is).
+- **Dock time is a cost:** the Tally, the patron's clock and rivals all keep moving while you are in the yard, so a deep refit is a bet.
+- **Mix and match, the sub way:** real boats can switch pumps off and run on convection at low speed. That is a hunt-time toggle available on a hybrid loop: a ship that carries both loops, at the price of mass and a big thermal footprint. A third option for the cooling fork: **hybrid**, flexible but never best at either.
+
 ## 3. Maker doctrines (the national-design-school idea, fictionalised)
 
 The three makers already exist (Orrin light, Vask heavy, Halden medium). Give each a **design philosophy** so a part reads as a choice about who you trust, and so set bonuses mean something. Mapping, not copying:
@@ -105,5 +132,6 @@ If enemies use the same menu, the identification work we just taught becomes ric
 1. Is the Clean axis (section 4) the centre of this system, with AI-touched variants as the temptation? Recommend yes.
 2. Build order: start with sink loop and drive knee (1 and 2), then hull (3)?
 3. Do we want heading-dependent sensors (2.4), or keep sensors all-round and let the choice be range vs warning time?
-4. How many fittings can a ship hold: the existing four slots, plus one **hull** and one **crew mode** slot, for six choices total?
+4. How many fittings can a ship hold: the existing four slots, plus one **hull** and one **crew mode** slot, for six choices total? (Under 2a the hull is the frame and is not fitted, so it may be four slots plus the crew mode.)
+5b. Frame: do we ever let the player acquire a second hull (and so a new frame), or stay on Corvane's ship for the whole campaign? Recommend one frame-change moment late, as a story beat.
 5. Do maker doctrines (section 3) read as intended, or is the "national school" mapping too close to real navies?
