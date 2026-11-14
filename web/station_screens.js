@@ -18,7 +18,7 @@ var SCREENS = (() => {
     com: { k: 'F8', name: 'COMMS', st: ['comms'], who: ['Pell'], ac: '#84c2c4', fn: 'REPORTS AND LINKS' }
   };
   const MODES = ['auto', 'supervised', 'hands-on'], MODE_TAG = { auto: 'AUTO', supervised: 'SUPV', 'hands-on': 'HANDS-ON' };
-  const PAGES = {};            // view -> { tabs: [[id, label]], render(tab, ctx) -> html, soft(tab, ctx) -> [softkeys] }
+  const PAGES = {}, ticks = [];   // ticks: per-frame recorders the pages register (e.g. the F3 bearing history), run on every screen            // view -> { tabs: [[id, label]], render(tab, ctx) -> html, soft(tab, ctx) -> [softkeys] }
   const tab = {};              // view -> current tab id
   const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
   let built = false, P = AN ? AN.create() : null, annOut = null, annT = 0, renT = 0, actx = null, toneT = 0, down = false, mainKey = '', curSoft = [];
@@ -97,6 +97,7 @@ var SCREENS = (() => {
   // ---------- per-frame ----------
   function frame() {
     if (!on || !built || !S) return; const t = performance.now();
+    for (const f of ticks) { try { f(); } catch (e) { if (!window.__ssErr) { window.__ssErr = 1; console.error('station screens', e); } } }
     if (t - annT > 150) { annT = t; annUpdate(); }
     if (!VIEWS[view] || down) return;
     if (t - renT > 250) { renT = t; render(); }
@@ -180,6 +181,6 @@ var SCREENS = (() => {
   }
   function softkey(i) { if (!on || !VIEWS[view]) return false; const o = curSoft[i]; if (!o) return false; const b = document.querySelector(`#ss-sk [data-sk="${i}"]`); if (b && !b.disabled) act(b); return true; }
 
-  return { on, build, frame, softkey, render, cycleMode, PAGES, VIEWS, tab, helpers: { key, panel, stub, pct, brg, obsPos, quality, esc, live, modeOf },
+  return { on, build, frame, softkey, render, cycleMode, PAGES, VIEWS, tab, ticks, helpers: { key, panel, stub, pct, brg, obsPos, quality, esc, live, modeOf },
     ackAll: () => { if (P) { P.ackAll(); annT = 0; } }, get ann() { return annOut; }, annUpdate, get audio() { return actx ? actx.state : 'none'; } };
 })();
