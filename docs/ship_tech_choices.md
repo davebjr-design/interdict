@@ -99,6 +99,16 @@ Nothing new is being built in the Quiet. **Every part on every ship is war-era**
 - **Special operations** deserve a lineage of their own (DECIDE whether to add a fourth, possibly unnamed): exotic, extremely quiet or extremely lethal, short service life, hard to repair, and very often AI-touched. They are the natural source of the best-and-riskiest parts in section 4.
 - **No faction story required.** The Powers need no names, maps or politics beyond what `universe_background.md` already says. A lineage is a taste of the war, not a faction the player joins.
 
+### 3a. Salvage and the hulls you meet (Dave, 2026-11-13)
+
+Modules come off derelicts and wrecks, so **a module's lineage is the lineage of the ship it came from**, and you will sometimes meet those hulls alive.
+- **Loot follows lineage.** A line-fleet (Vask) cruiser drops heavy plating and batteries; a recon (Orrin) ship drops quiet sinks, ducted bells and dishes; a station or freight (Halden) hull drops sensors and workhorse loops. This extends the existing yield table (class decides kg, module and component chance, and the component pool by origin): add lineage as the second key.
+- **Hunting for parts.** Because a contact's lineage is readable from its profile and heat, a captain can choose *which* contacts to take for the part they want, and a patron commission for a Vask hull is also a source of armour. That gives optional hunts a reason beyond the Tally and the pay.
+- **The enemy fields its own lineage.** Hostile and neutral ships carry fits of their own lineage (section 5): an Orrin hull is cold, small and fragile; a Vask hull soaks the first volley. What you fight is what you can salvage, and what you read tells you both.
+- **How you win changes what you get.** A destroyed ship yields scrap; a ship that is crippled or surrenders (the tutorial's lesson: *I'd rather not kill her if she might surrender*) yields intact modules, and the wide cone, the one you chose to spare her, now has a payoff beyond mercy. A tight lethal salvo is faster and safer and leaves less. Leaving by breach drive already halves yield. (PROPOSAL; needs a pass over `salvage_and_parts.md`.)
+- **Intact hulls are the frame-change moment.** The "intact ship" big find (side-content family 3) is the natural way a player could ever acquire a different frame. It is a story beat, not a purchase, and it need not be a switch: it could be a prize to sell, strip for parts, or keep and refit as a second option. Keep the default of one ship.
+- **Old names carry weight.** Once a lineage is familiar, seeing a specific hull in the field (a special-operations boat that should not still exist, a line-fleet ship with a missing signature plate) is a small story hook that costs nothing to author: a profile and a line from a crewmate.
+
 ## 4. The Clean axis: the best option is always AI-touched
 
 This is where the submarine analogy turns into the game's premise.
