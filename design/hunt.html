@@ -330,7 +330,7 @@ const HuntRT = (() => {
   // RULES: the world, the same for every ship. Never trimmed, never scaled by difficulty.
   const RULES = { dmgExp: 2, sensRef: 40, visDiv: 0.2, visFloor: 0.06, visCap: 0.85, ventSig: 1, floorM: 0.12, blockM: 0.12, edge: 18, N: 8, nreal: 2, nlure: 3, arena: 240, sub: 0.05, secPerMin: 16, halfLife: 3, bait: 0.75, blastSat: 1.6 };
   // PLAYER: our ship and our actions. Copied into s.me for each hunt; trims, Pell assists and decision moments touch only s.me (applyPlayer).
-  const PLAYER = { meltHull: 3, meltSys: 0.15, forcedRetract: 0.8, readDone: 8, pingSolve: 0.6, pingGain: 0.4, pingWeight: 2, spoolMove: 0.3, spoolDog: 11.25, spool: 3, spoolVis: 0.9, spoolHeat: 0.06, homeWarned: 0.15, missQuiet: 0.08, homePull: 0.5, missiles: 6, dispMin: 0.8, dispK: 0.03, closeDmg: 40, empRecover: 0.02, symP: 0.8, classDen: 12, sinkK: 0.7, ventFull: 4, ventMin: 0.08, forcedStop: 0.25, sensR: 120, pingAlert: 0.3, launchAlert: 0.15, launchSeen: 0.35, pingFix: 0.7, hitFix: 0.75, salvoFix: 0.5, coilAlert: 0.2, solveStale: 3, uncDen: 20, uncMin: 2, uncMax: 16, solveMin: 0.8, solveMax: 3, solveDen: 8, clutterR: 18, base: 0.02, glowFocus: 0.01, glowTrack: 0.03, chase: 5, decoyStall: 0.55, rescan: 5, engage: 1, missileSpeed: 40, alongStretch: 1.5, autoPeriod: 0.8, focusPeriod: 0.45, killR: 7, glowPell: 0.012, integrationPerMin: 0.8, fixLo: 0.35, fixSpan: 0.4, driftK: 0.9, certReady: 0.6, certBleed: 0.5, manPen: 1.5, manWin: 3, manLoss: 0.35, spdK: 0.2, backK: 0.6, quietDur: 2.5, quietCd: 10, quietHaz: 0.2, suggestShort: 0.72, tubes: 3, reload: 4, darkWindow: 6, darkHaz: 0.5, darkWarm: 4, wakeDur: 3, wakeGlow: 0.1, wpReach: 2, moveRate: 1.1, shipSpeed: 1, holdOff: 5, pingCd: 4, pingDur: 1.5, pingGlow: 0.14, selfRadius: 7, closeRange: 18, closeCd: 2, closeKill: 8, closeAcc: 0.85, closeGlow: 0.12, closeDur: 2, blastGlow: 0.08, blastDur: 1.5, nearGlow: 0.025, nearRange: 24, closeBump: 0.5, beamGlow: 0.08, beamDur: 1, beamCd: 2, beamBump: 0.35, shareReads: 2, pellFriction: 0.08, classNoise: 1, pingRounds: 3, noRedline: 0, ventAfterglow: 0, leadSpread: 1 };
+  const PLAYER = { meltHull: 3, meltSys: 0.15, forcedRetract: 0.8, readDone: 8, pingSolve: 0.6, pingGain: 0.4, pingWeight: 2, spoolMove: 0.3, spoolDog: 11.25, spool: 3, spoolVis: 0.9, spoolHeat: 0.06, homeWarned: 0.15, missQuiet: 0.08, homePull: 0.5, missiles: 6, dispMin: 0.8, dispK: 0.03, closeDmg: 40, empRecover: 0.02, symP: 0.8, classDen: 12, sinkK: 0.7, ventFull: 4, ventMin: 0.08, forcedStop: 0.25, sensR: 120, pingAlert: 0.3, launchAlert: 0.15, launchSeen: 0.35, pingFix: 0.7, hitFix: 0.75, salvoFix: 0.5, coilAlert: 0.2, solveStale: 3, uncDen: 20, uncMin: 2, uncMax: 16, solveMin: 0.8, solveMax: 3, solveDen: 8, clutterR: 18, base: 0.02, glowFocus: 0.01, glowTrack: 0.03, chase: 5, decoyStall: 0.55, rescan: 5, engage: 1, missileSpeed: 40, alongStretch: 1.5, autoPeriod: 0.8, focusPeriod: 0.45, killR: 7, glowPell: 0.012, integrationPerMin: 0.8, fixLo: 0.35, fixSpan: 0.4, driftK: 0.9, certReady: 0.6, certBleed: 0.5, manPen: 1.5, manWin: 3, manLoss: 0.35, spdK: 0.2, backK: 0.6, quietDur: 2.5, quietCd: 10, quietHaz: 0.2, suggestShort: 0.72, tubes: 3, reload: 4, darkWindow: 6, darkHaz: 0.5, darkWarm: 4, wakeDur: 3, wakeGlow: 0.1, wpReach: 2, moveRate: 1.1, shipSpeed: 1, holdOff: 5, pingCd: 4, pingDur: 1.5, pingGlow: 0.14, selfRadius: 7, closeRange: 18, closeCd: 2, closeKill: 8, closeAcc: 0.85, closeGlow: 0.12, closeDur: 2, blastGlow: 0.08, blastDur: 1.5, nearGlow: 0.025, nearRange: 24, closeBump: 0.5, beamGlow: 0.08, beamDur: 1, beamCd: 2, beamBump: 0.35, shareReads: 2, pellFriction: 0.08, classNoise: 1, pingRounds: 3, noRedline: 0, ventAfterglow: 0, leadSpread: 1, pingReach: 2, magTotal: 60, magSalvos: 10, magLow: 12, magHe: 48, magEmp: 6, magFlare: 6, pdGrid: 'light', pdArm: 0.125, pdDur: 0.6, pdGlow: 0.08, pdAlert: 0.08, pdCold: 0.3, probeR: 22, probeCd: 0.5 };
   // AI: enemy warship defaults. Copied into a.ai per contact at spawn, scaled by its loadout and the difficulty. Nothing on the player side reads or writes it.
   const AI = { heatK: 1.4, sinkDiv: 3, ventFull: 4, empRecover: 0.15, litDecay: 0.15, sensR: 120, knowK: 0.4, knowDecay: 0.05, knowLose: 0.15, aimSigMax: 36, aimSigMin: 3.5, standoff: 60, fireCd0: 1.2, fireCd: 4.5, cone: 9, coneStill: 0.7, coneMove: 0.3, missileSpeed: 40, manPatrol: [6,  9], manAware: [3,  5], missRate: 0.5, evadeV: 10, evadeMax: 36, dmgW: 31, missiles: 6, killR: 7, alongStretch: 1.5, dispMin: 0.8, dispK: 0.03, fireRange: 110, aimRange: 120, quietBlur: 4, searchStart: 7, searchRamp: 12, searchK: 0.05, searchDecay: 0.85, closeIn: 0.6, probeCd: 7, probeKnow: 0.12, probeGain: 0.22 };
   const P = Object.assign(RULES, { player: PLAYER, ai: AI });   // P is the rules object; P.player and P.ai are the default blocks (read-only templates)
@@ -410,9 +410,22 @@ const HuntRT = (() => {
     });
     for (const a of an) { if (a.kind === 'real' && opts.warn) a.know = opts.warn * 0.7; if (a.kind === 'real' && opts.dog) a.sil = opts.warn > 0 ? 0.7 : 1.25; a.eff = 1; a.lit = 0; if (a.kind === 'real' || a.kind === 'friend') { a.hpMax = a.hp = HPMAX[a.kind === 'real' ? a.load.cls : 'cruiser']; } }
     for (const a of an) if (a.kind === 'real') { a.sink = { h: 0.15 + 0.6 * r() }; a.vx *= a.load.spd; a.vy *= a.load.spd; a.v *= a.load.spd; }
-    return { nreal: NR, N: NN, nlure: NL, difficulty: D.name, get spoolMin() { return this.dog ? this.me.spoolDog : this.me.spool; }, rP: rng(seed ^ 0x9E3779B9), rFx: rng(seed ^ 0x85EBCA6B), dog: !!opts.dog, events: [], evN: 0, holdEvents: false, hold: false, sysEff: 1, bodies, me: makeMe(LOADOUTS[0]), sink: { h: opts.sink0 ?? 0.05 }, vent: { on: false, forced: false, t0: 0, n: 0, total: 0 }, sinkWarn: 0, entry, route: (opts.route || []).map(p => ({ x: p.x, y: p.y })), routeI: 0, speed: SPD_ALIAS[opts.speed] || opts.speed || 'v3', orderId: null, pingCd: 0, pingUntil: 0, pingFx: [], hull: 100, blastUntil: 0, blastV: 0, cwCd: 0, hullWarned: false, friendly: !!opts.friendly, beamCd: 0, beamUntil: 0, fratricide: 0, r, seed, t: 0, stage: 0, an, tempo, posture: (opts.route && opts.route.length) ? 'route' : 'still', pell: false, integration: opts.integration ?? 0, thresholdsHit: {}, pellAct: false, analysts: ANALYSTS.map((a, i) => ({ ...a, task: null, next: 0.15 + 0.12 * i })), pellNext: 0.5, pending: null, quietUntil: 0, quietCd: 0, volleys: [], inc: [], vel: { vx: 0, vy: 0 }, tubes: Array(PLAYER.tubes).fill(0), rescanAt: null, log: [], beats: 0, over: null, disabled: 0, player: { x: start.x, y: start.y }, shots: 0, wrong: 0 };
+    return { nreal: NR, N: NN, nlure: NL, difficulty: D.name, get spoolMin() { return this.dog ? this.me.spoolDog : this.me.spool; }, rP: rng(seed ^ 0x9E3779B9), rFx: rng(seed ^ 0x85EBCA6B), dog: !!opts.dog, events: [], evN: 0, holdEvents: false, hold: false, sysEff: 1, bodies, me: makeMe(LOADOUTS[0]), sink: { h: opts.sink0 ?? 0.05 }, vent: { on: false, forced: false, t0: 0, n: 0, total: 0 }, sinkWarn: 0, entry, route: (opts.route || []).map(p => ({ x: p.x, y: p.y })), routeI: 0, speed: SPD_ALIAS[opts.speed] || opts.speed || 'v3', orderId: null, pingCd: 0, pingUntil: 0, pingFx: [], hull: 100, blastUntil: 0, blastV: 0, cwCd: 0, hullWarned: false, friendly: !!opts.friendly, beamCd: 0, beamUntil: 0, fratricide: 0, r, seed, t: 0, stage: 0, an, tempo, posture: (opts.route && opts.route.length) ? 'route' : 'still', pell: false, integration: opts.integration ?? 0, thresholdsHit: {}, pellAct: false, analysts: ANALYSTS.map((a, i) => ({ ...a, task: null, next: 0.15 + 0.12 * i })), pellNext: 0.5, pending: null, quietUntil: 0, quietCd: 0, volleys: [], inc: [], vel: { vx: 0, vy: 0 }, tubes: Array(PLAYER.tubes).fill(0), rescanAt: null, log: [], beats: 0, over: null, disabled: 0, player: { x: start.x, y: start.y }, shots: 0, wrong: 0, evts: [], mag: newMag(opts.mag), pd: 'armed', pdUntil: 0, pdReadyAt: 0, probes: [], probeCd: 0, rPD: rng(seed ^ 0x165667B1) };
+  }
+  function newMag(o) {   // the magazine: 10 salvos of 6 = 60 missiles (decided); a total plus per-warhead-kind counts. opts.mag overrides for tests
+    const pl = PLAYER, m = { total: pl.magTotal, max: pl.magTotal, salvos: pl.magSalvos, perSalvo: pl.missiles, byKind: { he: pl.magHe, emp: pl.magEmp, flare: pl.magFlare }, lowSaid: false };
+    if (o) { if (o.byKind) m.byKind = Object.assign({}, o.byKind); m.total = o.total != null ? o.total : Object.values(m.byKind).reduce((a, b) => a + b, 0); m.max = Math.max(m.total, o.max || 0); }
+    return m;
+  }
+  function spend(s, kind, n) {   // take n missiles of a kind from the magazine; returns how many were taken
+    const m = s.mag; if (!m) return n; const k = m.byKind[kind] != null ? kind : 'he', got = Math.max(0, Math.min(n, m.byKind[k], m.total)); m.byKind[k] -= got; m.total -= got;
+    if (!m.lowSaid && m.total <= P.player.magLow) { m.lowSaid = true; const sv = Math.floor(m.total / m.perSalvo); evt(s, 'mag_low', { total: m.total, salvos: sv }); report(s, 'Abara', `Magazine low: ${m.total} missiles left, ${sv} full salvo${sv === 1 ? '' : 's'}.`, 'bad'); }
+    return got;
   }
   function report(s, who, text, kind = 'info', urgent = false) { s.beats++; s.log.push({ t: s.t, who, text, kind, urgent }); }
+  // structured events for the station layer (docs/systems_contract.md s1): {type, data, t}. report() text stays as it is.
+  function evt(s, type, data) { (s.evts || (s.evts = [])).push({ type, data: data || {}, t: s.t }); }
+  const brgOf = (from, to) => Math.round(((Math.atan2(to.x - from.x, -(to.y - from.y)) * 180 / Math.PI) + 360) % 360);   // compass bearing, 0 = north (up), clockwise
   const fold = v => { const lo = 6, hi = P.arena - 1.5, w = hi - lo; let u = (v - lo) % (2 * w); if (u < 0) u += 2 * w; return lo + (u > w ? 2 * w - u : u); };
   function truePos(a, t) { const q = truePos0(a, t); return { x: fold(q.x), y: fold(q.y) }; }
   function truePos0(a, t) { let L = null; if (a.legs) for (const g of a.legs) { if (g.t <= t) L = g; else break; } if (L) return { x: L.x + L.vx * (t - L.t), y: L.y + L.vy * (t - L.t) }; return { x: a.x0 + a.vx * t, y: a.y0 + a.vy * t }; }
@@ -449,27 +462,35 @@ const HuntRT = (() => {
         const blur = quiet ? a.ai.quietBlur * (s.t - hq.t) : 0, tf0 = dGo / a.ai.missileSpeed, lead = quiet ? 0.5 : 0.95;
         const sg = Math.hypot(aimSigma(a) * (0.5 + dGo / a.ai.aimRange) / Math.sqrt(perf(a)), blur), aim = { x: hq.x + hq.vx * (tf0 + (s.t - hq.t)) * lead + gauss(a.r) * sg, y: hq.y + hq.vy * (tf0 + (s.t - hq.t)) * lead + gauss(a.r) * sg }, tf = Math.hypot(aim.x - f.x, aim.y - f.y) / a.ai.missileSpeed;
         s.inc.push({ dmg: a.load.dmg, id: a.id, foe: true, t0: s.t, at: s.t + tf, from: { x: f.x, y: f.y }, aim, dir: Math.atan2(aim.y - f.y, aim.x - f.x), cone: a.ai.cone * (1.4 - 0.7 * clamp(((a.know || 0) - 0.33) / 0.67, 0, 1)) * a.ai.coneStill + a.ai.coneMove * Math.hypot(hq.vx, hq.vy) * tf0, disp: dispOf(a.ai, Math.hypot(aim.x - f.x, aim.y - f.y)), off: Array.from({ length: a.ai.missiles }, () => [gauss(a.r), gauss(a.r)]), stretch: a.ai.alongStretch, killR: a.ai.killR, dmgW: a.ai.dmgW });
-        a.nextFire = s.t + a.ai.fireCd * (0.8 + 0.4 * a.r()) * (1.3 - 0.4 * clamp(((a.know || 0) - 0.33) / 0.67, 0, 1)) / (a.load.crew * perf(a));   // a firm fix on us means a faster rhythm a.lastFire = s.t; markHostile(s, a); (s.warn || (s.warn = [])).push({ id: a.id, t: s.t, lead: tf }); report(s, 'Dace', `Contact ${a.id + 1} has fired on us. Impact in ${mins(tf)}. Move, or go quiet.`, 'danger', true);
+        a.nextFire = s.t + a.ai.fireCd * (0.8 + 0.4 * a.r()) * (1.3 - 0.4 * clamp(((a.know || 0) - 0.33) / 0.67, 0, 1)) / (a.load.crew * perf(a));   // a firm fix on us means a faster rhythm
+        a.lastFire = s.t; markHostile(s, a); (s.warn || (s.warn = [])).push({ id: a.id, t: s.t, lead: tf });
+        report(s, 'Dace', `Contact ${a.id + 1} has fired on us. Impact in ${mins(tf)}. Move, or go quiet.`, 'danger', true);
+        evt(s, 'vampire', { n: a.id + 1, id: a.id, bearing: brgOf(s.player, f), eta: tf, etaSec: tf * P.secPerMin, at: s.t + tf, count: a.ai.missiles });
       }
     }
     for (const v of s.inc.filter(v => s.t >= v.at)) {
-      s.inc.splice(s.inc.indexOf(v), 1); const ls = landings(v), pl = s.player, R = v.killR; let f = 0, n = 0; const L = ls.map(q => { const d = Math.hypot(q.x - pl.x, q.y - pl.y); if (d < R) { f += blastDmg(1, R, d); n++; } return { dx: q.x - pl.x, dy: q.y - pl.y, d }; });
+      s.inc.splice(s.inc.indexOf(v), 1); const ls = landings(v), pl = s.player, R = v.killR; let f = 0, n = 0, cutN = 0;
       const tutFoe = !!(s.tut && s.tut.foeSure > 0 && v.id === s.tut.sure);   // tutorial only (web/tutorial.js): her answer lands once, for a fixed bite
+      const pdP = tutFoe ? 0 : pdIntercept(s, v.cone);   // our point defence: off 0, armed (cold) low, active full (own random stream, so other draws are unchanged)
+      const L = ls.map(q => { const d = Math.hypot(q.x - pl.x, q.y - pl.y); if (d < R) { if (pdP > 0 && s.rPD() < pdP) { cutN++; return { dx: q.x - pl.x, dy: q.y - pl.y, d, cut: true }; } f += blastDmg(1, R, d); n++; } return { dx: q.x - pl.x, dy: q.y - pl.y, d }; });
+      if (cutN) report(s, 'Abara', `Point defence cut ${cutN} incoming warhead${cutN > 1 ? 's' : ''} from contact ${v.id + 1}.`, 'good');
+      if (s.pd === 'active') s.pdUntil = Math.max(s.pdUntil, s.t + s.me.pdDur);
       if (tutFoe && !n) { const i = L.reduce((b, x, j) => x.d < L[b].d ? j : b, 0), k = 0.5 * R / Math.max(1e-6, L[i].d); L[i] = { dx: L[i].dx * k, dy: L[i].dy * k, d: 0.5 * R }; f += blastDmg(1, R, 0.5 * R); n = 1; }
       let dmg = v.dmgW * (v.dmg || 1) * stack(f); const before = s.hull;
       if (tutFoe) { dmg = clamp(dmg, s.tut.foeDmg[0], s.tut.foeDmg[1]); s.tut.foeSure--; }
       if (n) hurtPlayer(s, dmg, `Contact ${v.id + 1} volley: ${n} of ${ls.length} detonated in range. ${dmg < 12 ? 'Light hull damage, plating only, no systems affected.' : dmg < 30 ? 'Moderate hull damage, possible systems damage.' : 'Heavy hull damage. That one hurt.'}`); else report(s, 'Abara', `Contact ${v.id + 1} volley: no damage. All warheads detonated clear of the hull.`, 'good');
-      emit(s, { kind: 'theirs', shooter: v.id, ammo: 'he', L, R, n, dmg, before, after: s.hull, max: 100, result: s.hull <= 0 ? 'cripple' : n ? 'damaged' : 'miss', who: 'Us' });
+      emit(s, { kind: 'theirs', shooter: v.id, ammo: 'he', L, R, n, cut: cutN, dmg, before, after: s.hull, max: 100, result: s.hull <= 0 ? 'cripple' : n ? 'damaged' : 'miss', who: 'Us' });
       if (s.over) return;
     }
   }
-  function alert(s, amt) {   // a noisy event: every live warship hears it, weighed by range
-    for (const e of s.an) if (e.kind === 'real' && e.state !== 'disabled') { const p = truePos(e, s.t); e.know = Math.min(1.2, (e.know || 0) + amt * rangeF(Math.hypot(p.x - s.player.x, p.y - s.player.y), e.ai.sensR) * (blocked(s, p, s.player) ? P.blockM : 1)); }
+  function alert(s, amt, reach = 1) {   // a noisy event: every live warship hears it, weighed by range. reach scales the hearer's detection radius (an active ping carries 2x)
+    for (const e of s.an) if (e.kind === 'real' && e.state !== 'disabled') { const p = truePos(e, s.t); e.know = Math.min(1.2, (e.know || 0) + amt * rangeF(Math.hypot(p.x - s.player.x, p.y - s.player.y), e.ai.sensR * reach) * (blocked(s, p, s.player) ? P.blockM : 1)); }
   }
   function searchLvl(s, a) { return a.kind !== 'real' ? 0 : clamp((s.t - a.ai.searchStart) / a.ai.searchRamp, 0, 1) * a.ai.cunning / DIFFICULTY.normal.cunning; }   // 0..1 (more on hard): how widely an unaware hunter has spread its search
   function probe(s, a, p, d) {   // an enemy active ping: it learns where we are if nothing is in the way, and it gives itself away
     const bl = blocked(s, p, s.player), gain = bl ? 0 : a.ai.probeGain * rangeF(d, a.ai.sensR) * 1.5; a.know = Math.min(1.2, a.know + gain); a.lit = Math.min(1, (a.lit || 0) + 0.35); markHostile(s, a);
     report(s, 'Dace', bl ? `Contact ${a.id + 1} just pinged. The planet took it; it learned nothing. It is a warship, and it is hunting.` : `Contact ${a.id + 1} just pinged us. It is a warship, and now it has a rough idea where we are.`, 'danger', true);
+    evt(s, 'ping_alert', { n: a.id + 1, id: a.id, bearing: brgOf(s.player, p), blocked: bl });
   }
   function reopen(s, a) { if (a.state === 'out') { a.state = 'open'; } }
   function markHostile(s, a) { if (a.kind !== 'real' || a.idStatus === 'hostile' || a.state === 'disabled') return; a.idStatus = 'hostile'; reopen(s, a); }
@@ -566,6 +587,46 @@ const HuntRT = (() => {
   }
   const GRID = { none: [0, 0.6], light: [1, 0.5], heavy: [2, 0.6] };
   function intercept(a, cone) { const [ch, pk] = GRID[a.grid], dense = 1 + Math.max(0, 1 - cone / 6), hot = a.kind !== 'real' || a.aware ? 1 : 0.3; return Math.min(0.9, ch * dense * pk * hot / 4); }   // a dense salvo is easier for a scatter grid to cut; a ship that has not noticed us has its grid cold
+  function pdIntercept(s, cone) {   // our own point defence against one incoming warhead, from the same grid law as theirs
+    if (!s.pd || s.pd === 'off') return 0; const [ch, pk] = GRID[s.me.pdGrid] || GRID.light, dense = 1 + Math.max(0, 1 - cone / 6), base = Math.min(0.9, ch * dense * pk / 4);
+    return base * (s.pd === 'active' && s.t >= s.pdReadyAt ? 1 : s.me.pdCold);   // armed, or active but still spinning up: the cold factor (like an unaware ship's hot = 0.3)
+  }
+  function setPD(s, st) {   // 'off' | 'armed' | 'active'. Active is a visibility event: a bright emission (exposure) and a small alert to every hunter
+    if (s.over || !['off', 'armed', 'active'].includes(st)) return false; const was = s.pd; if (st === was) { if (st === 'active') s.pdUntil = Math.max(s.pdUntil, s.t + s.me.pdDur); return true; }
+    s.pd = st;
+    if (st === 'active') { s.pdReadyAt = s.t + s.me.pdArm * (was === 'off' ? 2 : 1); s.pdUntil = s.t + s.me.pdDur; alert(s, s.me.pdAlert); report(s, 'Abara', 'Point defence active. Radars lit: anything looking can see us.', 'bad'); }
+    else report(s, 'Abara', st === 'armed' ? 'Point defence armed and cold.' : 'Point defence off.', 'info');
+    evt(s, 'pd', { state: st, was }); return true;
+  }
+  function enemyPD(s, b, lit = 0.25) {   // an enemy lights its point defence: an explicit, visible event (probe reactions; real volleys emit it without the glow bump)
+    b.pdUntil = s.t + 0.6; if (lit) b.lit = Math.min(1, (b.lit || 0) + lit); evt(s, 'enemy_pd', { n: b.id + 1, id: b.id, lit: !!lit });
+  }
+  function probeSalvo(s, aim, n = 2, kind = 'he') {   // a feint: 1-2 real missiles at a point. No ping; a launch alert; an aware ship near the aim may react (W9)
+    if (s.over || s.t < s.quietUntil || s.t < s.probeCd) return false;
+    let id = null; if (typeof aim === 'number') { const a = s.an[aim]; if (!a || ['out', 'disabled'].includes(a.state) || a.idStatus === 'plan') return false; id = a.id; aim = displayPos(s, a); }
+    if (!aim || !isFinite(aim.x) || !isFinite(aim.y)) return false;
+    if (!s.mag || s.mag.total <= 0) { report(s, 'Abara', 'Magazine empty, Captain. Nothing left to probe with.', 'bad'); return false; }
+    n = clamp(Math.round(n) || 1, 1, 2); if (!(s.mag.byKind[kind] > 0)) kind = Object.keys(s.mag.byKind).sort((x, y) => s.mag.byKind[y] - s.mag.byKind[x])[0];
+    const got = spend(s, kind, n), d = Math.hypot(aim.x - s.player.x, aim.y - s.player.y), at = s.t + s.me.engage + d / s.me.missileSpeed;
+    s.probeCd = s.t + s.me.probeCd; alert(s, s.me.launchAlert);
+    s.probes.push({ id, aim: { x: aim.x, y: aim.y }, from: { x: s.player.x, y: s.player.y }, t0: s.t, at, n: got, kind });
+    report(s, 'Abara', `Probe away: ${got} missile${got > 1 ? 's' : ''}, no ping${id != null ? ' toward contact ' + (id + 1) : ''}. Watch for a reaction in ${mins(at - s.t)}.`, 'info');
+    return true;
+  }
+  function probeLand(s, pr) {   // who reacts to the probe: real, aware ships near the aim, unless the crew is cunning enough to sit tight
+    let any = false;
+    for (const b of s.an) {
+      if (b.kind !== 'real' || b.state === 'disabled') continue; const p = truePos(b, s.t); if (Math.hypot(p.x - pr.aim.x, p.y - pr.aim.y) > s.me.probeR) continue;
+      const aware = !!b.aware, pReact = clamp(1 - 0.75 * b.ai.cunning * (b.load ? b.load.crew : 1), 0.08, 0.95) * (aware ? 1 : 0.5);
+      if (s.rPD() >= pReact) continue;
+      const how = b.grid !== 'none' ? 'pd' : 'burn'; any = true;
+      if (how === 'pd') enemyPD(s, b); else { b.lit = Math.min(1, (b.lit || 0) + 0.25); maneuver(s, b, (s.rPD() < 0.5 ? 1 : -1) * 0.8); }
+      if (!aware) makeAware(s, b, `Contact ${b.id + 1} felt the probe land close. It knows something is out here.`, 0.3);
+      report(s, 'Quill', how === 'pd' ? `Contact ${b.id + 1} lit its point defence at the probe. It is real.` : `Contact ${b.id + 1} burned hard when the probe landed. It is real.`, 'good', true);
+      evt(s, 'probe_reaction', { n: b.id + 1, id: b.id, how, aware, aim: pr.aim });
+    }
+    if (!any) { report(s, 'Quill', 'Probe landed. No reaction: nothing there, or someone very steady.', 'info'); evt(s, 'probe_quiet', { id: pr.id, aim: pr.aim }); }
+  }
   const blastDmg = (w, R, d) => d < R ? w * Math.pow(1 - d / R, P.dmgExp) : 0;   // one warhead law for every ship: ours on them, theirs on us, ours on us
   const stack = sum => P.blastSat * (1 - Math.exp(-sum / P.blastSat));   // detonations on one hull do not add up forever: a packed salvo overkills one point
   const dispOf = (wp, dist) => wp.dispMin + wp.dispK * dist;   // guidance scatter of each missile: grows with flight distance, so no salvo is ever a single point
@@ -722,7 +783,7 @@ const HuntRT = (() => {
     else if (a.state === 'locked') { a.track = Math.max(a.track, 2); scan(s, a, 1.2); a.pingSolve = s.t + s.me.pingSolve; a.stale = false; report(s, 'Dace', `Active ping on contact ${id + 1}. Fresh fix; it will firm up the solution in about ${mins(s.me.pingSolve)}.`, 'good', true); }
     else { for (let k = 0; k < s.me.pingRounds; k++) for (const c of ['thermal', 'reactor', 'occlusion']) obsRead(s, a, c, s.me.pingWeight, 0.2, 1); report(s, 'Dace', `Active ping on contact ${id + 1}. Every channel just sharpened.`, 'good', true); }
     if (a.kind === 'real') makeAware(s, a, `Contact ${id + 1} felt our ping. It has turned toward us.`, s.me.pingFix);
-    alert(s, s.me.pingAlert);
+    alert(s, s.me.pingAlert, s.me.pingReach);   // a ping carries twice the detection radius (contract s6)
     return true;
   }
   function nearHeat(s) { const pl = s.player; let n = 0; for (const a of s.an) if (a.state === 'locked' && a.kind !== 'friend') { const p = truePos(a, s.t); if (Math.hypot(p.x - pl.x, p.y - pl.y) < s.me.nearRange) n++; } return n * s.me.nearGlow; }
@@ -781,7 +842,7 @@ const HuntRT = (() => {
       for (const b of s.an) {
         if (b.state === 'disabled' || !['real', 'friend', 'lure'].includes(b.kind)) continue;
         const tp0 = truePos(b, v.at), pi = intercept(b, v.cone), rf = s.rFx, sure = !!(s.tut && s.tut.sure === b.id && b.id === v.id && b.kind === 'real'); let tp = tp0, warned = false, sum = 0, n = 0;   // sure: tutorial only (web/tutorial.js), the volley always lands on her
-        if (b.kind === 'real') { const rd = reactOf(s, b, v.homing, v.at - v.t0); if (rf() < rd.pw) { warned = true; const sg = rf() < 0.5 ? 1 : -1, dv = rd.dev * (0.6 + 0.4 * rf()); const hv = legVel(b, v.at), hd = Math.atan2(hv.vy, hv.vx); tp = { x: tp0.x - Math.sin(hd) * dv * sg, y: tp0.y + Math.cos(hd) * dv * sg }; makeAware(s, b, `Contact ${b.id + 1} detected the salvo and is now aware of us.`, s.me.salvoFix); } }
+        if (b.kind === 'real') { const rd = reactOf(s, b, v.homing, v.at - v.t0); if (rf() < rd.pw) { warned = true; const sg = rf() < 0.5 ? 1 : -1, dv = rd.dev * (0.6 + 0.4 * rf()); const hv = legVel(b, v.at), hd = Math.atan2(hv.vy, hv.vx); tp = { x: tp0.x - Math.sin(hd) * dv * sg, y: tp0.y + Math.cos(hd) * dv * sg }; makeAware(s, b, `Contact ${b.id + 1} detected the salvo and is now aware of us.`, s.me.salvoFix); if (b.grid !== 'none') enemyPD(s, b, 0); } }
         const pts = ls.map(q0 => { let q = q0; if (v.homing) { const hp = s.me.homePull * (warned ? s.me.homeWarned : 1), dd = Math.hypot(q0.x - tp.x, q0.y - tp.y); if (dd < R * 3) q = { x: tp.x + (q0.x - tp.x) * (1 - hp), y: tp.y + (q0.y - tp.y) * (1 - hp) }; } const d = Math.hypot(q.x - tp.x, q.y - tp.y), cut = d < R && !sure && rf() < pi; if (d < R && !cut) { sum += blastDmg(1, R, d); n++; } return { dx: q.x - tp.x, dy: q.y - tp.y, d, cut, hit: d < R && !cut }; });
         if (sure && !n) { const i = pts.reduce((m, x, j) => x.d < pts[m].d ? j : m, 0), k = 0.5 * R / Math.max(1e-6, pts[i].d); pts[i] = { dx: pts[i].dx * k, dy: pts[i].dy * k, d: 0.5 * R, cut: false, hit: true }; sum += blastDmg(1, R, 0.5 * R); n = 1; }
         if (warned && b.id === v.id) report(s, 'Dace', `Contact ${b.id + 1} detected the salvo and maneuvered off its line.`, 'bad');
@@ -809,6 +870,9 @@ const HuntRT = (() => {
       }
       if (!mainHit && a.state !== 'disabled') report(s, 'Abara', 'Volley: no damage to the target.', 'bad');
     }
+    if (s.pd === 'active' && !s.inc.length && s.t >= s.pdUntil) { s.pd = 'armed'; evt(s, 'pd', { state: 'armed', was: 'active' }); }   // nothing incoming: back to cold
+    for (const pr of (s.probes || []).filter(q => s.t >= q.at)) { s.probes.splice(s.probes.indexOf(pr), 1); probeLand(s, pr); }
+    for (const a of s.an) if (a.state === 'locked' && a.anchor) { const lost = trackState(s, a).state === 'last'; if (lost && !a.lostSaid) { a.lostSaid = true; evt(s, 'track_lost', { n: a.id + 1, id: a.id, ghost: true }); } else if (!lost) a.lostSaid = false; }
     const live = s.an.some(a => ['open', 'locked', 'chasing'].includes(a.state) && a.idStatus !== 'plan');
     if (!live && s.nreal > 0 && s.disabled < s.nreal && !s.rescanAt) { s.rescanAt = s.t + s.me.rescan; report(s, 'Abara', `Everything is ruled out and the ships are still out there. Rescanning takes ${mins(s.me.rescan)}.`, 'bad'); }
     if (s.rescanAt && s.t >= s.rescanAt) { s.rescanAt = null; s.an.forEach(a => { if (a.state === 'out') { a.state = 'open'; a.read = {}; } }); report(s, 'Abara', 'Rescan complete. Everything is open again.', 'info'); }
@@ -835,7 +899,7 @@ const HuntRT = (() => {
     const sq = 1, quiet = s.t < s.quietUntil; let m = POSTURE[s.posture].haz * sq * (s.entry === 'dark' && s.t < s.me.darkWindow ? s.me.darkHaz : 1);
     if (s.rescanAt) m *= 0.5; if (quiet) m *= s.me.quietHaz;
     const fN = s.analysts.filter(x => x.task != null && !x.hold).length, tN = s.analysts.filter(x => x.task != null && !x.hold && s.an[x.task].state === 'locked').length, z = quiet ? 0 : 1;
-    const parts = [{ k: 'drift', label: 'Hull heat and drive, ' + POSTURE[s.posture].label.toLowerCase(), v: s.me.base * s.tempo * m }, { k: 'focus', label: 'Active sensor work (' + fN + ' on a contact)', v: s.me.glowFocus * fN * z }, { k: 'track', label: 'Tracking a locked ship (' + tN + ')', v: s.me.glowTrack * tN * z }, { k: 'pell', label: 'Pell running the ship hot', v: s.pell && !quiet ? s.me.glowPell : 0 }, { k: 'beam', label: 'Tight-beam challenge leaking', v: s.t < s.beamUntil ? s.me.beamGlow : 0 }, { k: 'blast', label: 'Weapons fire and detonations close by', v: s.t < s.blastUntil ? s.blastV : 0 }, { k: 'engine', label: (s.entry === 'fast' && s.t < s.me.wakeDur ? 'Hot arrival wake and engines' : 'Engine heat, ' + SPEED[s.speed].label.toLowerCase()), v: engineHeat(s) }, { k: 'ping', label: 'Active ping, loud', v: s.t < s.pingUntil ? s.me.pingGlow : 0 }, { k: 'near', label: 'A warship close enough to see our hull', v: nearHeat(s) }, { k: 'vent', label: 'Fins out, venting', v: s.vent.on ? P.visDiv : 0 }].filter(x => x.v > 0.0005);
+    const parts = [{ k: 'drift', label: 'Hull heat and drive, ' + POSTURE[s.posture].label.toLowerCase(), v: s.me.base * s.tempo * m }, { k: 'focus', label: 'Active sensor work (' + fN + ' on a contact)', v: s.me.glowFocus * fN * z }, { k: 'track', label: 'Tracking a locked ship (' + tN + ')', v: s.me.glowTrack * tN * z }, { k: 'pell', label: 'Pell running the ship hot', v: s.pell && !quiet ? s.me.glowPell : 0 }, { k: 'beam', label: 'Tight-beam challenge leaking', v: s.t < s.beamUntil ? s.me.beamGlow : 0 }, { k: 'blast', label: 'Weapons fire and detonations close by', v: s.t < s.blastUntil ? s.blastV : 0 }, { k: 'engine', label: (s.entry === 'fast' && s.t < s.me.wakeDur ? 'Hot arrival wake and engines' : 'Engine heat, ' + SPEED[s.speed].label.toLowerCase()), v: engineHeat(s) }, { k: 'ping', label: 'Active ping, loud', v: s.t < s.pingUntil ? s.me.pingGlow : 0 }, { k: 'near', label: 'A warship close enough to see our hull', v: nearHeat(s) }, { k: 'vent', label: 'Fins out, venting', v: s.vent.on ? P.visDiv : 0 }, { k: 'pd', label: 'Point defence active, radars lit', v: s.pd === 'active' ? s.me.pdGlow : 0 }].filter(x => x.v > 0.0005);
     if (s.spool) parts.push({ k: 'spool', label: 'Breach drive spooling', v: s.me.spoolHeat });
     return { total: parts.reduce((q, x) => q + x.v, 0), parts, quiet };
   }
@@ -886,8 +950,10 @@ const HuntRT = (() => {
   function fire(s, id, L, cone, kind = 'he', homing = false) {
     if (!WARHEAD[kind]) kind = 'he';
     const a = s.an[id]; if (s.over || s.t < s.quietUntil || a.state !== 'locked' || (a.solve || 0) < 1 || (a.kind === 'friend' && (a.idStatus === 'plan' || a.idStatus === 'confirmed'))) return false;
-    const tb = s.tubes.findIndex(x => s.t >= x); if (tb < 0) return false; s.tubes[tb] = s.t + s.me.reload;
-    const f = fanInfo(s, a, L); s.shots++; if (s.rFx() < s.me.launchSeen) { alert(s, s.me.launchAlert); report(s, 'Abara', 'Launch signature detected out there. Anyone listening heard that.', 'bad'); } s.volleys.push({ id, at: s.t + s.me.engage + f.tf, t0: s.t, from: { x: s.player.x, y: s.player.y }, off: Array.from({ length: s.me.missiles }, () => [gauss(s.rP), gauss(s.rP)]), aim: f.aim, dir: f.dir, cone, kind, homing: !!homing, stretch: s.me.alongStretch, killR: s.me.killR, disp: f.disp }); report(s, 'Abara', `${homing ? 'Homing ' : ''}${WARHEAD[kind].name} volley away on contact ${id + 1}. Impact in ${mins(s.me.engage + f.tf)}.`, 'info'); return true;
+    const tb = s.tubes.findIndex(x => s.t >= x); if (tb < 0) return false;
+    if (s.mag && (s.mag.total <= 0 || !(s.mag.byKind[kind] > 0))) { report(s, 'Abara', s.mag.total <= 0 ? 'Magazine empty, Captain. The tubes are dry.' : `No ${WARHEAD[kind].name} warheads left, Captain.`, 'bad'); evt(s, 'mag_empty', { kind, total: s.mag.total }); return false; }
+    s.tubes[tb] = s.t + s.me.reload; const nm = spend(s, kind, s.me.missiles);   // a short salvo when fewer than six are left of that kind
+    const f = fanInfo(s, a, L); s.shots++; if (s.rFx() < s.me.launchSeen) { alert(s, s.me.launchAlert); report(s, 'Abara', 'Launch signature detected out there. Anyone listening heard that.', 'bad'); } s.volleys.push({ id, at: s.t + s.me.engage + f.tf, t0: s.t, from: { x: s.player.x, y: s.player.y }, off: Array.from({ length: s.me.missiles }, () => [gauss(s.rP), gauss(s.rP)]).slice(0, nm), aim: f.aim, dir: f.dir, cone, kind, homing: !!homing, stretch: s.me.alongStretch, killR: s.me.killR, disp: f.disp }); report(s, 'Abara', `${homing ? 'Homing ' : ''}${WARHEAD[kind].name} volley away on contact ${id + 1}. Impact in ${mins(s.me.engage + f.tf)}.`, 'info'); return true;
   }
   function closeInfo(s, a) { const tau = (s.t - a.anchor.t) + 0.1, est = estAt(a, tau); return { est, d: Math.hypot(est.x - s.player.x, est.y - s.player.y) }; }
   function fireClose(s, id) {   // coilgun: instant, ignores scatter grids, short range, loud
@@ -943,7 +1009,7 @@ const HuntRT = (() => {
     s.spool = { at: s.t + s.spoolMin }; report(s, 'Abara', `Breach drive spooling. ${mins(s.spoolMin)} to jump, and the spool is bright on every sensor.`, 'danger', true);
   }
   function setPellAct(s, on) { s.pellAct = !!on && s.integration >= 75; }
-  return { emit, setDifficulty, getDifficulty, DIFFICULTY, applyPlayer, RULES, PLAYER, AI, maneuver, trackState, redlineBurn, navBlocked, reanalyze, investigate, heatRate, visIf, arenaPlan, PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge };
+  return { evt, brgOf, setPD, probe: probeSalvo, markHostile, pdIntercept, emit, setDifficulty, getDifficulty, DIFFICULTY, applyPlayer, RULES, PLAYER, AI, maneuver, trackState, redlineBurn, navBlocked, reanalyze, investigate, heatRate, visIf, arenaPlan, PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge };
 })();
 if (typeof module !== 'undefined') module.exports = HuntRT;
 

@@ -33,7 +33,7 @@
     W6: { st: 'weapons', pri: 2, line: d => d.text },
     W7: { st: 'damage', pri: 3, line: d => d.text },
     W8: { st: 'weapons', pri: 2, line: d => d.text },
-    W9: { st: 'weapons', pri: 2, line: d => `${sierra(d.n)} lit her point defence. She is real.`, opts: O(['Mark hostile', 'mark_hostile'], ['Keep probing', 'probe']), def: 0, cost: 'none' },
+    W9: { st: 'weapons', pri: 2, line: d => d.how === 'burn' ? `${sierra(d.n)} burned at the probe. She is real.` : `${sierra(d.n)} lit her point defence. She is real.`, opts: O(['Mark hostile', 'mark_hostile'], ['Keep probing', 'probe']), def: 0, cost: 'none' },
     H1: { st: 'helm', pri: 3, line: d => 'Burn runs hot. Recommend shorter.', opts: O(['Shorter burn', 'burn_short'], ['Burn as ordered', 'burn'], ['Abort', 'abort']), def: 0, cost: 'less delta-v' },
     H2: { st: 'helm', pri: 3, line: d => 'Turning now cuts the wire.', opts: O(['Hold course', 'hold'], ['Turn anyway', 'turn']), def: 0, cost: 'delay' },
     H3: { st: 'helm', pri: 1, line: d => d.text },
@@ -63,6 +63,30 @@
     [/Contact \d+: (thermal bloom|faint thermal)/i, 'S1'], [/Contact \d+:/i, 'S2'],
     [/Maneuver complete|Flight plan|Waypoint|Holding|Resuming|Burn (off|complete|latched)|Extending|Closing on|Evasive/i, 'H3']
   ];
+  // engine structured events (evt(s, type, data) in web/hunt_rt_engine.js) -> catalog rows and call data
+  const NUMW = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+  const nw = n => NUMW[n] || String(n);
+  const EVT = {
+    vampire: d => ['W5', { n: d.n, id: d.id, bearing: d.bearing, at: d.at, eta: d.etaSec != null ? Math.max(5, Math.round(d.etaSec / 5) * 5) + ' seconds' : '' }],
+    ping_alert: d => ['S6', { n: d.n, id: d.id, bearing: d.bearing }],
+    probe_reaction: d => ['W9', { n: d.n, id: d.id, how: d.how }],
+    probe_quiet: d => ['W4', { text: 'Probe landed. No reaction.' }],
+    mag_low: d => ['W8', { text: `Magazine low. ${nw(d.salvos)} salvo${d.salvos === 1 ? '' : 's'} left.` }],
+    mag_empty: d => ['W8', { text: 'Magazine empty.' }],
+    track_lost: d => ['S5', { n: d.n, id: d.id, ghost: d.ghost }]
+  };
+  // speech helpers shared by the call deck and tools/tts/catalog_lines.js, so a rendered clip is found by its exact words
+  const spoken = t => String(t || '').replace(/Sierra (\d+)/g, (m, n) => 'Sierra ' + nw(+n)).replace(/\s+/g, ' ').trim();
+  const plain = l => String(l).replace(/\s*\([^)]*\)/g, '').trim();
+  const CAP = { 'Fire (preset)': 'Fire.', 'Give a baseline': 'Give me a baseline.', 'Ignore': 'Ignore it.', 'Mark and continue': 'Mark it and continue.', 'Track her': 'Track her.', 'Isolate and classify': 'Isolate and classify.', 'No': 'No redline.', 'Do it': 'Do it.', 'Track': 'Track her.', 'Probe': 'Probe her.', 'Classify': 'Classify her.' };
+  const ACK = { 'Hold': 'Aye. Holding.', 'No': 'Aye. No redline.', 'Not yet': 'Aye. Not yet.', 'Wait': 'Aye. Waiting.', 'Ignore': 'Aye. Ignoring.', 'Do it': 'Aye. Taking the sensors.', 'Fire (preset)': 'Aye. Firing.', 'Fire': 'Aye. Firing.', 'Track': 'Aye. Tracking.', 'Probe': 'Aye. Probe away.', 'Classify': 'Aye. Classifying.' };
+  const captainLine = label => CAP[label] || plain(label) + '.';
+  const ackLine = label => ACK[label] || 'Aye. ' + plain(label) + '.';
+  function clipId(who, text) {   // stable id for a rendered line: FNV-1a of who|words. The captain's id gets _m or _f in web/voice.js
+    let h = 0x811c9dc5; const k = (who === 'Captain' ? 'Captain' : who) + '|' + spoken(text);
+    for (let i = 0; i < k.length; i++) { h ^= k.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+    return (who === 'Captain' ? 'cap_' : 'ln_') + h.toString(16).padStart(8, '0');
+  }
   const DOCTRINE = { roe: 'hold-fire', pd: 'active-on-vampire', ping: 'ask', vent: 'at-90', damage: 'sink', reporting: 'standard' };
 
   function create(cfg) {
@@ -94,9 +118,10 @@
       const key = rowId + ':' + (d.n || 0);
       if (pri > 1 && st.last[key] != null && st.now - st.last[key] < COOL[pri]) { st.suppressed = (st.suppressed || 0) + 1; return null; }   // same news again: say it once
       st.last[key] = st.now;
-      if (pri === 3) {                                       // spend attention; with none left the call is a notice, not an interruption
+      if (pri >= 3) {                                        // spend attention; with none left a priority 3 call is a notice, not an interruption
         st.tokens = Math.min(BUCKET.cap, st.tokens + (st.now - st.tokT) / BUCKET.every); st.tokT = st.now;
-        if (st.tokens >= 1) st.tokens -= 1; else pri = 2;
+        if (pri === 4) st.tokens = Math.max(0, st.tokens - 1);   // a critical call always gets through, but it uses up attention too
+        else if (st.tokens >= 1) st.tokens -= 1; else pri = 2;
       }
       // what reaches the CO: Auto settles routine decisions by doctrine; Supervised asks; Hands-on routes to the player's screen
       let raiseIt = true, settled = false;
@@ -146,6 +171,20 @@
       const c = st.calls.find(x => x.id === id); if (!c || c.state !== 'raised' || !c.opts || !c.opts[i]) return null;
       c.state = 'answered'; c.choice = i; c.by = 'co'; return issue(c, i, 'co');
     }
+    // a proactive order from the CO (radial menu, hold-V report): same lifecycle as a chip (issued, acked, executing, reported)
+    function command(station, verb, label, data) {
+      const officer = OFFICER[station] || 'Abara';
+      const call = { id: st.nextId++, row: 'CO', station, officer, pri: 2, at: st.now, readyAt: st.now, raisedAt: st.now, state: 'answered', count: 1, line: label || verb, data: data || {}, opts: [{ label: label || verb, verb }], def: 0, by: 'co', choice: 0, route: 'co', proactive: true };
+      st.calls.push(call); st.history.push(call);
+      return issue(call, 0, 'co');
+    }
+    // a status report on demand ("Sensors, report"): a priority 2 information call from that station's officer
+    function report(station, text) {
+      const officer = OFFICER[station] || 'Abara', row = { sensors: 'S2', fire: 'W4', weapons: 'W4', helm: 'H3', engineering: 'E3', thermal: 'E3', damage: 'W7', comms: 'S2' }[station] || 'S2';
+      const call = { id: st.nextId++, row, station, officer, pri: 2, at: st.now, readyAt: Math.max(st.now, officers[officer].busyUntil), state: 'queued', count: 1, line: text, data: { text }, opts: null, route: 'co', report: true };
+      st.calls.push(call); st.history.push(call); return call;
+    }
+    function dismiss(id) { const c = st.calls.find(x => x.id === id); if (!c || c.state !== 'raised' || c.pri > 2) return false; c.state = 'dismissed'; return true; }
     function standBy(id) {
       const c = st.calls.find(x => x.id === id); if (!c || c.state !== 'raised' || c.stood || c.pri > 3) return false;
       c.stood = true; c.expiresAt += patience; return true;
@@ -185,15 +224,22 @@
       }
       return made;
     }
+    // engine structured event -> call. Takes {type, data} (engine form) or a flat {type, ...}
+    function onEvent(e) {
+      if (!e || !EVT[e.type]) return null;
+      const d = e.data || Object.assign({}, e); delete d.type;
+      const [row, cd] = EVT[e.type](d);
+      return raise(row, cd);
+    }
     function stats(winSec) {
       const w = winSec || 20, big = st.raised.filter(r => r.pri >= 3), span = Math.max(1, st.now);
       let burst = 0; for (const r of st.raised) burst = Math.max(burst, st.raised.filter(q => q.t >= r.t && q.t < r.t + 5).length);
       return { seconds: st.now, raised: st.raised.length, urgent: big.length, urgentPer20s: big.length / (span / w), maxBurst5s: burst,
         suppressed: st.suppressed, defaults: st.calls.filter(c => c.state === 'defaulted').length, settled: st.calls.filter(c => c.state === 'settled').length, logged: st.calls.filter(c => c.state === 'logged').length };
     }
-    return { raise, ingest, tick, pending, next, answer, standBy, stats, on: f => st.listeners.push(f), setAutonomy: (k, m) => { autonomy[k] = m; }, autonomy, doctrine, setDoctrine: o => Object.assign(doctrine, o),
+    return { raise, ingest, onEvent, command, report, dismiss, defaultIndex, tick, pending, next, answer, standBy, stats, on: f => st.listeners.push(f), setAutonomy: (k, m) => { autonomy[k] = m; }, autonomy, doctrine, setDoctrine: o => Object.assign(doctrine, o),
       get now() { return st.now; }, get calls() { return st.calls; }, get orders() { return st.orders; }, officers, secPerMin };
   }
-  const API = { create, ROWS, MAP, OFFICER, DOCTRINE };
+  const API = { create, ROWS, MAP, EVT, OFFICER, DOCTRINE, spoken, captainLine, ackLine, clipId, numWord: nw };
   root.Stations = API; if (typeof module !== 'undefined') module.exports = API;
 })(typeof window !== 'undefined' ? window : globalThis);
