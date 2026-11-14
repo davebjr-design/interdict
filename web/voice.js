@@ -68,6 +68,11 @@
     next();
   }
 
+  function failSoft(job, t0, rate, end) {            // audio failed: wait out the natural length, then end
+    const left = Math.max(0, estMs(job.text, rate) - (Date.now() - t0));
+    clearTimeout(watchdog); watchdog = null; clearTimeout(timer); timer = setTimeout(() => end(false), left);
+  }
+
   function speakNow(job) {
     const sy = synth();
     const rate = (job.profile.rate || 1) * S.rate;
@@ -75,11 +80,11 @@
     if (S.subtitle) try { S.subtitle(job); } catch (e) {}
     const clip = job.id && clips[job.id];
     if (S.enabled && clip && S.volume > 0 && root.Audio) {   // pre-rendered neural line (tools/tts/render.py)
-      let done = false; const end = ok => { if (!done) { done = true; finish(job, ok); } };
+      const t0 = Date.now(); let done = false; const end = ok => { if (!done) { done = true; finish(job, ok); } };
       try {
         audioEl = new root.Audio(clipBase + clip.file); audioEl.volume = S.volume; audioEl.playbackRate = S.rate;
-        audioEl.onended = () => end(true); audioEl.onerror = () => end(false);
-        const pr = audioEl.play(); if (pr && pr.catch) pr.catch(() => end(false));     // blocked autoplay: fall back to timed text
+        audioEl.onended = () => end(true); audioEl.onerror = () => failSoft(job, t0, rate, end);
+        const pr = audioEl.play(); if (pr && pr.catch) pr.catch(() => failSoft(job, t0, rate, end));     // blocked autoplay: fall back to timed text
         watchdog = setTimeout(() => { try { audioEl.pause(); } catch (e) {} end(false); }, (clip.ms || estMs(job.text, rate)) * 2 + 2000);
       } catch (e) { end(false); }
       return;
@@ -88,13 +93,13 @@
       timer = setTimeout(() => finish(job, false), estMs(job.text, rate));
       return;
     }
-    let done = false;
+    const t0 = Date.now(); let done = false;
     const end = ok => { if (!done) { done = true; finish(job, ok); } };
     try {
       const u = new root.SpeechSynthesisUtterance(job.text);
       const v = pickVoice(job.profile); if (v) u.voice = v;
       u.pitch = job.profile.pitch || 1; u.rate = rate; u.volume = S.volume;
-      u.onend = () => end(true); u.onerror = () => end(false);
+      u.onend = () => end(true); u.onerror = () => failSoft(job, t0, rate, end);
       sy.speak(u);
       watchdog = setTimeout(() => { try { sy.cancel(); } catch (e) {} end(false); }, estMs(job.text, rate) * 2.5 + 1500); // some browsers never fire onend
     } catch (e) { end(false); }

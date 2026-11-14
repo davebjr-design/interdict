@@ -42,5 +42,11 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   const r2 = await V.speak({ who: 'Pell', text: 'no engine', priority: 3 });
   ok(r2 === false, 'no speech engine: still resolves'); globalThis.speechSynthesis = keep;
   ok(V._estMs('a b c d e', 1) > 1000, 'fallback length scales with words');
+  // speech engine that errors immediately (as headless Chrome does): the line must still take its natural time
+  const keep2 = globalThis.speechSynthesis;
+  globalThis.speechSynthesis = { getVoices: () => [], speak(u) { setTimeout(() => u.onerror && u.onerror({ error: 'synthesis-failed' }), 2); }, cancel() {} };
+  const t1 = Date.now(); const r3 = await V.speak({ who: 'Quill', text: 'an engine that errors straight away', priority: 2 });
+  ok(r3 === false && Date.now() - t1 >= 700, 'engine error: line still takes its natural time (' + (Date.now() - t1) + ' ms), so chips never appear early');
+  globalThis.speechSynthesis = keep2;
   console.log(fails ? 'FAILED' : 'ALL OK'); process.exit(fails ? 1 : 0);
 })();

@@ -11,7 +11,7 @@ table{border-collapse:collapse;width:100%;font-size:13px}td,th{border:1px solid 
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.grid div{border:1px solid #234;padding:6px;border-radius:4px;font-size:12px}audio{width:100%;height:30px}
 </style>
 <h1>Is generated speech viable for the dialogue?</h1>
-<div class="dim">Three tests on one page: (1) pre-rendered neural voices, (2) casting audition, (3) your browser's built-in speech, with a diagnostic so we can see why it fails. Serve this folder (or open from the repo's web/ folder).</div>
+<div class="dim">Three tests on one page: (1) pre-rendered neural voices, (2) casting audition, (3) your browser's built-in speech, with a diagnostic so we can see why it fails. Keep this file, voice.js, voice_clips/ and voice_samples/ together; it works when opened directly.</div>
 
 <h2>1. Pre-rendered neural voices (Piper, generated offline, played as ordinary audio)</h2>
 <div id="clips"></div>
@@ -43,9 +43,9 @@ const $=id=>document.getElementById(id), log=t=>{const l=$('log');l.textContent+
 const OPTS={quill_new_thermal:[['Isolate and classify','Mark and continue','Ignore'],0],abara_range:[['Give a baseline','Hold silent','Wait'],1],castellan_hot:[['Burn as ordered','Shorter burn','Abort'],1],
  dace_vent:[['Vent now','Hold and risk it','Cut thrust'],0],abara_vampire:[['Go active','Stay cold'],0],pell_offer:[['Do it','Not yet'],1],fenwick_breach:[['Save the sink','Save the drive','Seal and sacrifice'],0]};
 let cur=null,ready=false,MF={};
-fetch('voice_clips/manifest.json').then(r=>r.json()).then(m=>{MF=m;Voice.loadClips(m,'voice_clips/');
+Promise.resolve({"quill_new_thermal": {"file": "quill_new_thermal.mp3", "who": "Quill", "text": "Conn, Sensors. New thermal return, bearing two-eight-zero.", "ms": 3760}, "abara_range": {"file": "abara_range.mp3", "who": "Abara", "text": "Conn, Fire control. Bearing only on Sierra Two. I need a leg to range her.", "ms": 4887}, "castellan_hot": {"file": "castellan_hot.mp3", "who": "Castellan", "text": "Conn, Engineering. Burn will run hot. Recommend a shorter one.", "ms": 4480}, "dace_vent": {"file": "dace_vent.mp3", "who": "Dace", "text": "Conn, Thermal. Sink at eighty percent. Forced vent in twenty seconds.", "ms": 3935}, "abara_vampire": {"file": "abara_vampire.mp3", "who": "Abara", "text": "Vampire, vampire. Bearing two-one-zero, impact in forty-five.", "ms": 5340}, "pell_offer": {"file": "pell_offer.mp3", "who": "Pell", "text": "Captain, I can run the sensors for you. It would be faster. It would also be seen.", "ms": 5984}, "fenwick_breach": {"file": "fenwick_breach.mp3", "who": "Fenwick", "text": "Skipper, breach in aft stores and a fire. Which first, the sink or the drive?", "ms": 4562}}).then(m=>{MF=m;Voice.loadClips(m,'voice_clips/');
  Object.entries(m).forEach(([id,c])=>{const d=document.createElement('div');d.className='line';d.innerHTML='<b>'+c.who+'</b>';const b=document.createElement('button');b.textContent='▶ '+c.text;b.onclick=()=>play(id);d.appendChild(b);$('clips').appendChild(d)})})
- .catch(e=>{$('clips').textContent='Could not load voice_clips/manifest.json ('+e+'). Serve the web/ folder over http (python3 -m http.server) rather than opening the file directly.'});
+ .catch(e=>{$('clips').textContent='Could not load clips: '+e});
 function play(id){const c=MF[id],o=OPTS[id];cur=id;ready=false;$('who').textContent=c.who;$('ln').textContent='';$('chips').innerHTML='';
  Voice.speak({id,who:c.who,text:c.text,priority:2,onStart:()=>{$('ln').textContent=c.text}}).then(()=>{if(cur!==id)return;ready=true;
   $('chips').innerHTML=o[0].map((t,i)=>'<span class="chip'+(i===o[1]?' rec':'')+'"><b>'+(i+1)+'</b> '+t+(i===o[1]?' ✓':'')+'</span>').join('')})}
