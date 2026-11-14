@@ -1,4 +1,4 @@
-# Smoke test for the UI v2 console: keys, views, burn, guard, pause.
+# Smoke test for the UI v2 console: keys, views, burn, guard, no pause in normal play.
 from playwright.sync_api import sync_playwright
 bad=[]
 def chk(m,c):
@@ -29,19 +29,19 @@ with sync_playwright() as p:
         pg.click('#sl3'); pg.keyboard.press('i'); pg.wait_for_timeout(250)
         chk(f'{W} investigate order',pg.evaluate("S.posture==='close'||S.analysts.some(a=>a.task!=null)"))
         # views
-        for v,kid in (('str','#kv-str'),('tac','#kv-tac')):
+        for v,kid in (('str','#dkf-helm'),('tac','#dkf-conn')):   # the station keys (F5 helm = the strategic map, F1 conn = tactical)
             pg.click(kid); pg.wait_for_timeout(300)
             chk(f'{W} view {v}',pg.evaluate("view")==v)
         # strategic zones visible only in str
-        pg.click('#kv-str'); pg.wait_for_timeout(200)
+        pg.click('#dkf-helm'); pg.wait_for_timeout(200)
         chk(f'{W} map visible in str',pg.evaluate("!document.querySelector('[data-z^=MAP]').hidden"))
-        pg.click('#kv-tac'); pg.wait_for_timeout(200)
+        pg.click('#dkf-conn'); pg.wait_for_timeout(200)
         chk(f'{W} map hidden in tac',pg.evaluate("document.querySelector('[data-z^=MAP]').hidden"))
-        # pause
-        pg.click('#k-pause'); pg.wait_for_timeout(300)
-        chk(f'{W} pause blanks',pg.evaluate("$('stage').classList.contains('paused')"))
-        pg.click('#resume'); pg.wait_for_timeout(300)
-        chk(f'{W} unpause',pg.evaluate("!$('stage').classList.contains('paused')"))
+        # no pause in normal play (decided: pausing is tutorial-only); the key opens the crew settings instead
+        pg.click('#k-pause'); pg.wait_for_timeout(300); pg.keyboard.press('p'); pg.wait_for_timeout(150)
+        chk(f'{W} no pause in a normal hunt',pg.evaluate("!paused && !$('stage').classList.contains('paused')"))
+        chk(f'{W} the key opens the crew settings',pg.evaluate("!$('dk-drawer').hidden"))
+        pg.keyboard.press('Escape'); pg.wait_for_timeout(150)
         # target + guard
         pg.evaluate("(()=>{const a=S.an.find(x=>x.kind==='real');E.lockContact(S,a.id);selId=a.id;})()"); pg.wait_for_timeout(1200)
         pg.evaluate('setView("tgt")')

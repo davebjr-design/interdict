@@ -187,7 +187,7 @@ function cTactical() {
   w += croW('r-fly', 0, 11, 'IN FLIGHT', '88:88', 12, 4);
   w += ckeyW('k-tgt', 12, 11, 12, 4, 'TARGET &#9656;', '', CC.amber, { act: 'target', tag: 'K 12x4u', tip: 'Open the fire solution view for a locked contact. Fire from there.' });
   w += clampW('lw-live', 24, 11, 'LIVE', { tip: 'The locked contact is being observed now.' }) + clampW('lw-stale', 30, 11, 'STALE', { tip: 'The firing solution is stale: refresh it in the Target view.' }) + clampW('lw-rng', 36, 11, 'IN RNG', { tip: 'A contact is inside coilgun range.' }) + clampW('lw-fr', 42, 11, 'FRIEND', { tip: 'An ally is near the aim point: weapons safe.' });
-  o += czone('WEAPONS', 36, 74, 48, 16, 'WEAPONS', 'tubes &middot; coilgun', w, { vz: 'tac' });
+  o += czone('WEAPONS', 36, 74, 48, 16, 'WEAPONS', '<span id="wpn-mag">tubes &middot; coilgun</span>', w, { vz: 'tac' });
   let c = cwid('log', 0, 3, 28, 9, '<div id="feed" class="feed"></div>', { tag: 'LOG 28x9u' });
   c += ckeyW('k-voice', 0, 12, 14, 4, 'VOICE', 'OFF', CC.green, { act: 'voice', tag: 'K 14x4u', tip: 'Officers speak the important calls aloud using your browser voices. Cycle: off, slow, normal, fast.' }) + ckeyW('k-rall', 14, 12, 14, 4, 'KEY CALLS', 'KEY', null, { act: 'rall', tag: 'K 14x4u', tip: 'Key calls only, or every report line.' });
   o += czone('COMMS', 84, 74, 28, 16, 'COMMS', 'mostly voiced', c, { vz: 'tac str' });
@@ -219,7 +219,7 @@ const hcol = h => h >= 0.95 ? CC.red : h >= 0.8 ? CC.orange : h >= 0.6 ? CC.ambe
 // ----- rail -----
 function cRail() {
   croSet('r-clk', mmss(S.t), CC.green);
-  ckeySet('k-pause', { t: paused ? 'RESUME' : 'PAUSE', s: 'P', lit: paused });
+  if (TUT) ckeySet('k-pause', { t: paused ? 'RESUME' : 'PAUSE', s: 'P', lit: paused }); else ckeySet('k-pause', typeof DECK !== 'undefined' && DECK.on ? { t: 'CREW', s: 'SETTINGS' } : { t: 'NO PAUSE', s: '', dis: true });   // pausing is tutorial-only
   [0.5, 1, 2].forEach((v, i) => ckeySet('k-t' + i, { lit: tscale === v }));
   clampSet('lMaster', S.hull < 40 || (S.melt || 0) > 0.4 || (S.vent.on && S.vent.forced) || S.inc.length > 0, { fl: true });
   clampSet('lInc', S.inc.length > 0, { fl: true }); clampSet('lFins', !!S.vent.on); clampSet('lQuiet', S.t < S.quietUntil);
@@ -413,6 +413,7 @@ function cWeapons() {
   ckeySet('k-tgt', { t: 'TARGET &#9656;', s: t0 ? 'C' + (t0.id + 1) + (si.ready ? ' READY' : si.stale ? ' STALE' : ' SOLVING') : 'NO LOCK', dis: !lk.length, lit: !!lk.length });
   clampSet('lw-live', lk.some(a => a.anchor && S.t - a.anchor.t < 0.8), { fl: true }); clampSet('lw-stale', lk.some(a => E.solveInfo(S, a).stale)); clampSet('lw-rng', lk.some(a => a.anchor && E.closeInfo(S, a).d <= ME().closeRange));
   clampSet('lw-fr', S.an.some(a => a.idStatus === 'plan' && a.state !== 'disabled'));
+  cOn('wpn-mag', e => { const m = S.mag, t = m ? `Magazine ${m.total}/${m.max} &middot; PD ${(S.pd || 'armed').toUpperCase()}` : 'tubes &middot; coilgun'; if (e.dataset.k !== t) { e.dataset.k = t; e.innerHTML = t; e.style.color = m && m.total <= 12 ? CC.amber : ''; } });
   ckeySet('k-voice', { t: 'VOICE', s: VRATES[vIdx][0].toUpperCase(), lit: vIdx > 0 }); ckeySet('k-rall', { t: allReports ? 'ALL CALLS' : 'KEY CALLS', s: allReports ? 'ALL' : 'KEY', lit: allReports });
 }
 function cSensors() {
@@ -432,7 +433,7 @@ function cUpdate() {
 }
 /* ---------- actions, hover previews, keys ---------- */
 const ACT = {
-  pause() { $('pause').click(); }, speed(el) { setTime(+el.dataset.arg); }, menu() { $('manbtn').click(); },
+  pause() { if (TUT) $('pause').click(); else if (typeof DECK !== 'undefined' && DECK.on) DECK.drawer(); }, speed(el) { setTime(+el.dataset.arg); }, menu() { $('manbtn').click(); },
   view(el) { if (!el.classList.contains('dis')) setView(el.dataset.arg); },
   vent() { ventToggle(); }, quiet() { E.goQuiet(S); uiUpdate(true); }, breach() { E.retreat(S); uiUpdate(true); },
   pell() { if (!pellLive()) return; S.pell = !S.pell; if (S.pell) S.linkUsed = true; uiUpdate(true); }, pellact() { if (!pellLive()) return; E.setPellAct(S, !S.pellAct); uiUpdate(true); },

@@ -446,5 +446,1405 @@
   "text": "Sealing the stores.",
   "ms": 1149,
   "key": "84788ebf5d8a"
+ },
+ "ln_8ffc4929": {
+  "file": "ln_8ffc4929.mp3",
+  "who": "Quill",
+  "text": "New thermal return, Sierra one.",
+  "ms": 2240,
+  "key": "4408e3a77ee3"
+ },
+ "ln_2c662e1b": {
+  "file": "ln_2c662e1b.mp3",
+  "who": "Quill",
+  "text": "New thermal return, Sierra two.",
+  "ms": 2352,
+  "key": "eef5538ef73f"
+ },
+ "ln_b3fe9bf9": {
+  "file": "ln_b3fe9bf9.mp3",
+  "who": "Quill",
+  "text": "New thermal return, Sierra three.",
+  "ms": 2864,
+  "key": "3e76b4757464"
+ },
+ "ln_4c63b7ff": {
+  "file": "ln_4c63b7ff.mp3",
+  "who": "Quill",
+  "text": "New thermal return, Sierra four.",
+  "ms": 1872,
+  "key": "56d154609c11"
+ },
+ "cap_f6a5487b_m": {
+  "file": "cap_f6a5487b_m.mp3",
+  "who": "CaptainM",
+  "text": "Isolate and classify.",
+  "ms": 1544,
+  "key": "85804f84c297"
+ },
+ "cap_f6a5487b_f": {
+  "file": "cap_f6a5487b_f.mp3",
+  "who": "CaptainF",
+  "text": "Isolate and classify.",
+  "ms": 1555,
+  "key": "d2008962445c"
+ },
+ "ln_37b21d53": {
+  "file": "ln_37b21d53.mp3",
+  "who": "Quill",
+  "text": "Aye. Isolate and classify.",
+  "ms": 2224,
+  "key": "609c17fc58d1"
+ },
+ "cap_33f0b83d_m": {
+  "file": "cap_33f0b83d_m.mp3",
+  "who": "CaptainM",
+  "text": "Mark it and continue.",
+  "ms": 1044,
+  "key": "a4c3e41efa1a"
+ },
+ "cap_33f0b83d_f": {
+  "file": "cap_33f0b83d_f.mp3",
+  "who": "CaptainF",
+  "text": "Mark it and continue.",
+  "ms": 1253,
+  "key": "f867dcf298c8"
+ },
+ "ln_c7d160cc": {
+  "file": "ln_c7d160cc.mp3",
+  "who": "Quill",
+  "text": "Aye. Mark and continue.",
+  "ms": 1456,
+  "key": "44c7f5c39baa"
+ },
+ "cap_ebafe996_m": {
+  "file": "cap_ebafe996_m.mp3",
+  "who": "CaptainM",
+  "text": "Ignore it.",
+  "ms": 684,
+  "key": "0c032fbdccb9"
+ },
+ "cap_ebafe996_f": {
+  "file": "cap_ebafe996_f.mp3",
+  "who": "CaptainF",
+  "text": "Ignore it.",
+  "ms": 859,
+  "key": "a8baca1a0da7"
+ },
+ "ln_72be9ae6": {
+  "file": "ln_72be9ae6.mp3",
+  "who": "Quill",
+  "text": "Aye. Ignoring.",
+  "ms": 1504,
+  "key": "bc196d779684"
+ },
+ "ln_dd8f1a2a": {
+  "file": "ln_dd8f1a2a.mp3",
+  "who": "Quill",
+  "text": "Lost her bearing, Sierra one. Rescan?",
+  "ms": 2544,
+  "key": "38065e8ac85a"
+ },
+ "ln_e9280b28": {
+  "file": "ln_e9280b28.mp3",
+  "who": "Quill",
+  "text": "Lost her bearing, Sierra two. Rescan?",
+  "ms": 2608,
+  "key": "d839cefb61e4"
+ },
+ "ln_7cc06566": {
+  "file": "ln_7cc06566.mp3",
+  "who": "Quill",
+  "text": "Lost her bearing, Sierra three. Rescan?",
+  "ms": 2736,
+  "key": "d2521b52824c"
+ },
+ "ln_62c1a6c4": {
+  "file": "ln_62c1a6c4.mp3",
+  "who": "Quill",
+  "text": "Lost her bearing, Sierra four. Rescan?",
+  "ms": 2368,
+  "key": "3cef0f2492aa"
+ },
+ "cap_6802df15_m": {
+  "file": "cap_6802df15_m.mp3",
+  "who": "CaptainM",
+  "text": "Rescan.",
+  "ms": 615,
+  "key": "f74afd37ed24"
+ },
+ "cap_6802df15_f": {
+  "file": "cap_6802df15_f.mp3",
+  "who": "CaptainF",
+  "text": "Rescan.",
+  "ms": 812,
+  "key": "472681c1a49e"
+ },
+ "ln_af476f4d": {
+  "file": "ln_af476f4d.mp3",
+  "who": "Quill",
+  "text": "Aye. Rescan.",
+  "ms": 1280,
+  "key": "cbecf41e4465"
+ },
+ "cap_0d333bf2_m": {
+  "file": "cap_0d333bf2_m.mp3",
+  "who": "CaptainM",
+  "text": "Hold.",
+  "ms": 557,
+  "key": "649aac56ca8b"
+ },
+ "cap_0d333bf2_f": {
+  "file": "cap_0d333bf2_f.mp3",
+  "who": "CaptainF",
+  "text": "Hold.",
+  "ms": 615,
+  "key": "8e2643bcb48d"
+ },
+ "ln_d4eaed72": {
+  "file": "ln_d4eaed72.mp3",
+  "who": "Quill",
+  "text": "Aye. Holding.",
+  "ms": 1200,
+  "key": "b97c2807d8ab"
+ },
+ "ln_f44e2dfe": {
+  "file": "ln_f44e2dfe.mp3",
+  "who": "Quill",
+  "text": "Lost contact on Sierra one, marking as thermal ghost.",
+  "ms": 3104,
+  "key": "851ccab2c784"
+ },
+ "ln_cfc1486c": {
+  "file": "ln_cfc1486c.mp3",
+  "who": "Quill",
+  "text": "Lost contact on Sierra two, marking as thermal ghost.",
+  "ms": 3008,
+  "key": "99d3f01d7ec7"
+ },
+ "ln_6b1949ce": {
+  "file": "ln_6b1949ce.mp3",
+  "who": "Quill",
+  "text": "Lost contact on Sierra three, marking as thermal ghost.",
+  "ms": 3312,
+  "key": "a636718a8d0c"
+ },
+ "ln_0adc0158": {
+  "file": "ln_0adc0158.mp3",
+  "who": "Quill",
+  "text": "Lost contact on Sierra four, marking as thermal ghost.",
+  "ms": 3536,
+  "key": "b4360cb5b73d"
+ },
+ "ln_9eeaa746": {
+  "file": "ln_9eeaa746.mp3",
+  "who": "Quill",
+  "text": "Sierra one just pinged. She is hunting.",
+  "ms": 2960,
+  "key": "f7294c14cbac"
+ },
+ "ln_265cf3dc": {
+  "file": "ln_265cf3dc.mp3",
+  "who": "Quill",
+  "text": "Sierra two just pinged. She is hunting.",
+  "ms": 2688,
+  "key": "6c7b289cca53"
+ },
+ "ln_7c353922": {
+  "file": "ln_7c353922.mp3",
+  "who": "Quill",
+  "text": "Sierra three just pinged. She is hunting.",
+  "ms": 2912,
+  "key": "4e0012e6ca57"
+ },
+ "ln_f3d280e6": {
+  "file": "ln_f3d280e6.mp3",
+  "who": "Quill",
+  "text": "Sierra four just pinged. She is hunting.",
+  "ms": 2624,
+  "key": "41d985650605"
+ },
+ "cap_63def737_m": {
+  "file": "cap_63def737_m.mp3",
+  "who": "CaptainM",
+  "text": "Go quiet.",
+  "ms": 731,
+  "key": "58fb7c0ef8c7"
+ },
+ "cap_63def737_f": {
+  "file": "cap_63def737_f.mp3",
+  "who": "CaptainF",
+  "text": "Go quiet.",
+  "ms": 928,
+  "key": "c94c9567a415"
+ },
+ "ln_1ebb427f": {
+  "file": "ln_1ebb427f.mp3",
+  "who": "Quill",
+  "text": "Aye. Go quiet.",
+  "ms": 1232,
+  "key": "e3c795a6fb46"
+ },
+ "cap_7078f8dc_m": {
+  "file": "cap_7078f8dc_m.mp3",
+  "who": "CaptainM",
+  "text": "Run.",
+  "ms": 522,
+  "key": "30c860b173b8"
+ },
+ "cap_7078f8dc_f": {
+  "file": "cap_7078f8dc_f.mp3",
+  "who": "CaptainF",
+  "text": "Run.",
+  "ms": 499,
+  "key": "59daca28acbf"
+ },
+ "ln_8f3abe84": {
+  "file": "ln_8f3abe84.mp3",
+  "who": "Quill",
+  "text": "Aye. Run.",
+  "ms": 976,
+  "key": "4a6cad9c228e"
+ },
+ "ln_3c4413b2": {
+  "file": "ln_3c4413b2.mp3",
+  "who": "Quill",
+  "text": "I can ping Sierra one. She will know.",
+  "ms": 2656,
+  "key": "8b8136884ba6"
+ },
+ "ln_0f8df1c4": {
+  "file": "ln_0f8df1c4.mp3",
+  "who": "Quill",
+  "text": "I can ping Sierra two. She will know.",
+  "ms": 2320,
+  "key": "3da8221b09c0"
+ },
+ "ln_c6b6ddc2": {
+  "file": "ln_c6b6ddc2.mp3",
+  "who": "Quill",
+  "text": "I can ping Sierra three. She will know.",
+  "ms": 2496,
+  "key": "6688c9cde5b2"
+ },
+ "ln_4f0e0478": {
+  "file": "ln_4f0e0478.mp3",
+  "who": "Quill",
+  "text": "I can ping Sierra four. She will know.",
+  "ms": 2640,
+  "key": "0dc5216c5271"
+ },
+ "cap_d7f6c2d5_m": {
+  "file": "cap_d7f6c2d5_m.mp3",
+  "who": "CaptainM",
+  "text": "Ping.",
+  "ms": 464,
+  "key": "e7175e19e8f4"
+ },
+ "cap_d7f6c2d5_f": {
+  "file": "cap_d7f6c2d5_f.mp3",
+  "who": "CaptainF",
+  "text": "Ping.",
+  "ms": 417,
+  "key": "5f93137b8d97"
+ },
+ "ln_10fa729d": {
+  "file": "ln_10fa729d.mp3",
+  "who": "Quill",
+  "text": "Aye. Ping.",
+  "ms": 1008,
+  "key": "e6fed6a22062"
+ },
+ "cap_75052cec_m": {
+  "file": "cap_75052cec_m.mp3",
+  "who": "CaptainM",
+  "text": "Probe salvo.",
+  "ms": 801,
+  "key": "8b621499c196"
+ },
+ "cap_75052cec_f": {
+  "file": "cap_75052cec_f.mp3",
+  "who": "CaptainF",
+  "text": "Probe salvo.",
+  "ms": 870,
+  "key": "95ff426a04e7"
+ },
+ "ln_a74eb274": {
+  "file": "ln_a74eb274.mp3",
+  "who": "Quill",
+  "text": "Aye. Probe salvo.",
+  "ms": 1424,
+  "key": "ea7735e632aa"
+ },
+ "cap_893b6f06_m": {
+  "file": "cap_893b6f06_m.mp3",
+  "who": "CaptainM",
+  "text": "Not yet.",
+  "ms": 754,
+  "key": "9d93b117f02d"
+ },
+ "cap_893b6f06_f": {
+  "file": "cap_893b6f06_f.mp3",
+  "who": "CaptainF",
+  "text": "Not yet.",
+  "ms": 731,
+  "key": "27d01a9385d1"
+ },
+ "ln_5dee2e4e": {
+  "file": "ln_5dee2e4e.mp3",
+  "who": "Quill",
+  "text": "Aye. Not yet.",
+  "ms": 1232,
+  "key": "98cf1ec6afc5"
+ },
+ "ln_fd63de72": {
+  "file": "ln_fd63de72.mp3",
+  "who": "Abara",
+  "text": "Bearing only on Sierra one. I need a leg to range her.",
+  "ms": 3842,
+  "key": "d264bf249e8b"
+ },
+ "ln_57519b58": {
+  "file": "ln_57519b58.mp3",
+  "who": "Abara",
+  "text": "Bearing only on Sierra two. I need a leg to range her.",
+  "ms": 3401,
+  "key": "1af49a885a6c"
+ },
+ "ln_c8df4342": {
+  "file": "ln_c8df4342.mp3",
+  "who": "Abara",
+  "text": "Bearing only on Sierra three. I need a leg to range her.",
+  "ms": 3564,
+  "key": "e1907ed94896"
+ },
+ "ln_7ce0539c": {
+  "file": "ln_7ce0539c.mp3",
+  "who": "Abara",
+  "text": "Bearing only on Sierra four. I need a leg to range her.",
+  "ms": 4028,
+  "key": "c1f689b160fe"
+ },
+ "cap_09f125e2_m": {
+  "file": "cap_09f125e2_m.mp3",
+  "who": "CaptainM",
+  "text": "Give me a baseline.",
+  "ms": 1056,
+  "key": "d65b566c9f44"
+ },
+ "cap_09f125e2_f": {
+  "file": "cap_09f125e2_f.mp3",
+  "who": "CaptainF",
+  "text": "Give me a baseline.",
+  "ms": 1335,
+  "key": "3e3e7604b7cd"
+ },
+ "ln_323fb06a": {
+  "file": "ln_323fb06a.mp3",
+  "who": "Abara",
+  "text": "Aye. Give a baseline.",
+  "ms": 1729,
+  "key": "c4c6ed7244da"
+ },
+ "cap_adbe104d_m": {
+  "file": "cap_adbe104d_m.mp3",
+  "who": "CaptainM",
+  "text": "Hold silent.",
+  "ms": 824,
+  "key": "5bb211a83aae"
+ },
+ "cap_adbe104d_f": {
+  "file": "cap_adbe104d_f.mp3",
+  "who": "CaptainF",
+  "text": "Hold silent.",
+  "ms": 1149,
+  "key": "1a6b44b2372d"
+ },
+ "ln_9c90a6f3": {
+  "file": "ln_9c90a6f3.mp3",
+  "who": "Abara",
+  "text": "Aye. Hold silent.",
+  "ms": 1648,
+  "key": "40884fb388f6"
+ },
+ "cap_fda0831a_m": {
+  "file": "cap_fda0831a_m.mp3",
+  "who": "CaptainM",
+  "text": "Wait.",
+  "ms": 487,
+  "key": "c82f2ef47215"
+ },
+ "cap_fda0831a_f": {
+  "file": "cap_fda0831a_f.mp3",
+  "who": "CaptainF",
+  "text": "Wait.",
+  "ms": 568,
+  "key": "5ba4deaf2963"
+ },
+ "ln_bb8f62d0": {
+  "file": "ln_bb8f62d0.mp3",
+  "who": "Abara",
+  "text": "Aye. Waiting.",
+  "ms": 1439,
+  "key": "dc93cf4f4bf4"
+ },
+ "ln_77361bf1": {
+  "file": "ln_77361bf1.mp3",
+  "who": "Abara",
+  "text": "Solution good on Sierra one. Tubes ready.",
+  "ms": 2728,
+  "key": "20c1a2c27fb5"
+ },
+ "ln_447faf17": {
+  "file": "ln_447faf17.mp3",
+  "who": "Abara",
+  "text": "Solution good on Sierra two. Tubes ready.",
+  "ms": 2832,
+  "key": "432b38dfb5ea"
+ },
+ "ln_ec2884d1": {
+  "file": "ln_ec2884d1.mp3",
+  "who": "Abara",
+  "text": "Solution good on Sierra three. Tubes ready.",
+  "ms": 2856,
+  "key": "5d87b7d9a2ab"
+ },
+ "ln_9be3ac1b": {
+  "file": "ln_9be3ac1b.mp3",
+  "who": "Abara",
+  "text": "Solution good on Sierra four. Tubes ready.",
+  "ms": 2786,
+  "key": "53a8c7d37de9"
+ },
+ "cap_93615d45_m": {
+  "file": "cap_93615d45_m.mp3",
+  "who": "CaptainM",
+  "text": "Fire.",
+  "ms": 452,
+  "key": "698d49b442cb"
+ },
+ "cap_93615d45_f": {
+  "file": "cap_93615d45_f.mp3",
+  "who": "CaptainF",
+  "text": "Fire.",
+  "ms": 557,
+  "key": "8112cc68335c"
+ },
+ "ln_8718a88a": {
+  "file": "ln_8718a88a.mp3",
+  "who": "Abara",
+  "text": "Aye. Firing.",
+  "ms": 1242,
+  "key": "0621194ac846"
+ },
+ "cap_61c7c67c_m": {
+  "file": "cap_61c7c67c_m.mp3",
+  "who": "CaptainM",
+  "text": "Probe her.",
+  "ms": 510,
+  "key": "82383f529f11"
+ },
+ "cap_61c7c67c_f": {
+  "file": "cap_61c7c67c_f.mp3",
+  "who": "CaptainF",
+  "text": "Probe her.",
+  "ms": 766,
+  "key": "a386cea05955"
+ },
+ "ln_e2f218a7": {
+  "file": "ln_e2f218a7.mp3",
+  "who": "Abara",
+  "text": "Aye. Probe away.",
+  "ms": 1567,
+  "key": "2d24c2adfff5"
+ },
+ "ln_a193feb8": {
+  "file": "ln_a193feb8.mp3",
+  "who": "Abara",
+  "text": "Aye. Holding.",
+  "ms": 1242,
+  "key": "755a2b1074e6"
+ },
+ "ln_cb919935": {
+  "file": "ln_cb919935.mp3",
+  "who": "Abara",
+  "text": "Solution on Sierra one is going stale.",
+  "ms": 2345,
+  "key": "0b4f2c736804"
+ },
+ "ln_770dbeff": {
+  "file": "ln_770dbeff.mp3",
+  "who": "Abara",
+  "text": "Solution on Sierra two is going stale.",
+  "ms": 2542,
+  "key": "a8c730f98baf"
+ },
+ "ln_ceb8b17d": {
+  "file": "ln_ceb8b17d.mp3",
+  "who": "Abara",
+  "text": "Solution on Sierra three is going stale.",
+  "ms": 2635,
+  "key": "fa07550d67d8"
+ },
+ "ln_412fac7d": {
+  "file": "ln_412fac7d.mp3",
+  "who": "Abara",
+  "text": "Solution on Sierra four is going stale.",
+  "ms": 2275,
+  "key": "abfc067e032e"
+ },
+ "cap_f42727be_m": {
+  "file": "cap_f42727be_m.mp3",
+  "who": "CaptainM",
+  "text": "Refresh.",
+  "ms": 626,
+  "key": "9c22e01715d5"
+ },
+ "cap_f42727be_f": {
+  "file": "cap_f42727be_f.mp3",
+  "who": "CaptainF",
+  "text": "Refresh.",
+  "ms": 824,
+  "key": "e378885c9882"
+ },
+ "ln_9fe568b0": {
+  "file": "ln_9fe568b0.mp3",
+  "who": "Abara",
+  "text": "Aye. Refresh.",
+  "ms": 1242,
+  "key": "62e4576c4c7e"
+ },
+ "ln_3acca50a": {
+  "file": "ln_3acca50a.mp3",
+  "who": "Abara",
+  "text": "Vampire, vampire.",
+  "ms": 1253,
+  "key": "4f4b3aa363cd"
+ },
+ "cap_23fd4bc7_m": {
+  "file": "cap_23fd4bc7_m.mp3",
+  "who": "CaptainM",
+  "text": "Go active.",
+  "ms": 754,
+  "key": "17709f6eacb2"
+ },
+ "cap_23fd4bc7_f": {
+  "file": "cap_23fd4bc7_f.mp3",
+  "who": "CaptainF",
+  "text": "Go active.",
+  "ms": 975,
+  "key": "6c20f566f743"
+ },
+ "ln_441482c9": {
+  "file": "ln_441482c9.mp3",
+  "who": "Abara",
+  "text": "Aye. Go active.",
+  "ms": 1300,
+  "key": "8631add6c14f"
+ },
+ "cap_9d73b27c_m": {
+  "file": "cap_9d73b27c_m.mp3",
+  "who": "CaptainM",
+  "text": "Stay cold.",
+  "ms": 719,
+  "key": "f4610770f080"
+ },
+ "cap_9d73b27c_f": {
+  "file": "cap_9d73b27c_f.mp3",
+  "who": "CaptainF",
+  "text": "Stay cold.",
+  "ms": 743,
+  "key": "ea5c824f4cdf"
+ },
+ "ln_c90125ca": {
+  "file": "ln_c90125ca.mp3",
+  "who": "Abara",
+  "text": "Aye. Stay cold.",
+  "ms": 1160,
+  "key": "c13657408b60"
+ },
+ "ln_dd59a248": {
+  "file": "ln_dd59a248.mp3",
+  "who": "Abara",
+  "text": "Sierra one lit her point defence. She is real.",
+  "ms": 3123,
+  "key": "ae7d2e6cd8e0"
+ },
+ "ln_63aa41c0": {
+  "file": "ln_63aa41c0.mp3",
+  "who": "Abara",
+  "text": "Sierra one burned at the probe. She is real.",
+  "ms": 2856,
+  "key": "76b336f2997f"
+ },
+ "ln_d7ef923a": {
+  "file": "ln_d7ef923a.mp3",
+  "who": "Abara",
+  "text": "Sierra two lit her point defence. She is real.",
+  "ms": 3018,
+  "key": "6fd73f74e596"
+ },
+ "ln_b920929a": {
+  "file": "ln_b920929a.mp3",
+  "who": "Abara",
+  "text": "Sierra two burned at the probe. She is real.",
+  "ms": 2774,
+  "key": "588b28ba3a93"
+ },
+ "ln_dbbec6e0": {
+  "file": "ln_dbbec6e0.mp3",
+  "who": "Abara",
+  "text": "Sierra three lit her point defence. She is real.",
+  "ms": 3308,
+  "key": "847072385d85"
+ },
+ "ln_8fd6fbf8": {
+  "file": "ln_8fd6fbf8.mp3",
+  "who": "Abara",
+  "text": "Sierra three burned at the probe. She is real.",
+  "ms": 2647,
+  "key": "f9502814f3e5"
+ },
+ "ln_d6a92b70": {
+  "file": "ln_d6a92b70.mp3",
+  "who": "Abara",
+  "text": "Sierra four lit her point defence. She is real.",
+  "ms": 2716,
+  "key": "7aaca7209a8c"
+ },
+ "ln_424d03c8": {
+  "file": "ln_424d03c8.mp3",
+  "who": "Abara",
+  "text": "Sierra four burned at the probe. She is real.",
+  "ms": 2821,
+  "key": "15eaf53190b2"
+ },
+ "cap_009bb078_m": {
+  "file": "cap_009bb078_m.mp3",
+  "who": "CaptainM",
+  "text": "Mark hostile.",
+  "ms": 859,
+  "key": "9b19fbaa8ce1"
+ },
+ "cap_009bb078_f": {
+  "file": "cap_009bb078_f.mp3",
+  "who": "CaptainF",
+  "text": "Mark hostile.",
+  "ms": 870,
+  "key": "310d4de4fe6e"
+ },
+ "ln_64f1ecf6": {
+  "file": "ln_64f1ecf6.mp3",
+  "who": "Abara",
+  "text": "Aye. Mark hostile.",
+  "ms": 1404,
+  "key": "8073fa3a32c1"
+ },
+ "cap_2e04e9e1_m": {
+  "file": "cap_2e04e9e1_m.mp3",
+  "who": "CaptainM",
+  "text": "Keep probing.",
+  "ms": 777,
+  "key": "9cafdf3363c8"
+ },
+ "cap_2e04e9e1_f": {
+  "file": "cap_2e04e9e1_f.mp3",
+  "who": "CaptainF",
+  "text": "Keep probing.",
+  "ms": 824,
+  "key": "c221dbc8186c"
+ },
+ "ln_eb4749ef": {
+  "file": "ln_eb4749ef.mp3",
+  "who": "Abara",
+  "text": "Aye. Keep probing.",
+  "ms": 1474,
+  "key": "19d4fe46fa78"
+ },
+ "ln_661e881b": {
+  "file": "ln_661e881b.mp3",
+  "who": "Abara",
+  "text": "Burn runs hot. Recommend shorter.",
+  "ms": 2124,
+  "key": "513e27265740"
+ },
+ "cap_f7f9c93f_m": {
+  "file": "cap_f7f9c93f_m.mp3",
+  "who": "CaptainM",
+  "text": "Shorter burn.",
+  "ms": 835,
+  "key": "6dd9a82e9eaf"
+ },
+ "cap_f7f9c93f_f": {
+  "file": "cap_f7f9c93f_f.mp3",
+  "who": "CaptainF",
+  "text": "Shorter burn.",
+  "ms": 835,
+  "key": "b7a6efd96d2c"
+ },
+ "ln_7e157161": {
+  "file": "ln_7e157161.mp3",
+  "who": "Abara",
+  "text": "Aye. Shorter burn.",
+  "ms": 1416,
+  "key": "7600ceebdf76"
+ },
+ "cap_ad9e415d_m": {
+  "file": "cap_ad9e415d_m.mp3",
+  "who": "CaptainM",
+  "text": "Burn as ordered.",
+  "ms": 719,
+  "key": "d6e602ae9e37"
+ },
+ "cap_ad9e415d_f": {
+  "file": "cap_ad9e415d_f.mp3",
+  "who": "CaptainF",
+  "text": "Burn as ordered.",
+  "ms": 986,
+  "key": "ec4308dc409f"
+ },
+ "ln_42302353": {
+  "file": "ln_42302353.mp3",
+  "who": "Abara",
+  "text": "Aye. Burn as ordered.",
+  "ms": 1544,
+  "key": "61b17ac80ec6"
+ },
+ "cap_28214265_m": {
+  "file": "cap_28214265_m.mp3",
+  "who": "CaptainM",
+  "text": "Abort.",
+  "ms": 429,
+  "key": "133ada57af3f"
+ },
+ "cap_28214265_f": {
+  "file": "cap_28214265_f.mp3",
+  "who": "CaptainF",
+  "text": "Abort.",
+  "ms": 661,
+  "key": "c513b33d930d"
+ },
+ "ln_b20885bb": {
+  "file": "ln_b20885bb.mp3",
+  "who": "Abara",
+  "text": "Aye. Abort.",
+  "ms": 1230,
+  "key": "da24b4f4b0ab"
+ },
+ "ln_2fe125d0": {
+  "file": "ln_2fe125d0.mp3",
+  "who": "Abara",
+  "text": "Turning now cuts the wire.",
+  "ms": 1613,
+  "key": "07a21dd7f2ba"
+ },
+ "cap_f4093d39_m": {
+  "file": "cap_f4093d39_m.mp3",
+  "who": "CaptainM",
+  "text": "Hold course.",
+  "ms": 777,
+  "key": "dbe487d5e46a"
+ },
+ "cap_f4093d39_f": {
+  "file": "cap_f4093d39_f.mp3",
+  "who": "CaptainF",
+  "text": "Hold course.",
+  "ms": 1137,
+  "key": "041cbc18bdd6"
+ },
+ "ln_283c59b7": {
+  "file": "ln_283c59b7.mp3",
+  "who": "Abara",
+  "text": "Aye. Hold course.",
+  "ms": 1323,
+  "key": "355296069068"
+ },
+ "cap_42769ac3_m": {
+  "file": "cap_42769ac3_m.mp3",
+  "who": "CaptainM",
+  "text": "Turn anyway.",
+  "ms": 963,
+  "key": "6ac05e724250"
+ },
+ "cap_42769ac3_f": {
+  "file": "cap_42769ac3_f.mp3",
+  "who": "CaptainF",
+  "text": "Turn anyway.",
+  "ms": 1056,
+  "key": "616ac8025888"
+ },
+ "ln_5be4a66d": {
+  "file": "ln_5be4a66d.mp3",
+  "who": "Abara",
+  "text": "Aye. Turn anyway.",
+  "ms": 1590,
+  "key": "41aa20bd326c"
+ },
+ "ln_b299cf21": {
+  "file": "ln_b299cf21.mp3",
+  "who": "Dace",
+  "text": "Running hot. Anything listening can hear us.",
+  "ms": 2159,
+  "key": "b49cef04a940"
+ },
+ "cap_4a201ac3_m": {
+  "file": "cap_4a201ac3_m.mp3",
+  "who": "CaptainM",
+  "text": "Cut thrust.",
+  "ms": 812,
+  "key": "8a96ac8636d6"
+ },
+ "cap_4a201ac3_f": {
+  "file": "cap_4a201ac3_f.mp3",
+  "who": "CaptainF",
+  "text": "Cut thrust.",
+  "ms": 905,
+  "key": "72a57eff3cb7"
+ },
+ "ln_6b642c03": {
+  "file": "ln_6b642c03.mp3",
+  "who": "Dace",
+  "text": "Aye. Cut thrust.",
+  "ms": 986,
+  "key": "e6b4c160dfdf"
+ },
+ "cap_c76edb0c_m": {
+  "file": "cap_c76edb0c_m.mp3",
+  "who": "CaptainM",
+  "text": "Vent now.",
+  "ms": 592,
+  "key": "475363c4aca5"
+ },
+ "cap_c76edb0c_f": {
+  "file": "cap_c76edb0c_f.mp3",
+  "who": "CaptainF",
+  "text": "Vent now.",
+  "ms": 626,
+  "key": "c11fa8c395ef"
+ },
+ "ln_ae2b0b4c": {
+  "file": "ln_ae2b0b4c.mp3",
+  "who": "Dace",
+  "text": "Aye. Vent now.",
+  "ms": 835,
+  "key": "082fbba142cc"
+ },
+ "ln_07e9884a": {
+  "file": "ln_07e9884a.mp3",
+  "who": "Dace",
+  "text": "Aye. Holding.",
+  "ms": 789,
+  "key": "ddc2ca7653b3"
+ },
+ "ln_049bc4b5": {
+  "file": "ln_049bc4b5.mp3",
+  "who": "Dace",
+  "text": "Forced vent coming.",
+  "ms": 1149,
+  "key": "6d6797bc11e8"
+ },
+ "ln_7f594c06": {
+  "file": "ln_7f594c06.mp3",
+  "who": "Castellan",
+  "text": "Redline available.",
+  "ms": 1552,
+  "key": "08f6ac951e1a"
+ },
+ "cap_a2377ddb_m": {
+  "file": "cap_a2377ddb_m.mp3",
+  "who": "CaptainM",
+  "text": "No redline.",
+  "ms": 743,
+  "key": "ff785046a3ba"
+ },
+ "cap_a2377ddb_f": {
+  "file": "cap_a2377ddb_f.mp3",
+  "who": "CaptainF",
+  "text": "No redline.",
+  "ms": 1126,
+  "key": "213c8b8bcf78"
+ },
+ "ln_d39f7bd7": {
+  "file": "ln_d39f7bd7.mp3",
+  "who": "Castellan",
+  "text": "Aye. No redline.",
+  "ms": 1776,
+  "key": "7639ddc8c282"
+ },
+ "cap_149880a0_m": {
+  "file": "cap_149880a0_m.mp3",
+  "who": "CaptainM",
+  "text": "Redline.",
+  "ms": 661,
+  "key": "fcbe61459f19"
+ },
+ "cap_149880a0_f": {
+  "file": "cap_149880a0_f.mp3",
+  "who": "CaptainF",
+  "text": "Redline.",
+  "ms": 719,
+  "key": "59507cda811d"
+ },
+ "ln_26438444": {
+  "file": "ln_26438444.mp3",
+  "who": "Castellan",
+  "text": "Aye. Redline.",
+  "ms": 1456,
+  "key": "feff9b385db7"
+ },
+ "cap_d098f910_m": {
+  "file": "cap_d098f910_m.mp3",
+  "who": "CaptainM",
+  "text": "Save the sink.",
+  "ms": 801,
+  "key": "410518a0c4de"
+ },
+ "cap_d098f910_f": {
+  "file": "cap_d098f910_f.mp3",
+  "who": "CaptainF",
+  "text": "Save the sink.",
+  "ms": 986,
+  "key": "6fa63bfe9fb6"
+ },
+ "ln_9aa63c62": {
+  "file": "ln_9aa63c62.mp3",
+  "who": "Fenwick",
+  "text": "Aye. Save the sink.",
+  "ms": 1184,
+  "key": "43cb52ba78fe"
+ },
+ "cap_96dfccdf_m": {
+  "file": "cap_96dfccdf_m.mp3",
+  "who": "CaptainM",
+  "text": "Save the drive.",
+  "ms": 893,
+  "key": "64b8d88ab47b"
+ },
+ "cap_96dfccdf_f": {
+  "file": "cap_96dfccdf_f.mp3",
+  "who": "CaptainF",
+  "text": "Save the drive.",
+  "ms": 1242,
+  "key": "f61ed21abc50"
+ },
+ "ln_f20c8ee9": {
+  "file": "ln_f20c8ee9.mp3",
+  "who": "Fenwick",
+  "text": "Aye. Save the drive.",
+  "ms": 1358,
+  "key": "40ea6eb2b0c1"
+ },
+ "cap_94a9f6ce_m": {
+  "file": "cap_94a9f6ce_m.mp3",
+  "who": "CaptainM",
+  "text": "Seal and sacrifice.",
+  "ms": 1265,
+  "key": "d2dbeb868b1e"
+ },
+ "cap_94a9f6ce_f": {
+  "file": "cap_94a9f6ce_f.mp3",
+  "who": "CaptainF",
+  "text": "Seal and sacrifice.",
+  "ms": 1497,
+  "key": "ea83db2b8eba"
+ },
+ "ln_286e18f4": {
+  "file": "ln_286e18f4.mp3",
+  "who": "Fenwick",
+  "text": "Aye. Seal and sacrifice.",
+  "ms": 1869,
+  "key": "7dedafc59c41"
+ },
+ "ln_7265c259": {
+  "file": "ln_7265c259.mp3",
+  "who": "Fenwick",
+  "text": "Fire in stores and a breach aft. Which first?",
+  "ms": 2298,
+  "key": "41cb4732ce97"
+ },
+ "ln_ce4eed6a": {
+  "file": "ln_ce4eed6a.mp3",
+  "who": "Pell",
+  "text": "An ally offers a link. It is an emission.",
+  "ms": 3616,
+  "key": "df67102ddb3c"
+ },
+ "cap_cd9ca505_m": {
+  "file": "cap_cd9ca505_m.mp3",
+  "who": "CaptainM",
+  "text": "Decline.",
+  "ms": 731,
+  "key": "242e985326ad"
+ },
+ "cap_cd9ca505_f": {
+  "file": "cap_cd9ca505_f.mp3",
+  "who": "CaptainF",
+  "text": "Decline.",
+  "ms": 754,
+  "key": "690cbc76101f"
+ },
+ "ln_8950d615": {
+  "file": "ln_8950d615.mp3",
+  "who": "Pell",
+  "text": "Aye. Decline.",
+  "ms": 1664,
+  "key": "b35d69e36e66"
+ },
+ "cap_c063d0d5_m": {
+  "file": "cap_c063d0d5_m.mp3",
+  "who": "CaptainM",
+  "text": "Accept.",
+  "ms": 650,
+  "key": "bff8dffe4482"
+ },
+ "cap_c063d0d5_f": {
+  "file": "cap_c063d0d5_f.mp3",
+  "who": "CaptainF",
+  "text": "Accept.",
+  "ms": 661,
+  "key": "bb235395d6a7"
+ },
+ "ln_70c37d05": {
+  "file": "ln_70c37d05.mp3",
+  "who": "Pell",
+  "text": "Aye. Accept.",
+  "ms": 1712,
+  "key": "0f0cdc7fb128"
+ },
+ "ln_f31b9746": {
+  "file": "ln_f31b9746.mp3",
+  "who": "Pell",
+  "text": "I can run the sensors. It would be seen.",
+  "ms": 3232,
+  "key": "6d1428183fbb"
+ },
+ "ln_48218df6": {
+  "file": "ln_48218df6.mp3",
+  "who": "Pell",
+  "text": "Aye. Not yet.",
+  "ms": 1616,
+  "key": "6c60c71ee323"
+ },
+ "cap_883b27cd_m": {
+  "file": "cap_883b27cd_m.mp3",
+  "who": "CaptainM",
+  "text": "Do it.",
+  "ms": 394,
+  "key": "fbd9e885a794"
+ },
+ "cap_883b27cd_f": {
+  "file": "cap_883b27cd_f.mp3",
+  "who": "CaptainF",
+  "text": "Do it.",
+  "ms": 545,
+  "key": "c239cacf4c2a"
+ },
+ "ln_c5cd97a1": {
+  "file": "ln_c5cd97a1.mp3",
+  "who": "Pell",
+  "text": "Aye. Taking the sensors.",
+  "ms": 2208,
+  "key": "e248b6cddd1e"
+ },
+ "ln_d553f64e": {
+  "file": "ln_d553f64e.mp3",
+  "who": "Quill",
+  "text": "Sierra one has noticed us.",
+  "ms": 2064,
+  "key": "550776a31bcc"
+ },
+ "ln_e298667c": {
+  "file": "ln_e298667c.mp3",
+  "who": "Quill",
+  "text": "Sierra two has noticed us.",
+  "ms": 2208,
+  "key": "f5a1a428a8c5"
+ },
+ "ln_7890916a": {
+  "file": "ln_7890916a.mp3",
+  "who": "Quill",
+  "text": "Sierra three has noticed us.",
+  "ms": 2160,
+  "key": "7094b44259d5"
+ },
+ "ln_cee35bae": {
+  "file": "ln_cee35bae.mp3",
+  "who": "Quill",
+  "text": "Sierra four has noticed us.",
+  "ms": 2128,
+  "key": "a6c5d0f38882"
+ },
+ "cap_5d807e28_m": {
+  "file": "cap_5d807e28_m.mp3",
+  "who": "CaptainM",
+  "text": "Evade.",
+  "ms": 650,
+  "key": "fc99c3664fb3"
+ },
+ "cap_5d807e28_f": {
+  "file": "cap_5d807e28_f.mp3",
+  "who": "CaptainF",
+  "text": "Evade.",
+  "ms": 766,
+  "key": "2ad1e92d93a0"
+ },
+ "ln_c64d2ec0": {
+  "file": "ln_c64d2ec0.mp3",
+  "who": "Quill",
+  "text": "Aye. Evade.",
+  "ms": 1072,
+  "key": "95b85e16c889"
+ },
+ "ln_01f8207d": {
+  "file": "ln_01f8207d.mp3",
+  "who": "Quill",
+  "text": "Sierra one is closing. Her fix on us is tightening.",
+  "ms": 3504,
+  "key": "6edc206b0fea"
+ },
+ "ln_e6c4c717": {
+  "file": "ln_e6c4c717.mp3",
+  "who": "Quill",
+  "text": "Sierra two is closing. Her fix on us is tightening.",
+  "ms": 2768,
+  "key": "58f283736bc6"
+ },
+ "ln_bdd280d9": {
+  "file": "ln_bdd280d9.mp3",
+  "who": "Quill",
+  "text": "Sierra three is closing. Her fix on us is tightening.",
+  "ms": 3584,
+  "key": "ac8e239d3584"
+ },
+ "ln_683b189d": {
+  "file": "ln_683b189d.mp3",
+  "who": "Quill",
+  "text": "Sierra four is closing. Her fix on us is tightening.",
+  "ms": 3280,
+  "key": "bb225f311f13"
+ },
+ "cap_9ea7ecc3_m": {
+  "file": "cap_9ea7ecc3_m.mp3",
+  "who": "CaptainM",
+  "text": "Ready salvo.",
+  "ms": 777,
+  "key": "3b0998933053"
+ },
+ "cap_9ea7ecc3_f": {
+  "file": "cap_9ea7ecc3_f.mp3",
+  "who": "CaptainF",
+  "text": "Ready salvo.",
+  "ms": 1126,
+  "key": "f7e05251065d"
+ },
+ "ln_a30f090b": {
+  "file": "ln_a30f090b.mp3",
+  "who": "Quill",
+  "text": "Aye. Ready salvo.",
+  "ms": 1424,
+  "key": "525199f030f0"
+ },
+ "ln_8ab341bf": {
+  "file": "ln_8ab341bf.mp3",
+  "who": "Quill",
+  "text": "Sierra one has a firm solution on us.",
+  "ms": 2816,
+  "key": "dce80f0f9f88"
+ },
+ "ln_a0e7c935": {
+  "file": "ln_a0e7c935.mp3",
+  "who": "Quill",
+  "text": "Sierra two has a firm solution on us.",
+  "ms": 2704,
+  "key": "cef8ac55ff80"
+ },
+ "ln_e52c953b": {
+  "file": "ln_e52c953b.mp3",
+  "who": "Quill",
+  "text": "Sierra three has a firm solution on us.",
+  "ms": 3072,
+  "key": "0217cbdd497d"
+ },
+ "ln_92eb541f": {
+  "file": "ln_92eb541f.mp3",
+  "who": "Quill",
+  "text": "Sierra four has a firm solution on us.",
+  "ms": 2368,
+  "key": "73c1f13c53be"
+ },
+ "cap_bd9ba023_m": {
+  "file": "cap_bd9ba023_m.mp3",
+  "who": "CaptainM",
+  "text": "Fire first.",
+  "ms": 777,
+  "key": "a0ea54c9c750"
+ },
+ "cap_bd9ba023_f": {
+  "file": "cap_bd9ba023_f.mp3",
+  "who": "CaptainF",
+  "text": "Fire first.",
+  "ms": 835,
+  "key": "534bfc4d3599"
+ },
+ "ln_4808c2cb": {
+  "file": "ln_4808c2cb.mp3",
+  "who": "Quill",
+  "text": "Aye. Fire first.",
+  "ms": 1360,
+  "key": "7128efe378a8"
+ },
+ "ln_c11f03fe": {
+  "file": "ln_c11f03fe.mp3",
+  "who": "Quill",
+  "text": "Sierra one seems to have lost us.",
+  "ms": 2800,
+  "key": "9c13f05e1143"
+ },
+ "ln_aa900f68": {
+  "file": "ln_aa900f68.mp3",
+  "who": "Quill",
+  "text": "Sierra two seems to have lost us.",
+  "ms": 2160,
+  "key": "e10d9abcd964"
+ },
+ "ln_431c956a": {
+  "file": "ln_431c956a.mp3",
+  "who": "Quill",
+  "text": "Sierra three seems to have lost us.",
+  "ms": 2352,
+  "key": "8d28f9743aa1"
+ },
+ "ln_50203fde": {
+  "file": "ln_50203fde.mp3",
+  "who": "Quill",
+  "text": "Sierra four seems to have lost us.",
+  "ms": 2288,
+  "key": "fda027b312e4"
+ },
+ "ln_9498a6c0": {
+  "file": "ln_9498a6c0.mp3",
+  "who": "Quill",
+  "text": "Sierra one vented.",
+  "ms": 1280,
+  "key": "af00838f8ce2"
+ },
+ "ln_495274b2": {
+  "file": "ln_495274b2.mp3",
+  "who": "Quill",
+  "text": "Sierra two vented.",
+  "ms": 1248,
+  "key": "72d6b9409963"
+ },
+ "ln_5e211edc": {
+  "file": "ln_5e211edc.mp3",
+  "who": "Quill",
+  "text": "Sierra three vented.",
+  "ms": 1424,
+  "key": "f2fc4ed6e49c"
+ },
+ "ln_07f881a0": {
+  "file": "ln_07f881a0.mp3",
+  "who": "Quill",
+  "text": "Sierra four vented.",
+  "ms": 1264,
+  "key": "ed8b032deefd"
+ },
+ "ln_be0df3e0": {
+  "file": "ln_be0df3e0.mp3",
+  "who": "Quill",
+  "text": "Aye. Mark hostile.",
+  "ms": 1424,
+  "key": "e9a65926f70f"
+ },
+ "cap_41fd6dce_m": {
+  "file": "cap_41fd6dce_m.mp3",
+  "who": "CaptainM",
+  "text": "Classify her.",
+  "ms": 777,
+  "key": "5a6d624e2a69"
+ },
+ "cap_41fd6dce_f": {
+  "file": "cap_41fd6dce_f.mp3",
+  "who": "CaptainF",
+  "text": "Classify her.",
+  "ms": 917,
+  "key": "23772ca4d4b8"
+ },
+ "ln_6bee7e7d": {
+  "file": "ln_6bee7e7d.mp3",
+  "who": "Quill",
+  "text": "Aye. Classifying.",
+  "ms": 1408,
+  "key": "0c042bdbe073"
+ },
+ "cap_1836e687_m": {
+  "file": "cap_1836e687_m.mp3",
+  "who": "CaptainM",
+  "text": "Track her.",
+  "ms": 650,
+  "key": "085c9dde97c0"
+ },
+ "cap_1836e687_f": {
+  "file": "cap_1836e687_f.mp3",
+  "who": "CaptainF",
+  "text": "Track her.",
+  "ms": 626,
+  "key": "aef4243bdf1a"
+ },
+ "ln_ae8d821e": {
+  "file": "ln_ae8d821e.mp3",
+  "who": "Quill",
+  "text": "Aye. Tracking.",
+  "ms": 848,
+  "key": "d4fb9d080d0f"
+ },
+ "ln_e5ae331d": {
+  "file": "ln_e5ae331d.mp3",
+  "who": "Abara",
+  "text": "Standing by.",
+  "ms": 998,
+  "key": "b957560d75e1"
+ },
+ "ln_7c125ed7": {
+  "file": "ln_7c125ed7.mp3",
+  "who": "Quill",
+  "text": "Standing by.",
+  "ms": 1008,
+  "key": "ed84612493dd"
+ },
+ "ln_819ad9fb": {
+  "file": "ln_819ad9fb.mp3",
+  "who": "Castellan",
+  "text": "Standing by.",
+  "ms": 1200,
+  "key": "cb3f824f0efc"
+ },
+ "ln_7779e28f": {
+  "file": "ln_7779e28f.mp3",
+  "who": "Dace",
+  "text": "Standing by.",
+  "ms": 905,
+  "key": "cdfa2613e751"
+ },
+ "ln_1eec3401": {
+  "file": "ln_1eec3401.mp3",
+  "who": "Fenwick",
+  "text": "Standing by.",
+  "ms": 684,
+  "key": "eb25fcaddef5"
+ },
+ "ln_e8a9d748": {
+  "file": "ln_e8a9d748.mp3",
+  "who": "Abara",
+  "text": "Probe landed. No reaction.",
+  "ms": 1880,
+  "key": "f98a4acd1e56"
+ },
+ "ln_b23c55b7": {
+  "file": "ln_b23c55b7.mp3",
+  "who": "Abara",
+  "text": "Magazine empty.",
+  "ms": 998,
+  "key": "b4b2711ef2b9"
  }
 }

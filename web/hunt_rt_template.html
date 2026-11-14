@@ -118,6 +118,7 @@ button.fire{background:var(--red);color:#fff;border-color:var(--red);padding:12p
 #engage{overflow:auto;gap:8px}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
 /*CONSOLECSS*/
+/*DECKCSS*/
 </style>
 <div id="app"><div id="stage"></div></div>
 <div id="ctip" hidden></div>
@@ -190,6 +191,9 @@ button.fire{background:var(--red);color:#fff;border-color:var(--red);padding:12p
 /*TRIMS*/
 /*STATE*/
 /*SYMBOLS*/
+/*VOICE*/
+/*VOICEMANIFEST*/
+/*STATIONS*/
 const E = HuntRT, P = E.P, $ = id => document.getElementById(id);
 function ME() { try { return (S && S.me) || E.PLAYER; } catch (e) { return E.PLAYER; } }   // this hunt's player profile (trimmed), or the defaults before a hunt exists
 const QS = (() => { try { return new URLSearchParams(location.search); } catch (e) { return new URLSearchParams(''); } })();
@@ -294,7 +298,7 @@ const PACE = { relaxed: ['Relaxed', 24], normal: ['Normal', 16], brisk: ['Brisk'
 try { Object.assign(brief, JSON.parse(localStorage.getItem('interdict_brief') || '{}'), { route: [] }); } catch (e) {}
 brief.speed = ({ creep: 'v1', cruise: 'v3', burn: 'v5' })[brief.speed] || brief.speed; if (!E.SPEED[brief.speed]) brief.speed = 'v3';
 function saveBrief() { try { localStorage.setItem('interdict_brief', JSON.stringify({ entry: brief.entry, speed: brief.speed, ally: brief.ally })); } catch (e) {} }
-function start() { brief.seed = Math.floor(Math.random() * 1e9); brief.nreal = 1 + Math.floor(Math.random() * 3); briefing = true; $('over').hidden = true; $('brief').hidden = false; buildBrief(); }
+function start() { brief.seed = QS.get('seed') ? +QS.get('seed') : Math.floor(Math.random() * 1e9); brief.nreal = QS.get('nreal') ? Math.max(1, Math.min(3, +QS.get('nreal'))) : 1 + Math.floor(Math.random() * 3); briefing = true; $('over').hidden = true; $('brief').hidden = false; buildBrief(); }   // ?seed= and ?nreal= fix a hunt (tests)
 function planLen() { let L = 0, p = { x: E.START[brief.entry], y: P.arena / 2 }; brief.route.forEach(w => { L += Math.hypot(w.x - p.x, w.y - p.y); p = w; }); return L; }
 function buildBrief() {
   $('b-entry').innerHTML = Object.entries(ENTRY).map(([k, [t, d]]) => `<label class="opt ${brief.entry === k ? 'sel' : ''}"><input type="radio" name="entry" value="${k}" ${brief.entry === k ? 'checked' : ''}><b>${t}</b><span>${d}</span></label>`).join('');
@@ -317,7 +321,7 @@ function drawBrief() {
 $('bmap').addEventListener('click', e => { const c = $('bmap'), r = c.getBoundingClientRect(), k = c.width / P.arena, x = (e.clientX - r.left) * c.width / r.width, y = (e.clientY - r.top) * c.height / r.height; const hit = brief.route.findIndex(w => Math.hypot(w.x * k - x, w.y * k - y) < 12); if (hit >= 0) brief.route.splice(hit, 1); else brief.route.push({ x: Math.max(6, Math.min(P.arena - 6, x / k)), y: Math.max(6, Math.min(P.arena - 6, y / k)) }); drawBrief(); });
 $('bundo').onclick = () => { brief.route.pop(); drawBrief(); }; $('bclear').onclick = () => { brief.route = []; drawBrief(); };
 $('begin').onclick = () => { $('brief').hidden = true; briefing = false; begin(); };
-function begin() { P.secPerMin = 16; fxOn = null; fxQ = []; $("fx").hidden = true; MZ = 1; VZ = 3; follow = true; $('zfollow').classList.add('on'); MCX = MCY = P.arena / 2; S = E.newHunt(brief.seed, { nreal: brief.nreal, integration: savedInteg, friendly: brief.ally, entry: brief.entry, speed: brief.speed, route: brief.route.map(w => ({ x: w.x, y: w.y })) }); HuntTrims.applyShip(S, TRIMS_ON); MOMENTS.reset(S); trimBadge(); T0 = savedInteg; engageId = null; aimL = null; hist = []; fires = []; trail = []; planEdit = false; feedN = 0; $('feed').innerHTML = ''; setView('tac'); $('over').hidden = true; $('pell').checked = false; build(); applyPellGate(); uiUpdate(true); }
+function begin() { P.secPerMin = 16; fxOn = null; fxQ = []; $("fx").hidden = true; MZ = 1; VZ = 3; follow = true; $('zfollow').classList.add('on'); MCX = MCY = P.arena / 2; S = E.newHunt(brief.seed, { nreal: brief.nreal, integration: savedInteg, friendly: brief.ally, entry: brief.entry, speed: brief.speed, route: brief.route.map(w => ({ x: w.x, y: w.y })) }); HuntTrims.applyShip(S, TRIMS_ON); MOMENTS.reset(S); trimBadge(); T0 = savedInteg; engageId = null; aimL = null; hist = []; fires = []; trail = []; planEdit = false; feedN = 0; $('feed').innerHTML = ''; setView('tac'); $('over').hidden = true; $('pell').checked = false; build(); applyPellGate(); uiUpdate(true); if (typeof DECK !== 'undefined') DECK.begin(); }
 function seg(host, items, cur, on) { host.innerHTML = ''; items.forEach(([v, text, tip]) => { const l = document.createElement('label'); const i = document.createElement('input'); i.type = 'radio'; i.name = host.id; i.dataset.v = v; i.checked = v === cur; i.onchange = () => on(v); const sp = document.createElement('span'); sp.textContent = text; l.title = tip || ''; l.append(i, sp); host.append(l); }); }
 const CH = { thermal: { n: 'Heat', col: '#ff8a4c', tip: 'Heat: how hot the contact runs (Dace)' }, reactor: { n: 'Reactor', col: '#6fc3d0', tip: 'Reactor: neutrino line (Castellan)' }, occlusion: { n: 'Visual', col: '#b79cff', tip: 'Visual: a silhouette against a bright backdrop (Quill). It only works when the contact is backlit by the star or a bright body.' } };
 function build() {
@@ -644,7 +648,7 @@ $('pell').onchange = e => { S.pell = e.target.checked; };
 $('pellact').onchange = e => E.setPellAct(S, e.target.checked);
 $('manbtn').onclick = () => { $('manual').hidden = false; }; $('manclose').onclick = () => { $('manual').hidden = true; };
 $('quiet').onclick = () => E.goQuiet(S); $('pause').onclick = togglePause; $('resume').onclick = togglePause; $('brk').onclick = () => E.retreat(S); $('newh').onclick = start;
-function togglePause() { paused = !paused; if (!TUT) { $('pausebox').hidden = !paused; $('stage').classList.toggle('paused', paused); } last = performance.now(); }   // on the Tern (P2) the displays stay up and orders still go in while paused
+function togglePause() { if (!TUT) return; paused = !paused; if (!TUT) { $('pausebox').hidden = !paused; $('stage').classList.toggle('paused', paused); } last = performance.now(); }   // pausing is tutorial-only (decided): normal play has no pause, Stand by and the call rail pace it. On the Tern (P2) the displays stay up and orders still go in while paused
 document.addEventListener('keydown', e => {
   if (!S || briefing || e.target.tagName === 'INPUT' && e.target.type === 'text') return; const k = e.key;
   if (k === 'p' || k === 'P') { togglePause(); return; } if (paused && !TUT) { if (k === 'Escape') togglePause(); return; }
@@ -720,6 +724,7 @@ function frame(now) {
   if (!S) { requestAnimationFrame(frame); return; }
   const dtReal = Math.min(0.25, (now - last) / 1000); last = now;
   pumpFx(now); stepGame(dtReal / P.secPerMin * tscale);
+  if (typeof DECK !== 'undefined' && DECK.on) { try { DECK.frame(dtReal, !paused && !briefing && !S.over && !fxOn && !S.hold); } catch (e) { if (!window.__deckErr) { window.__deckErr = 1; console.error('call deck', e); } } }
   if (now - lastUi > 150) { lastUi = now; uiUpdate(); if (engageId != null) { const hp = now - lastHp > 900; if (hp) lastHp = now; engUpdate(hp); } }
   if (!paused || TUT) draw(); drawFx(now); requestAnimationFrame(frame);
 }
@@ -774,5 +779,6 @@ function drawWorld() {
   S.pingFx.forEach(f => { const age = S.t - f.t; if (age < 0.8) { cx.strokeStyle = `rgba(255,217,160,${1 - age / 0.8})`; cx.lineWidth = 3; cx.beginPath(); cx.arc(f.x * k, f.y * k, 10 + age / 0.8 * 110, 0, 7); cx.stroke(); cx.lineWidth = 1; } }); { const hs = E.stealthState(S); cx.font = F(20); cx.fillStyle = xp.quiet ? '#6fc3d0' : hs === 'hot' ? '#ff6b5a' : hs === 'warm' ? '#ffb454' : '#8fd694'; cx.fillText(S.vent.on ? 'STEALTH: NONE (VENTING)' : 'STEALTH: ' + (xp.quiet ? 'DARK' : hs.toUpperCase()), 10, W - 12); }
 }
 $('symkey').innerHTML = Object.entries(SYM).map(([k, v]) => `<div style="text-align:center;width:84px;font-size:10px"><svg viewBox="0 0 64 64" width="40" height="40" style="color:#cfe3da">${v.items.map(([d, m]) => m === 'fill' ? `<path d="${d}" fill="currentColor"/>` : m === 'evenodd' ? `<path d="${d}" fill="currentColor" fill-rule="evenodd"/>` : m === 'stroke_cut' ? `<path d="${d}" fill="none" stroke="#0a0e0d" stroke-opacity=".55" stroke-width="2.5"/>` : `<path d="${d}" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>`).join('')}</svg><br>${v.name}</div>`).join('');
+/*CALLDECK*/
 layout(); try { new ResizeObserver(() => layout()).observe($('scopebox')); } catch (e) {} addEventListener('load', layout); start(); requestAnimationFrame(frame);
 </script>

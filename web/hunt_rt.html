@@ -254,6 +254,86 @@ body.sweep #stage{box-shadow:inset 0 0 0 4px #ff6b5a}
 .ckey.bl .cf{box-shadow:inset 0 0 calc(var(--u)*1.2) var(--kc),inset 0 1px 0 #34463f,0 0 0 1px #000}.ckey.bl:not(.lit) .ckt{color:var(--kc)}
 .ckey.guard.dis .cf{filter:brightness(.5) saturate(.4)}.ckey.guard.bl:not(.dis) .cf{filter:brightness(1.15)}
 
+/* ===== Call deck (web/call_deck.js): subtitle strip, chips, timer ring, call rail, station keys, station panels, settings drawer, radial menu ===== */
+#deck{position:absolute;left:calc(var(--u)*37);bottom:calc(var(--u)*23.6);width:calc(var(--u)*54.4);min-height:calc(var(--u)*8.6);z-index:30;display:flex;gap:calc(var(--u)*1);align-items:flex-start;padding:calc(var(--u)*.9) calc(var(--u)*1.1);
+ background:linear-gradient(180deg,rgba(6,11,10,.93),rgba(4,8,7,.97));border-radius:calc(var(--u)*.5);box-shadow:inset 0 0 0 calc(var(--u)*.12) #2b3c36,0 calc(var(--u)*.3) calc(var(--u)*1.4) rgba(0,0,0,.7);text-transform:none}
+#deck[hidden]{display:none}
+#deck[data-pri="3"]{box-shadow:inset 0 0 0 calc(var(--u)*.16) #a8681f,0 calc(var(--u)*.3) calc(var(--u)*1.4) rgba(0,0,0,.7)}
+#deck[data-pri="4"]{box-shadow:inset 0 0 0 calc(var(--u)*.2) #ff6b5a,0 0 calc(var(--u)*2) rgba(255,107,90,.35)}
+.dk-face{position:relative;flex:none;width:calc(var(--u)*6.4);height:calc(var(--u)*6.4);border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 35% 30%,#1d2a26,#070b0a);box-shadow:inset 0 0 0 calc(var(--u)*.18) var(--fc,#cfe3da)}
+.dk-face b{font-size:calc(var(--u)*3);color:var(--fc,#cfe3da);font-weight:700;line-height:1}
+.dk-face svg{position:absolute;inset:calc(var(--u)*-.6);width:calc(100% + var(--u)*1.2);height:calc(100% + var(--u)*1.2);transform:rotate(-90deg)}
+.dk-rbg{fill:none;stroke:transparent}.dk-ring{fill:none;stroke:#ffb454;stroke-width:2;stroke-dasharray:113.1;stroke-dashoffset:0;stroke-linecap:round;transition:stroke-dashoffset .25s linear}
+.dk-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:calc(var(--u)*.5)}
+.dk-tag{display:flex;gap:calc(var(--u)*.9);align-items:baseline;font-size:calc(var(--u)*1.1);letter-spacing:.1em;text-transform:uppercase;color:#6f877d;white-space:nowrap}
+.dk-tag b{color:#e3f2ec;font-size:calc(var(--u)*1.3);letter-spacing:.12em}.dk-tag em{font-style:normal;margin-left:auto;font-weight:700}
+.dk-line{font-family:'IBM Plex Mono','DejaVu Sans Mono',monospace;font-size:calc(var(--u)*1.55);line-height:1.25;color:#f1fbf6;letter-spacing:0;text-transform:none;max-height:calc(var(--u)*4);overflow:hidden}
+.dk-chips{display:flex;gap:calc(var(--u)*.7);min-height:calc(var(--u)*3.6)}
+#deck:not(.chips) .dk-chips{min-height:0}
+.dk-chip{flex:1 1 0;min-width:0;display:flex;align-items:center;gap:calc(var(--u)*.6);height:calc(var(--u)*3.6);padding:0 calc(var(--u)*.8);border:0;border-radius:calc(var(--u)*.4);cursor:pointer;
+ background:linear-gradient(180deg,#1c2925,#121b18);box-shadow:inset 0 0 0 1px #34483f;color:#d9ebe3;font:700 calc(var(--u)*1.2) 'Bahnschrift','Arial Narrow','Liberation Sans Narrow',sans-serif;letter-spacing:.06em;text-transform:uppercase;animation:dkin .18s ease-out}
+.dk-chip span{flex:1;min-width:0;overflow:hidden;white-space:normal;line-height:1.05;text-align:left;font-size:calc(var(--u)*1.08)}
+.dk-chip kbd{flex:none;font:700 calc(var(--u)*1.1) 'IBM Plex Mono',monospace;color:#0a0e0d;background:#9db4a9;border-radius:calc(var(--u)*.25);padding:0 calc(var(--u)*.4)}
+.dk-chip.rec{box-shadow:inset 0 0 0 calc(var(--u)*.16) #8fd694;color:#e8ffe9}.dk-chip.rec kbd{background:#8fd694}
+.dk-chip i{flex:none;font-style:normal;color:#8fd694;font-size:calc(var(--u)*1.1)}
+.dk-chip:hover{background:linear-gradient(180deg,#26372f,#18241f)}
+@keyframes dkin{from{opacity:0;transform:translateY(calc(var(--u)*.6))}to{opacity:1;transform:none}}
+.dk-keys{position:absolute;right:calc(var(--u)*1.1);bottom:calc(var(--u)*.25);font-size:calc(var(--u)*.85);color:#3f534b;letter-spacing:.12em;text-transform:uppercase}
+#deck.chips .dk-keys{display:none}
+#deck:not(.chips){padding-bottom:calc(var(--u)*1.8)}
+/* call rail: waiting calls at the scope's edge */
+.dk-rail{position:absolute;left:calc(var(--u)*88.6);top:calc(var(--u)*11.8);width:calc(var(--u)*2.8);z-index:29;display:flex;flex-direction:column;gap:calc(var(--u)*.45)}
+.dk-ri{position:relative;height:calc(var(--u)*2.8);border-radius:calc(var(--u)*.35);background:#070c0b;box-shadow:inset 0 0 0 calc(var(--u)*.16) var(--pc);display:flex;align-items:center;justify-content:center;cursor:pointer;animation:dkin .2s ease-out}
+.dk-ri b{color:var(--pc);font-size:calc(var(--u)*1.35)}.dk-ri i{position:absolute;right:calc(var(--u)*.15);bottom:0;font-style:normal;font-size:calc(var(--u)*.8);color:#6f877d}
+.dk-more{font-size:calc(var(--u)*1);color:#6f877d;text-align:center}
+/* station keys F1-F8 in the middle zone's title row */
+.dk-stn{position:absolute;left:calc(var(--u)*105.6);top:calc(var(--u)*2.15);width:calc(var(--u)*54);height:calc(var(--u)*4.7);z-index:28;display:flex;gap:calc(var(--u)*.3)}
+.dk-stn button{flex:1;min-width:0;border:0;border-radius:calc(var(--u)*.35);background:linear-gradient(180deg,#16211e,#0e1513);box-shadow:inset 0 0 0 1px #2b3c36,inset 0 calc(var(--u)*-.3) 0 rgba(0,0,0,.35);color:#8fa89d;font:700 calc(var(--u)*.98) 'Bahnschrift','Arial Narrow','Liberation Sans Narrow',sans-serif;letter-spacing:.04em;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:calc(var(--u)*.2);white-space:nowrap;overflow:hidden;padding:0}
+.dk-stn kbd{font:700 calc(var(--u)*1.05) 'IBM Plex Mono',monospace;color:#ffb454}
+.dk-stn button.on{background:#1b2a24;color:#e3f2ec;box-shadow:inset 0 0 0 1px #6fc3d0}
+.dk-stn button.fl{animation:dkfl .5s steps(2) infinite;color:#ffb454}
+@keyframes dkfl{50%{background:#3a2a10}}
+/* toast */
+.dk-toast{position:absolute;left:calc(var(--u)*37.4);top:calc(var(--u)*12);width:calc(var(--u)*50.6);height:calc(var(--u)*3);z-index:31;display:flex;align-items:center;justify-content:center;background:rgba(6,11,10,.92);border-radius:calc(var(--u)*.4);box-shadow:inset 0 0 0 1px #34483f;color:#ffd9a0;font-size:calc(var(--u)*1.1);letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 calc(var(--u)*1)}
+.dk-toast[hidden]{display:none}.dk-v{color:#cfe3da;top:calc(var(--u)*15.4)}.dk-v b{color:#ffb454}
+/* station panels */
+.dk-pan{position:absolute;left:calc(var(--u)*1);right:calc(var(--u)*1);top:calc(var(--u)*3);bottom:calc(var(--u)*1);overflow:auto;font-size:calc(var(--u)*1.15)}
+.dk-t{width:100%;border-collapse:collapse;margin:calc(var(--u)*.4) 0}
+.dk-t th{text-align:left;color:#566b62;font-weight:700;letter-spacing:.1em;font-size:calc(var(--u)*1);padding:calc(var(--u)*.3) calc(var(--u)*.5);border-bottom:1px solid #22322d}
+.dk-t td{padding:calc(var(--u)*.35) calc(var(--u)*.5);border-bottom:1px solid #141e1b;color:#cfe3da;vertical-align:top}
+.dk-t td small{display:block;color:#566b62;font-size:calc(var(--u)*.9)}
+.dk-t tr.sel td{background:#13201c}.dk-t tr.aff td{color:#ffd9a0}.dk-t tr.bad td,.dk-t tr.danger td{color:#ff8a7a}.dk-t tr.warn td{color:#ffb454}.dk-t tr.good td{color:#a8e6ad}
+.dk-t em,.dk-sub em,.dk-box em{font-style:normal;color:#a8681f}
+.com .dk-t td:nth-child(3),#dkp-com .dk-t td:nth-child(3){text-transform:none;font-family:'IBM Plex Mono',monospace;font-size:calc(var(--u)*1.05)}
+.dk-sub{margin-top:calc(var(--u)*1);color:#6f877d;font-weight:700;letter-spacing:.14em;font-size:calc(var(--u)*1.05)}.dk-sub em{letter-spacing:.04em;font-weight:400;margin-left:calc(var(--u)*.8)}
+.dk-big{font-size:calc(var(--u)*1.6);color:#9db4a9;letter-spacing:.12em}.dk-big b{font-size:calc(var(--u)*3.2);color:#e3f2ec;margin-left:calc(var(--u)*.6)}.dk-big small{display:block;font-size:calc(var(--u)*1.05);color:#6f877d}
+.dk-row{display:flex;gap:calc(var(--u)*.6);flex-wrap:wrap;margin:calc(var(--u)*.5) 0;align-items:center}
+.dk-k{min-width:calc(var(--u)*11);height:calc(var(--u)*4);border:0;border-radius:calc(var(--u)*.35);background:linear-gradient(180deg,#1c2925,#121b18);box-shadow:inset 0 0 0 1px #34483f;color:#cfe3da;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;font:700 calc(var(--u)*1.1) 'Bahnschrift','Arial Narrow',sans-serif;letter-spacing:.06em}
+.dk-k small{font-size:calc(var(--u)*.8);color:#6f877d;font-weight:400}.dk-k.lit{box-shadow:inset 0 0 0 calc(var(--u)*.16) #ffb454;color:#ffd9a0}.dk-k:disabled{opacity:.4;cursor:default}
+.dk-box{margin-top:calc(var(--u)*1);padding:calc(var(--u)*.8);border-radius:calc(var(--u)*.4);box-shadow:inset 0 0 0 1px #2b3c36;display:flex;gap:calc(var(--u)*1);align-items:center}
+.dk-box b{color:#9db4a9;white-space:nowrap}.dk-box span{flex:1;text-transform:none;color:#8fa89d;font-size:calc(var(--u)*1.05)}
+.dk-note{margin-top:calc(var(--u)*.8);text-transform:none;color:#566b62;font-size:calc(var(--u)*1);letter-spacing:.02em}
+/* settings drawer */
+.dk-drawer{position:absolute;left:calc(var(--u)*112);top:calc(var(--u)*8);width:calc(var(--u)*48);height:calc(var(--u)*82);z-index:40;overflow:auto;padding:calc(var(--u)*1.2);background:linear-gradient(180deg,#0f1816,#0a100e);box-shadow:inset 0 0 0 calc(var(--u)*.14) #4a5d56,calc(var(--u)*-.6) 0 calc(var(--u)*2) rgba(0,0,0,.6);border-radius:calc(var(--u)*.5)}
+.dk-drawer[hidden]{display:none}
+.dk-dh{display:flex;justify-content:space-between;align-items:center;color:#e3f2ec;font-weight:700;letter-spacing:.16em;font-size:calc(var(--u)*1.4)}
+.dk-dh button{border:0;background:#1c2925;color:#cfe3da;box-shadow:inset 0 0 0 1px #34483f;border-radius:calc(var(--u)*.3);font:700 calc(var(--u)*1) 'Bahnschrift',sans-serif;padding:calc(var(--u)*.5) calc(var(--u)*.9);cursor:pointer}
+.dk-aut td{padding:calc(var(--u)*.25) calc(var(--u)*.3)}.dk-aut td:first-child{width:34%}
+.dk-aut label,.dk-opt{display:inline-flex;align-items:center;justify-content:center;gap:calc(var(--u)*.3);width:100%;height:calc(var(--u)*2.6);border-radius:calc(var(--u)*.3);box-shadow:inset 0 0 0 1px #22322d;color:#6f877d;font-size:calc(var(--u)*.92);cursor:pointer;padding:0 calc(var(--u)*.4)}
+.dk-opt{width:auto;min-width:calc(var(--u)*9)}
+.dk-aut label.on,.dk-opt.on{box-shadow:inset 0 0 0 calc(var(--u)*.16) #6fc3d0;color:#e3f2ec;background:#13201c}
+.dk-aut input,.dk-opt input{position:absolute;opacity:0;pointer-events:none}
+.dk-drawer input[type=range]{flex:1;accent-color:#6fc3d0}
+/* radial menu (page pixels, outside the scaled stage) */
+.dk-radial{position:fixed;z-index:60;width:260px;height:190px;pointer-events:none;font-family:'Bahnschrift','Arial Narrow','Liberation Sans Narrow',sans-serif}
+.dk-radial[hidden]{display:none}
+.dk-rc{position:absolute;left:105px;top:70px;width:50px;height:50px;border-radius:50%;background:rgba(6,11,10,.95);box-shadow:0 0 0 2px #ffb454;color:#ffd9a0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;letter-spacing:.05em}
+.dk-rb{position:absolute;pointer-events:auto;width:118px;height:46px;border:0;border-radius:8px;background:rgba(14,22,20,.97);box-shadow:inset 0 0 0 1px #4a5d56,0 4px 14px rgba(0,0,0,.6);color:#e3f2ec;font:700 14px 'Bahnschrift','Arial Narrow',sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;animation:dkin .14s ease-out}
+.dk-rb small{font-size:10px;color:#8fa89d;letter-spacing:.02em;text-transform:none;font-weight:400}
+.dk-rb kbd{position:absolute;left:6px;top:5px;font:700 10px 'IBM Plex Mono',monospace;color:#0a0e0d;background:#ffb454;border-radius:3px;padding:0 3px}
+.dk-rb:hover:not(:disabled){box-shadow:inset 0 0 0 2px #ffb454}.dk-rb:disabled{opacity:.42;cursor:default}
+.dk-rb.r0{left:71px;top:0}.dk-rb.r1{left:142px;top:72px}.dk-rb.r2{left:71px;top:144px}.dk-rb.r3{left:0;top:72px}
+
 </style>
 <div id="app"><div id="stage"></div></div>
 <div id="ctip" hidden></div>
@@ -1093,6 +1173,531 @@ if (typeof module !== 'undefined') module.exports = DemoState;
 
 const SYM = {"ships_destroyer": {"name": "Destroyer", "items": [["M32 4L39 24L37 46L45 60L32 53L19 60L27 46L25 24Z", "fill"], ["M32 18V44", "stroke_cut"]]}, "ships_cruiser": {"name": "Cruiser", "items": [["M32 3L41 16L51 30L47 50L41 58L32 51L23 58L17 50L13 30L23 16Z", "fill"], ["M32 14V46M24 32H40", "stroke_cut"]]}, "ships_battleship": {"name": "Battleship", "items": [["M32 2L43 9L47 22L57 28V47L48 53L46 62H18L16 53L7 47V28L17 22L21 9Z", "fill"], ["M32 12V50M22 28H42M20 42H44", "stroke_cut"]]}, "stations_base": {"name": "Base", "items": [["M11 32a21 21 0 1 0 42 0a21 21 0 1 0 -42 0ZM17 32a15 15 0 1 0 30 0a15 15 0 1 0 -30 0Z", "evenodd"], ["M26 32a6 6 0 1 0 12 0a6 6 0 1 0 -12 0Z", "fill"], ["M30.5 8V26M30.5 38V56M8 30.5H26M38 30.5H56", "stroke_thick"]]}, "stations_outpost": {"name": "Outpost", "items": [["M22 26H42V44H22Z", "fill"], ["M31 6H33V26H31Z", "fill"], ["M24 8Q32 0 40 8", "stroke"], ["M16 50H48V56H16Z", "fill"], ["M27 44H37V50H27Z", "fill"]]}, "debrisfield": {"name": "Debris field", "items": [["M10 14L20 10L22 20L13 24Z", "fill"], ["M36 8L46 14L40 22Z", "fill"], ["M50 28L58 34L51 40Z", "fill"], ["M24 30L34 28L36 38L26 40Z", "fill"], ["M8 44L18 40L20 50L10 54Z", "fill"], ["M38 48L46 46L48 56L40 58Z", "fill"], ["M28 52L32 50L33 55Z", "fill"]]}, "derelict": {"name": "Derelict", "items": [["M29 6L23 24L25 44L18 58L27 53L31 38L28 24Z", "stroke"], ["M35 10L40 24L37 40L46 58L36 52L33 40L35 26Z", "stroke"], ["M30 4V4", "stroke"], ["M12 20L16 24M50 34L54 30M44 12L47 16", "stroke"]]}, "anomaly": {"name": "Anomaly", "items": [["M32 4L60 32L32 60L4 32Z", "stroke"], ["M23 32a9 9 0 1 0 18 0a9 9 0 1 0 -18 0Z", "stroke"], ["M29.5 32a2.5 2.5 0 1 0 5.0 0a2.5 2.5 0 1 0 -5.0 0Z", "fill"], ["M32 4V14M32 50V60M4 32H14M50 32H60", "stroke"]]}};
 
+/* Voice: spoken crew calls for the hunt (text to speech via the browser's Web Speech API).
+ *
+ * Rule from the design (docs/stations_and_command_ui.md s5.1): audio first, then the picture.
+ * speak() returns a promise that resolves when the line has FINISHED (or its timed fallback has), so the UI
+ * can show a track, chip or subtitle after the line. If speech is unavailable, muted, or stalls, a timed
+ * fallback (about 0.33 s per word) stands in, so the game never depends on audio working.
+ *
+ *   Voice.loadClips(manifest, 'voice_clips/')  then  Voice.speak({id:'quill_new_thermal', who:'Quill', text:'...'}) plays the neural clip if one exists,
+ *   else browser speech, else timed text.
+ *   Voice.speak({who:'Quill', text:'New thermal, bearing two-eight-zero.', priority:2}).then(...)
+ *   Voice.cancel(); Voice.set({enabled:false, rate:1.1, volume:0.8}); Voice.who -> profiles
+ *
+ * Priority: 1 routine (dropped if the queue is backed up), 2 notable, 3 urgent (jumps the queue),
+ *           4 critical (interrupts the line being spoken). Equal priority is first in, first out.
+ * Limits: the Web Speech API cannot add radio filtering, and available voices differ by device, so each crew
+ * member is a profile (voice preference + pitch + rate) that maps onto whatever voices exist. Swap in recorded
+ * lines or a cloud voice later by replacing speakNow(); the queue and callbacks stay the same.
+ */
+(function (root) {
+  'use strict';
+  const S = { enabled: true, rate: 1, volume: 1, captain: 'm', maxQueue: 6, subtitle: null };   // captain: 'm' or 'f' picks the player's voice
+  // pitch 0.1-2, rate 0.1-10 (kept near 1). prefer: substrings of voice names, tried in order; gender is a soft hint.
+  const WHO = {
+    Quill:     { pitch: 1.25, rate: 1.08, gender: 'f', prefer: ['Samantha', 'Google UK English Female', 'Zira', 'Aria'] },
+    Abara:     { pitch: 0.95, rate: 1.00, gender: 'f', prefer: ['Karen', 'Google US English', 'Jenny', 'Hazel'] },
+    Castellan: { pitch: 0.70, rate: 0.90, gender: 'm', prefer: ['Daniel', 'Google UK English Male', 'Guy', 'Ryan'] },
+    Dace:      { pitch: 1.00, rate: 1.12, gender: 'm', prefer: ['Alex', 'David', 'Mark', 'Davis'] },
+    Fenwick:   { pitch: 0.85, rate: 0.92, gender: 'm', prefer: ['Fred', 'Tom', 'James'] },
+    Pell:      { pitch: 0.55, rate: 0.85, gender: 'f', prefer: ['Moira', 'Tessa', 'Libby', 'Susan'] },
+    Ostrow:    { pitch: 0.80, rate: 0.95, gender: 'm', prefer: ['Daniel', 'Oliver', 'George'] },
+    Captain:   { pitch: 0.80, rate: 1.00, gender: 'm', prefer: ['Daniel', 'Alex', 'Google UK English Male'] },
+    Ames:      { pitch: 1.10, rate: 1.05, gender: 'm', prefer: ['Aaron', 'Evan', 'Nathan'] },
+    Dunne:     { pitch: 1.05, rate: 1.00, gender: 'f', prefer: ['Victoria', 'Allison', 'Ava'] },
+    default:   { pitch: 1.00, rate: 1.00, gender: '',  prefer: [] }
+  };
+  let clips = {}, clipBase = '', audioEl = null;
+  const q = [];            // {job, pri, seq}
+  let cur = null, seq = 0, timer = null, watchdog = null;
+
+  function load() {
+    try { const v = JSON.parse(localStorage.getItem('interdict.voice') || 'null'); if (v && typeof v === 'object') Object.assign(S, v); } catch (e) {}
+  }
+  function save() {
+    try { localStorage.setItem('interdict.voice', JSON.stringify({ enabled: S.enabled, rate: S.rate, volume: S.volume, captain: S.captain })); } catch (e) {}
+  }
+  function synth() { return root.speechSynthesis && root.SpeechSynthesisUtterance ? root.speechSynthesis : null; }
+  function words(t) { return String(t).trim().split(/\s+/).filter(Boolean).length; }
+  function estMs(t, rate) { return Math.max(700, (words(t) * 330 + 250) / Math.max(0.5, rate || 1)); }
+
+  function pickVoice(p) {
+    const sy = synth(); if (!sy) return null;
+    const vs = (sy.getVoices && sy.getVoices()) || []; if (!vs.length) return null;
+    const en = vs.filter(v => /^en/i.test(v.lang || ''));
+    const pool = en.length ? en : vs;
+    for (const name of p.prefer) { const m = pool.find(v => (v.name || '').indexOf(name) >= 0); if (m) return m; }
+    // soft gender hint by common name fragments; otherwise a stable pick by name so each crew member differs
+    const fem = /female|samantha|karen|zira|aria|jenny|hazel|moira|tessa|libby|susan|victoria|allison|ava/i;
+    const mal = /\bmale\b|daniel|guy|ryan|alex|david|mark|davis|fred|tom|james|oliver|george|aaron|evan|nathan/i;
+    if (p.gender) { const m = pool.find(v => (p.gender === 'f' ? fem : mal).test(v.name || '') && !(p.gender === 'm' && /female/i.test(v.name || ''))); if (m) return m; }
+    return pool[0];
+  }
+
+  function finish(job, ok) {
+    if (!cur || cur.job !== job) return;
+    clearTimeout(timer); clearTimeout(watchdog); timer = watchdog = null;
+    const c = cur; cur = null;
+    try { job.onEnd && job.onEnd(ok); } catch (e) {}
+    c.resolve(ok);
+    next();
+  }
+
+  function failSoft(job, t0, rate, end) {            // audio failed: wait out the natural length, then end
+    const left = Math.max(0, estMs(job.text, rate) - (Date.now() - t0));
+    clearTimeout(watchdog); watchdog = null; clearTimeout(timer); timer = setTimeout(() => end(false), left);
+  }
+
+  function speakNow(job) {
+    const sy = synth();
+    const rate = (job.profile.rate || 1) * S.rate;
+    try { job.onStart && job.onStart(); } catch (e) {}
+    if (S.subtitle) try { S.subtitle(job); } catch (e) {}
+    const clip = job.id && (job.who === 'Captain' ? clips[job.id + '_' + S.captain] : clips[job.id]);   // the captain has a male and a female take of every line
+    if (S.enabled && clip && S.volume > 0 && root.Audio) {   // pre-rendered neural line (tools/tts/render.py)
+      const t0 = Date.now(); let done = false; const end = ok => { if (!done) { done = true; finish(job, ok); } };
+      try {
+        audioEl = new root.Audio(clipBase + clip.file); audioEl.volume = S.volume; audioEl.playbackRate = S.rate;
+        audioEl.onended = () => end(true); audioEl.onerror = () => failSoft(job, t0, rate, end);
+        const pr = audioEl.play(); if (pr && pr.catch) pr.catch(() => failSoft(job, t0, rate, end));     // blocked autoplay: fall back to timed text
+        watchdog = setTimeout(() => { try { audioEl.pause(); } catch (e) {} end(false); }, (clip.ms || estMs(job.text, rate)) * 2 + 2000);
+      } catch (e) { end(false); }
+      return;
+    }
+    if (!S.enabled || !sy || S.volume <= 0) {            // timed fallback: the line "plays" silently for its natural length
+      timer = setTimeout(() => finish(job, false), estMs(job.text, rate));
+      return;
+    }
+    const t0 = Date.now(); let done = false;
+    const end = ok => { if (!done) { done = true; finish(job, ok); } };
+    try {
+      const u = new root.SpeechSynthesisUtterance(job.text);
+      const v = pickVoice(job.profile); if (v) u.voice = v;
+      u.pitch = job.profile.pitch || 1; u.rate = rate; u.volume = S.volume;
+      u.onend = () => end(true); u.onerror = () => failSoft(job, t0, rate, end);
+      sy.speak(u);
+      watchdog = setTimeout(() => { try { sy.cancel(); } catch (e) {} end(false); }, estMs(job.text, rate) * 2.5 + 1500); // some browsers never fire onend
+    } catch (e) { end(false); }
+  }
+
+  function next() {
+    if (cur || !q.length) return;
+    q.sort((a, b) => b.pri - a.pri || a.seq - b.seq);
+    const n = q.shift();
+    cur = { job: n.job, pri: n.pri, resolve: n.resolve };
+    speakNow(n.job);
+  }
+
+  function interrupt() {
+    if (!cur) return;
+    const sy = synth(); try { sy && sy.cancel(); } catch (e) {} try { audioEl && audioEl.pause(); } catch (e) {}
+    const c = cur; clearTimeout(timer); clearTimeout(watchdog); cur = null;
+    try { c.job.onEnd && c.job.onEnd(false); } catch (e) {} c.resolve(false);
+  }
+
+  function speak(o) {
+    const pri = Math.max(1, Math.min(4, o.priority || 2));
+    const profile = WHO[o.who] || WHO.default;
+    const job = { id: o.id, who: o.who || 'default', text: String(o.text || ''), priority: pri, profile, onStart: o.onStart, onEnd: o.onEnd };
+    if (!job.text) return Promise.resolve(false);
+    return new Promise(resolve => {
+      // a backed-up queue drops routine chatter rather than falling behind events
+      if (pri === 1 && q.length >= S.maxQueue) { resolve(false); return; }
+      q.push({ job, pri, seq: seq++, resolve });
+      if (pri >= 4 && cur && cur.pri < 4) interrupt();     // critical calls cut in
+      next();
+    });
+  }
+
+  function cancel() {
+    const sy = synth(); try { sy && sy.cancel(); } catch (e) {} try { audioEl && audioEl.pause(); } catch (e) {}
+    while (q.length) { const n = q.shift(); n.resolve(false); }
+    if (cur) { const c = cur; clearTimeout(timer); clearTimeout(watchdog); cur = null; c.resolve(false); }
+  }
+  function loadClips(manifest, base) { clips = manifest || {}; clipBase = base || ''; }
+  function set(o) { Object.assign(S, o || {}); save(); }
+  function state() { return { enabled: S.enabled, rate: S.rate, volume: S.volume, speaking: !!cur, queued: q.length, available: !!synth() }; }
+
+  load();
+  root.Voice = { speak, loadClips, cancel, set, state, who: WHO, _estMs: estMs, _pickVoice: pickVoice };
+  if (typeof module !== 'undefined') module.exports = root.Voice;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+window.VOICE_MANIFEST = {"quill_new_thermal":{"file":"quill_new_thermal.mp3","ms":3760},"abara_range":{"file":"abara_range.mp3","ms":4887},"castellan_hot":{"file":"castellan_hot.mp3","ms":4480},"dace_vent":{"file":"dace_vent.mp3","ms":3935},"abara_vampire":{"file":"abara_vampire.mp3","ms":5340},"pell_offer":{"file":"pell_offer.mp3","ms":5984},"fenwick_breach":{"file":"fenwick_breach.mp3","ms":4562},"cap_quill_new_thermal_0_m":{"file":"cap_quill_new_thermal_0_m.mp3","ms":1648},"cap_quill_new_thermal_0_f":{"file":"cap_quill_new_thermal_0_f.mp3","ms":1462},"ack_quill_new_thermal_0":{"file":"ack_quill_new_thermal_0.mp3","ms":2160},"cap_quill_new_thermal_1_m":{"file":"cap_quill_new_thermal_1_m.mp3","ms":1044},"cap_quill_new_thermal_1_f":{"file":"cap_quill_new_thermal_1_f.mp3","ms":1346},"ack_quill_new_thermal_1":{"file":"ack_quill_new_thermal_1.mp3","ms":2000},"cap_quill_new_thermal_2_m":{"file":"cap_quill_new_thermal_2_m.mp3","ms":580},"cap_quill_new_thermal_2_f":{"file":"cap_quill_new_thermal_2_f.mp3","ms":731},"ack_quill_new_thermal_2":{"file":"ack_quill_new_thermal_2.mp3","ms":768},"cap_abara_range_0_m":{"file":"cap_abara_range_0_m.mp3","ms":1068},"cap_abara_range_0_f":{"file":"cap_abara_range_0_f.mp3","ms":1126},"ack_abara_range_0":{"file":"ack_abara_range_0.mp3","ms":2066},"cap_abara_range_1_m":{"file":"cap_abara_range_1_m.mp3","ms":1497},"cap_abara_range_1_f":{"file":"cap_abara_range_1_f.mp3","ms":1973},"ack_abara_range_1":{"file":"ack_abara_range_1.mp3","ms":998},"cap_abara_range_2_m":{"file":"cap_abara_range_2_m.mp3","ms":417},"cap_abara_range_2_f":{"file":"cap_abara_range_2_f.mp3","ms":545},"ack_abara_range_2":{"file":"ack_abara_range_2.mp3","ms":882},"cap_castellan_hot_0_m":{"file":"cap_castellan_hot_0_m.mp3","ms":777},"cap_castellan_hot_0_f":{"file":"cap_castellan_hot_0_f.mp3","ms":882},"ack_castellan_hot_0":{"file":"ack_castellan_hot_0.mp3","ms":2928},"cap_castellan_hot_1_m":{"file":"cap_castellan_hot_1_m.mp3","ms":824},"cap_castellan_hot_1_f":{"file":"cap_castellan_hot_1_f.mp3","ms":743},"ack_castellan_hot_1":{"file":"ack_castellan_hot_1.mp3","ms":1456},"cap_castellan_hot_2_m":{"file":"cap_castellan_hot_2_m.mp3","ms":893},"cap_castellan_hot_2_f":{"file":"cap_castellan_hot_2_f.mp3","ms":1126},"ack_castellan_hot_2":{"file":"ack_castellan_hot_2.mp3","ms":1344},"cap_dace_vent_0_m":{"file":"cap_dace_vent_0_m.mp3","ms":568},"cap_dace_vent_0_f":{"file":"cap_dace_vent_0_f.mp3","ms":824},"ack_dace_vent_0":{"file":"ack_dace_vent_0.mp3","ms":777},"cap_dace_vent_1_m":{"file":"cap_dace_vent_1_m.mp3","ms":1532},"cap_dace_vent_1_f":{"file":"cap_dace_vent_1_f.mp3","ms":1602},"ack_dace_vent_1":{"file":"ack_dace_vent_1.mp3","ms":1358},"cap_dace_vent_2_m":{"file":"cap_dace_vent_2_m.mp3","ms":626},"cap_dace_vent_2_f":{"file":"cap_dace_vent_2_f.mp3","ms":847},"ack_dace_vent_2":{"file":"ack_dace_vent_2.mp3","ms":684},"cap_abara_vampire_0_m":{"file":"cap_abara_vampire_0_m.mp3","ms":801},"cap_abara_vampire_0_f":{"file":"cap_abara_vampire_0_f.mp3","ms":940},"ack_abara_vampire_0":{"file":"ack_abara_vampire_0.mp3","ms":1369},"cap_abara_vampire_1_m":{"file":"cap_abara_vampire_1_m.mp3","ms":650},"cap_abara_vampire_1_f":{"file":"cap_abara_vampire_1_f.mp3","ms":1010},"ack_abara_vampire_1":{"file":"ack_abara_vampire_1.mp3","ms":1834},"cap_pell_offer_0_m":{"file":"cap_pell_offer_0_m.mp3","ms":777},"cap_pell_offer_0_f":{"file":"cap_pell_offer_0_f.mp3","ms":870},"ack_pell_offer_0":{"file":"ack_pell_offer_0.mp3","ms":2848},"cap_pell_offer_1_m":{"file":"cap_pell_offer_1_m.mp3","ms":708},"cap_pell_offer_1_f":{"file":"cap_pell_offer_1_f.mp3","ms":870},"ack_pell_offer_1":{"file":"ack_pell_offer_1.mp3","ms":1840},"cap_fenwick_breach_0_m":{"file":"cap_fenwick_breach_0_m.mp3","ms":801},"cap_fenwick_breach_0_f":{"file":"cap_fenwick_breach_0_f.mp3","ms":928},"ack_fenwick_breach_0":{"file":"ack_fenwick_breach_0.mp3","ms":1137},"cap_fenwick_breach_1_m":{"file":"cap_fenwick_breach_1_m.mp3","ms":905},"cap_fenwick_breach_1_f":{"file":"cap_fenwick_breach_1_f.mp3","ms":998},"ack_fenwick_breach_1":{"file":"ack_fenwick_breach_1.mp3","ms":1335},"cap_fenwick_breach_2_m":{"file":"cap_fenwick_breach_2_m.mp3","ms":1904},"cap_fenwick_breach_2_f":{"file":"cap_fenwick_breach_2_f.mp3","ms":2008},"ack_fenwick_breach_2":{"file":"ack_fenwick_breach_2.mp3","ms":1149},"ln_8ffc4929":{"file":"ln_8ffc4929.mp3","ms":2240},"ln_2c662e1b":{"file":"ln_2c662e1b.mp3","ms":2352},"ln_b3fe9bf9":{"file":"ln_b3fe9bf9.mp3","ms":2864},"ln_4c63b7ff":{"file":"ln_4c63b7ff.mp3","ms":1872},"cap_f6a5487b_m":{"file":"cap_f6a5487b_m.mp3","ms":1544},"cap_f6a5487b_f":{"file":"cap_f6a5487b_f.mp3","ms":1555},"ln_37b21d53":{"file":"ln_37b21d53.mp3","ms":2224},"cap_33f0b83d_m":{"file":"cap_33f0b83d_m.mp3","ms":1044},"cap_33f0b83d_f":{"file":"cap_33f0b83d_f.mp3","ms":1253},"ln_c7d160cc":{"file":"ln_c7d160cc.mp3","ms":1456},"cap_ebafe996_m":{"file":"cap_ebafe996_m.mp3","ms":684},"cap_ebafe996_f":{"file":"cap_ebafe996_f.mp3","ms":859},"ln_72be9ae6":{"file":"ln_72be9ae6.mp3","ms":1504},"ln_dd8f1a2a":{"file":"ln_dd8f1a2a.mp3","ms":2544},"ln_e9280b28":{"file":"ln_e9280b28.mp3","ms":2608},"ln_7cc06566":{"file":"ln_7cc06566.mp3","ms":2736},"ln_62c1a6c4":{"file":"ln_62c1a6c4.mp3","ms":2368},"cap_6802df15_m":{"file":"cap_6802df15_m.mp3","ms":615},"cap_6802df15_f":{"file":"cap_6802df15_f.mp3","ms":812},"ln_af476f4d":{"file":"ln_af476f4d.mp3","ms":1280},"cap_0d333bf2_m":{"file":"cap_0d333bf2_m.mp3","ms":557},"cap_0d333bf2_f":{"file":"cap_0d333bf2_f.mp3","ms":615},"ln_d4eaed72":{"file":"ln_d4eaed72.mp3","ms":1200},"ln_f44e2dfe":{"file":"ln_f44e2dfe.mp3","ms":3104},"ln_cfc1486c":{"file":"ln_cfc1486c.mp3","ms":3008},"ln_6b1949ce":{"file":"ln_6b1949ce.mp3","ms":3312},"ln_0adc0158":{"file":"ln_0adc0158.mp3","ms":3536},"ln_9eeaa746":{"file":"ln_9eeaa746.mp3","ms":2960},"ln_265cf3dc":{"file":"ln_265cf3dc.mp3","ms":2688},"ln_7c353922":{"file":"ln_7c353922.mp3","ms":2912},"ln_f3d280e6":{"file":"ln_f3d280e6.mp3","ms":2624},"cap_63def737_m":{"file":"cap_63def737_m.mp3","ms":731},"cap_63def737_f":{"file":"cap_63def737_f.mp3","ms":928},"ln_1ebb427f":{"file":"ln_1ebb427f.mp3","ms":1232},"cap_7078f8dc_m":{"file":"cap_7078f8dc_m.mp3","ms":522},"cap_7078f8dc_f":{"file":"cap_7078f8dc_f.mp3","ms":499},"ln_8f3abe84":{"file":"ln_8f3abe84.mp3","ms":976},"ln_3c4413b2":{"file":"ln_3c4413b2.mp3","ms":2656},"ln_0f8df1c4":{"file":"ln_0f8df1c4.mp3","ms":2320},"ln_c6b6ddc2":{"file":"ln_c6b6ddc2.mp3","ms":2496},"ln_4f0e0478":{"file":"ln_4f0e0478.mp3","ms":2640},"cap_d7f6c2d5_m":{"file":"cap_d7f6c2d5_m.mp3","ms":464},"cap_d7f6c2d5_f":{"file":"cap_d7f6c2d5_f.mp3","ms":417},"ln_10fa729d":{"file":"ln_10fa729d.mp3","ms":1008},"cap_75052cec_m":{"file":"cap_75052cec_m.mp3","ms":801},"cap_75052cec_f":{"file":"cap_75052cec_f.mp3","ms":870},"ln_a74eb274":{"file":"ln_a74eb274.mp3","ms":1424},"cap_893b6f06_m":{"file":"cap_893b6f06_m.mp3","ms":754},"cap_893b6f06_f":{"file":"cap_893b6f06_f.mp3","ms":731},"ln_5dee2e4e":{"file":"ln_5dee2e4e.mp3","ms":1232},"ln_fd63de72":{"file":"ln_fd63de72.mp3","ms":3842},"ln_57519b58":{"file":"ln_57519b58.mp3","ms":3401},"ln_c8df4342":{"file":"ln_c8df4342.mp3","ms":3564},"ln_7ce0539c":{"file":"ln_7ce0539c.mp3","ms":4028},"cap_09f125e2_m":{"file":"cap_09f125e2_m.mp3","ms":1056},"cap_09f125e2_f":{"file":"cap_09f125e2_f.mp3","ms":1335},"ln_323fb06a":{"file":"ln_323fb06a.mp3","ms":1729},"cap_adbe104d_m":{"file":"cap_adbe104d_m.mp3","ms":824},"cap_adbe104d_f":{"file":"cap_adbe104d_f.mp3","ms":1149},"ln_9c90a6f3":{"file":"ln_9c90a6f3.mp3","ms":1648},"cap_fda0831a_m":{"file":"cap_fda0831a_m.mp3","ms":487},"cap_fda0831a_f":{"file":"cap_fda0831a_f.mp3","ms":568},"ln_bb8f62d0":{"file":"ln_bb8f62d0.mp3","ms":1439},"ln_77361bf1":{"file":"ln_77361bf1.mp3","ms":2728},"ln_447faf17":{"file":"ln_447faf17.mp3","ms":2832},"ln_ec2884d1":{"file":"ln_ec2884d1.mp3","ms":2856},"ln_9be3ac1b":{"file":"ln_9be3ac1b.mp3","ms":2786},"cap_93615d45_m":{"file":"cap_93615d45_m.mp3","ms":452},"cap_93615d45_f":{"file":"cap_93615d45_f.mp3","ms":557},"ln_8718a88a":{"file":"ln_8718a88a.mp3","ms":1242},"cap_61c7c67c_m":{"file":"cap_61c7c67c_m.mp3","ms":510},"cap_61c7c67c_f":{"file":"cap_61c7c67c_f.mp3","ms":766},"ln_e2f218a7":{"file":"ln_e2f218a7.mp3","ms":1567},"ln_a193feb8":{"file":"ln_a193feb8.mp3","ms":1242},"ln_cb919935":{"file":"ln_cb919935.mp3","ms":2345},"ln_770dbeff":{"file":"ln_770dbeff.mp3","ms":2542},"ln_ceb8b17d":{"file":"ln_ceb8b17d.mp3","ms":2635},"ln_412fac7d":{"file":"ln_412fac7d.mp3","ms":2275},"cap_f42727be_m":{"file":"cap_f42727be_m.mp3","ms":626},"cap_f42727be_f":{"file":"cap_f42727be_f.mp3","ms":824},"ln_9fe568b0":{"file":"ln_9fe568b0.mp3","ms":1242},"ln_3acca50a":{"file":"ln_3acca50a.mp3","ms":1253},"cap_23fd4bc7_m":{"file":"cap_23fd4bc7_m.mp3","ms":754},"cap_23fd4bc7_f":{"file":"cap_23fd4bc7_f.mp3","ms":975},"ln_441482c9":{"file":"ln_441482c9.mp3","ms":1300},"cap_9d73b27c_m":{"file":"cap_9d73b27c_m.mp3","ms":719},"cap_9d73b27c_f":{"file":"cap_9d73b27c_f.mp3","ms":743},"ln_c90125ca":{"file":"ln_c90125ca.mp3","ms":1160},"ln_dd59a248":{"file":"ln_dd59a248.mp3","ms":3123},"ln_63aa41c0":{"file":"ln_63aa41c0.mp3","ms":2856},"ln_d7ef923a":{"file":"ln_d7ef923a.mp3","ms":3018},"ln_b920929a":{"file":"ln_b920929a.mp3","ms":2774},"ln_dbbec6e0":{"file":"ln_dbbec6e0.mp3","ms":3308},"ln_8fd6fbf8":{"file":"ln_8fd6fbf8.mp3","ms":2647},"ln_d6a92b70":{"file":"ln_d6a92b70.mp3","ms":2716},"ln_424d03c8":{"file":"ln_424d03c8.mp3","ms":2821},"cap_009bb078_m":{"file":"cap_009bb078_m.mp3","ms":859},"cap_009bb078_f":{"file":"cap_009bb078_f.mp3","ms":870},"ln_64f1ecf6":{"file":"ln_64f1ecf6.mp3","ms":1404},"cap_2e04e9e1_m":{"file":"cap_2e04e9e1_m.mp3","ms":777},"cap_2e04e9e1_f":{"file":"cap_2e04e9e1_f.mp3","ms":824},"ln_eb4749ef":{"file":"ln_eb4749ef.mp3","ms":1474},"ln_661e881b":{"file":"ln_661e881b.mp3","ms":2124},"cap_f7f9c93f_m":{"file":"cap_f7f9c93f_m.mp3","ms":835},"cap_f7f9c93f_f":{"file":"cap_f7f9c93f_f.mp3","ms":835},"ln_7e157161":{"file":"ln_7e157161.mp3","ms":1416},"cap_ad9e415d_m":{"file":"cap_ad9e415d_m.mp3","ms":719},"cap_ad9e415d_f":{"file":"cap_ad9e415d_f.mp3","ms":986},"ln_42302353":{"file":"ln_42302353.mp3","ms":1544},"cap_28214265_m":{"file":"cap_28214265_m.mp3","ms":429},"cap_28214265_f":{"file":"cap_28214265_f.mp3","ms":661},"ln_b20885bb":{"file":"ln_b20885bb.mp3","ms":1230},"ln_2fe125d0":{"file":"ln_2fe125d0.mp3","ms":1613},"cap_f4093d39_m":{"file":"cap_f4093d39_m.mp3","ms":777},"cap_f4093d39_f":{"file":"cap_f4093d39_f.mp3","ms":1137},"ln_283c59b7":{"file":"ln_283c59b7.mp3","ms":1323},"cap_42769ac3_m":{"file":"cap_42769ac3_m.mp3","ms":963},"cap_42769ac3_f":{"file":"cap_42769ac3_f.mp3","ms":1056},"ln_5be4a66d":{"file":"ln_5be4a66d.mp3","ms":1590},"ln_b299cf21":{"file":"ln_b299cf21.mp3","ms":2159},"cap_4a201ac3_m":{"file":"cap_4a201ac3_m.mp3","ms":812},"cap_4a201ac3_f":{"file":"cap_4a201ac3_f.mp3","ms":905},"ln_6b642c03":{"file":"ln_6b642c03.mp3","ms":986},"cap_c76edb0c_m":{"file":"cap_c76edb0c_m.mp3","ms":592},"cap_c76edb0c_f":{"file":"cap_c76edb0c_f.mp3","ms":626},"ln_ae2b0b4c":{"file":"ln_ae2b0b4c.mp3","ms":835},"ln_07e9884a":{"file":"ln_07e9884a.mp3","ms":789},"ln_049bc4b5":{"file":"ln_049bc4b5.mp3","ms":1149},"ln_7f594c06":{"file":"ln_7f594c06.mp3","ms":1552},"cap_a2377ddb_m":{"file":"cap_a2377ddb_m.mp3","ms":743},"cap_a2377ddb_f":{"file":"cap_a2377ddb_f.mp3","ms":1126},"ln_d39f7bd7":{"file":"ln_d39f7bd7.mp3","ms":1776},"cap_149880a0_m":{"file":"cap_149880a0_m.mp3","ms":661},"cap_149880a0_f":{"file":"cap_149880a0_f.mp3","ms":719},"ln_26438444":{"file":"ln_26438444.mp3","ms":1456},"cap_d098f910_m":{"file":"cap_d098f910_m.mp3","ms":801},"cap_d098f910_f":{"file":"cap_d098f910_f.mp3","ms":986},"ln_9aa63c62":{"file":"ln_9aa63c62.mp3","ms":1184},"cap_96dfccdf_m":{"file":"cap_96dfccdf_m.mp3","ms":893},"cap_96dfccdf_f":{"file":"cap_96dfccdf_f.mp3","ms":1242},"ln_f20c8ee9":{"file":"ln_f20c8ee9.mp3","ms":1358},"cap_94a9f6ce_m":{"file":"cap_94a9f6ce_m.mp3","ms":1265},"cap_94a9f6ce_f":{"file":"cap_94a9f6ce_f.mp3","ms":1497},"ln_286e18f4":{"file":"ln_286e18f4.mp3","ms":1869},"ln_7265c259":{"file":"ln_7265c259.mp3","ms":2298},"ln_ce4eed6a":{"file":"ln_ce4eed6a.mp3","ms":3616},"cap_cd9ca505_m":{"file":"cap_cd9ca505_m.mp3","ms":731},"cap_cd9ca505_f":{"file":"cap_cd9ca505_f.mp3","ms":754},"ln_8950d615":{"file":"ln_8950d615.mp3","ms":1664},"cap_c063d0d5_m":{"file":"cap_c063d0d5_m.mp3","ms":650},"cap_c063d0d5_f":{"file":"cap_c063d0d5_f.mp3","ms":661},"ln_70c37d05":{"file":"ln_70c37d05.mp3","ms":1712},"ln_f31b9746":{"file":"ln_f31b9746.mp3","ms":3232},"ln_48218df6":{"file":"ln_48218df6.mp3","ms":1616},"cap_883b27cd_m":{"file":"cap_883b27cd_m.mp3","ms":394},"cap_883b27cd_f":{"file":"cap_883b27cd_f.mp3","ms":545},"ln_c5cd97a1":{"file":"ln_c5cd97a1.mp3","ms":2208},"ln_d553f64e":{"file":"ln_d553f64e.mp3","ms":2064},"ln_e298667c":{"file":"ln_e298667c.mp3","ms":2208},"ln_7890916a":{"file":"ln_7890916a.mp3","ms":2160},"ln_cee35bae":{"file":"ln_cee35bae.mp3","ms":2128},"cap_5d807e28_m":{"file":"cap_5d807e28_m.mp3","ms":650},"cap_5d807e28_f":{"file":"cap_5d807e28_f.mp3","ms":766},"ln_c64d2ec0":{"file":"ln_c64d2ec0.mp3","ms":1072},"ln_01f8207d":{"file":"ln_01f8207d.mp3","ms":3504},"ln_e6c4c717":{"file":"ln_e6c4c717.mp3","ms":2768},"ln_bdd280d9":{"file":"ln_bdd280d9.mp3","ms":3584},"ln_683b189d":{"file":"ln_683b189d.mp3","ms":3280},"cap_9ea7ecc3_m":{"file":"cap_9ea7ecc3_m.mp3","ms":777},"cap_9ea7ecc3_f":{"file":"cap_9ea7ecc3_f.mp3","ms":1126},"ln_a30f090b":{"file":"ln_a30f090b.mp3","ms":1424},"ln_8ab341bf":{"file":"ln_8ab341bf.mp3","ms":2816},"ln_a0e7c935":{"file":"ln_a0e7c935.mp3","ms":2704},"ln_e52c953b":{"file":"ln_e52c953b.mp3","ms":3072},"ln_92eb541f":{"file":"ln_92eb541f.mp3","ms":2368},"cap_bd9ba023_m":{"file":"cap_bd9ba023_m.mp3","ms":777},"cap_bd9ba023_f":{"file":"cap_bd9ba023_f.mp3","ms":835},"ln_4808c2cb":{"file":"ln_4808c2cb.mp3","ms":1360},"ln_c11f03fe":{"file":"ln_c11f03fe.mp3","ms":2800},"ln_aa900f68":{"file":"ln_aa900f68.mp3","ms":2160},"ln_431c956a":{"file":"ln_431c956a.mp3","ms":2352},"ln_50203fde":{"file":"ln_50203fde.mp3","ms":2288},"ln_9498a6c0":{"file":"ln_9498a6c0.mp3","ms":1280},"ln_495274b2":{"file":"ln_495274b2.mp3","ms":1248},"ln_5e211edc":{"file":"ln_5e211edc.mp3","ms":1424},"ln_07f881a0":{"file":"ln_07f881a0.mp3","ms":1264},"ln_be0df3e0":{"file":"ln_be0df3e0.mp3","ms":1424},"cap_41fd6dce_m":{"file":"cap_41fd6dce_m.mp3","ms":777},"cap_41fd6dce_f":{"file":"cap_41fd6dce_f.mp3","ms":917},"ln_6bee7e7d":{"file":"ln_6bee7e7d.mp3","ms":1408},"cap_1836e687_m":{"file":"cap_1836e687_m.mp3","ms":650},"cap_1836e687_f":{"file":"cap_1836e687_f.mp3","ms":626},"ln_ae8d821e":{"file":"ln_ae8d821e.mp3","ms":848},"ln_e5ae331d":{"file":"ln_e5ae331d.mp3","ms":998},"ln_7c125ed7":{"file":"ln_7c125ed7.mp3","ms":1008},"ln_819ad9fb":{"file":"ln_819ad9fb.mp3","ms":1200},"ln_7779e28f":{"file":"ln_7779e28f.mp3","ms":905},"ln_1eec3401":{"file":"ln_1eec3401.mp3","ms":684},"ln_e8a9d748":{"file":"ln_e8a9d748.mp3","ms":1880},"ln_b23c55b7":{"file":"ln_b23c55b7.mp3","ms":998}};
+/* Station model: crew, calls, orders, doctrine, autonomy. No DOM, no engine imports (docs/systems_contract.md).
+ *
+ *   const M = Stations.create({ secPerMin: 16, command: 'tight', seed: 1, autonomy: { sensors: 'auto' } });
+ *   M.ingest(s.log.slice(seen));        // engine report() lines -> calls (classify); or M.raise('W5', {n:2, eta:45})
+ *   M.tick(dtSeconds);                  // real seconds: readiness, expiry -> defaults, order stages
+ *   M.pending()  -> calls the CO should see now (priority order);   M.answer(id, i);  M.standBy(id);  M.next()
+ *   M.on(fn)     -> fn({type:'raise'|'default'|'order'|'info', call?, order?, stage?})
+ * Times are real seconds. A person (officer) can only do one thing at a time: calls wait for a busy officer
+ * (critical calls cut in), so Abara, who holds fire control, weapons and helm, is a bottleneck by design.
+ */
+(function (root) {
+  'use strict';
+  const OFFICER = { sensors: 'Quill', fire: 'Abara', weapons: 'Abara', helm: 'Abara', engineering: 'Castellan', thermal: 'Dace', damage: 'Fenwick', comms: 'Pell' };
+  const SKILL = { Quill: [1.0, 1.8], Abara: [0.8, 1.6], Castellan: [1.4, 2.4], Dace: [1.0, 2.0], Fenwick: [1.6, 2.6], Pell: [0.3, 0.6] };   // reaction seconds
+  const TIMEOUT = { 2: 45, 3: 16, 4: 7 };                                                      // seconds until the default runs
+  const sierra = n => 'Sierra ' + n;
+  const O = (...a) => a.map(([label, verb]) => ({ label, verb }));
+  // the catalog (docs/systems_contract.md s3). open: Auto still raises it at priority 2 because doctrine does not settle it.
+  const ROWS = {
+    S1: { st: 'sensors', pri: 2, line: d => `New thermal return, ${sierra(d.n)}.`, batch: c => `${c} new thermal returns.`, opts: O(['Isolate and classify', 'classify'], ['Mark and continue', 'mark'], ['Ignore', 'ignore']), def: 1, cost: 'slower identification' },
+    S2: { st: 'sensors', pri: 1, line: d => d.text },
+    S3: { st: 'sensors', pri: 2, line: d => d.text },
+    S4: { st: 'sensors', pri: 2, line: d => `Lost her bearing, ${sierra(d.n)}. Rescan?`, opts: O(['Rescan', 'rescan'], ['Hold', 'hold']), def: 1, cost: 'stale solution' },
+    S5: { st: 'sensors', pri: 2, line: d => `Lost contact on ${sierra(d.n)}, marking as thermal ghost.` },
+    S6: { st: 'sensors', pri: 3, line: d => `${sierra(d.n)} just pinged. She is hunting.`, opts: O(['Go quiet', 'quiet'], ['Run', 'evade'], ['Hold', 'hold']), def: 2, cost: 'higher exposure' },
+    S7: { st: 'sensors', pri: 2, line: d => d.text },
+    S8: { st: 'sensors', pri: 3, open: true, line: d => `I can ping ${sierra(d.n)}. She will know.`, opts: O(['Ping', 'ping'], ['Probe salvo', 'probe'], ['Not yet', 'hold']), def: 2, cost: 'slower fix' },
+    W1: { st: 'fire', pri: 2, open: true, line: d => `Bearing only on ${sierra(d.n)}. I need a leg to range her.`, opts: O(['Give a baseline', 'baseline'], ['Hold silent', 'hold'], ['Wait', 'wait']), def: 1, cost: 'fuzzy range, no shot' },
+    W2: { st: 'weapons', pri: 3, open: true, line: d => `Solution good on ${sierra(d.n)}. Tubes ready.`, opts: O(['Fire (preset)', 'fire'], ['Probe', 'probe'], ['Hold', 'hold']), def: 2, cost: 'solution may go stale' },
+    W3: { st: 'fire', pri: 2, line: d => `Solution on ${sierra(d.n)} is going stale.`, opts: O(['Refresh', 'refresh'], ['Hold', 'hold']), def: 1, cost: 'poor odds' },
+    W4: { st: 'weapons', pri: 1, line: d => d.text },
+    W5: { st: 'weapons', pri: 4, line: d => `Vampire, vampire.${d.eta ? ' Impact in ' + d.eta + '.' : ''}`, opts: O(['Go active', 'pd_active'], ['Stay cold', 'pd_cold']), def: (ctx) => ctx.doctrine.pd === 'active-on-vampire' ? 0 : 1, cost: 'a false go-active reveals us; a late one is a hit' },
+    W6: { st: 'weapons', pri: 2, line: d => d.text },
+    W7: { st: 'damage', pri: 3, line: d => d.text },
+    W8: { st: 'weapons', pri: 2, line: d => d.text },
+    W9: { st: 'weapons', pri: 2, line: d => d.how === 'burn' ? `${sierra(d.n)} burned at the probe. She is real.` : `${sierra(d.n)} lit her point defence. She is real.`, opts: O(['Mark hostile', 'mark_hostile'], ['Keep probing', 'probe']), def: 0, cost: 'none' },
+    H1: { st: 'helm', pri: 3, line: d => 'Burn runs hot. Recommend shorter.', opts: O(['Shorter burn', 'burn_short'], ['Burn as ordered', 'burn'], ['Abort', 'abort']), def: 0, cost: 'less delta-v' },
+    H2: { st: 'helm', pri: 3, line: d => 'Turning now cuts the wire.', opts: O(['Hold course', 'hold'], ['Turn anyway', 'turn']), def: 0, cost: 'delay' },
+    H3: { st: 'helm', pri: 1, line: d => d.text },
+    E1: { st: 'thermal', pri: 3, line: d => 'Running hot. Anything listening can hear us.', opts: O(['Cut thrust', 'cut_thrust'], ['Vent now', 'vent'], ['Hold', 'hold']), def: 0, cost: 'lost speed' },
+    E2: { st: 'thermal', pri: 3, line: d => 'Forced vent coming.', opts: O(['Vent now', 'vent'], ['Hold', 'hold']), def: 0, cost: 'none' },
+    E3: { st: 'thermal', pri: 1, line: d => d.text },
+    E4: { st: 'engineering', pri: 2, line: d => 'Redline available.', opts: O(['No', 'hold'], ['Redline', 'redline']), def: 0, cost: 'none' },
+    D1: { st: 'damage', pri: 3, line: d => d.text, opts: O(['Save the sink', 'save_sink'], ['Save the drive', 'save_drive'], ['Seal and sacrifice', 'seal']), def: 0, cost: 'drive degraded' },
+    D2: { st: 'damage', pri: 4, line: d => 'Fire in stores and a breach aft. Which first?', opts: O(['Save the sink', 'save_sink'], ['Save the drive', 'save_drive']), def: 0, cost: 'the other burns' },
+    D3: { st: 'damage', pri: 4, line: d => d.text },
+    C1: { st: 'comms', pri: 2, open: true, line: d => 'An ally offers a link. It is an emission.', opts: O(['Decline', 'decline'], ['Accept', 'accept']), def: 0, cost: 'none' },
+    C3: { st: 'comms', pri: 2, open: true, line: d => 'I can run the sensors. It would be seen.', opts: O(['Not yet', 'hold'], ['Do it', 'pell_take']), def: 0, cost: 'none' },
+    X1: { st: 'sensors', pri: 3, line: d => `${sierra(d.n)} has noticed us.`, opts: O(['Go quiet', 'quiet'], ['Evade', 'evade'], ['Hold', 'hold']), def: 0, cost: 'lost initiative' },
+    X2: { st: 'sensors', pri: 3, line: d => `${sierra(d.n)} is closing. Her fix on us is tightening.`, opts: O(['Evade', 'evade'], ['Hold', 'hold'], ['Ready salvo', 'ready']), def: 0, cost: 'closer to a shot' },
+    X3: { st: 'sensors', pri: 4, line: d => `${sierra(d.n)} has a firm solution on us.`, opts: O(['Evade', 'evade'], ['Fire first', 'fire'], ['Hold', 'hold']), def: 0, cost: 'lost initiative' },
+    X4: { st: 'sensors', pri: 2, line: d => `${sierra(d.n)} seems to have lost us.` },
+    X5: { st: 'sensors', pri: 2, line: d => `${sierra(d.n)} vented.`, opts: O(['Mark hostile', 'mark_hostile']), def: 0, cost: 'none' }
+  };
+  // engine report() text -> catalog row. First match wins.
+  const MAP = [
+    [/Vampire|has fired on us/i, 'W5'], [/noticed us/i, 'X1'], [/closing in/i, 'X2'], [/firm solution on us/i, 'X3'], [/lost us/i, 'X4'],
+    [/just pinged us/i, 'S6'], [/Active ping/i, 'S7'], [/changed course/i, 'S4'],
+    [/folded its fins|thermal blaze|has vented|just vented/i, 'X5'],
+    [/running hot/i, 'E1'], [/Venting|vent (started|ended)|fins/i, 'E3'],
+    [/Hull integrity failed|Emergency breach|Hull is gone/i, 'D3'], [/fouling the sensor/i, 'D1'], [/hull destroyed|derelict/i, 'W6'],
+    [/Friendly fire|Hull integrity \d+ percent/i, 'W7'], [/Redline/i, 'E4'],
+    [/Contact \d+: (thermal bloom|faint thermal)/i, 'S1'], [/Contact \d+:/i, 'S2'],
+    [/Maneuver complete|Flight plan|Waypoint|Holding|Resuming|Burn (off|complete|latched)|Extending|Closing on|Evasive/i, 'H3']
+  ];
+  // engine structured events (evt(s, type, data) in web/hunt_rt_engine.js) -> catalog rows and call data
+  const NUMW = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+  const nw = n => NUMW[n] || String(n);
+  const EVT = {
+    vampire: d => ['W5', { n: d.n, id: d.id, bearing: d.bearing, at: d.at, eta: d.etaSec != null ? Math.max(5, Math.round(d.etaSec / 5) * 5) + ' seconds' : '' }],
+    ping_alert: d => ['S6', { n: d.n, id: d.id, bearing: d.bearing }],
+    probe_reaction: d => ['W9', { n: d.n, id: d.id, how: d.how }],
+    probe_quiet: d => ['W4', { text: 'Probe landed. No reaction.' }],
+    mag_low: d => ['W8', { text: `Magazine low. ${nw(d.salvos)} salvo${d.salvos === 1 ? '' : 's'} left.` }],
+    mag_empty: d => ['W8', { text: 'Magazine empty.' }],
+    track_lost: d => ['S5', { n: d.n, id: d.id, ghost: d.ghost }]
+  };
+  // speech helpers shared by the call deck and tools/tts/catalog_lines.js, so a rendered clip is found by its exact words
+  const spoken = t => String(t || '').replace(/Sierra (\d+)/g, (m, n) => 'Sierra ' + nw(+n)).replace(/\s+/g, ' ').trim();
+  const plain = l => String(l).replace(/\s*\([^)]*\)/g, '').trim();
+  const CAP = { 'Fire (preset)': 'Fire.', 'Give a baseline': 'Give me a baseline.', 'Ignore': 'Ignore it.', 'Mark and continue': 'Mark it and continue.', 'Track her': 'Track her.', 'Isolate and classify': 'Isolate and classify.', 'No': 'No redline.', 'Do it': 'Do it.', 'Track': 'Track her.', 'Probe': 'Probe her.', 'Classify': 'Classify her.' };
+  const ACK = { 'Hold': 'Aye. Holding.', 'No': 'Aye. No redline.', 'Not yet': 'Aye. Not yet.', 'Wait': 'Aye. Waiting.', 'Ignore': 'Aye. Ignoring.', 'Do it': 'Aye. Taking the sensors.', 'Fire (preset)': 'Aye. Firing.', 'Fire': 'Aye. Firing.', 'Track': 'Aye. Tracking.', 'Probe': 'Aye. Probe away.', 'Classify': 'Aye. Classifying.' };
+  const captainLine = label => CAP[label] || plain(label) + '.';
+  const ackLine = label => ACK[label] || 'Aye. ' + plain(label) + '.';
+  function clipId(who, text) {   // stable id for a rendered line: FNV-1a of who|words. The captain's id gets _m or _f in web/voice.js
+    let h = 0x811c9dc5; const k = (who === 'Captain' ? 'Captain' : who) + '|' + spoken(text);
+    for (let i = 0; i < k.length; i++) { h ^= k.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+    return (who === 'Captain' ? 'cap_' : 'ln_') + h.toString(16).padStart(8, '0');
+  }
+  const DOCTRINE = { roe: 'hold-fire', pd: 'active-on-vampire', ping: 'ask', vent: 'at-90', damage: 'sink', reporting: 'standard' };
+
+  function create(cfg) {
+    cfg = cfg || {};
+    let seed = (cfg.seed || 1) >>> 0;
+    const rnd = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
+    const st = { now: 0, nextId: 1, calls: [], orders: [], history: [], raised: [], listeners: [], last: {}, tokens: 2, tokT: 0, suppressed: 0 };
+    const COOL = { 1: 0, 2: 20, 3: 25, 4: 15 };            // seconds before the same row about the same contact can raise again
+    const BUCKET = { cap: 2, every: 20 };                  // attention budget: urgent calls refill one per 20 s, so the rhythm target holds by construction
+    const autonomy = Object.assign({ sensors: 'auto', fire: 'auto', weapons: 'auto', helm: 'auto', engineering: 'auto', thermal: 'auto', damage: 'auto', comms: 'auto' }, cfg.autonomy);
+    const doctrine = Object.assign({}, DOCTRINE, cfg.doctrine);
+    const officers = {}; for (const k in SKILL) officers[k] = { busyUntil: 0 };
+    const cmdMul = cfg.command === 'loose' ? 1.3 : cfg.command === 'tight' ? 0.8 : 1;
+    const patience = cfg.command === 'loose' ? 6 : 12;
+    const secPerMin = cfg.secPerMin || 16;
+    const emit = ev => { for (const f of st.listeners) try { f(ev); } catch (e) {} };
+    const speakSecs = t => 0.35 * String(t).trim().split(/\s+/).length + 0.4;
+    const desig = text => { const m = /Contact (\d+)/i.exec(text || ''); return m ? +m[1] : 0; };
+
+    function raise(rowId, d) {
+      const row = ROWS[rowId]; if (!row) return null;
+      d = d || {};
+      const officer = OFFICER[row.st], mode = autonomy[row.st];
+      const hasOpts = !!(row.opts && row.opts.length);
+      // batching: same row, same station, still unspoken, within 4 s
+      const prior = st.calls.find(c => c.row === rowId && c.state === 'queued' && st.now - c.at < 4 && row.batch);
+      if (prior) { prior.count++; prior.line = row.batch(prior.count); return prior; }
+      let pri = row.pri;
+      const key = rowId + ':' + (d.n || 0);
+      if (pri > 1 && st.last[key] != null && st.now - st.last[key] < COOL[pri]) { st.suppressed = (st.suppressed || 0) + 1; return null; }   // same news again: say it once
+      st.last[key] = st.now;
+      if (pri >= 3) {                                        // spend attention; with none left a priority 3 call is a notice, not an interruption
+        st.tokens = Math.min(BUCKET.cap, st.tokens + (st.now - st.tokT) / BUCKET.every); st.tokT = st.now;
+        if (pri === 4) st.tokens = Math.max(0, st.tokens - 1);   // a critical call always gets through, but it uses up attention too
+        else if (st.tokens >= 1) st.tokens -= 1; else pri = 2;
+      }
+      // what reaches the CO: Auto settles routine decisions by doctrine; Supervised asks; Hands-on routes to the player's screen
+      let raiseIt = true, settled = false;
+      if (pri === 1) raiseIt = false;
+      else if (mode === 'auto' && pri === 2 && hasOpts && !row.open) { raiseIt = false; settled = true; }
+      else if (mode === 'supervised' && !hasOpts && pri === 2) raiseIt = true;
+      const call = { id: st.nextId++, row: rowId, station: row.st, officer, pri, demoted: pri !== row.pri, at: st.now, readyAt: st.now, state: raiseIt ? 'queued' : 'logged', count: 1,
+        line: row.line(d) || d.text || '', data: d, opts: row.opts || null, def: row.def, cost: row.cost, route: mode === 'hands-on' ? 'player' : 'co', expiresAt: null, stood: false, settled };
+      st.calls.push(call);
+      if (!raiseIt) { if (settled) defaultOutcome(call, 'doctrine'); else call.state = 'logged'; st.history.push(call); emit({ type: 'info', call }); return call; }
+      // the officer must be free (a critical call cuts in)
+      const off = officers[officer];
+      if (pri < 4) { let free = Math.max(st.now, off.busyUntil); for (const q of st.calls) if (q !== call && q.officer === officer && q.state === 'queued') free = Math.max(free, q.readyAt + speakSecs(q.line)); call.readyAt = free; }
+      st.history.push(call);
+      return call;
+    }
+
+    function defaultIndex(call) {
+      if (!call.opts) return -1;
+      const d = call.def; const i = typeof d === 'function' ? d({ doctrine, call }) : d;
+      return i == null ? 0 : i;
+    }
+    function defaultOutcome(call, by) {
+      const i = defaultIndex(call);
+      call.by = by; call.state = by === 'doctrine' ? 'settled' : 'defaulted';
+      if (i >= 0) { call.choice = i; issue(call, i, by); }
+      if (by !== 'doctrine') emit({ type: 'default', call });
+    }
+
+    function issue(call, i, by) {
+      const opt = call.opts[i], officer = call.officer, off = officers[officer];
+      const [lo, hi] = SKILL[officer] || [1, 2];
+      const react = (lo + rnd() * (hi - lo)) * cmdMul;
+      const start = Math.max(st.now, off.busyUntil);
+      const o = { id: st.orders.length + 1, callId: call.id, station: call.station, officer, verb: opt.verb, label: opt.label, data: call.data, by, issuedAt: st.now,
+        ackAt: start + react, execAt: start + react + 0.6, doneAt: start + react + 0.6 + 1.5, stage: 'issued' };
+      off.busyUntil = Math.max(off.busyUntil, o.ackAt + 0.5);
+      st.orders.push(o); emit({ type: 'order', order: o, stage: 'issued' });
+      return o;
+    }
+
+    function pending() {
+      return st.calls.filter(c => c.state === 'raised').sort((a, b) => b.pri - a.pri || a.readyAt - b.readyAt);
+    }
+    function next() { const p = pending(); return p.length ? p[0] : null; }
+    function answer(id, i) {
+      const c = st.calls.find(x => x.id === id); if (!c || c.state !== 'raised' || !c.opts || !c.opts[i]) return null;
+      c.state = 'answered'; c.choice = i; c.by = 'co'; return issue(c, i, 'co');
+    }
+    // a proactive order from the CO (radial menu, hold-V report): same lifecycle as a chip (issued, acked, executing, reported)
+    function command(station, verb, label, data) {
+      const officer = OFFICER[station] || 'Abara';
+      const call = { id: st.nextId++, row: 'CO', station, officer, pri: 2, at: st.now, readyAt: st.now, raisedAt: st.now, state: 'answered', count: 1, line: label || verb, data: data || {}, opts: [{ label: label || verb, verb }], def: 0, by: 'co', choice: 0, route: 'co', proactive: true };
+      st.calls.push(call); st.history.push(call);
+      return issue(call, 0, 'co');
+    }
+    // a status report on demand ("Sensors, report"): a priority 2 information call from that station's officer
+    function report(station, text) {
+      const officer = OFFICER[station] || 'Abara', row = { sensors: 'S2', fire: 'W4', weapons: 'W4', helm: 'H3', engineering: 'E3', thermal: 'E3', damage: 'W7', comms: 'S2' }[station] || 'S2';
+      const call = { id: st.nextId++, row, station, officer, pri: 2, at: st.now, readyAt: Math.max(st.now, officers[officer].busyUntil), state: 'queued', count: 1, line: text, data: { text }, opts: null, route: 'co', report: true };
+      st.calls.push(call); st.history.push(call); return call;
+    }
+    function dismiss(id) { const c = st.calls.find(x => x.id === id); if (!c || c.state !== 'raised' || c.pri > 2) return false; c.state = 'dismissed'; return true; }
+    function standBy(id) {
+      const c = st.calls.find(x => x.id === id); if (!c || c.state !== 'raised' || c.stood || c.pri > 3) return false;
+      c.stood = true; c.expiresAt += patience; return true;
+    }
+    function tick(dt) {
+      st.now += dt;
+      for (const c of st.calls) {
+        if (c.state === 'queued' && c.readyAt <= st.now) {            // officer is free: say it
+          c.state = c.opts || c.pri >= 2 ? 'raised' : 'logged';
+          c.raisedAt = st.now; c.expiresAt = st.now + (TIMEOUT[c.pri] || 45);
+          officers[c.officer].busyUntil = Math.max(officers[c.officer].busyUntil, st.now + speakSecs(c.line));
+          if (c.pri === 4) { for (const o of st.calls) if (o !== c && o.state === 'raised' && o.expiresAt) o.expiresAt = Math.min(o.expiresAt, st.now + 6); }   // a critical call shortens the others
+          st.raised.push({ t: st.now, pri: c.pri, id: c.id, row: c.row });
+          if (!c.opts) c.state = 'reported';                          // information only: nothing to answer
+          emit({ type: 'raise', call: c });
+        }
+        if (c.state === 'raised' && c.expiresAt != null && st.now >= c.expiresAt && c.route !== 'player') defaultOutcome(c, 'default');
+      }
+      for (const o of st.orders) {
+        if (o.stage === 'issued' && st.now >= o.ackAt) { o.stage = 'acked'; emit({ type: 'order', order: o, stage: 'acked' }); }
+        if (o.stage === 'acked' && st.now >= o.execAt) { o.stage = 'executing'; emit({ type: 'order', order: o, stage: 'executing' }); }
+        if (o.stage === 'executing' && st.now >= o.doneAt) { o.stage = 'reported'; emit({ type: 'order', order: o, stage: 'reported' }); }
+      }
+    }
+
+    // engine log -> calls. entries: {t, who, text, kind, urgent}
+    function ingest(entries) {
+      const made = [];
+      for (const e of entries || []) {
+        let id = null;
+        for (const [re, r] of MAP) if (re.test(e.text)) { id = r; break; }
+        if (!id) id = e.urgent ? 'S6' : null;
+        if (!id) continue;
+        const n = desig(e.text), eta = /Impact in ([\w .]+?)\./i.exec(e.text);
+        const c = raise(id, { n, text: e.text, eta: eta ? eta[1] : '', kind: e.kind });
+        if (c) made.push(c);
+      }
+      return made;
+    }
+    // engine structured event -> call. Takes {type, data} (engine form) or a flat {type, ...}
+    function onEvent(e) {
+      if (!e || !EVT[e.type]) return null;
+      const d = e.data || Object.assign({}, e); delete d.type;
+      const [row, cd] = EVT[e.type](d);
+      return raise(row, cd);
+    }
+    function stats(winSec) {
+      const w = winSec || 20, big = st.raised.filter(r => r.pri >= 3), span = Math.max(1, st.now);
+      let burst = 0; for (const r of st.raised) burst = Math.max(burst, st.raised.filter(q => q.t >= r.t && q.t < r.t + 5).length);
+      return { seconds: st.now, raised: st.raised.length, urgent: big.length, urgentPer20s: big.length / (span / w), maxBurst5s: burst,
+        suppressed: st.suppressed, defaults: st.calls.filter(c => c.state === 'defaulted').length, settled: st.calls.filter(c => c.state === 'settled').length, logged: st.calls.filter(c => c.state === 'logged').length };
+    }
+    return { raise, ingest, onEvent, command, report, dismiss, defaultIndex, tick, pending, next, answer, standBy, stats, on: f => st.listeners.push(f), setAutonomy: (k, m) => { autonomy[k] = m; }, autonomy, doctrine, setDoctrine: o => Object.assign(doctrine, o),
+      get now() { return st.now; }, get calls() { return st.calls; }, get orders() { return st.orders; }, officers, secPerMin };
+  }
+  const API = { create, ROWS, MAP, EVT, OFFICER, DOCTRINE, spoken, captainLine, ackLine, clipId, numWord: nw };
+  root.Stations = API; if (typeof module !== 'undefined') module.exports = API;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* Salvo presets (docs/stations_and_command_ui.md s4.1): a salvo is a plan, not a trigger. No DOM, no engine import.
+ *
+ *   SalvoPresets.get('ambush') -> { id, name, pattern, rte, homing, wire, warhead, cone, count, ... }
+ *   SalvoPresets.toFire(p)     -> { cone, kind, homing, tubes } the part the engine can express today (E.fire arguments; count 12 = two tubes)
+ *   SalvoPresets.unsimulated(p)-> ['pattern', 'rte', 'wire'] the parameters stored and shown, but not yet simulated
+ * pattern: spread | snake | circle | line. rte: run to enable, seconds of dark run (3-30). count: missiles (6 per tube; the Probe preset is 1-2, fired with E.probe).
+ */
+(function (root) {
+  'use strict';
+  const PATTERNS = ['spread', 'snake', 'circle', 'line'];
+  const NOT_SIMULATED = ['pattern', 'rte', 'wire'];   // TODO(engine): patterns, run-to-enable and the wire need the missile model rework (Newtonian phase)
+  const PRESETS = {
+    ambush:     { id: 'ambush', name: 'Ambush', key: 'A', pattern: 'spread', rte: 22, homing: true, wire: true, warhead: 'he', cone: 3, count: 6, tip: 'Long dark run, tight spread, the seeker wakes late. For a target that has not seen us.' },
+    snap:       { id: 'snap', name: 'Snap shot', key: 'S', pattern: 'spread', rte: 5, homing: false, wire: false, warhead: 'he', cone: 10, count: 6, tip: 'Short run, wide spread, fast. For a target that is already moving.' },
+    probe:      { id: 'probe', name: 'Probe', key: 'P', pattern: 'line', rte: 3, homing: false, wire: false, warhead: 'he', cone: 0, count: 2, probe: true, tip: 'A feint: two real missiles at a point, no ping. Watch who lights up.' },
+    saturation: { id: 'saturation', name: 'Saturation', key: 'X', pattern: 'circle', rte: 12, homing: true, wire: false, warhead: 'he', cone: 16, count: 12, tip: 'Two tubes, a wide circle. Spends the magazine fast.' }
+  };
+  const clampN = (v, a, b) => Math.max(a, Math.min(b, v));
+  function get(id) { const p = PRESETS[id] || PRESETS.ambush; return Object.assign({}, p); }
+  function make(base, over) {   // a custom salvo from a preset, values kept in range
+    const p = Object.assign(get(base), over || {});
+    if (!PATTERNS.includes(p.pattern)) p.pattern = 'spread';
+    p.rte = clampN(+p.rte || 3, 3, 30); p.cone = clampN(+p.cone || 0, 0, 24); p.count = clampN(Math.round(+p.count || 1), 1, p.probe ? 2 : 18);
+    if (!['he', 'emp', 'flare'].includes(p.warhead)) p.warhead = 'he'; p.homing = !!p.homing; p.wire = !!p.wire;
+    return p;
+  }
+  function toFire(p) { return { cone: p.cone, kind: p.warhead, homing: !!p.homing, tubes: p.probe ? 0 : Math.max(1, Math.ceil(p.count / 6)), probe: p.probe ? Math.min(2, p.count) : 0 }; }
+  function unsimulated() { return NOT_SIMULATED.slice(); }
+  function label(p) { return `${p.name}: ${p.pattern}, RTE ${p.rte} s, ${p.homing ? 'homing' : 'ballistic'}, ${p.wire ? 'wire' : 'no wire'}, ${p.warhead.toUpperCase()}, cone ${p.cone}, ${p.count} missiles`; }
+  const API = { PRESETS, PATTERNS, NOT_SIMULATED, get, make, toFire, unsimulated, label, ids: Object.keys(PRESETS) };
+  root.SalvoPresets = API; if (typeof module !== 'undefined') module.exports = API;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* Station adapter: connects the hunt engine (HuntRT) to the station model (Stations). No DOM. docs/systems_contract.md s1.
+ *
+ *   const A = StationAdapter.create({ engine: HuntRT, seed: 1, autonomy: {...}, command: 'tight', preset: 'ambush' });
+ *   const out = A.update(s, dtRealSeconds);   // feeds new s.evts and s.log lines into the model, ticks it, runs orders; returns UI events
+ *   A.model                                   // the Stations instance (pending(), answer(), standBy(), ...)
+ *   A.order(station, verb, label, data)       // a proactive CO order (radial menu): same lifecycle as a chip
+ *   A.setPreset(id) / A.salvo                 // the current salvo preset (web/salvo_presets.js)
+ * Orders reach the engine when their stage becomes 'executing'. Verbs the engine cannot do yet are logged no-ops (A.noops) with a TODO.
+ */
+(function (root) {
+  'use strict';
+  const req = n => (typeof require !== 'undefined' ? require(n) : null);
+  const Stations = root.Stations || req('./station_model.js'), Presets = root.SalvoPresets || req('./salvo_presets.js');
+  const HELM_HOLD = { S6: 1, X1: 1, X2: 1, X3: 1 };   // on these rows 'Hold' means hold still (the quietest stance); elsewhere it means hold fire / hold off
+  const SPD = ['v1', 'v2', 'v3', 'v4', 'v5', 'ab'];
+  const TODO = {   // verbs the engine cannot do yet: logged no-ops
+    baseline: 'TODO(Newtonian): a TMA baseline leg needs Newtonian motion and anisotropic range (contract s7 item 6)',
+    turn: 'TODO(Newtonian): wire-cutting turns need the helm rework (contract s7 item 7)',
+    burn: 'Burn as ordered: nothing to change (the burn preview H1 is a Newtonian-phase call)',
+    ready: 'TODO: "ready salvo" has no engine state yet (tubes are always loaded when not reloading)',
+    accept: 'TODO: ally data links are not in the engine yet (C1)',
+    decline: 'Declined: nothing to do',
+    pell_take: 'TODO: Pell taking a station is not in the engine yet (C3)',
+    seal: 'TODO: damage control is a flag only until the compartment model exists'
+  };
+  function create(cfg) {
+    cfg = cfg || {};
+    const E = cfg.engine || root.HuntRT || req('./hunt_rt_engine.js');
+    const M = Stations.create({ secPerMin: (E && E.RULES && E.RULES.secPerMin) || 16, command: cfg.command || 'tight', seed: cfg.seed || 1, autonomy: cfg.autonomy, doctrine: cfg.doctrine });
+    const A = { model: M, noops: [], done: [], errors: [], salvo: Presets.get(cfg.preset || 'ambush'), pdPending: null, seenLog: 0, seenEvt: 0, s: null };
+    let outQ = [];
+    M.on(ev => { outQ.push(ev); if (ev.type === 'order' && ev.stage === 'executing') execute(ev.order); });
+    const idOf = (s, d) => { const id = d && d.id != null ? d.id : d && d.n ? d.n - 1 : null; return id != null && s.an[id] ? id : null; };
+    const live = (s, id) => id != null && ['open', 'locked'].includes(s.an[id].state) && s.an[id].idStatus !== 'plan';
+    function noop(o, why) { const r = { t: A.s ? A.s.t : 0, verb: o.verb, row: rowOf(o), why }; A.noops.push(r); outQ.push({ type: 'noop', order: o, why }); return false; }
+    const rowOf = o => { const c = M.calls.find(x => x.id === o.callId); return c ? c.row : null; };
+    function fireSalvo(s, id, p) {
+      const a = s.an[id]; if (!a) return false;
+      if (a.state === 'open') { E.lockContact(s, id); return false; }   // first lock it; the crew will call when the solution is good
+      const f = Presets.toFire(p); let n = 0;
+      for (let k = 0; k < f.tubes; k++) if (E.fire(s, id, null, f.cone, f.kind, f.homing)) n++;
+      return n > 0;
+    }
+    function execute(o) {
+      const s = A.s; if (!s || s.over) return;
+      const d = o.data || {}, id = idOf(s, d), row = rowOf(o); let ok = true;
+      try {
+        switch (o.verb) {
+          case 'classify': if (live(s, id)) { if (!s.analysts.every(w => w.task === id)) E.investigate(s, id); } else ok = false; break;
+          case 'track': if (live(s, id)) { if (s.an[id].state === 'open') E.lockContact(s, id); else { const w = s.analysts.find(x => x.task == null) || s.analysts[0]; if (w.task !== id) E.assign(s, w.id, id); } } else ok = false; break;
+          case 'mark': case 'ignore': case 'wait': break;   // by design: nothing to do
+          case 'quiet': ok = E.goQuiet(s); break;
+          case 'evade': ok = E.setOrder(s, 'evade', live(s, id) ? id : null); break;
+          case 'hold': if (HELM_HOLD[row] && o.by === 'co') ok = E.setOrder(s, 'still', null); break;   // a defaulted 'hold' keeps the course (a competent crew does not stop the ship on its own)
+          case 'ping': ok = live(s, id) && E.pingContact(s, id); break;
+          case 'probe': { const pp = Presets.get('probe'); ok = id != null ? E.probe(s, id, pp.count) : d.aim ? E.probe(s, d.aim, pp.count) : false; break; }
+          case 'fire': ok = id != null && fireSalvo(s, id, A.salvo); break;
+          case 'pd_active': { const at = d.at, lead = 12 / ((E.RULES && E.RULES.secPerMin) || 16); if (at != null && at - s.t > lead) { E.setPD(s, 'armed'); A.pdPending = { at: at - lead, until: at }; } else ok = E.setPD(s, 'active'); break; }   // doctrine: go active at eta <= 12 s
+          case 'pd_cold': A.pdPending = null; ok = E.setPD(s, 'armed'); break;
+          case 'vent': ok = E.startVent(s); break;
+          case 'cut_thrust': { if (s.burn) ok = E.setSpeed(s, s.burn.prev); else { const i = SPD.indexOf(s.speed); ok = i > 0 ? E.setSpeed(s, SPD[Math.min(i - 1, 2)]) : true; } break; }
+          case 'redline': ok = E.redlineBurn(s); break;
+          case 'burn_short': case 'abort': if (s.burn) ok = E.setSpeed(s, s.burn.prev); break;
+          case 'rescan': if (id == null) ok = false; else if (s.an[id].state === 'out') ok = E.reanalyze(s, id); else if (s.an[id].state === 'locked') { const w = s.analysts.find(x => x.task == null) || s.analysts[0]; if (w.task !== id) E.assign(s, w.id, id); } else if (live(s, id)) ok = E.investigate(s, id); break;
+          case 'refresh': ok = id != null && E.refreshSolution(s, id); break;
+          case 'save_sink': case 'save_drive': s.dmgPriority = o.verb === 'save_sink' ? 'sink' : 'drive'; break;   // a flag only (no compartment model yet)
+          case 'mark_hostile': if (id != null) E.markHostile(s, s.an[id]); break;
+          case 'set_preset': A.setPreset(d.preset); break;
+          default: ok = noop(o, TODO[o.verb] || 'TODO: no engine call for verb ' + o.verb); if (o.verb === 'seal') s.dmgPriority = 'seal';
+        }
+      } catch (e) { ok = false; A.errors.push(String(e && e.stack || e)); }
+      A.done.push({ t: s.t, verb: o.verb, row, by: o.by, ok: ok !== false });
+      outQ.push({ type: 'executed', order: o, ok: ok !== false });
+    }
+    function update(s, dt) {
+      if (A.s !== s) { A.s = s; A.seenLog = s.log.length; A.seenEvt = (s.evts || []).length; A.pdPending = null; }   // a new hunt: start reading from now
+      const evts = s.evts || [];
+      for (let i = A.seenEvt; i < evts.length; i++) { try { M.onEvent(evts[i]); } catch (e) { A.errors.push(String(e)); } }
+      A.seenEvt = evts.length;
+      if (s.log.length > A.seenLog) { try { M.ingest(s.log.slice(A.seenLog)); } catch (e) { A.errors.push(String(e)); } A.seenLog = s.log.length; }
+      if (dt > 0) M.tick(dt);
+      if (A.pdPending && !s.over) { if (s.t >= A.pdPending.until + 0.2) A.pdPending = null; else if (s.t >= A.pdPending.at) { E.setPD(s, 'active'); A.pdPending = null; } }
+      const out = outQ; outQ = []; return out;
+    }
+    A.update = update;
+    A.order = (station, verb, label, data) => M.command(station, verb, label, data);
+    A.setPreset = id => { A.salvo = Presets.get(id); return A.salvo; };
+    A.presets = Presets;
+    return A;
+  }
+  const API = { create, TODO, HELM_HOLD };
+  root.StationAdapter = API; if (typeof module !== 'undefined') module.exports = API;
+})(typeof window !== 'undefined' ? window : globalThis);
+
 const E = HuntRT, P = E.P, $ = id => document.getElementById(id);
 function ME() { try { return (S && S.me) || E.PLAYER; } catch (e) { return E.PLAYER; } }   // this hunt's player profile (trimmed), or the defaults before a hunt exists
 const QS = (() => { try { return new URLSearchParams(location.search); } catch (e) { return new URLSearchParams(''); } })();
@@ -1618,7 +2223,7 @@ function cTactical() {
   w += croW('r-fly', 0, 11, 'IN FLIGHT', '88:88', 12, 4);
   w += ckeyW('k-tgt', 12, 11, 12, 4, 'TARGET &#9656;', '', CC.amber, { act: 'target', tag: 'K 12x4u', tip: 'Open the fire solution view for a locked contact. Fire from there.' });
   w += clampW('lw-live', 24, 11, 'LIVE', { tip: 'The locked contact is being observed now.' }) + clampW('lw-stale', 30, 11, 'STALE', { tip: 'The firing solution is stale: refresh it in the Target view.' }) + clampW('lw-rng', 36, 11, 'IN RNG', { tip: 'A contact is inside coilgun range.' }) + clampW('lw-fr', 42, 11, 'FRIEND', { tip: 'An ally is near the aim point: weapons safe.' });
-  o += czone('WEAPONS', 36, 74, 48, 16, 'WEAPONS', 'tubes &middot; coilgun', w, { vz: 'tac' });
+  o += czone('WEAPONS', 36, 74, 48, 16, 'WEAPONS', '<span id="wpn-mag">tubes &middot; coilgun</span>', w, { vz: 'tac' });
   let c = cwid('log', 0, 3, 28, 9, '<div id="feed" class="feed"></div>', { tag: 'LOG 28x9u' });
   c += ckeyW('k-voice', 0, 12, 14, 4, 'VOICE', 'OFF', CC.green, { act: 'voice', tag: 'K 14x4u', tip: 'Officers speak the important calls aloud using your browser voices. Cycle: off, slow, normal, fast.' }) + ckeyW('k-rall', 14, 12, 14, 4, 'KEY CALLS', 'KEY', null, { act: 'rall', tag: 'K 14x4u', tip: 'Key calls only, or every report line.' });
   o += czone('COMMS', 84, 74, 28, 16, 'COMMS', 'mostly voiced', c, { vz: 'tac str' });
@@ -1650,7 +2255,7 @@ const hcol = h => h >= 0.95 ? CC.red : h >= 0.8 ? CC.orange : h >= 0.6 ? CC.ambe
 // ----- rail -----
 function cRail() {
   croSet('r-clk', mmss(S.t), CC.green);
-  ckeySet('k-pause', { t: paused ? 'RESUME' : 'PAUSE', s: 'P', lit: paused });
+  if (TUT) ckeySet('k-pause', { t: paused ? 'RESUME' : 'PAUSE', s: 'P', lit: paused }); else ckeySet('k-pause', typeof DECK !== 'undefined' && DECK.on ? { t: 'CREW', s: 'SETTINGS' } : { t: 'NO PAUSE', s: '', dis: true });   // pausing is tutorial-only
   [0.5, 1, 2].forEach((v, i) => ckeySet('k-t' + i, { lit: tscale === v }));
   clampSet('lMaster', S.hull < 40 || (S.melt || 0) > 0.4 || (S.vent.on && S.vent.forced) || S.inc.length > 0, { fl: true });
   clampSet('lInc', S.inc.length > 0, { fl: true }); clampSet('lFins', !!S.vent.on); clampSet('lQuiet', S.t < S.quietUntil);
@@ -1844,6 +2449,7 @@ function cWeapons() {
   ckeySet('k-tgt', { t: 'TARGET &#9656;', s: t0 ? 'C' + (t0.id + 1) + (si.ready ? ' READY' : si.stale ? ' STALE' : ' SOLVING') : 'NO LOCK', dis: !lk.length, lit: !!lk.length });
   clampSet('lw-live', lk.some(a => a.anchor && S.t - a.anchor.t < 0.8), { fl: true }); clampSet('lw-stale', lk.some(a => E.solveInfo(S, a).stale)); clampSet('lw-rng', lk.some(a => a.anchor && E.closeInfo(S, a).d <= ME().closeRange));
   clampSet('lw-fr', S.an.some(a => a.idStatus === 'plan' && a.state !== 'disabled'));
+  cOn('wpn-mag', e => { const m = S.mag, t = m ? `Magazine ${m.total}/${m.max} &middot; PD ${(S.pd || 'armed').toUpperCase()}` : 'tubes &middot; coilgun'; if (e.dataset.k !== t) { e.dataset.k = t; e.innerHTML = t; e.style.color = m && m.total <= 12 ? CC.amber : ''; } });
   ckeySet('k-voice', { t: 'VOICE', s: VRATES[vIdx][0].toUpperCase(), lit: vIdx > 0 }); ckeySet('k-rall', { t: allReports ? 'ALL CALLS' : 'KEY CALLS', s: allReports ? 'ALL' : 'KEY', lit: allReports });
 }
 function cSensors() {
@@ -1863,7 +2469,7 @@ function cUpdate() {
 }
 /* ---------- actions, hover previews, keys ---------- */
 const ACT = {
-  pause() { $('pause').click(); }, speed(el) { setTime(+el.dataset.arg); }, menu() { $('manbtn').click(); },
+  pause() { if (TUT) $('pause').click(); else if (typeof DECK !== 'undefined' && DECK.on) DECK.drawer(); }, speed(el) { setTime(+el.dataset.arg); }, menu() { $('manbtn').click(); },
   view(el) { if (!el.classList.contains('dis')) setView(el.dataset.arg); },
   vent() { ventToggle(); }, quiet() { E.goQuiet(S); uiUpdate(true); }, breach() { E.retreat(S); uiUpdate(true); },
   pell() { if (!pellLive()) return; S.pell = !S.pell; if (S.pell) S.linkUsed = true; uiUpdate(true); }, pellact() { if (!pellLive()) return; E.setPellAct(S, !S.pellAct); uiUpdate(true); },
@@ -2108,7 +2714,7 @@ const PACE = { relaxed: ['Relaxed', 24], normal: ['Normal', 16], brisk: ['Brisk'
 try { Object.assign(brief, JSON.parse(localStorage.getItem('interdict_brief') || '{}'), { route: [] }); } catch (e) {}
 brief.speed = ({ creep: 'v1', cruise: 'v3', burn: 'v5' })[brief.speed] || brief.speed; if (!E.SPEED[brief.speed]) brief.speed = 'v3';
 function saveBrief() { try { localStorage.setItem('interdict_brief', JSON.stringify({ entry: brief.entry, speed: brief.speed, ally: brief.ally })); } catch (e) {} }
-function start() { brief.seed = Math.floor(Math.random() * 1e9); brief.nreal = 1 + Math.floor(Math.random() * 3); briefing = true; $('over').hidden = true; $('brief').hidden = false; buildBrief(); }
+function start() { brief.seed = QS.get('seed') ? +QS.get('seed') : Math.floor(Math.random() * 1e9); brief.nreal = QS.get('nreal') ? Math.max(1, Math.min(3, +QS.get('nreal'))) : 1 + Math.floor(Math.random() * 3); briefing = true; $('over').hidden = true; $('brief').hidden = false; buildBrief(); }   // ?seed= and ?nreal= fix a hunt (tests)
 function planLen() { let L = 0, p = { x: E.START[brief.entry], y: P.arena / 2 }; brief.route.forEach(w => { L += Math.hypot(w.x - p.x, w.y - p.y); p = w; }); return L; }
 function buildBrief() {
   $('b-entry').innerHTML = Object.entries(ENTRY).map(([k, [t, d]]) => `<label class="opt ${brief.entry === k ? 'sel' : ''}"><input type="radio" name="entry" value="${k}" ${brief.entry === k ? 'checked' : ''}><b>${t}</b><span>${d}</span></label>`).join('');
@@ -2131,7 +2737,7 @@ function drawBrief() {
 $('bmap').addEventListener('click', e => { const c = $('bmap'), r = c.getBoundingClientRect(), k = c.width / P.arena, x = (e.clientX - r.left) * c.width / r.width, y = (e.clientY - r.top) * c.height / r.height; const hit = brief.route.findIndex(w => Math.hypot(w.x * k - x, w.y * k - y) < 12); if (hit >= 0) brief.route.splice(hit, 1); else brief.route.push({ x: Math.max(6, Math.min(P.arena - 6, x / k)), y: Math.max(6, Math.min(P.arena - 6, y / k)) }); drawBrief(); });
 $('bundo').onclick = () => { brief.route.pop(); drawBrief(); }; $('bclear').onclick = () => { brief.route = []; drawBrief(); };
 $('begin').onclick = () => { $('brief').hidden = true; briefing = false; begin(); };
-function begin() { P.secPerMin = 16; fxOn = null; fxQ = []; $("fx").hidden = true; MZ = 1; VZ = 3; follow = true; $('zfollow').classList.add('on'); MCX = MCY = P.arena / 2; S = E.newHunt(brief.seed, { nreal: brief.nreal, integration: savedInteg, friendly: brief.ally, entry: brief.entry, speed: brief.speed, route: brief.route.map(w => ({ x: w.x, y: w.y })) }); HuntTrims.applyShip(S, TRIMS_ON); MOMENTS.reset(S); trimBadge(); T0 = savedInteg; engageId = null; aimL = null; hist = []; fires = []; trail = []; planEdit = false; feedN = 0; $('feed').innerHTML = ''; setView('tac'); $('over').hidden = true; $('pell').checked = false; build(); applyPellGate(); uiUpdate(true); }
+function begin() { P.secPerMin = 16; fxOn = null; fxQ = []; $("fx").hidden = true; MZ = 1; VZ = 3; follow = true; $('zfollow').classList.add('on'); MCX = MCY = P.arena / 2; S = E.newHunt(brief.seed, { nreal: brief.nreal, integration: savedInteg, friendly: brief.ally, entry: brief.entry, speed: brief.speed, route: brief.route.map(w => ({ x: w.x, y: w.y })) }); HuntTrims.applyShip(S, TRIMS_ON); MOMENTS.reset(S); trimBadge(); T0 = savedInteg; engageId = null; aimL = null; hist = []; fires = []; trail = []; planEdit = false; feedN = 0; $('feed').innerHTML = ''; setView('tac'); $('over').hidden = true; $('pell').checked = false; build(); applyPellGate(); uiUpdate(true); if (typeof DECK !== 'undefined') DECK.begin(); }
 function seg(host, items, cur, on) { host.innerHTML = ''; items.forEach(([v, text, tip]) => { const l = document.createElement('label'); const i = document.createElement('input'); i.type = 'radio'; i.name = host.id; i.dataset.v = v; i.checked = v === cur; i.onchange = () => on(v); const sp = document.createElement('span'); sp.textContent = text; l.title = tip || ''; l.append(i, sp); host.append(l); }); }
 const CH = { thermal: { n: 'Heat', col: '#ff8a4c', tip: 'Heat: how hot the contact runs (Dace)' }, reactor: { n: 'Reactor', col: '#6fc3d0', tip: 'Reactor: neutrino line (Castellan)' }, occlusion: { n: 'Visual', col: '#b79cff', tip: 'Visual: a silhouette against a bright backdrop (Quill). It only works when the contact is backlit by the star or a bright body.' } };
 function build() {
@@ -2458,7 +3064,7 @@ $('pell').onchange = e => { S.pell = e.target.checked; };
 $('pellact').onchange = e => E.setPellAct(S, e.target.checked);
 $('manbtn').onclick = () => { $('manual').hidden = false; }; $('manclose').onclick = () => { $('manual').hidden = true; };
 $('quiet').onclick = () => E.goQuiet(S); $('pause').onclick = togglePause; $('resume').onclick = togglePause; $('brk').onclick = () => E.retreat(S); $('newh').onclick = start;
-function togglePause() { paused = !paused; if (!TUT) { $('pausebox').hidden = !paused; $('stage').classList.toggle('paused', paused); } last = performance.now(); }   // on the Tern (P2) the displays stay up and orders still go in while paused
+function togglePause() { if (!TUT) return; paused = !paused; if (!TUT) { $('pausebox').hidden = !paused; $('stage').classList.toggle('paused', paused); } last = performance.now(); }   // pausing is tutorial-only (decided): normal play has no pause, Stand by and the call rail pace it. On the Tern (P2) the displays stay up and orders still go in while paused
 document.addEventListener('keydown', e => {
   if (!S || briefing || e.target.tagName === 'INPUT' && e.target.type === 'text') return; const k = e.key;
   if (k === 'p' || k === 'P') { togglePause(); return; } if (paused && !TUT) { if (k === 'Escape') togglePause(); return; }
@@ -2534,6 +3140,7 @@ function frame(now) {
   if (!S) { requestAnimationFrame(frame); return; }
   const dtReal = Math.min(0.25, (now - last) / 1000); last = now;
   pumpFx(now); stepGame(dtReal / P.secPerMin * tscale);
+  if (typeof DECK !== 'undefined' && DECK.on) { try { DECK.frame(dtReal, !paused && !briefing && !S.over && !fxOn && !S.hold); } catch (e) { if (!window.__deckErr) { window.__deckErr = 1; console.error('call deck', e); } } }
   if (now - lastUi > 150) { lastUi = now; uiUpdate(); if (engageId != null) { const hp = now - lastHp > 900; if (hp) lastHp = now; engUpdate(hp); } }
   if (!paused || TUT) draw(); drawFx(now); requestAnimationFrame(frame);
 }
@@ -2588,5 +3195,286 @@ function drawWorld() {
   S.pingFx.forEach(f => { const age = S.t - f.t; if (age < 0.8) { cx.strokeStyle = `rgba(255,217,160,${1 - age / 0.8})`; cx.lineWidth = 3; cx.beginPath(); cx.arc(f.x * k, f.y * k, 10 + age / 0.8 * 110, 0, 7); cx.stroke(); cx.lineWidth = 1; } }); { const hs = E.stealthState(S); cx.font = F(20); cx.fillStyle = xp.quiet ? '#6fc3d0' : hs === 'hot' ? '#ff6b5a' : hs === 'warm' ? '#ffb454' : '#8fd694'; cx.fillText(S.vent.on ? 'STEALTH: NONE (VENTING)' : 'STEALTH: ' + (xp.quiet ? 'DARK' : hs.toUpperCase()), 10, W - 12); }
 }
 $('symkey').innerHTML = Object.entries(SYM).map(([k, v]) => `<div style="text-align:center;width:84px;font-size:10px"><svg viewBox="0 0 64 64" width="40" height="40" style="color:#cfe3da">${v.items.map(([d, m]) => m === 'fill' ? `<path d="${d}" fill="currentColor"/>` : m === 'evenodd' ? `<path d="${d}" fill="currentColor" fill-rule="evenodd"/>` : m === 'stroke_cut' ? `<path d="${d}" fill="none" stroke="#0a0e0d" stroke-opacity=".55" stroke-width="2.5"/>` : `<path d="${d}" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>`).join('')}</svg><br>${v.name}</div>`).join('');
+/* ===== Call deck (docs/station_model.md s3): the hear-and-respond layer over the hunt console. Inlined into hunt_rt.html by build_hunt_rt.sh.
+ * Normal hunts only: never on the Tern tutorial (TUT), and ?calldeck=0 turns it off. No pause in normal play: Stand by and the call rail pace it.
+ * Audio first: a raised call is spoken (pre-rendered clip, else browser speech, else timed text); its answer chips appear when the line ends.
+ * Keys: 1-4 answer, Enter = the crew's recommendation, Space = take the next waiting call, Backspace = Stand by, R = say again,
+ * Esc = dismiss a priority 1-2 call to the log, F1-F8 = station screens, hold V + S/F/W/H/E/D/C = ask that station for a report (a V tap still vents).
+ * Click a contact (scope or slip): radial menu Classify / Track / Probe / Fire (C T P F); the order runs the same lifecycle as a chip.
+ */
+var DECK = (() => {   // var, not const: the console code checks typeof DECK before this line has run
+  const on = !TUT && QS.get('calldeck') !== '0';
+  if (!TUT) { const kp = $('k-pause'); if (kp) kp.dataset.tip = on ? 'Crew settings: autonomy per station (Auto, Supervised, Hands-on), the captain\'s voice, voice volume, time compression. There is no pause in a hunt: Stand by (Backspace) holds a call.' : 'There is no pause in a hunt.'; }
+  const STN = [   // F-key stations: view to show, the catalog stations they hold
+    { k: 'F1', id: 'conn', name: 'CONN', view: 'tac', st: [] }, { k: 'F2', id: 'sen', name: 'SENSORS', view: 'sen', st: ['sensors'] },
+    { k: 'F3', id: 'fc', name: 'FIRE CTL', view: 'fc', st: ['fire'] }, { k: 'F4', id: 'wpn', name: 'WEAPONS', view: 'wpn', st: ['weapons'] },
+    { k: 'F5', id: 'helm', name: 'HELM', view: 'str', st: ['helm'] }, { k: 'F6', id: 'eng', name: 'ENGINEER', view: 'eng', st: ['engineering', 'thermal'] },
+    { k: 'F7', id: 'dmg', name: 'DAMAGE', view: 'dmg', st: ['damage'] }, { k: 'F8', id: 'com', name: 'COMMS', view: 'com', st: ['comms'] }];
+  const NEWV = ['sen', 'fc', 'wpn', 'eng', 'dmg', 'com'];
+  const AUT = [['sensors', 'Sensors', 'Quill'], ['fire', 'Fire control', 'Abara'], ['weapons', 'Weapons', 'Abara'], ['helm', 'Helm', 'Abara'], ['engineering', 'Engineering', 'Castellan'], ['thermal', 'Thermal', 'Dace'], ['damage', 'Damage control', 'Fenwick'], ['comms', 'Comms', 'Pell']];
+  const REPORT_KEY = { s: 'sensors', f: 'fire', w: 'weapons', h: 'helm', e: 'engineering', d: 'damage', c: 'comms' };
+  const PCOL = { 1: '#566b62', 2: '#6fc3d0', 3: '#ffb454', 4: '#ff6b5a' }, FACE = { Quill: '#b79cff', Abara: '#ffb454', Castellan: '#6fc3d0', Dace: '#ff8a4c', Fenwick: '#8fd694', Pell: '#c58cff', Captain: '#cfe3da' };
+  const RAD = [['classify', 'Classify', 'C', 'sensors'], ['track', 'Track', 'T', 'sensors'], ['probe', 'Probe', 'P', 'weapons'], ['fire', 'Fire', 'F', 'weapons']];
+  const W = typeof window !== 'undefined' ? window : {};
+  let cfg = { autonomy: {}, preset: 'ambush', compress: 1 };
+  try { Object.assign(cfg, JSON.parse(localStorage.getItem('interdict.deck') || '{}')); } catch (e) {}
+  const saveCfg = () => { try { localStorage.setItem('interdict.deck', JSON.stringify(cfg)); } catch (e) {} };
+  let A = null, cur = null, chips = false, last = null, toastT = 0, vHeld = false, vUsed = false, radial = null, flash = {}, panelT = 0, speakTok = 0;
+  const Sx = W.Stations, VO = W.Voice;
+  const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  const fstation = st => STN.find(x => x.st.includes(st)) || STN[0];
+
+  // ---------- voice ----------
+  function clipBase() { return /\/design\//.test(location.pathname) ? '../web/voice_clips/' : 'voice_clips/'; }
+  if (on && VO) { try { VO.loadClips(W.VOICE_MANIFEST || {}, clipBase()); } catch (e) {} }
+  function say(who, text, pri) {   // returns a promise that resolves when the line has ended
+    if (!VO) return new Promise(r => setTimeout(() => r(false), 600));
+    const words = Sx.spoken(text), id = Sx.clipId(who, words), m = W.VOICE_MANIFEST || {};
+    const has = who === 'Captain' ? !!m[id + '_m'] : !!m[id];
+    return VO.speak({ id: has ? id : undefined, who, text: words, priority: pri || 2 });
+  }
+
+  // ---------- DOM ----------
+  function build() {
+    const st = $('stage'); if (!st || $('deck')) return;
+    st.insertAdjacentHTML('beforeend', `<div id="deck" class="dk" hidden><div class="dk-face" id="dk-face"><svg viewBox="0 0 40 40"><circle class="dk-rbg" cx="20" cy="20" r="18"/><circle class="dk-ring" id="dk-ring" cx="20" cy="20" r="18"/></svg><b id="dk-ini">Q</b></div>
+      <div class="dk-body"><div class="dk-tag" id="dk-tag"></div><div class="dk-line" id="dk-line"></div><div class="dk-chips" id="dk-chips"></div></div><div class="dk-keys" id="dk-keys">SPACE NEXT &middot; &#9003; STAND BY &middot; R SAY AGAIN</div></div>
+      <div id="dk-rail" class="dk-rail"></div><div id="dk-stn" class="dk-stn">${STN.map(s => `<button data-f="${s.k}" id="dkf-${s.id}" title="${s.name}: station screen (${s.k})"><kbd>${s.k}</kbd><span>${s.name}</span></button>`).join('')}</div>
+      <div id="dk-toast" class="dk-toast" hidden></div><div id="dk-vhint" class="dk-toast dk-v" hidden>REPORT: <b>S</b>ENSORS <b>F</b>IRE <b>W</b>EAPONS <b>H</b>ELM <b>E</b>NGINEERING <b>D</b>AMAGE <b>C</b>OMMS</div>
+      <div id="dk-drawer" class="dk-drawer" hidden></div>`);
+    // station panels: new flat panels where nothing exists; the left column and the bottom row stay (they are the widgets every station reuses)
+    let p = '';
+    p += czone('STN-SEN', 36, 8, 76, 66, 'SENSORS', 'Quill &middot; tracks, quality, who is reading what', '<div class="dk-pan" id="dkp-sen"></div>', { vz: 'sen' });
+    p += czone('STN-FC', 36, 8, 76, 66, 'FIRE CONTROL', 'Abara &middot; solutions and baseline', '<div class="dk-pan" id="dkp-fc"></div>', { vz: 'fc' });
+    p += czone('STN-WPN', 36, 8, 76, 66, 'WEAPONS', 'Abara &middot; magazine, salvo presets, point defence', '<div class="dk-pan" id="dkp-wpn"></div>', { vz: 'wpn' });
+    p += czone('STN-ENG', 36, 8, 76, 66, 'ENGINEERING', 'Castellan, Dace &middot; heat, drive, vents', '<div class="dk-pan" id="dkp-eng"></div>', { vz: 'eng' });
+    p += czone('STN-DMG', 36, 8, 76, 66, 'DAMAGE CONTROL', 'Fenwick &middot; hull and systems', '<div class="dk-pan" id="dkp-dmg"></div>', { vz: 'dmg' });
+    p += czone('STN-COM', 36, 8, 76, 66, 'COMMS', 'calls and the log', '<div class="dk-pan" id="dkp-com"></div>', { vz: 'com' });
+    st.insertAdjacentHTML('afterbegin', p);
+    document.querySelectorAll('#stage [data-vz]').forEach(z => { if (/^(SENSORS|CONTACTS|ORDERS|WEAPONS|COMMS) /.test(z.dataset.z || '')) z.dataset.vz += ' ' + NEWV.join(' '); });
+    // the F-key station keys take the place of the three view keys and the caution plate in the top rail; MENU moves left
+    ['kv-tac', 'kv-str', 'kv-tgt'].forEach(id => { const el = $(id); if (el) el.style.display = 'none'; });
+    document.querySelectorAll('#stage .cplate').forEach(el => { if (/MASTER CAUTION/.test(el.textContent)) el.style.display = 'none'; });
+    { const m = $('k-menu'); if (m) m.style.setProperty('--x', 99); }
+    document.body.insertAdjacentHTML('beforeend', '<div id="dk-radial" class="dk-radial" hidden></div>');
+    $('dk-stn').addEventListener('click', e => { const b = e.target.closest('button'); if (b) station(b.dataset.f); });
+    $('dk-chips').addEventListener('click', e => { const b = e.target.closest('button'); if (b && cur) answer(+b.dataset.i); });
+    $('dk-rail').addEventListener('click', e => { const b = e.target.closest('[data-id]'); if (b) take(+b.dataset.id); });
+    $('dk-radial').addEventListener('click', e => { const b = e.target.closest('button'); if (b && !b.disabled) radialPick(b.dataset.v); });
+    $('dk-drawer').addEventListener('change', drawerChange); $('dk-drawer').addEventListener('input', drawerChange);
+    $('dk-drawer').addEventListener('click', e => { const b = e.target.closest('[data-x]'); if (b && b.dataset.x === 'close') drawer(false); });
+    document.querySelectorAll('.dk-pan').forEach(el => el.addEventListener('click', e => { const b = e.target.closest('[data-dk]'); if (b) panelAct(b.dataset.dk, b.dataset.arg); }));
+  }
+
+  // ---------- hunt lifecycle ----------
+  function begin() {
+    if (!on) return; build();
+    A = StationAdapter.create({ engine: E, seed: (S.seed >>> 0) || 1, command: 'tight', autonomy: cfg.autonomy, preset: cfg.preset });
+    A.update(S, 0); cur = null; chips = false; last = null; radialClose(); $('deck').hidden = true; rail(); drawerFill();
+    try { VO && VO.cancel(); } catch (e) {}
+  }
+  function frame(dtReal, running) {
+    if (!on || !A || !S) return;
+    const evs = A.update(S, running ? dtReal : 0);
+    for (const ev of evs) handle(ev);
+    if (cur && (cur.state !== 'raised' && cur.state !== 'reported')) clear('resolved');
+    if (cur && cur.state === 'reported' && cur._end && performance.now() > cur._end) clear('read');
+    if (!cur) { const nx = A.model.pending().find(c => c.pri >= 3); if (nx) show(nx); }
+    ring(); if (toastT && performance.now() > toastT) { $('dk-toast').hidden = true; toastT = 0; }
+    if (performance.now() - panelT > 250) { panelT = performance.now(); rail(); panels(); stnBar(); }
+  }
+  function handle(ev) {
+    if (ev.type === 'raise') {
+      const c = ev.call; flash[fstation(c.station).id] = performance.now() + 4000;
+      if (c.pri >= 3 && tscale > 1) setTime(1);   // time compression drops to 1x on any priority 3+ call
+      if (!cur) show(c); else if (c.pri === 4 && cur.pri < 4) show(c);   // a critical call cuts in; the other waits on the rail
+    } else if (ev.type === 'order' && ev.order.by === 'co') {
+      const o = ev.order;
+      if (ev.stage === 'issued') say('Captain', Sx.captainLine(o.label), 3);
+      else if (ev.stage === 'acked') say(o.officer, Sx.ackLine(o.label), 3);
+    } else if (ev.type === 'default') {
+      const c = ev.call, o = c.opts && c.opts[c.choice];
+      toast(`${crewName(c.officer).toUpperCase()}: no answer, crew default: ${o ? o.label : '-'}${c.cost && c.cost !== 'none' ? ' (' + c.cost + ')' : ''}`);
+      if (o) say(c.officer, Sx.ackLine(o.label), 2);
+      if (cur === c) clear('default');
+    } else if (ev.type === 'noop') toast('NOT YET SIMULATED: ' + ev.order.label + '. ' + ev.why);
+    else if (ev.type === 'executed' && !ev.ok && ev.order.by === 'co') toast(`${crewName(ev.order.officer).toUpperCase()}: unable (${ev.order.label})`);
+  }
+  // ---------- the current call ----------
+  function show(c) {
+    if (!c) return; cur = c; chips = false; last = c; const tok = ++speakTok;
+    const n = c.data && c.data.n ? 'SIERRA ' + c.data.n : '', stn = fstation(c.station);
+    $('deck').hidden = false; $('deck').dataset.pri = c.pri; $('dk-face').style.setProperty('--fc', FACE[c.officer] || '#cfe3da');
+    $('dk-ini').textContent = (crewName(c.officer) || '?')[0];
+    $('dk-tag').innerHTML = `<b>${esc(crewName(c.officer).toUpperCase())}</b><span>${stn.name} &middot; ${stn.k}${n ? ' &middot; ' + n : ''}</span><em style="color:${PCOL[c.pri]}">${['', 'ROUTINE', 'NOTABLE', 'URGENT', 'CRITICAL'][c.pri]}</em>`;
+    $('dk-line').textContent = c.line; $('dk-chips').innerHTML = ''; $('dk-chips').dataset.n = 0; $('deck').classList.remove('chips');
+    say(c.officer, c.line, c.pri).then(() => { if (cur !== c || tok !== speakTok) return; chipsUp(c); });
+  }
+  function chipsUp(c) {
+    chips = true; const rec = A.model.defaultIndex(c);
+    if (!c.opts || c.state !== 'raised') { c._end = performance.now() + 3500; return; }
+    $('dk-chips').innerHTML = c.opts.slice(0, 4).map((o, i) => `<button class="dk-chip${i === rec ? ' rec' : ''}" data-i="${i}"><kbd>${i + 1}</kbd><span>${esc(o.label)}</span>${i === rec ? '<i title="The crew recommends this. Enter.">&#10003; &#9166;</i>' : ''}</button>`).join('');
+    $('dk-chips').dataset.n = c.opts.length; $('deck').classList.add('chips');
+  }
+  function clear(why) { cur = null; chips = false; $('deck').hidden = true; $('deck').classList.remove('chips'); }
+  function answer(i) { if (!cur || !chips || !cur.opts || !cur.opts[i]) return false; const c = cur; const o = A.model.answer(c.id, i); if (o) clear('answered'); return !!o; }
+  function take(id) {   // Space or a rail click: the highest priority waiting call (or that one)
+    const p = A.model.pending().filter(c => c !== cur); const c = id != null ? p.find(x => x.id === id) : p[0];
+    if (c) show(c); return !!c;
+  }
+  function standBy() { if (!cur) return false; const ok = A.model.standBy(cur.id); toast(ok ? `${crewName(cur.officer).toUpperCase()}: STANDING BY` : cur.stood ? 'ALREADY STOOD BY ONCE' : 'CANNOT STAND BY ON A CRITICAL CALL'); if (ok) say(cur.officer, 'Standing by.', 2); return ok; }
+  function sayAgain() { const c = cur || last; if (!c) return false; if (!cur && (c.state === 'raised' || c.state === 'reported')) show(c); else say(c.officer, c.line, Math.max(2, c.pri)); return true; }
+  function dismiss() { if (!cur || cur.pri > 2) return false; A.model.dismiss(cur.id); clear('dismissed'); return true; }
+  function ring() {
+    const r = $('dk-ring'); if (!r || !cur) return; const c = cur, vis = c.pri >= 3 && c.state === 'raised' && c.expiresAt != null;
+    r.style.display = vis ? '' : 'none'; if (!vis) return; const f = Math.max(0, Math.min(1, (c.expiresAt - A.model.now) / Math.max(0.1, c.expiresAt - c.raisedAt)));
+    r.style.strokeDashoffset = (113.1 * (1 - f)).toFixed(1); r.style.stroke = c.pri === 4 ? '#ff6b5a' : '#ffb454';
+  }
+  function rail() {
+    const el = $('dk-rail'); if (!el) return; const p = A ? A.model.pending().filter(c => c !== cur) : [];
+    const k = p.map(c => c.id + ':' + c.pri).join(); if (el.dataset.k === k) return; el.dataset.k = k;
+    el.innerHTML = p.slice(0, 8).map(c => `<div class="dk-ri" data-id="${c.id}" style="--pc:${PCOL[c.pri]}" title="${esc(crewName(c.officer) + ': ' + c.line)}"><b>${esc((crewName(c.officer) || '?')[0])}</b><i>${c.pri}</i></div>`).join('') + (p.length > 8 ? `<div class="dk-more">+${p.length - 8}</div>` : '');
+  }
+  function stnBar() { const t = performance.now(); STN.forEach(s => { const b = $('dkf-' + s.id); if (!b) return; b.classList.toggle('fl', (flash[s.id] || 0) > t); b.classList.toggle('on', view === s.view); }); }
+  function toast(t) { const el = $('dk-toast'); if (!el) return; el.textContent = t; el.hidden = false; toastT = performance.now() + 3200; }
+
+  // ---------- stations ----------
+  function station(k) { const s = STN.find(x => x.k === k); if (!s || !S) return; radialClose(); if (s.view === 'tgt' && !S.an.some(a => a.state === 'locked')) return; setView(s.view); panelT = 0; }
+  function report(stKey) {
+    if (!A || !S) return; const rp = statusText(stKey); A.model.report(stKey, rp); toast(`${stKey.toUpperCase()}, REPORT`);
+  }
+  function statusText(k) {
+    const lk = S.an.filter(a => a.state === 'locked'), open = S.an.filter(a => a.state === 'open' && a.idStatus !== 'plan');
+    if (k === 'sensors') { const host = S.an.filter(a => a.idStatus === 'hostile' && a.state !== 'disabled').length; return `${open.length} contacts open, ${lk.length} locked${host ? ', ' + host + ' hostile' : ''}.`; }
+    if (k === 'fire') return lk.length ? lk.map(a => { const si = E.solveInfo(S, a); return `Sierra ${a.id + 1} ${si.ready ? 'solution ready' : si.stale ? 'stale' : 'solving, ' + Math.round(si.prog * 100) + ' percent'}`; }).join('. ') + '.' : 'No locks. Nothing to solve.';
+    if (k === 'weapons') { const rd = S.tubes.filter(x => S.t >= x).length; return `Magazine ${S.mag.total} of ${S.mag.max}. ${rd} of ${S.tubes.length} tubes ready. Point defence ${S.pd}. Preset ${A.salvo.name}.`; }
+    if (k === 'helm') return `Drive ${E.SPEED[S.speed].label}, ${S.posture === 'route' ? 'on the flight plan' : S.posture === 'still' ? 'holding position' : S.posture}.`;
+    if (k === 'engineering') return `Heat sink at ${Math.round(S.sink.h * 100)} percent${S.vent.on ? ', venting' : ''}.`;
+    if (k === 'damage') return `Hull ${Math.round(S.hull)} percent. Systems ${Math.round(S.sysEff * 100)} percent.${S.hull < 60 ? ' Sensor mounts fouled.' : ''}`;
+    return 'Nothing on the link.';
+  }
+  const row = (cells, cls) => `<tr class="${cls || ''}">${cells.map(c => `<td>${c}</td>`).join('')}</tr>`;
+  const key = (dk, arg, t, s, lit, dis) => `<button class="dk-k${lit ? ' lit' : ''}" data-dk="${dk}" data-arg="${arg == null ? '' : arg}" ${dis ? 'disabled' : ''}><b>${t}</b><small>${s || ''}</small></button>`;
+  function panels() {
+    if (!S || !NEWV.includes(view)) return; const el = $('dkp-' + view); if (!el) return; let h = '';
+    if (view === 'sen') {
+      h = '<table class="dk-t"><tr><th>TRACK</th><th>STATE</th><th>QUALITY</th><th>CALL</th><th>H R V</th><th>LAST READ</th><th>ANALYSTS</th></tr>' + S.an.map(a => {
+        const c = E.classify(S, a), q = a.idStatus === 'hostile' || a.idStatus === 'plan' ? 'AFFIRMED' : c.n >= 2 && c.p >= 0.8 ? 'PASSIVE' : 'SUSPECTED', on = S.analysts.filter(w => w.task === a.id).map(w => crewName(w.name)).join(' ');
+        const ch = ['thermal', 'reactor', 'occlusion'].map(k => { const r = a.read[k]; return r ? (r.blind ? 'x' : r.den >= ME().readDone ? '&#9679;' : '&#9675;') : '-'; }).join(' ');
+        return row(['S' + (a.id + 1), a.state.toUpperCase(), q, esc(clsLabel(a)), ch, a.lastRead ? fmtMin(S.t - a.lastRead) + ' AGO' : '--', on || 'SWEEP'], a.id === selId ? 'sel' : q === 'AFFIRMED' ? 'aff' : '');
+      }).join('') + '</table><div class="dk-note">Quality: AFFIRMED (fired, pinged, vented or an ally: known) &middot; PASSIVE (the readings say so, 80%+) &middot; SUSPECTED. Click a contact on the scope or a slip for orders.</div>';
+    } else if (view === 'fc') {
+      const lk = S.an.filter(a => a.state === 'locked');
+      h = '<table class="dk-t"><tr><th>TRACK</th><th>SOLUTION</th><th>TRACK STATE</th><th>CERTAINTY</th><th>WHY SLOW</th></tr>' + (lk.length ? lk.map(a => { const si = E.solveInfo(S, a), ts = E.trackState(S, a); return row(['S' + (a.id + 1), si.ready ? 'READY' : si.stale ? 'STALE' : Math.round(si.prog * 100) + '%', ts.state.toUpperCase(), Math.round(ts.cert * 100) + '%', esc(si.why.join(', ') || '-')], si.ready ? 'aff' : ''); }).join('') : row(['--', 'NO LOCKS', '', '', ''])) + '</table>';
+      h += `<div class="dk-box"><b>BASELINE (TMA)</b><span>Bearing-only ranging needs a leg: a velocity change of 0.5 km/s over 10 s halves the range uncertainty. <em>Not simulated yet (Newtonian phase).</em></span>${key('baseline', null, 'GIVE A BASELINE', 'NOT YET SIMULATED', false, true)}</div>`;
+      h += `<div class="dk-row">${key('target', null, 'TARGET VIEW', 'PLAN THE VOLLEY', !!lk.length, !lk.length)}${lk.map(a => key('refresh', a.id, 'REFRESH S' + (a.id + 1), 'NEW SOLUTION')).join('')}</div>`;
+    } else if (view === 'wpn') {
+      const m = S.mag, p = A.salvo, rd = S.tubes.filter(x => S.t >= x).length;
+      h = `<div class="dk-big">MAGAZINE <b>${m.total}</b>/${m.max}<small>${Math.floor(m.total / m.perSalvo)} FULL SALVOS &middot; HE ${m.byKind.he} &middot; EMP ${m.byKind.emp} &middot; FLARE ${m.byKind.flare}</small></div>`;
+      h += `<div class="dk-sub">TUBES ${rd}/${S.tubes.length} READY</div>`;
+      h += `<div class="dk-sub">POINT DEFENCE <em>doctrine: active on vampire</em></div><div class="dk-row">${['off', 'armed', 'active'].map(k => key('pd', k, k.toUpperCase(), k === 'active' ? 'LIT: SEEN BY ALL' : k === 'armed' ? 'COLD, SLOW' : 'NO INTERCEPTS', S.pd === k)).join('')}</div>`;
+      h += `<div class="dk-sub">SALVO PRESET</div><div class="dk-row">${SalvoPresets.ids.map(id => key('preset', id, SalvoPresets.PRESETS[id].name.toUpperCase(), SalvoPresets.PRESETS[id].count + ' MSL', p.id === id)).join('')}</div>`;
+      h += '<table class="dk-t">' + [['PATTERN', p.pattern, 1], ['RUN TO ENABLE', p.rte + ' S', 1], ['HOMING', p.homing ? 'ON' : 'OFF', 0], ['WIRE', p.wire ? 'ON' : 'OFF', 1], ['WARHEAD', p.warhead.toUpperCase(), 0], ['CONE', p.cone + ' KM', 0], ['COUNT', p.count + (p.probe ? ' (PROBE)' : ' (' + Math.ceil(p.count / 6) + ' TUBE' + (p.count > 6 ? 'S' : '') + ')'), 0]].map(([a, b, ns]) => row([a, b.toString().toUpperCase(), ns ? '<em>NOT YET SIMULATED</em>' : 'SIMULATED'])).join('') + '</table>';
+    } else if (view === 'eng') {
+      const xp = E.exposure(S), rate = E.heatRate(S);
+      h = `<div class="dk-big">SINK <b>${Math.round(S.sink.h * 100)}%</b><small>${S.vent.on ? 'VENTING' : rate > 0.0003 ? 'FILLING, FULL IN ' + fmtMin((1 - S.sink.h) / rate) : rate < -0.0003 ? 'DRAINING' : 'STEADY'} &middot; DRIVE ${E.SPEED[S.speed].label} &middot; ${S.posture.toUpperCase()}</small></div>`;
+      h += '<table class="dk-t"><tr><th>HEAT SOURCE</th><th>% OF SINK / MIN</th></tr>' + (xp.parts.length ? xp.parts.slice().sort((a, b) => b.v - a.v).map(p0 => row([esc(p0.label), (p0.v * ME().sinkK / S.me.sink * 100).toFixed(1)])).join('') : row(['Running dark', '0'])) + '</table>';
+      h += `<div class="dk-row">${key('vent', null, S.vent.on ? 'RETRACT FINS' : 'VENT', 'FINS OUT: VISIBLE', S.vent.on)}${key('quiet', null, 'GO QUIET', 'SENSORS DARK', S.t < S.quietUntil)}${key('redline', null, 'REDLINE', 'SHORT BURSTS', !!S.burn)}${key('cut', null, 'CUT THRUST', 'ONE STEP DOWN')}</div>`;
+    } else if (view === 'dmg') {
+      const fouled = S.hull < 60;
+      h = '<table class="dk-t"><tr><th>SYSTEM</th><th>STATUS</th></tr>' + [['HULL', Math.round(S.hull) + '%', S.hull < 40 ? 'bad' : S.hull < 70 ? 'warn' : ''], ['SENSOR MOUNTS', fouled ? 'FOULED: READS SLOWER' : 'OK', fouled ? 'warn' : ''], ['SYSTEMS', Math.round(S.sysEff * 100) + '%', S.sysEff < 0.9 ? 'warn' : ''], ['COOLANT', S.melt ? 'FAILING' : 'OK', S.melt ? 'bad' : ''], ['HEAT SINK', Math.round(S.sink.h * 100) + '%', S.sink.h > 0.8 ? 'warn' : ''], ['BREACH DRIVE', S.spool ? 'SPOOLING' : 'READY', S.spool ? 'warn' : ''], ['DAMAGE PRIORITY', (S.dmgPriority || 'sink').toUpperCase(), '']].map(([a, b, c]) => row([a, b], c)).join('') + '</table>';
+      h += `<div class="dk-row">${key('dmg', 'sink', 'SAVE THE SINK', 'PRIORITY', (S.dmgPriority || 'sink') === 'sink')}${key('dmg', 'drive', 'SAVE THE DRIVE', 'PRIORITY', S.dmgPriority === 'drive')}</div><div class="dk-note">Damage priority is a flag for now: the compartment and repair model is a later phase.</div>`;
+    } else if (view === 'com') {
+      const cs = A.model.calls.filter(c => c.state !== 'logged').slice(-12).reverse();
+      h = '<div class="dk-sub">CALLS</div><table class="dk-t">' + cs.map(c => row([fmtMin(c.at / P.secPerMin), esc(crewName(c.officer)), esc(c.line), (c.state === 'answered' ? 'ANSWERED: ' : c.state === 'defaulted' ? 'DEFAULT: ' : c.state === 'settled' ? 'DOCTRINE: ' : '') + (c.opts && c.choice != null ? esc(c.opts[c.choice].label) : c.state.toUpperCase())])).join('') + '</table>';
+      h += '<div class="dk-sub">LOG</div><table class="dk-t">' + S.log.slice(-10).reverse().map(l => row([fmtMin(l.t), esc(crewName(l.who)), esc(l.text)], l.kind)).join('') + '</table>';
+    }
+    if (el.dataset.h !== h) { el.dataset.h = h; el.innerHTML = h; }
+  }
+  function panelAct(k, arg) {
+    if (!S || S.over) return;
+    if (k === 'pd') E.setPD(S, arg); else if (k === 'preset') { A.setPreset(arg); cfg.preset = arg; saveCfg(); } else if (k === 'target') ACT.target(); else if (k === 'refresh') E.refreshSolution(S, +arg);
+    else if (k === 'vent') ventToggle(); else if (k === 'quiet') E.goQuiet(S); else if (k === 'redline') E.redlineBurn(S); else if (k === 'cut') A.order('engineering', 'cut_thrust', 'Cut thrust', {});
+    else if (k === 'dmg') S.dmgPriority = arg;
+    panelT = 0; uiUpdate(true);
+  }
+
+  // ---------- radial menu ----------
+  function radialAt(id, px, py) {
+    if (!on || !S || S.over) return; const a = S.an[id]; if (!a || a.state === 'disabled' || a.idStatus === 'plan') return;
+    const live = ['open', 'locked'].includes(a.state), si = a.state === 'locked' ? E.solveInfo(S, a) : null, dark = S.t < S.quietUntil;
+    const dis = { classify: !live, track: !live, probe: dark || S.mag.total <= 0 || a.state === 'out', fire: !(si && si.ready && !si.stale) || dark };
+    const why = { classify: live ? 'All analysts on her' : 'Ruled out', track: a.state === 'locked' ? 'Keep an analyst on her' : 'Lock on: work a solution', probe: dark ? 'Not while quiet' : 'Two real missiles, no ping', fire: si && si.ready ? 'Preset: ' + A.salvo.name : 'Needs a ready solution' };
+    radial = { id }; const el = $('dk-radial');
+    el.innerHTML = `<div class="dk-rc">S${id + 1}</div>` + RAD.map(([v, t, k], i) => `<button class="dk-rb r${i}" data-v="${v}" ${dis[v] ? 'disabled' : ''}><kbd>${k}</kbd>${t}<small>${why[v]}</small></button>`).join('');
+    el.hidden = false; const w = el.offsetWidth, h = el.offsetHeight; el.style.left = Math.max(4, Math.min(innerWidth - w - 4, px - w / 2)) + 'px'; el.style.top = Math.max(4, Math.min(innerHeight - h - 4, py - h / 2)) + 'px';
+    selId = id;
+  }
+  function radialPick(v) {
+    if (!radial || !A) return; const r = RAD.find(x => x[0] === v), id = radial.id; radialClose(); if (!r) return;
+    const b = [...document.querySelectorAll('#dk-radial button')]; void b;
+    A.order(r[3], v, r[1], { id, n: id + 1 }); toast(`ORDER: ${r[1].toUpperCase()} SIERRA ${id + 1}`);
+  }
+  function radialClose() { radial = null; const el = $('dk-radial'); if (el) el.hidden = true; }
+
+  // ---------- settings drawer ----------
+  function drawer(show) { const el = $('dk-drawer'); if (!el) return; if (show == null) show = el.hidden; el.hidden = !show; if (show) drawerFill(); }
+  function drawerFill() {
+    const el = $('dk-drawer'); if (!el) return; const vs = VO ? VO.state() : {}, cap = (VO && JSON.parse(localStorage.getItem('interdict.voice') || '{}').captain) || 'm';
+    el.innerHTML = `<div class="dk-dh">CREW SETTINGS<button data-x="close">CLOSE &#10005;</button></div><div class="dk-sub">AUTONOMY <em>Auto: only urgent calls and open decisions reach you</em></div>
+      <table class="dk-t dk-aut">${AUT.map(([k, lab, who]) => { const m = (A ? A.model.autonomy[k] : cfg.autonomy[k]) || 'auto'; return `<tr><td>${lab}<small>${crewName(who)}</small></td>${['auto', 'supervised', 'hands-on'].map(x => `<td><label class="${m === x ? 'on' : ''}"><input type="radio" name="aut-${k}" data-aut="${k}" value="${x}" ${m === x ? 'checked' : ''}>${x === 'supervised' ? 'SUPERVISED' : x.toUpperCase()}</label></td>`).join('')}</tr>`; }).join('')}</table>
+      <div class="dk-sub">CAPTAIN'S VOICE</div><div class="dk-row">${['m', 'f'].map(g => `<label class="dk-opt ${cap === g ? 'on' : ''}"><input type="radio" name="dk-cap" data-cap="${g}" ${cap === g ? 'checked' : ''}>${g === 'm' ? 'MALE' : 'FEMALE'}</label>`).join('')}</div>
+      <div class="dk-sub">VOICE VOLUME</div><div class="dk-row"><input type="range" min="0" max="100" value="${Math.round((vs.volume == null ? 1 : vs.volume) * 100)}" data-vol="1"><label class="dk-opt ${vs.enabled === false ? 'on' : ''}"><input type="checkbox" data-mute="1" ${vs.enabled === false ? 'checked' : ''}>MUTE (TEXT ONLY)</label></div>
+      <div class="dk-sub">TIME COMPRESSION <em>drops to 1x on any urgent call</em></div><div class="dk-row">${[1, 2].map(x => `<label class="dk-opt ${tscale === x ? 'on' : ''}"><input type="radio" name="dk-tc" data-tc="${x}" ${tscale === x ? 'checked' : ''}>${x}X</label>`).join('')}</div>
+      <div class="dk-note">No pause in a hunt. Stand by (Backspace) holds a call; the rail keeps the queue. Keys: 1-4 answer, Enter recommended, Space next, R say again, Esc dismiss, F1-F8 stations, hold V + letter for a report.</div>`;
+  }
+  function drawerChange(e) {
+    const t = e.target;
+    if (t.dataset.aut) { cfg.autonomy[t.dataset.aut] = t.value; if (A) A.model.setAutonomy(t.dataset.aut, t.value); saveCfg(); drawerFill(); }
+    else if (t.dataset.cap) { VO && VO.set({ captain: t.dataset.cap }); drawerFill(); }
+    else if (t.dataset.vol) { VO && VO.set({ volume: +t.value / 100 }); }
+    else if (t.dataset.mute) { VO && VO.set({ enabled: !t.checked }); drawerFill(); }
+    else if (t.dataset.tc) { setTime(+t.dataset.tc); drawerFill(); }
+  }
+
+  // ---------- keys ----------
+  function blocked(e) { return !on || !S || briefing || !A || ($('manual') && !$('manual').hidden) || ($('moment') && !$('moment').hidden) || (e.target && e.target.tagName === 'INPUT' && e.target.type !== 'radio' && e.target.type !== 'checkbox') || e.ctrlKey || e.metaKey || e.altKey; }
+  function keydown(e) {
+    if (blocked(e)) return; const k = e.key, lk = k.length === 1 ? k.toLowerCase() : k;
+    const eat = () => { e.preventDefault(); e.stopImmediatePropagation(); };
+    if (/^F[1-8]$/.test(k)) { eat(); station(k); return; }
+    if (radial) { const r = RAD.find(x => x[2].toLowerCase() === lk) || ({ 1: RAD[0], 2: RAD[1], 3: RAD[2], 4: RAD[3] })[k]; if (r) { eat(); const b = document.querySelector(`#dk-radial button[data-v="${r[0]}"]`); if (b && !b.disabled) radialPick(r[0]); return; } if (k === 'Escape') { eat(); radialClose(); return; } }
+    if (k === 'Escape' && !$('dk-drawer').hidden) { eat(); drawer(false); return; }
+    if (lk === 'v') { eat(); if (!e.repeat && !vHeld) { vHeld = true; vUsed = false; $('dk-vhint').hidden = false; } return; }
+    if (vHeld && REPORT_KEY[lk]) { eat(); vUsed = true; report(REPORT_KEY[lk]); return; }
+    if (fxOn) return;
+    if (/^[1-4]$/.test(k) && cur && chips && cur.opts) { eat(); answer(+k - 1); return; }
+    if (k === 'Enter' && cur && chips && cur.opts) { eat(); answer(A.model.defaultIndex(cur)); return; }
+    if (k === ' ') { eat(); take(); return; }
+    if (k === 'Backspace') { eat(); standBy(); return; }
+    if (lk === 'r' && (cur || last)) { eat(); sayAgain(); return; }
+    if (k === 'Escape' && cur && cur.pri <= 2) { eat(); dismiss(); return; }
+    if (lk === 'p') { eat(); toast('NO PAUSE IN A HUNT: STAND BY (BACKSPACE) HOLDS A CALL'); return; }
+  }
+  function keyup(e) {
+    if (!on) return; const lk = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+    if (lk === 'v' && vHeld) { vHeld = false; const el = $('dk-vhint'); if (el) el.hidden = true; if (!vUsed && S && !briefing) ventToggle(); e.preventDefault(); e.stopImmediatePropagation(); }
+  }
+  if (on) {
+    addEventListener('keydown', keydown, true); addEventListener('keyup', keyup, true);
+    addEventListener('blur', () => { vHeld = false; const el = $('dk-vhint'); if (el) el.hidden = true; });
+    document.addEventListener('mousedown', e => { if (radial && !e.target.closest('#dk-radial')) radialClose(); }, true);
+    // left click on a contact in the scope: the radial menu (right click keeps the full contact menu)
+    const sb = $('scopebox'); if (sb) sb.addEventListener('click', e => {
+      if (!S || dragged || e.target.id !== 'cv') return; const r = cv.getBoundingClientRect(), x = ((e.clientX - r.left) * cv.width / r.width - VX) / VZ, y = ((e.clientY - r.top) * cv.height / r.height - VY) / VZ, k = cv.width / P.arena; let best = null, bd = 44 * cv.width / r.width / VZ;
+      S.an.forEach(a => { if (a.state === 'out' || a.state === 'disabled' || a.idStatus === 'plan') return; const p = E.displayPos(S, a), d = Math.hypot(p.x * k - x, p.y * k - y); if (d < bd) { bd = d; best = a.id; } });
+      if (best != null) { e.stopPropagation(); radialAt(best, e.clientX, e.clientY); }
+    }, true);
+    const slip0 = ACT.slip; ACT.slip = el => { slip0(el); const r = el.getBoundingClientRect(); radialAt(+el.dataset.arg, r.right + 140, r.top + r.height / 2); };
+  }
+  return { on, begin, frame, show, answer, take, standBy, sayAgain, dismiss, station, report, radialAt, radialPick, radialClose, drawer, statusText,
+    get adapter() { return A; }, get cur() { return cur; }, get chipsShown() { return chips; }, get radialOpen() { return !!radial; }, STN };
+})();
+
 layout(); try { new ResizeObserver(() => layout()).observe($('scopebox')); } catch (e) {} addEventListener('load', layout); start(); requestAnimationFrame(frame);
 </script>
