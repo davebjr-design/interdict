@@ -39,30 +39,48 @@ Every station screen shares one frame so they read as one system:
 - **Message line:** one line for the last order's lifecycle ("Abara: fire control aye, ranging S2").
 - **Autonomy and the screen:** in **Auto** the screen is a **live read-only view** of what the officer is doing ("Quill: sweeping; S3 classify 60%"); in **Supervised** it shows the pending recommendation; in **Hands-on** the controls are live and the officer only acks. So the same screen is a window in Auto and a workstation in Hands-on.
 
-## 3. The screens (mapped to the BYG-1 function split)
+## 3. The console wall (REVISED 2026-11-14 after Dave's reference image)
 
-| Key | Screen | BYG-1 analogue | Pages and contents |
+Dave's reference (an AI-generated image of a submarine combat-control bay) shows a **wall of eight screens in two rows of four**, each in a bezel with rows of physical keys, with trackballs, dials, joysticks, keyboards, a bank of switches and **guarded fire levers** on the desk below. The screens are labelled **Tactical Navigation, Common Operational Picture, Signal (sonar) Fusion waterfall, Target Motion Analysis, Target Identification, Engagement and Weapon Status, Payload Readiness, Strike Control**. **Direction: the F-keys zoom into these screens, each with more function than the overview shows.**
+
+### 3.1 The shell: wall overview, zoom into a screen
+- **Overview (the wall):** the eight screens shown small, live, in their bezels, with the annunciator strip beside the wall and the call deck strip below. This is the "ship level" of the zoom tiers in `stations_and_command_ui.md` s6 and costs no art: bezels and desk are drawn in CSS and canvas.
+- **F1-F8 zoom into a screen**: the camera eases in so that screen fills the display (about 0.5 s; **Esc** or **0** returns to the wall; **Tab** or **Shift+F-key** moves screen to screen without going out). Mouse wheel zooms continuously between the wall and the focused screen.
+- **How (cheap and crisp):** each screen is rendered at its **native full size** and the wall shows it scaled down by a CSS transform; zooming animates the wall's transform. Text and canvases stay sharp when zoomed in, and the small versions are live thumbnails of the same widgets.
+- **Bezel softkeys:** 6 keys down each side of the screen (as in the image), context-sensitive labels (SCALE+, SCALE-, FILTER, SOLUTION, ...), pressed by mouse or by number-row hotkeys when a screen is focused. They replace the top-bar softkey row of the first frame.
+- **Desk controls, adapted:** a **guarded fire interlock** (lift the guard, then press: a two-step launch, ties to ARM/FIRE); **mission switches** (PD off/armed/active, quiet/hot posture, link radio/laser); **dials** for audio volume, screen brightness and sensor gain (gain is a later gameplay hook: more sensitivity, more false contacts); the **trackball** is the mouse and the **joysticks** and **data-entry keyboards** are left out. These are small, tactile and cheap, and they make the autonomy modes legible: in Auto the keys do not move, in Hands-on the officer's hands are yours.
+- **Autonomy on the wall:** in Auto a focused screen is a live read-only view and the bezel keys are dim; in Hands-on the keys are live (as in the first frame's rules).
+
+### 3.2 The eight screens and what each does (adapted to Interdict)
+| Key | Screen (image label) | Station | Contents, and the enhanced functions |
 |---|---|---|---|
-| **F1** | **Conn / Tactical** | TCS tactical picture, geographic environment | The scope (current map), contact list, our posture, the two or three most urgent items; the existing console view stays here until the scope session decides the final view |
-| **F2** | **Sensors** | Contact management, signal alerts | **Track table** (designation S/R/V/L, quality, bearing, age, range band, class guess), channel strips per track (heat, reactor, eclipse), analyst assignments, ping control, ghost list |
-| **F3** | **Fire control** | TCS TMA, analysis | **Bearing-time history plot** per selected track, the solution card (confidence, age, range uncertainty as an along-bearing band), baseline controls (stub until Newtonian motion), lock and release |
-| **F4** | **Weapons and payload** | Payload Control System | **Magazine and tubes** (60 rounds by warhead), **salvo planner** (presets and parameters, run-to-enable timeline, point-defence window), **PD control** (off, armed, active), launch control (READY, ARM, FIRE), **unmanned vehicles / probe sets** (two-set rack, state, link type, recovery), countermeasures |
-| **F5** | **Helm and navigation** | Mission tasking, geographic environment | Route and waypoint plan, burn nodes and heat and flare preview, link tolerance indicator (laser or wire holds only if course and speed hold), strategic map |
-| **F6** | **Engineering and thermal** | Platform systems | Reactor, drive, sink gauge, heat-rate dial, trend, vents, redline, power allocation |
-| **F7** | **Damage control** | Platform systems | Compartment and system schematic, repair queue, priority doctrine, hull bar |
-| **F8** | **Comms and reports** | Reports, mission tasking | Comms log, patron tasking, link offers and status, Pell channel, event and after-action report |
+| **F1** | **Tactical Navigation** | Conn and Helm | The scope and map (existing view until the scope session), route and waypoint plan, burn nodes and heat preview (Newtonian later), link-tolerance indicator (stub), probe and missile symbols; keys: SCALE+/-, MAP VIEW, WAYPOINT, REL/ABS |
+| **F2** | **Common Operational Picture** | Sensors | **Track table / contact management** (already built as F2 TRACKS): designation S/R/V/L, quality, bearing, age, range band, class guess; threat filter, classification overlay, search; selecting a track selects it on every screen |
+| **F3** | **Signal Fusion** | Sensors | **Waterfall**: bearing across, time scrolling down, brightness = observed energy on the selected channel (heat, reactor, eclipse), tracks overlaid as ridges, ghosts fading, the enemy's pings as bright bars; keys: CHANNEL, GAIN, FILTER, CURSOR. Built only from what our sensors could know (information-rate model plus noise), never ground truth |
+| **F4** | **Target Motion Analysis** | Fire control | Bearing-time history per track (the line to infinity), range-uncertainty band along the bearing, the solution card (confidence, age), **baseline** controls (stub until Newtonian motion), lock, release, re-analyze; the probe **fix request** appears here as an intent button |
+| **F5** | **Target Identification** | Sensors (analysts) | Per-track **profile**: heat, reactor and eclipse readings as polar and spectrum-style panels, class and lineage guess with confidence, 3D image slot (filled after a probe fix; stub) |
+| **F6** | **Engagement and Weapon Status** | Weapons | Engagement geometry: our salvos and incoming vampires as lines on a small plot with times, point-defence window and posture, hit and miss log, V-track countdowns |
+| **F7** | **Payload Readiness** | Weapons | Magazine (60 rounds by warhead), tubes, **probe sets** (two-set rack with lineage traits), countermeasures, readiness lights; deploy and recover are stubs |
+| **F8** | **Strike Control** | Weapons and fire control | **Salvo planner** (presets and parameters, run-to-enable timeline) with **guarded fire**: the CO arms, lifts the guard, and fires; probes (feints) launch from here too |
 
-Probe control lives in **F4** (the Payload Control System handles unmanned vehicles); *fix requests* come from F2 and F3 as intent orders; link state shows on F5 and the annunciator.
+### 3.3 Where the ship-systems stations go (the image has no engineering bay)
+The image is all combat systems. Engineering, thermal, damage control, comms and reports are on a **second wall, the Ship Systems bay**, reached with **Shift+F1-F4** (or **`** to flip walls): **S1 Engineering and Thermal** (reactor, drive, sink, vents, redline), **S2 Damage Control** (schematic, repair queue, priorities), **S3 Comms and Reports** (log, links, patron tasking, after-action), **S4 Helm detail** (burn plan, if F1 gets crowded). Same frame, same annunciator, same zoom. The annunciator tiles for those stations jump to the right wall automatically.
+
+### 3.4 What this changes in the build already done
+- The **frame, annunciator and call deck stay** (they were built wall-agnostic).
+- The existing **F2 TRACKS** becomes F2 COP; the **F4 weapons/payload** panels split into F7 (readiness, probe sets) and F8 (salvo planner and fire); the **F6/F7/F8 stubs** (heat, damage, comms) move to the Ship Systems wall.
+- New: the **wall shell and zoom**, **F3 waterfall**, **F5 target identification**, **F6 engagement**.
 
 ## 4. Standard widgets (build once, reuse)
-Annunciator strip, screen frame (top bar, function tabs, softkey row, message line), **track table**, **bearing-time plot**, **solution card**, **tube and magazine panel**, **salvo timeline**, **heat plot** (exists), **gauge** (exists), **schematic** (damage), **log list**, **probe set card**.
+Wall shell and zoom, bezel with side softkeys, guarded fire switch, mission switch, dial, **waterfall**, **polar profile panel**, **engagement plot**, Annunciator strip, screen frame (top bar, function tabs, softkey row, message line), **track table**, **bearing-time plot**, **solution card**, **tube and magazine panel**, **salvo timeline**, **heat plot** (exists), **gauge** (exists), **schematic** (damage), **log list**, **probe set card**.
 
-## 5. Build order
-1. Frame and annunciator (shared), wired to the station model and engine state, on every F-key.
-2. F2 Sensors and F4 Weapons (the two richest, and the first to make Hands-on meaningful).
-3. F3 Fire control (the bearing-time plot and the solution card).
-4. F5, F6, F7, F8 (largely re-arrangements of existing widgets).
-5. Then the scope session decides F1's final view.
+## 5. Build order (revised)
+1. Frame, annunciator, call deck (done).
+2. **Wall shell and zoom** (overview of eight live screens in CSS bezels, F-key zoom, Esc back, bezel softkeys, desk controls: guarded fire, mission switches, dials).
+3. Re-home what is built: F2 COP (track table), F7 Payload Readiness, F8 Strike Control (salvo planner and guarded fire).
+4. New screens: **F3 Signal Fusion waterfall**, **F5 Target Identification**, **F6 Engagement and Weapon Status**, then F4 TMA.
+5. **Ship Systems wall** (Shift+F1-F4): engineering and thermal, damage control, comms and reports.
+6. F1 final view after the scope session.
 
 ## 6. Open questions
 - Annunciator count and exact labels: start with the set above and prune in playtests.
