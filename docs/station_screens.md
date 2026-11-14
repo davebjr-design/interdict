@@ -39,7 +39,7 @@ Every station screen shares one frame so they read as one system:
 - **Message line:** one line for the last order's lifecycle ("Abara: fire control aye, ranging S2").
 - **Autonomy and the screen:** in **Auto** the screen is a **live read-only view** of what the officer is doing ("Quill: sweeping; S3 classify 60%"); in **Supervised** it shows the pending recommendation; in **Hands-on** the controls are live and the officer only acks. So the same screen is a window in Auto and a workstation in Hands-on.
 
-## 3. The screens (mapped to the BYG-1 function split)
+## 3. The screens (first mapping, SUPERSEDED by s7 on the console wall; the widgets and rules below still apply)
 
 | Key | Screen | BYG-1 analogue | Pages and contents |
 |---|---|---|---|
@@ -69,3 +69,49 @@ Annunciator strip, screen frame (top bar, function tabs, softkey row, message li
 - Do the screens use one global accent colour or one per station (proposal: per station, low-saturation, so the CO knows where they are at a glance)?
 - Should the annunciator be draggable or fixed (proposal: fixed)?
 - Audio for the annunciator: a distinct chime for caution and a tone for warning, over the voice lines (proposal: yes, quiet).
+
+## 7. The console wall (Dave, 2026-11-14): revised shell and screen set
+
+Dave supplied an AI-generated image of a submarine control wall: **eight bezel-framed screens in two rows of four**, each ringed by physical keypads, over a **desk** with keyboards, trackballs, analog dials and sliders, joysticks, safety switches and **guarded red fire interlocks**. Its screens: Tactical Navigation, Common Operational Picture, Sonar Fusion (waterfall), Target Motion Analysis, Target Identification, Engagement and Weapon Status, Payload Readiness, Strike Control. Direction: **adapt it, make the F keys zoom in on those screens with enhanced functionality, and fit the screens to our rules.**
+
+### 7.1 One view, two zoom levels
+- **Wall view (default hub):** the whole wall at once: 8 screens in 2x4, a **systems rack** of 3 smaller screens beside it, the **annunciator strip along the top** (overhead panel), and the **desk strip** along the bottom. Screens here are **live miniatures**: glanceable, non-interactive, updated at about 2-4 Hz. The call strip and call rail stay on top as now.
+- **Zoom (F key):** **F1-F8 fly the camera into that screen** (an eased 300-400 ms zoom, slight perspective so outer screens angle in), the screen fills most of the view, its **bezel keys become live** (the physical-keypad arrays: roughly 6 page keys down the right, 8 softkeys along the bottom, labelled per screen), extra panes appear that the miniature omits, and neighbouring screens dim at the edges. **Esc or the same F key zooms back to the wall.** Mouse: click a screen to zoom, wheel to move between levels. **Shift+F1-F3** zoom the three systems-rack screens.
+- **Same DOM, scaled:** each screen is built once at full size and scaled down on the wall (CSS transform), so the miniature is the real screen and there is no second implementation. Only the focused screen renders at full frame rate; the rest refresh slowly to keep it cheap.
+- **Look:** procedural, no new art needed: dark green-grey steel panels with rivets, rounded bezels, keycaps drawn in CSS, scanlines or a faint glass sheen on the screens, one low-saturation accent per screen. This is the "multifunction console family" look; the AI image is the mood reference only.
+- This is also the **ship-level L1 view** of the earlier zoom-tier plan; a later **over-the-shoulder 3D diorama (L2)** can replace the zoom target without changing the screens.
+
+### 7.2 The eight screens, adapted to our rules
+| Key | Screen (image analogue) | Owner (autonomy) | What it shows and does here |
+|---|---|---|---|
+| **F1** | **TACTICAL NAV** (Tactical Navigation) | Helm | The scope/map **as it exists today** (the scope-view session will redesign it), route and waypoints, scale +/-, REL/ABS centring, **heat cost of a course change**, **link tolerance** indicator for laser and wire (STUB until probes and Newtonian). Helm functions live here. |
+| **F2** | **CONTACT PICTURE** (Common Operational Picture) | Sensors | The **track table**: designation (S, R, V, L), quality marker (dotted suspected, dashed passive, solid affirmed), bearing, range band, age, class guess, ghost flag; threat filter, class overlay, search; selecting a track selects it on every screen. Probe **fix requests** are intent buttons here. |
+| **F3** | **SIGNAL FUSION** (Sonar Fusion) | Sensors | A **bearing-time waterfall** of our three channels (heat, reactor, eclipse) as stacked bands; contacts appear as moving traces, pings as streaks, own noise as a band. Controls: **listening-cone width** (narrow reaches farther, wide covers more; the directional-scan trade), array source (all-round or dish by ship tech), filter, analyst assignments, **active ping** (with the alert warning). |
+| **F4** | **TMA / FIRE CONTROL** (Target Motion Analysis) | Fire control | Bearing-time plot for the selected track, the **solution card** (confidence, age), the **range band drawn along the bearing**, geometry plot (own legs versus the solution), SOLUTION toggle, data filter, lock and release, **baseline** controls (STUB until Newtonian motion). Probes add bearing sources here when they exist. |
+| **F5** | **TARGET ID** (Target Identification) | Sensors | Per selected contact, the **three channel instruments** (heat spectrum, reactor line, eclipse profile) fed by the analysts, the **lineage and class clues** ("pumped loop, armoured plating: Vask"), the **identification gate** (is she a warship, a lure, a ghost), and a **3D image tile** that fills only after a probe fix (STUB). |
+| **F6** | **ENGAGEMENT AND DEFENCE** (Engagement and Weapon Status) | Weapons | **Their picture of us**: each hunter's fix state (aware, closing, firm), our exposure, **incoming V-tracks** with bearing and ETA, **point-defence** state (off, armed, active) and the intercept window, our weapons in flight with time to impact. This is where priority 4 calls resolve. |
+| **F7** | **PAYLOAD READINESS** (Payload Readiness) | Weapons | The **magazine** (60 rounds by warhead, salvos), tube and rack cutaway with ready lamps, **probe sets** (the two-set rack: lineage, size, link types, state; deploy and recover STUB), countermeasures. |
+| **F8** | **STRIKE CONTROL** (Strike Control) | Weapons | The **salvo planner**: preset (Ambush, Snap shot, Probe, Saturation), pattern, **run-to-enable**, homing, wire, warhead, cone, count; the **launch timeline** with the enemy point-defence window; aim region on a small plot; **launch control with a guarded FIRE** (lift the guard, then hold to fire; blocked by rules of engagement or no solution). |
+| **Shift+F1** | **ENGINEERING / THERMAL** (systems rack) | Engineering, Thermal | Reactor, drive, **heat sink gauge and rate dial, trend, vents, redline**, power allocation. |
+| **Shift+F2** | **DAMAGE CONTROL** (systems rack) | Damage | Compartment and system schematic, hull bar, repair queue, priority doctrine. |
+| **Shift+F3** | **COMMS / REPORTS** (systems rack) | Comms | Comms log, patron tasking, link offers and status, Pell channel, event and after-action log. |
+The three systems screens are additions to the image (it has no engineering or damage screens, but our stealth and heat rules need them).
+
+### 7.3 The desk strip (physical controls, made functional)
+- **Autonomy switches:** one three-position rotary per station: AUTO, SUPV, HANDS-ON. This is the autonomy setting as a physical object.
+- **Guarded FIRE interlock** (the red levers): mirrors F8's launch control, so firing is a deliberate two-step (lift guard, then fire) from any screen.
+- **Master WARNING and master CAUTION** and the **annunciator acknowledge** (these also sit on the overhead strip).
+- **Dials and sliders:** voice volume, annunciator chime volume, screen brightness, time compression 1x/2x.
+- **Trackball and keyboards:** cosmetic in the first build.
+
+### 7.4 Rules that carry over
+- **Autonomy on screens:** Auto = live read-only view of what the officer is doing; Supervised = shows the pending recommendation; Hands-on = controls live. Zooming into a screen whose station is Auto is still allowed (it is a window), and a **Take over** key switches that station to Hands-on.
+- **Calls and the wall:** an open call **highlights its screen on the wall** and flashes its F key, and the officer's name tag shows on the bezel; the camera never zooms by itself unless the "follow calls" setting is on.
+- **No pause** in normal play; the tutorial is unaffected.
+- **Scope view still undecided:** F1 holds the existing scope until that session.
+
+### 7.5 Build order for the wall
+1. Wall shell: 2x4 bezels with live miniatures, systems rack, overhead annunciator, desk strip, zoom transition, key handling (reuse the frame and annunciator work).
+2. Content for F2, F3, F5 (the sensing chain), then F4.
+3. F6, F7, F8 and the guarded fire interlock; then the three systems screens.
+4. Polish: bezel keys per screen, dim neighbours, miniature update rates, call highlighting on the wall.
