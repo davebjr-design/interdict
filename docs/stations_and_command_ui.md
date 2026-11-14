@@ -133,7 +133,7 @@ Dave's idea: instead of an active ping, **fake a strike in a general area** and 
 
 ### 5.2 Symbols and colours: reconciling two grammars
 The PDF's NTDS grammar: **shape = category, hue = alliance** (red hostile, yellow unknown, blue friendly, green neutral). Dave's earlier request: **hue = how we know** (warm = affirmatively detected, cool = passively detected or suspected). They collide (blue and green mean different things).
-- **Proposal, two layers:**
+- **Decided: drop the ring for now (see section 11). Original proposal, kept in reserve for playtesting:**
   - **Track quality** (how we know) is carried by **line style and glow**: dotted (suspected), dashed (passive track), solid (affirmed), and a cool-to-warm **glow** exactly as in the mock-ups. This is Dave's grammar and is what an *unclassified* contact shows.
   - **Identity** (what it is) is a **small pip and an alliance ring** that appears *only after classification*: red ring hostile, blue friendly, green neutral (civil traffic with a transponder), no ring while unknown. Shape stays category (capital, stealth, fighter, ordnance).
 - Result: an unknown contact is never blue-because-friendly; blue/green as *glow* means passive, and blue/green as a *ring* means identity, and the ring only exists after the crew have said so. DECIDE whether this is clear enough, or whether to drop the ring colours and use a letter code instead (F, H, N).
@@ -241,18 +241,20 @@ Verified from sources (links at the end):
 | 9 | **Station dioramas** (S3) | L | Yes (rigged officers, consoles, animations; credits) |
 Phases 1-7 need no new art and can be built and tested with the bots. 8 and 9 can wait for credits.
 
-## 11. DECIDE (Dave)
-1. **Scope of the fold-in:** is section 8's "keep out" list right, and the "fold in" list the right size?
-2. **Autonomy defaults:** the three settings (Auto, Supervised, Hands-on) per station, with Auto as the default. Agree?
-3. **Colour grammar:** the two-layer proposal (glow for how we know, ring for identity after classification), or drop the ring colours?
-4. **Track letters:** use S, R, V, L; optical as M or O?
-5. **Point defence:** Off, Armed, Active as a visible emission, with the crew defaulting to Armed and going Active only on a V-track?
-6. **Feints:** does a probing salvo cost a real missile (needs a missile stock) or only a launch alert and a marker?
-7. **Build order:** start with phases 1-3 (the station model, salvo presets, point defence) before the interface shells?
-8. **The shells:** S1 first, S2 once the rooms are staged, S3 only when credits allow?
-9. **Does the captain ever go hands-on at a station for real** (UBOAT's double-click to first-person) or is L2 only a view?
+## 11. Decisions (Dave, 2026-11-14) and what is still open
+**Decided**
+- **Autonomy:** Auto / Supervised / Hands-on per station, **Auto the default**. It also makes a **multiplayer mode** possible in principle: a human takes a station, the AI crew keeps the rest on Auto.
+- **Colour grammar:** **drop the alliance ring colours for now.** Detection quality (glow, line style) is the grammar. *Kept in reserve:* if playtests show players can't tell friend from hostile once classified, bring back the identity ring (red hostile, blue friendly, green neutral, only after classification) or a letter code (F/H/N). See section 5.2.
+- **Feints:** a probing salvo **spends a real missile**. That means a **missile stock** is modelled and a probe is a weighty tactical choice.
+- **Fold-in scope and the 3D direction:** approved ("really like the 3D model directions"). S3 (3D station dioramas) is the intended close-up; credits still gate it.
+- **Build order:** **station model first**, then each station's workflow one at a time. See `docs/station_model.md`.
+- **Navigation:** F-keys move between stations. A separate **hear-and-respond layer** handles tactical information and communication; its design is in `docs/station_model.md` section 3.
 
-**Spike result (2026-11-14, `design/spikes/zoom_station.html`, shots `zoom_L0/L1/L2.png`, `plate_zoom.png`):** feasible. One three.js camera blends from a near-orthographic iso ship view (FOV 4 degrees at 358 m) through a perspective room view (30 degrees) to over-the-shoulder at the console (44 degrees, 2.3 m) with a dolly zoom, eased on keys 1/2/3 and continuous on the wheel; a live canvas tactical scope on the console stays fully legible at L2. The captain rig (`captain2/walk.glb`, 14.3 MB, 15.5k triangles, 24 bones, four 2048 px PBR maps) loads in about 7.5 s locally and renders at full scale with no fixes beyond measuring height from bones. The gaps are art, not tech: the only pose is the A-pose bind (arms out, reads as "presenting" not "working"), so sit, type and idle clips are needed (about 3 credits each); the back view holds up at shoulder distance but hair is lumpy up close; consoles and the chair are placeholder boxes, and each station wants its own prop set. Plates: 2x is soft but usable, 3x is visibly upscaled, and more to the point a plate cannot move the viewpoint behind the chair or host a live screen, so L2 has to be 3D. Rigging the four missing crew is about 160 credits (15 remain); swiftshader timings (0.35 to 1.3 s per frame) say nothing about a real GPU.
+**Still open**
+- Scope option A (polar) / B (3D) / C (flat) for the Conn view, and whether burns spend reaction mass.
+- Track letter for optical contacts: M or O.
+- Whether the captain can go truly hands-on in L2 (double-click to first-person) or L2 is view only.
+- Missile stock size and resupply (see station_model.md).
 
 ## Sources
 - UBOAT review: [SUBSIM](https://www.subsim.com/ssr/uboat/review_uboat_full.php)
