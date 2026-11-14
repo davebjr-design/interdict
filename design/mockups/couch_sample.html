@@ -1,0 +1,74 @@
+<!doctype html><html><head><meta charset="utf-8"><title>A-set procedural sample</title>
+<style>html,body{margin:0;background:#808283;font:15px/1.3 'Arial Narrow',Arial,sans-serif;color:#fff}canvas{display:block}
+.t{position:fixed;left:24px;top:14px;font-size:26px;font-weight:bold;letter-spacing:.02em;text-shadow:0 1px 0 #0006}
+.s{position:fixed;left:24px;top:46px;font-size:15px;opacity:.85}
+.l{position:fixed;transform:translateX(-50%);text-align:center;font-weight:bold;font-size:17px;text-shadow:0 1px 0 #0007;white-space:nowrap}.l i{display:block;font-style:normal;font-weight:normal;font-size:13px;opacity:.85}</style></head><body>
+<div class="t">A-SET PROPS, BUILT IN CODE (NO MESHY)</div><div class="s">same shapes as the Gemini sheets, inked toon shader, ~0 credits, fully posable (recline, gimbal, harness)</div>
+<script src="three.min.js"></script><script>
+'use strict';
+const W=1800,H=540,R=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});R.setSize(W,H);R.setPixelRatio(1);document.body.appendChild(R.domElement);
+const S=new THREE.Scene();S.background=new THREE.Color(0x808283);
+const C={olive:0x5b5a2c,steel:0x31505b,brass:0xc09a34,orange:0xd2582c,dark:0x1c2528,grey:0x8d9a9c,black:0x161b1d,yellow:0xc9a52c};
+const grad=(()=>{const d=new Uint8Array([95,175,255]);const t=new THREE.DataTexture(d,3,1,THREE.LuminanceFormat);t.minFilter=t.magFilter=THREE.NearestFilter;t.needsUpdate=true;return t})();
+const OUT=new THREE.ShaderMaterial({side:THREE.BackSide,uniforms:{t:{value:.014}},vertexShader:'uniform float t;void main(){gl_Position=projectionMatrix*modelViewMatrix*vec4(position+normal*t,1.);}',fragmentShader:'void main(){gl_FragColor=vec4(.035,.05,.06,1.);}'});
+function RB(w,h,d,r,seg){r=Math.min(r==null?.025:r,Math.min(w,h,d)/2-.001);seg=seg||3;const g=new THREE.BoxGeometry(w,h,d,seg*2,seg*2,seg*2),p=g.attributes.position,n=g.attributes.normal;const hx=w/2-r,hy=h/2-r,hz=d/2-r;
+ for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i);const ix=Math.max(-hx,Math.min(hx,x)),iy=Math.max(-hy,Math.min(hy,y)),iz=Math.max(-hz,Math.min(hz,z));let nx=x-ix,ny=y-iy,nz=z-iz;const l=Math.hypot(nx,ny,nz);if(l>1e-6){nx/=l;ny/=l;nz/=l;p.setXYZ(i,ix+nx*r,iy+ny*r,iz+nz*r);n.setXYZ(i,nx,ny,nz);}}
+ return g;}
+function M(geo,col,parent,x,y,z){const m=new THREE.Mesh(geo,new THREE.MeshToonMaterial({color:col,gradientMap:grad}));m.add(new THREE.Mesh(geo,OUT));if(parent)parent.add(m);m.position.set(x||0,y||0,z||0);return m}
+const CYL=(a,b,h,s)=>new THREE.CylinderGeometry(a,b,h,s||28);
+function strap(parent,a,b,w,col){const d=b.clone().sub(a),L=d.length();const m=M(RB(w,.014,L,.005,1),col||C.orange,parent);m.position.copy(a).add(b).multiplyScalar(.5);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),d.normalize());return m}
+function helix(a,b,turns,rad){const pts=[];const N=turns*14;for(let i=0;i<=N;i++){const t=i/N,ang=t*turns*Math.PI*2;const c=a.clone().lerp(b,t);pts.push(new THREE.Vector3(c.x+Math.cos(ang)*rad,c.y+Math.sin(ang)*rad,c.z));}return new THREE.CatmullRomCurve3(pts)}
+function key(parent,x,y,z,col){M(RB(.016,.012,.024,.004,1),col||C.brass,parent,x,y,z)}
+
+function couch(o){
+ const g=new THREE.Group();
+ M(CYL(.52,.58,.07,48),C.steel,g,0,.035,0);M(CYL(.22,.3,.36,32),C.steel,g,0,.25,0);
+ const ring=M(new THREE.TorusGeometry(.27,.045,10,40),C.brass,g,0,.46,0);ring.rotation.x=Math.PI/2;
+ const cab=new THREE.CatmullRomCurve3([new THREE.Vector3(.0,.52,.0)]);
+ { const pts=[];const A=new THREE.Vector3(.24,.1,.32),B=new THREE.Vector3(.2,.5,.22);for(let i=0;i<=160;i++){const t=i/160,a=t*Math.PI*2*10;const c=A.clone().lerp(B,t);pts.push(new THREE.Vector3(c.x+Math.cos(a)*.035,c.y+Math.sin(a)*.035,c.z));} M(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),240,.014,6),C.black,g); }
+ const seat=new THREE.Group();seat.position.set(0,.62,0);seat.rotation.x=-(o.gimbal||0);g.add(seat);
+ M(RB(.58,.13,.58,.03),C.olive,seat,0,.065,0);M(RB(.5,.03,.5,.01),C.steel,seat,0,-.01,0);
+ for(const s of[-1,1]){M(RB(.06,.24,.62,.025),C.steel,seat,s*.33,.1,0);M(RB(.022,.024,.64,.008,1),C.brass,seat,s*.33,.225,0);
+  M(RB(.1,.08,.5,.03),C.olive,seat,s*.37,.27,.04);M(RB(.05,.2,.07,.02),C.steel,seat,s*.37,.15,.08);
+  const kp=M(RB(.09,.02,.17,.006,1),C.dark,seat,s*.37,.318,.13);for(let r=0;r<4;r++)for(let c=0;c<2;c++)key(kp,(c-.5)*.028,.014,(r-1.5)*.034,(s<0&&r==3&&c==1)||(s>0&&r==3&&c==1)?C.orange:C.brass);}
+ if(o.co){M(RB(.06,.16,.09,.02),C.steel,seat,-.45,.17,.08);const hs=M(RB(.04,.12,.05,.015),C.dark,seat,-.45,.23,.08);M(RB(.02,.02,.02,.005,1),C.orange,seat,-.45,.28,.11);
+  const pts=[];for(let i=0;i<=80;i++){const t=i/80,a=t*Math.PI*2*6;pts.push(new THREE.Vector3(-.45+Math.cos(a)*.02,.1-t*.38+Math.sin(a)*.02,.1));}M(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),120,.007,5),C.black,seat);}
+ const back=new THREE.Group();back.position.set(0,.1,-.27);back.rotation.x=-(o.recline||.2);seat.add(back);
+ M(RB(.54,.84,.13,.035),C.olive,back,0,.42,0);for(const s of[-1,1])M(RB(.026,.84,.15,.01,1),C.brass,back,s*.285,.42,0);
+ M(RB(.46,.74,.04,.02),C.steel,back,0,.42,-.085);M(RB(.3,.2,.11,.045),C.olive,back,0,.95,.0);for(const s of[-1,1])M(CYL(.014,.014,.1,10),C.grey,back,s*.09,.85,0);
+ if(o.co)M(RB(.2,.075,.014,.006,1),C.brass,back,0,.95,-.066);
+ const leg=new THREE.Group();leg.position.set(0,.04,.3);leg.rotation.x=-(o.leg==null?.45:o.leg);seat.add(leg);
+ M(RB(.48,.1,.44,.035),C.olive,leg,0,-.26,0);for(const s of[-1,1])M(CYL(.014,.014,.34,10),C.grey,leg,s*.18,-.2,-.1);
+ const fp=M(RB(.46,.035,.22,.012),C.steel,leg,0,-.52,.08);fp.rotation.x=.9;
+ seat.updateMatrixWorld(true);g.updateMatrixWorld(true);
+ if(o.harness){const bk=back,toS=v=>seat.worldToLocal(bk.localToWorld(v.clone()));const V=(x,y,z)=>new THREE.Vector3(x,y,z);const buck=V(0,.14,.02);
+  if(o.harness==='on'){for(const s of[-1,1]){strap(seat,toS(V(s*.15,.86,.08)),buck,.05);strap(seat,V(s*.3,.14,-.22),buck,.05);}strap(seat,buck,V(0,.14,.3),.05);
+   const b=M(CYL(.045,.045,.03,20),C.brass,seat,0,.15,.02);const r=M(new THREE.TorusGeometry(.045,.01,6,20),C.dark,b);r.rotation.x=Math.PI/2;}
+  else{for(const s of[-1,1]){strap(seat,toS(V(s*.15,.86,.08)),toS(V(s*.3,.42,.1)),.05);strap(seat,V(s*.3,.14,-.22),V(s*.46,-.14,-.15),.05);M(RB(.05,.04,.03,.01,1),C.brass,seat,s*.46,-.15,-.15);}}}
+ return g}
+
+function rail(){const g=new THREE.Group();const bar=M(CYL(.028,.028,.7,16),C.brass,g,0,0,.13);for(const s of[-1,1]){const st=M(CYL(.028,.028,.13,16),C.brass,g,0,s*.35,.065);st.rotation.x=Math.PI/2;M(CYL(.07,.07,.025,24),C.steel,g,0,s*.35,0).rotation.x=Math.PI/2;for(let k=0;k<4;k++){const a=k*Math.PI/2;M(CYL(.01,.01,.03,8),C.grey,g,Math.cos(a)*.052,s*.35+Math.sin(a)*.052,.012).rotation.x=Math.PI/2;}}return g}
+function footLoop(){const g=new THREE.Group();const t=M(new THREE.TorusGeometry(.17,.026,10,28,Math.PI),C.steel,g,0,.0,0);t.rotation.z=0;M(new THREE.TorusGeometry(.17,.012,6,28,Math.PI),C.brass,g,0,0,0).position.z=.0;for(const s of[-1,1]){M(RB(.12,.05,.16,.02),C.steel,g,s*.17,-.015,0);}return g}
+function woven(){const g=new THREE.Group();M(RB(.14,.1,.1,.02),C.steel,g,0,.5,0);const L=M(new THREE.TorusGeometry(.12,.025,8,28),C.olive,g,0,.27,0);L.scale.set(.7,2.0,.5);M(new THREE.TorusGeometry(.04,.012,6,16),C.brass,g,0,.46,.0);return g}
+function plate(){const g=new THREE.Group();M(RB(.62,.05,.38,.02),C.steel,g,0,.025,0);const [c,x]=[document.createElement('canvas')].map(c=>[c,c.getContext('2d')]).map(a=>a)[0];c.width=c.height=256;x.fillStyle='#c9a52c';x.fillRect(0,0,256,256);x.fillStyle='#1c2528';for(let i=-4;i<10;i++){x.beginPath();x.moveTo(i*40,0);x.lineTo(i*40+20,0);x.lineTo(i*40+20+256,256);x.lineTo(i*40+256,256);x.fill();}const tx=new THREE.CanvasTexture(c);
+ const top=new THREE.Mesh(new THREE.PlaneGeometry(.58,.34),new THREE.MeshToonMaterial({map:tx,gradientMap:grad}));top.rotation.x=-Math.PI/2;top.position.y=.052;g.add(top);M(RB(.4,.01,.2,.004,1),C.dark,g,0,.056,0);for(const sx of[-1,1])for(const sz of[-1,1])M(CYL(.014,.014,.012,6),C.grey,g,sx*.28,.054,sz*.16);return g}
+function tether(){const g=new THREE.Group();const pts=[];for(let i=0;i<=120;i++){const t=i/120,a=t*Math.PI*2*9;pts.push(new THREE.Vector3(Math.cos(a)*.05,t*.5,Math.sin(a)*.05));}M(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),200,.022,6),C.dark,g);M(CYL(.035,.035,.05,12),C.grey,g,0,.53,0);M(CYL(.035,.035,.05,12),C.grey,g,0,-.02,0);
+ for(const [y,fl] of[[.64,1],[-.12,-1]]){const c=M(new THREE.TorusGeometry(.06,.014,8,20),C.brass,g,0,y,0);c.scale.set(.7,1.3,1);}return g}
+
+const items=[
+ {g:couch({recline:.22,gimbal:0,leg:.45}),x:-3.45,ry:.55,l:'A1 OFFICER COUCH',s:'upright · gimbal ring · armrest keypads'},
+ {g:couch({recline:1.05,gimbal:.5,leg:1.15,harness:'on'}),x:-1.45,ry:1.35,l:'A1 + A3 BRACE',s:'reclined · gimballed · 5-point harness on'},
+ {g:couch({recline:.18,gimbal:0,leg:.45,co:true,harness:'open'}),x:.7,ry:-.5,l:'A2 CO COUCH',s:'handset holster · harness open (loose)'},
+ {g:rail(),x:2.6,ry:.4,l:'A6 GRAB RAIL',s:'brass tube'},
+ {g:footLoop(),x:3.5,ry:.5,l:'A7 FOOT LOOP',s:'rigid steel'},
+ {g:woven(),x:4.4,ry:.4,l:'A6 WOVEN LOOP',s:'strap handhold'},
+ {g:plate(),x:5.3,ry:.6,l:'A7 BOOT PLATE',s:'hazard-striped'},
+ {g:tether(),x:6.1,ry:.0,l:'A8 TETHER',s:'coiled bungee'}];
+const CAM=new THREE.OrthographicCamera(-1,1,1,-1,.1,50);const cx=1.1,Wd=10.8,Ht=Wd*H/W;CAM.left=-Wd/2;CAM.right=Wd/2;CAM.top=Ht/2;CAM.bottom=-Ht/2;CAM.position.set(cx,1.95,10);CAM.lookAt(cx,.8,0);CAM.updateProjectionMatrix();
+S.add(new THREE.AmbientLight(0xffffff,.5));const dl=new THREE.DirectionalLight(0xffffff,.55);dl.position.set(-3,6,6);S.add(dl);
+items.forEach(it=>{const base={'A6 GRAB RAIL':1.25,'A7 FOOT LOOP':.55,'A6 WOVEN LOOP':.05,'A7 BOOT PLATE':.02,'A8 TETHER':.9}[it.l];it.g.position.set(it.x,base||0,0);it.g.rotation.y=it.ry;if(it.l==='A7 FOOT LOOP')it.g.rotation.x=0;S.add(it.g);
+ const sh=new THREE.Mesh(new THREE.CircleGeometry(it.l.startsWith('A1')||it.l.startsWith('A2')?.6:.28,32),new THREE.MeshBasicMaterial({color:0x000000,transparent:true,opacity:.2}));sh.rotation.x=-Math.PI/2;sh.position.set(it.x,.003,0);S.add(sh);});
+R.render(S,CAM);
+items.forEach(it=>{const v=new THREE.Vector3(it.x,0,0).project(CAM);const d=document.createElement('div');d.className='l';d.style.left=((v.x+1)/2*W)+'px';d.style.top=(H-40)+'px';d.innerHTML=it.l+'<i>'+it.s+'</i>';document.body.appendChild(d);});
+window.done=true;
+</script></body></html>
