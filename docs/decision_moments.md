@@ -1,6 +1,6 @@
 # Decision moments: in-the-moment tight / loose calls (2026-10-31)
 
-Dave's direction: replace the pre-flight "pick a trim at the officer" model with **decision moments**. During a hunt (or underway) the action pauses, an officer speaks, and the captain picks a **tight** option or a **loose** option. Each option shows its stat effects; each also silently nudges `command.style` (0 tight, 100 loose; `command_model.md` §2). Constraint buys consistency at a performance cost; discretion buys performance at a consistency cost. Neither wins on average: **loose wins more often and loses harder.**
+Dave's direction: replace the pre-flight "pick a trim at the officer" model with **decision moments**. During a hunt (or underway) an officer speaks (the hunt does not pause; see 1.2), and the captain picks a **tight** option or a **loose** option. Each option shows its stat effects; each also silently nudges `command.style` (0 tight, 100 loose; `command_model.md` §2). Constraint buys consistency at a performance cost; discretion buys performance at a consistency cost. Neither wins on average: **loose wins more often and loses harder.**
 
 Sources: `command_model.md` (style, bands, officer preferences), `mini_missions.md` and `data/mini_missions.json` (the trims these replace), `crew_cards.md` and `writing_style_guide.md` (voices), `web/hunt_rt_engine.js` and `web/trims.js` (the `P.*` each effect drives). Shelved and not used here: *Run her hot*, *Mix the salvo*.
 
@@ -33,7 +33,7 @@ How it plays: loose gives you a usable 70% answer early and far out, which wins 
 ### 1.2 How the popup reads
 - Title: the officer's name and station. Then the spoken line. Then two buttons, **TIGHT** on the left and **LOOSE** on the right, each with a one-line label and its effects in plain words with the number ("Reads 40% sooner. Certainty capped at 70%."). Each loose button also has an **If it goes wrong:** line, so the bigger loss is visible before you choose.
 - The meter nudge is **not** shown. The after-action report says, in one line, how the crew read you ("The crew noticed you let Quill run on instinct twice.").
-- The hunt is paused while the popup is up (the engine already has a pause hook: `emit()` with `s.holdEvents` sets `s.hold`). No timer.
+- **Nothing pauses (revised 2026-11-15).** The hunt keeps running while the call is up. If the captain does not answer within 14 s the crew run the default, **tight** (`docs/mechanics_decisions.md`). The 2026-11-02 first build used the engine's pause hook (`s.hold`); the station layer replaced it.
 
 ### 1.3 Meter nudges
 - Normal moment: tight **-3**, loose **+3**. Big moments (M04 fire on old numbers): **-4 / +4**.
