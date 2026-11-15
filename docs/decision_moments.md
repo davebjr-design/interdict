@@ -91,6 +91,49 @@ Both options always show. At the ends of the meter a third option can join:
 
 ---
 
+### 1.10 Naming (decided 2026-11-15)
+The two buttons are **CAREFUL** and **RISKY**, not tight and loose. Careful keeps the safety margin and is steady; risky spends margin to buy speed or performance and names its failure mode on the button ("If it goes wrong:"). Engine ids and the hidden command-style meter keep the internal names tight (careful) and loose (risky); the meter is never shown to the player, so it does not need renaming. Crew voices may say "by the book" or "bold" in their own lines. Wording fixes: M02 reads "Full ping: sure, but loud" against "Narrow it: quiet, but thin" (it is not cleanly careful versus risky); M03 reads "Run the solution as computed" against "Hand-tune the lead". Not yet applied in code or station rows.
+
+### 1.11 Third options from traits, relationships and perks (proposal, 2026-11-15)
+Idea (Dave): moments should work like Bethesda dialogue and perk checks. Who the captain is, who trusts them and what the ship carries can unlock a **special option** next to careful and risky. This generalises section 1.5 (committed bands) and the Pell assist, which are already special options.
+
+**What a special option is.** Neither careful nor risky: a different tool, usually better than both for this one situation, paid for in a *different currency* (trust, integration, Tally, parts, an officer's attention). Nothing is free, so a special never makes the moment a no-brainer.
+
+**What can unlock one (the gate types):**
+| Gate | RPG analogue | Example source |
+|---|---|---|
+| Officer trust at a threshold (loyal, 60 or more) | companion affinity, speech check | Quill, Castellan, Dace, Abara, Fenwick |
+| Arc completed (one permanent change per officer) | perk | Quill's signals shared, Abara's module resolved, Castellan's confession, Dace allowed AI medicine, Fenwick's network |
+| Pell integration tier | tech tree | sensors, then fire control, then drives |
+| Command band (committed tight or loose) | character disposition | existing 1.5 options |
+| Visitor aboard | guest companion | Corvane, Ames, an inspector |
+| Hardware or lineage | gear | a probe set in the rack, a salvaged module or part |
+| Standing and flags | reputation, quest flags | Tally standing, patron favours, earlier choices, generated scenario flags |
+| Captain traits (if added: earned from Act 1 choices, not picked at a menu) | traits, background | e.g. a "listener" or "range officer" past |
+
+**Draft catalogue (targets, to tune).**
+| Moment | Special option | Gate | Effect | Price |
+|---|---|---|---|---|
+| M01 hunch call | Signal archive match | Quill's signals shared | hunch speed, certainty cap lifted to 85%, only on emissions already archived | none, once a hunt |
+| M01 | Pell classifier assist | integration 10+ | reads x0.8, uncapped | integration +3, Quill trust -2 |
+| M01 | Read the reactor line by ear | committed loose | faster again, certainty capped at 55% | none (existing) |
+| M02 narrow ping | Send a probe instead | probe set in the rack | no ping emission; the fix arrives later, over the probe link | the set; a radio link is an emission |
+| M02 | Ping on their own frequency | Corvane aboard | alert x0.3, certainty capped at 70% | Corvane's goodwill |
+| M03 first lock | The old range-safety trick | Abara's module resolved | lead error x0.6 without the shelf-life penalty | none, once a hunt |
+| M03 | Pell co-solves | integration, fire-control tier | solution time x0.6, uncapped | integration +3, Abara trust -2 |
+| M04 stale solution | "Give me thirty seconds" | Quill loyal (60+) | refresh in 30 s instead of about 2 min, certainty 80% | Quill's sensors busy for 2 min |
+| M07 vent timing | Run it through the drive loop | Castellan's confession | silent vent, no fins out | drive limited to 60% for 3 min |
+| M07 | Vent behind cover | a body in line of cover | vent where nobody sees the fins | route and position cost (existing idea) |
+| M09 analyst load | Pell takes two stations | integration tier | no heat cost, reads at full speed | integration +3, Dace trust -1 |
+
+**Rules, so it stays playable and honest:**
+1. **At most four buttons** (careful, risky, up to two specials) and the 14 s default stays careful. Priority when more qualify: arc perk, then trust, then hardware, then visitor; the rest show in the after-action line ("Quill could have matched that against his signal archive").
+2. **Unlocked options only** during the call (no time to read locked ones). The crew cards and the after-action report list what is available and what unlocks it, so players know what to build toward.
+3. **No extra popups.** Specials ride on moments that already fire (the 3 per hunt cap and the cooldown are unchanged).
+4. **Meter:** a special does not move the careful/risky meter; its price is its cost. Relationship prices follow the usual rule (no moment changes trust by more than 1 to 2).
+5. **Data, not code.** Each option is a data entry with `requires`, `cost`, `effect` and `line`, so generated scenarios can add or gate options by flag. This is where the AI-authored scenario variety plugs into the hunt.
+6. **Acceptance:** the sim bots test each special against careful and risky in its situation; a special should win its situation by a modest margin and cost visibly elsewhere.
+
 ## 2. Catalogue (10 moments)
 
 Hunt moments: M01-M04, M07, M09 (M05 shelved). Underway moments (deferred): M06, M08, M10.
