@@ -89,3 +89,23 @@ Crews check each other's ships at docks (universe_background). The walk demo rol
 
 ## TODO: hunt-witness check (not built)
 A hunt can be seen: another ship in the arena (the ally, a fleeing contact, a convoy) may witness Pell being run. Proposed: at the end of a hunt in which the link was used, each surviving non-hostile contact within its sensor range of us rolls on our visibility while PELL ASSIST was on (`exposure` part `pell`) and sets `flags.hunt_witnessed` plus a rumour for the captains' bar; a witnessed hunt should raise the next dock inspection's chance. Needs: a per-hunt log of link-on minutes and our visibility, the ally's survival, and the captains' bar. Not built; the engine is untouched.
+
+
+## FTL arrival, departure delay and arena size (decided 2026-11-15, not built)
+
+**Arrival (breach exit).**
+- Detected arena-wide: every ship in the arena gets a bearing and a timestamp, no range, no ID.
+- Magnitude is about a full-thrust burn for a few seconds, not special and not larger than other ships. It is a **moment, not a track**: it appears once, leaves no trail, and the arriver is as quiet afterwards as it chooses.
+- The arriver is blind for the first seconds (the wash, section "Sector Drop" in `docs/stations_and_command_ui.md`), so the initiative is real but paid for.
+- Drop-ins by hostiles during other missions use the same event, so a flash on the scope is the player's warning and the trigger for a loose decision moment ("finish the cut or run?").
+
+**Departure (knell) and light delay.**
+- Departure stays loud and system-wide (see glossary: Knell). It propagates at light speed: delay = distance / c.
+- Light delay is modelled for all signals. Inside an arena it is negligible (150 km is 0.5 ms), so it changes nothing in a hunt. It bites between arenas and on the system map, where a knell crosses seconds to minutes. A distant knell can serve as a salvage clock ("something left the inner system 4 minutes ago").
+- Repeated departure vectors still raise relay exposure; the common-track rule still applies.
+
+**Arena size (target 150 km, pending a balance pass).**
+- Design goal: 5 to 8 real minutes to cross at full speed. "Full speed" is the top drive setting (100 percent, 6 km per game minute); redline is a 15 to 30 s burst, not a cruising speed. 16 real seconds = 1 game minute.
+- Crossing times at 150 km: 6.7 min at 100 percent, 4.4 min at redline, 2.8 min flip-and-burn at full thrust (that costs about 940 m/s of delta-v, roughly half a tank; the top rung costs about 200 m/s, about 11 percent).
+- Current engine arena is 240 km (`RULES.arena`): 10.7 min at 100 percent, 7.1 min at redline. Not changed yet.
+- Moving to 150 km shifts every distance-based number: `sensRef` (40 km), spawn spacing (hostiles start at least 70 km out), ping alert reach, probe reach, missile flight times. Do it together with a balance sweep (n=240 to 300), keeping the competent bot at about 60 to 65 percent.

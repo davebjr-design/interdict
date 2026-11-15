@@ -19,7 +19,8 @@ Decided Oct 22: invent our own terms, keep the mechanics true to the Star Wolf r
 | Quench field | Stasis field | Absorbs up to a limit, then collapses |
 | Bulkhead drill | Compartmentalization | Limits crew loss when the hull is hit |
 | Breach drive | FTL (Hyperstate) drive | Plot, spool, breach; guaranteed escape but loud |
-| Knell | Breach shockwave | Heard by every sensor in the system; repeated departure vectors raise relay exposure |
+| Knell | Breach shockwave (departure) | Heard by every sensor in the system, delayed at light speed (distance / c); repeated departure vectors raise relay exposure |
+| Arrival flash | Breach exit transient | Seen arena-wide as a bearing-only moment, about a full-burn magnitude, no trail; the arriver is blind for the first seconds (the wash) |
 | Common track | Standard departure vector | Fly it for a while before breaching to hide the haven |
 | Haven | Hidden dock or relay | Relay exposure stages: quiet, noticed, watched, found |
 | Coast / burn | Momentum versus drive ignition | Coasting is free and committed; a burn needs hull rotation and blooms |
