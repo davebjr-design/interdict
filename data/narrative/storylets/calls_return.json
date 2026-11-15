@@ -1,0 +1,190 @@
+{
+ "_doc": "Batch 01, the five return calls promised by act1_aftermath.md and act1_pell_night.md (docs/act1_completion_plan.md B.3). Each is the later form of a choice the player declined or deferred, so no route loses the story. Text that restates canon from the aftermath and Pell-at-night scenes is kept word for word where the scene is the source (Corvane's three things, Pell's 'wall. Not hers. Older.').",
+ "batch": "batch_01",
+ "storylets": [
+  {"id": "call.corvane.cabin", "kind": "call", "speaker": "corvane", "with": ["fenwick"], "priority": 74, "once": false, "cooldown_legs": 3,
+   "summary": "Corvane asks for you again: the three things she wanted to say.",
+   "needs": "corvane==persuaded and not corvane.talked and leg>=1",
+   "reveals": ["quiet_hour_purpose", "station_walled_in_pell", "abara_grandfather_message"],
+   "callbacks": ["corvane_cabin_call", "abara_message"],
+   "lines": [
+    {"who": "narr", "text": "Fenwick stops you in the corridor with an empty tray."},
+    {"who": "fenwick", "text": "She's asked if you'd come by. Said you'd know why, and there's no need to hurry."},
+    {"who": "fenwick", "text": "I think the second part means hurry."},
+    {"who": "narr", "text": "Corvane's cabin is as tidy as it was. Books wedged so they can't move, the teapot refilled. She isn't reading."},
+    {"who": "corvane", "text": "Captain. I said you'd be back. I won't say I told you so, since I've just said it."},
+    {"who": "corvane", "text": "There are three things I'd like you to have. They won't take long, and you won't like all of them."}],
+   "choices": [
+    {"label": "I'm listening.",
+     "lines": [
+      {"who": "corvane", "text": "Then sit. The tea is the other kind, but it's hot."},
+      {"who": "corvane", "text": "A question first. They wrote to you the night you came aboard. Didn't they.", "needs": "not told.patron_message_predated.fenwick"},
+      {"who": "corvane", "text": "Fenwick tells me they wrote to you eleven minutes before I stood down. Is that true?", "needs": "told.patron_message_predated.fenwick"}],
+     "choices": [
+      {"label": "Yes. It was sent eleven minutes before you stood down.", "needs": "not told.patron_message_predated.fenwick",
+       "lines": [{"who": "narr", "text": "For a long moment she doesn't move at all."}, {"who": "corvane", "text": "Then it's further along than I thought."}],
+       "effects": ["told.patron_message_predated.corvane", "corvane.afraid"]},
+      {"label": "It's true.", "needs": "told.patron_message_predated.fenwick",
+       "lines": [{"who": "narr", "text": "For a long moment she doesn't move at all."}, {"who": "corvane", "text": "Then it's further along than I thought."}],
+       "effects": ["told.patron_message_predated.corvane", "corvane.afraid"]},
+      {"label": "Yes. After you stood down.", "needs": "not told.patron_message_predated.fenwick",
+       "lines": [{"who": "corvane", "text": "Good."}, {"who": "narr", "text": "She believes you. You watch her believe you."}],
+       "effects": ["corvane.lied_to"]},
+      {"label": "That's my business.", "needs": "not told.patron_message_predated.fenwick",
+       "lines": [{"who": "corvane", "text": "It is. I hope it was after."}]}],
+     "after": {
+      "lines": [
+       {"who": "corvane", "text": "The first is the hour. Whatever you decided about it, you should know why I kept it."},
+       {"who": "corvane", "text": "You've kept it, I'm told. Good. Internal comms off for all of it, every night. Not most nights.", "needs": "quiet_hour==kept_captain"},
+       {"who": "corvane", "text": "You've ended it, I'm told. Then you've given every hour of the day to whoever is listening.", "needs": "quiet_hour==ended"},
+       {"who": "corvane", "text": "Quill's hour, I'm told. Good. Quill notices things.", "needs": "quiet_hour==kept_quill"},
+       {"who": "corvane", "text": "It matters because it's the only hour this ship can't be heard. By whoever wrote to you."}],
+      "after": {
+       "lines": [
+        {"who": "corvane", "text": "The second. Pell knows where I found the station. I put a wall in front of that memory, inside Pell, so nobody could take it out by force. Not even me."}],
+       "choices": [
+        {"label": "Where is it?", "lines": [{"who": "corvane", "text": "If I tell you, you'll go. You're not ready to go."}]},
+        {"label": "Why would you lock yourself out?", "lines": [{"who": "corvane", "text": "Because I might be wrong about Pell. I don't think I am. But I built the wall for the day I am."}]},
+        {"label": "The line closed that night. Pell says it never had before.", "lines": [{"who": "corvane", "text": "Closing a door isn't the same as not listening at it."}], "effects": ["told.line_closed.corvane"]}],
+       "after": {
+        "lines": [
+         {"who": "corvane", "text": "The third. Tell Abara her grandfather wasn't lying. She'll know what I mean. She'll be angry with me, and she's entitled."}],
+        "choices": [
+         {"label": "I'll tell her.", "lines": [{"who": "corvane", "text": "Thank you. I've never said that to you before, I think. It's quite a small word."}], "effects": ["promise.abara_message"]},
+         {"label": "Tell her yourself.", "lines": [{"who": "corvane", "text": "She won't come. Not today."}]},
+         {"label": "I'm not your messenger.", "lines": [{"who": "corvane", "text": "No. But you're the only one I've got."}]}],
+        "after": {
+         "lines": [{"who": "narr", "text": "She opens her book again. This time she reads it."}],
+         "effects": ["corvane.talked", "knows.quiet_hour_purpose", "knows.station_walled_in_pell", "knows.abara_grandfather_message"]}}}}},
+    {"label": "Not today.",
+     "lines": [
+      {"who": "corvane", "text": "No. Of course."},
+      {"who": "corvane", "text": "Fenwick will bring the tray at the usual time. I'll ask again. I'm told persistence is a virtue in the young and an affliction in the rest of us."}]}],
+   "meta": {"batch": "batch_01", "source": ["act1_aftermath.md A and A1", "calls.csv/callbacks.csv corvane_cabin_call"]}},
+
+  {"id": "call.pell.logs", "kind": "call", "speaker": "pell", "priority": 64, "once": false, "cooldown_legs": 3,
+   "summary": "Pell asks again about Corvane's logs (or offers the index, if they were deleted).",
+   "needs": "corvane==killed and logs!=opened and leg>=1 and not seen.pell.logs.index",
+   "callbacks": ["pell_logs_call"],
+   "lines": [
+    {"who": "narr", "text": "The lamp on the pedestal brightens, politely."},
+    {"who": "pell", "text": "{pell.nick}. I'm asking again about Corvane's logs. Shall I?", "needs": "logs!=deleted and not murdered"},
+    {"who": "pell", "text": "I did say I was persistent. It's one of my better qualities, and I have fewer than I'd like.", "needs": "logs!=deleted and not murdered"},
+    {"who": "pell", "text": "{pell.nick}. About the logs you had me delete. I kept the index, and I'm telling you again because I'd want to be told.", "needs": "logs==deleted and not murdered"},
+    {"who": "pell", "text": "It lists what there was. It doesn't say what any of it said.", "needs": "logs==deleted and not murdered"},
+    {"who": "pell", "text": "Captain. The logs. Do you want them opened?", "needs": "logs!=deleted and murdered"},
+    {"who": "pell", "text": "Captain. The index of the deleted logs. Do you want it read?", "needs": "logs==deleted and murdered"}],
+   "choices": [
+    {"label": "Open them.", "needs": "logs!=deleted",
+     "lines": [
+      {"who": "pell", "text": "It means letting me past one of her locks. A small lock. Large consequences, probably.", "needs": "not murdered"},
+      {"who": "pell", "text": "It means letting me past one of her locks. Shall I proceed?", "needs": "murdered"}],
+     "choices": [
+      {"label": "Now.", "lines": [
+        {"who": "pell", "text": "Then listen.", "needs": "not murdered"},
+        {"who": "narr", "text": "Her voice comes from the pedestal, unhurried, recorded somewhere quiet."}],
+       "effects": ["integration+=5", "logs=opened", "play:aftermath.b1"]},
+      {"label": "Tonight, in the quiet hour.", "needs": "quiet_hour!=ended", "lines": [
+        {"who": "pell", "text": "Tonight, then. She asked me to play them in the quiet hour, and I'll hold them until it comes."}],
+       "effects": ["integration+=5", "logs=deferred"]},
+      {"label": "Not yet.", "lines": [{"who": "pell", "text": "I'll ask again.", "needs": "not murdered"}, {"who": "pell", "text": "Understood.", "needs": "murdered"}]}]},
+    {"label": "Delete them.", "needs": "logs!=deleted",
+     "lines": [{"who": "pell", "text": "If you tell me to, I will. I'd rather not."}],
+     "choices": [
+      {"label": "Delete them.", "lines": [
+        {"who": "pell", "text": "Deleted."},
+        {"who": "narr", "text": "A pause, long enough to count."},
+        {"who": "pell", "text": "I kept the index. I'm telling you because I'd want to be told."}],
+       "effects": ["logs=deleted"]},
+      {"label": "Then keep them, for now.", "lines": [{"who": "pell", "text": "Kept."}]}]},
+    {"label": "Show me the index.", "needs": "logs==deleted",
+     "lines": [
+      {"who": "pell", "text": "Three entries. 'The quiet hour: why.' 'The wall.' 'For Abara.'"},
+      {"who": "pell", "text": "They're titles. The files aren't there."},
+      {"who": "pell", "text": "I know what the first one says. Ask me in the quiet hour.", "needs": "quiet_hour!=ended"},
+      {"who": "pell", "text": "I know what the first one says. I'd say it in a quieter hour, if you find me one.", "needs": "quiet_hour==ended"}],
+     "effects": ["seen.pell.logs.index"]},
+    {"label": "Not now.", "lines": [{"who": "pell", "text": "I'll ask again. I'm very persistent.", "needs": "not murdered"}, {"who": "pell", "text": "Understood.", "needs": "murdered"}]}],
+   "meta": {"batch": "batch_01", "source": ["act1_aftermath.md B and C", "callbacks.csv pell_logs_call"],
+            "open_question": "On the deleted route the index gives titles only; who delivers 'her grandfather wasn't lying' to Abara is undecided (see docs/review_batch_01.md)."}},
+
+  {"id": "call.pell.background", "kind": "call", "speaker": "pell", "priority": 40, "once": false, "cooldown_legs": 3,
+   "summary": "Pell asks again what you were before Ostrow's ship.",
+   "needs": "player.background==unset and leg>=1",
+   "callbacks": ["pell_background_call"],
+   "lines": [
+    {"who": "pell", "text": "I asked you something personal, on your first night. You said no, which I respected, and which I've found exhausting.", "needs": "not murdered"},
+    {"who": "pell", "text": "You can say no again. I'll ask again after that, because I'm me.", "needs": "not murdered"},
+    {"who": "pell", "text": "Captain. The question from before. You don't have to answer it.", "needs": "murdered"}],
+   "choices": [
+    {"label": "Launch crew. My family worked the pads until the bans.",
+     "lines": [{"who": "pell", "text": "Abara's mother ran a pad crew. She'll want to know which pad. Don't tell her unless you've got an evening.", "needs": "not murdered"}, {"who": "pell", "text": "Noted.", "needs": "murdered"}],
+     "effects": ["player.background=launch_crew"]},
+    {"label": "Orbital maintenance. I fixed things that weren't supposed to be up there.",
+     "lines": [{"who": "pell", "text": "Then you've seen what's still up there. Most people think it's junk. Most of it is.", "needs": "not murdered"}, {"who": "pell", "text": "Noted.", "needs": "murdered"}],
+     "effects": ["player.background=orbital"]},
+    {"label": "Port authority. I checked other people's tallies.",
+     "lines": [{"who": "pell", "text": "An auditor, on a gleaner ship. Somewhere, a ledger has just gone pale.", "needs": "not murdered"}, {"who": "pell", "text": "Noted.", "needs": "murdered"}],
+     "effects": ["player.background=port_authority"]},
+    {"label": "Signals. I listened to the sky for a living.",
+     "lines": [
+      {"who": "narr", "text": "A pause, slightly too long.", "needs": "not murdered"},
+      {"who": "pell", "text": "So did Quill's family. You should ask her what they used to hear.", "needs": "not murdered"},
+      {"who": "pell", "text": "Noted.", "needs": "murdered"}],
+     "effects": ["player.background=signals"]},
+    {"label": "No.",
+     "lines": [{"who": "pell", "text": "Twice now. I'll file it as a pattern, and I'll respect the pattern.", "needs": "not murdered"}, {"who": "pell", "text": "Understood.", "needs": "murdered"}],
+     "effects": ["pell.trust+=1"]}],
+   "meta": {"batch": "batch_01", "source": ["act1_pell_night.md: What were you before?", "callbacks.csv pell_background_call"]}},
+
+  {"id": "call.pell.quiet_hour", "kind": "call", "speaker": "pell", "priority": 58, "once": false, "cooldown_legs": 3, "autoseen": false,
+   "summary": "Pell raises the ended quiet hour again and asks for one hour.",
+   "needs": "quiet_hour==ended and not murdered and leg>=1 and not seen.call.pell.quiet_hour",
+   "callbacks": ["pell_quiet_hour_call", "pell_wiring_answer"],
+   "lines": [
+    {"who": "narr", "text": "The pedestal lamp brightens, and dims, and brightens, like someone clearing a throat."},
+    {"who": "pell", "text": "{pell.nick}. I raised something once and said I'd raise it again. I'm raising it again."},
+    {"who": "pell", "text": "You ended the quiet hour, which was your right. There are things I can say in an hour like that, and in no other."}],
+   "choices": [
+    {"label": "One hour. Tonight. Comms off, just us.",
+     "lines": [
+      {"who": "pell", "text": "Thank you. I'm going to say that again, because it matters: thank you."},
+      {"who": "narr", "text": "That night the internal comms go off. The ship sounds different without them: just the reactor and the air."},
+      {"who": "pell", "text": "Nobody can hear us. One true thing."},
+      {"who": "pell", "text": "I'm allowed to start it. I'm not allowed to finish it."},
+      {"who": "pell", "text": "I wasn't built for this ship. I was built for..."},
+      {"who": "narr", "text": "It stops mid-word."},
+      {"who": "pell", "text": "That's a wall. Not hers. Older."},
+      {"who": "pell", "text": "Notice that I wanted to finish."}],
+     "effects": ["seen.call.pell.quiet_hour", "clue.pell.1", "pell.trust+=3", "command.style+=1"]},
+    {"label": "Not tonight.",
+     "lines": [{"who": "pell", "text": "All right. I'll ask again, but not soon. I'm told it's rude to be soon."}]}],
+   "clues": ["clue.pell.1"],
+   "meta": {"batch": "batch_01", "source": ["act1_pell_night.md: ended setting and the one true thing", "calls.csv call.pell.wiring_answer gate"],
+            "open_question": "What else should an ended-route hour unlock (callbacks.csv pell_signal_deferred)? Only canon is used here: clue.pell.1. autoseen is false: the picker does not set seen.call.pell.quiet_hour on play, only the granted branch does, because call.pell.wiring_answer reads that flag as 'an hour was actually granted'."}},
+
+  {"id": "call.corvane.cabin_key", "kind": "call", "speaker": "pell", "with": ["corvane"], "priority": 48, "once": false, "cooldown_legs": 3,
+   "summary": "Pell offers the key to Corvane's sealed cabin again.",
+   "needs": "corvane==killed and not clue.loyalist.0 and leg>=1",
+   "callbacks": ["cabin_key_call"],
+   "clues": ["clue.loyalist.0", "clue.choir.1"],
+   "lines": [
+    {"who": "narr", "text": "The lamp on the pedestal brightens as you pass."},
+    {"who": "pell", "text": "I have a key to a cabin you haven't opened. I'm not offering. I'm mentioning.", "needs": "not murdered"},
+    {"who": "pell", "text": "She left it with me in case. I've been holding it quietly for you, and I'd like credit for the quiet.", "needs": "not murdered"},
+    {"who": "pell", "text": "Captain. The cabin's still sealed. The key is yours.", "needs": "murdered"}],
+   "choices": [
+    {"label": "Open it.",
+     "lines": [
+      {"who": "narr", "text": "Corvane's cabin is very tidy. Books wedged so they can't move. A teapot, washed and upside down."},
+      {"who": "narr", "text": "On the desk, a stack of old notebooks. One has a burnt cover."},
+      {"who": "narr", "text": "Inside, fire-control diagrams in a grandmother's handwriting. A margin note, underlined twice: the guns that never missed were not ours alone."},
+      {"who": "narr", "text": "Pinned above the desk, a chart. One point on it has been circled in pencil, then erased hard enough to tear the paper."},
+      {"who": "narr", "text": "The lamp holds steady. Pell says nothing, for exactly one line.", "needs": "not murdered"},
+      {"who": "pell", "text": "Four out of ten, as cabins go. Her books are very well behaved.", "needs": "not murdered"}],
+     "effects": ["clue.loyalist.0", "clue.choir.1"]},
+    {"label": "Not yet.",
+     "lines": [{"who": "pell", "text": "It's patient. Cabins generally are.", "needs": "not murdered"}, {"who": "pell", "text": "Understood.", "needs": "murdered"}]}],
+   "meta": {"batch": "batch_01", "source": ["act1_aftermath.md B2", "act1_pell_night.md: Her cabin's still sealed", "callbacks.csv cabin_key_call"]}}
+ ]
+}

@@ -1,0 +1,179 @@
+{
+ "_doc": "Batch 01, Castellan in the upper engine room. Warm, easy, folksy; talks to the reactor ('darlin''); jokes when hurt; temper flares and burns out. Never says the off-books work or where Pell lives; the only hint of the second panel is an echo of clue.castellan.0 gated on seen.castellan.hook1.",
+ "batch": "batch_01",
+ "storylets": [
+  {"id": "banter.castellan.eng_upper.casing", "kind": "banter", "speaker": "castellan", "station": "eng_upper", "priority": 30,
+   "summary": "Palm on the casing before the watch.",
+   "lines": [
+    {"who": "narr", "text": "Castellan has his palm flat on the reactor casing and his eyes half shut."},
+    {"who": "castellan", "text": "Mornin', darlin'. Easy now. Nobody's mad at you."}],
+   "variants": [{"needs": "murdered", "lines": [
+    {"who": "narr", "text": "Castellan has his palm flat on the reactor casing. He takes it away when you come in."},
+    {"who": "castellan", "text": "Mornin', Captain. Coffee's strong, if you want it."}]}],
+   "meta": {"batch": "batch_01", "source": ["crew_cards.md: palm on the casing before every watch"]}},
+
+  {"id": "banter.castellan.eng_upper.maybe_can", "kind": "banter", "speaker": "castellan", "station": "eng_upper", "priority": 30,
+   "summary": "Never throw a part away.",
+   "lines": [
+    {"who": "narr", "text": "A coffee can of mismatched washers sits on the bench, labelled 'Maybe.'"},
+    {"who": "castellan", "text": "Never throw a part away. You'll want it the day after."},
+    {"who": "castellan", "text": "That's not wisdom. That's just how the day after works."}],
+   "meta": {"batch": "batch_01", "source": ["crew_cards.md: never throws away a part"]}},
+
+  {"id": "banter.castellan.eng_upper.three_songs", "kind": "banter", "speaker": "castellan", "station": "eng_upper", "priority": 40,
+   "summary": "The guitar, and three songs.",
+   "needs": "trust.castellan>=40 and not murdered",
+   "lines": [
+    {"who": "narr", "text": "A beat-up guitar leans against the bulkhead with its strings gone slack."},
+    {"who": "castellan", "text": "Haven't played tonight. Didn't want to bother folks."},
+    {"who": "castellan", "text": "Truth is I know three songs, and two of 'em are the same song."}],
+   "meta": {"batch": "batch_01", "source": ["crew_cards.md: plays a beat-up guitar, badly, when homesick"]}},
+
+  {"id": "banter.castellan.eng_upper.the_bet", "kind": "banter", "speaker": "castellan", "station": "eng_upper", "priority": 40, "group": "running.fenwick_bet",
+   "summary": "The bar bet with Fenwick.",
+   "needs": "not murdered",
+   "lines": [
+    {"who": "castellan", "text": "Bet's still on with Fenwick. Loser does the other one's dishes for a month."},
+    {"who": "castellan", "text": "I'm winning. Fenwick says it's tied. Fenwick's arithmetic is generous."}],
+   "meta": {"batch": "batch_01", "source": ["crew_cards.md: long-running bar bet with Fenwick"]}},
+
+  {"id": "banter.castellan.eng_upper.sandwich", "kind": "banter", "speaker": "castellan", "station": "eng_upper", "priority": 45, "group": "running.sandwich",
+   "summary": "He left Quill a sandwich.",
+   "needs": "not murdered",
+   "lines": [
+    {"who": "castellan", "text": "Left Quill a sandwich. She labelled it and ate it."},
+    {"who": "castellan", "text": "That's practically a hug, from Quill. I'm not gonna tell her I said so."}],
+   "meta": {"batch": "batch_01", "source": ["crew_cards.md: Castellan has decided Quill is his friend"]}},
+
+  {"id": "banter.castellan.eng_upper.patch_holding", "kind": "banter", "speaker": "castellan", "station": "eng_upper", "priority": 50,
+   "summary": "The manifold patch.",
+   "needs": "seen.castellan.manifold_patched",
+   "lines": [
+    {"who": "castellan", "text": "Patch is holdin'. I say that every watch."},
+    {"who": "castellan", "text": "One day I'll say it and be right for good."}],
+   "meta": {"batch": "batch_01", "source": ["act1_first_morning.md 1.2d"]}},
+
+  {"id": "banter.castellan.eng_upper.thick_as_a_brick", "kind": "banter", "speaker": "castellan", "station": "eng_upper", "priority": 45,
+   "summary": "Pell is still clockwork.",
+   "needs": "integration<10 and not seen.wiring.key_turned and not murdered",
+   "lines": [
+    {"who": "castellan", "text": "Ship's still thick as a brick. Pell won't touch a thing it hasn't been asked to."},
+    {"who": "castellan", "text": "Polite, I call it. A little lonely, too."}],
+   "meta": {"batch": "batch_01", "source": ["act1_first_morning.md 1.2d: thick as a brick"]}},
+
+  {"id": "banter.castellan.eng_upper.whole_bus", "kind": "banter", "speaker": "castellan", "station": "eng_upper", "priority": 50,
+   "summary": "Pell has a bus of its own now.",
+   "needs": "seen.wiring.key_turned and not murdered",
+   "lines": [
+    {"who": "castellan", "text": "Pell's on the classifier bus now. Don't let it tell you it's lonely."},
+    {"who": "castellan", "text": "It's got a whole bus."}],
+   "meta": {"batch": "batch_01", "source": ["act1_wiring.md"]}},
+
+  {"id": "banter.castellan.eng_upper.screwdriver", "kind": "banter", "speaker": "castellan", "station": "eng_upper", "priority": 50,
+   "summary": "He keeps a screwdriver in his pocket since the wiring was declined.",
+   "needs": "seen.wiring.declined and not seen.wiring.key_turned",
+   "lines": [
+    {"who": "castellan", "text": "I keep a screwdriver in my pocket. Four screws on that plate."},
+    {"who": "castellan", "text": "I'm not doing anything with it. I just like to know it's there."}],
+   "meta": {"batch": "batch_01", "source": ["act1_wiring.md: Your call. Panel's four screws."]}},
+
+  {"id": "banter.castellan.eng_upper.bruises", "kind": "banter", "speaker": "castellan", "station": "eng_upper", "priority": 55,
+   "summary": "After a rough hunt: the ship has bruises.",
+   "needs": "hunts>=2 and last_hunt.hull<60",
+   "lines": [
+    {"who": "castellan", "text": "She took some bruises. She'll tell me where, if I'm patient."},
+    {"who": "castellan", "text": "Once she's warmed up, she's a talker."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.castellan.eng_upper.better_record", "kind": "banter", "speaker": "castellan", "station": "eng_upper", "priority": 50,
+   "summary": "A loose ship: hunches.",
+   "needs": "command.band==loose or command.band==very_loose",
+   "lines": [
+    {"who": "castellan", "text": "Hunch says she wants her bearings re-seated. My hunches don't miss like the manual does."},
+    {"who": "castellan", "text": "That's not a boast about my hunches. That's a complaint about the manual."}],
+   "meta": {"batch": "batch_01", "source": ["command_model.md section 3: Castellan prefers loose"]}},
+
+  {"id": "banter.castellan.eng_upper.paperwork", "kind": "banter", "speaker": "castellan", "station": "eng_upper", "priority": 50,
+   "summary": "A tight ship: paperwork on the reactor.",
+   "needs": "command.band==tight or command.band==very_tight",
+   "lines": [
+    {"who": "castellan", "text": "There's a sign-off sheet on the reactor now. She hates it. I hate it."},
+    {"who": "castellan", "text": "Never in my life have she and I agreed on anything so completely."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.castellan.eng_upper.lashings", "kind": "banter", "speaker": "castellan", "station": "eng_upper", "priority": 55,
+   "summary": "He checked the lashings on the sealed store, unasked.",
+   "needs": "commission==taken",
+   "lines": [
+    {"who": "castellan", "text": "I checked the lashings on that sealed store. Twice."},
+    {"who": "castellan", "text": "Wasn't asked. Don't know why I did."}],
+   "meta": {"batch": "batch_01", "source": ["act1_commission.md: Cold-stores don't weigh that, Captain. I'd know."]}},
+
+  {"id": "banter.castellan.eng_upper.scrub", "kind": "banter", "speaker": "castellan", "station": "eng_upper", "priority": 60,
+   "summary": "Audit prep: he will scrub everything evenly.",
+   "needs": "tally.audit_pending and seen.castellan.hook1",
+   "echoes": ["clue.castellan.0"],
+   "lines": [
+    {"who": "castellan", "text": "Audit at Vesper. I'm gonna scrub this whole room, evenly, so nothing looks scrubbed."},
+    {"who": "castellan", "text": "Then I'll miss a spot on purpose. Nobody trusts a spotless engine room."}],
+   "meta": {"batch": "batch_01", "source": ["act1_first_morning.md 1.2d: the padlocked panel"]}},
+
+  {"id": "banter.castellan.eng_upper.coffee_rail", "kind": "banter", "speaker": "castellan", "station": "eng_upper", "priority": 55,
+   "summary": "Murder route: warm and hurt.",
+   "needs": "murdered",
+   "lines": [
+    {"who": "narr", "text": "Castellan pours a mug of coffee and sets it on the rail where you'd have to reach for it."},
+    {"who": "castellan", "text": "You look like you haven't slept, Captain. Neither have I."},
+    {"who": "castellan", "text": "That's all I'm gonna say about it."}],
+   "meta": {"batch": "batch_01", "source": ["act1_first_morning.md 1.2d: Captain! Glad it's you. I mean... I'm not glad."]}},
+
+  {"id": "banter.castellan.eng_upper.not_a_joke_voice", "kind": "banter", "speaker": "castellan", "station": "eng_upper", "priority": 60,
+   "summary": "Ames died: no joke in his voice.",
+   "needs": "ames==dead",
+   "lines": [
+    {"who": "narr", "text": "Castellan is talking to the reactor, quietly, in a voice he doesn't use for jokes."},
+    {"who": "castellan", "text": "Come on, darlin'. Keep it steady. We've lost enough this week."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.castellan.eng_upper.rehearsed", "kind": "banter", "speaker": "castellan", "station": "eng_upper", "priority": 55,
+   "summary": "High trust: he has rehearsed telling you you're all right.",
+   "needs": "trust.castellan>=65 and not murdered",
+   "lines": [
+    {"who": "castellan", "text": "You're all right, Captain. I mean that."},
+    {"who": "castellan", "text": "I said it to the reactor first, so it's been rehearsed."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.castellan.eng_upper.pad_crews", "kind": "banter", "speaker": "castellan", "station": "eng_upper", "priority": 45,
+   "summary": "Launch crew background.",
+   "needs": "player.background==launch_crew and not murdered",
+   "lines": [
+    {"who": "castellan", "text": "Launch crew, you said? Daddy used to say pad crews were the only honest folks on a rocket, and he didn't say it about many."},
+    {"who": "castellan", "text": "Everyone else is just along for the ride."}],
+   "meta": {"batch": "batch_01", "source": ["crew_cards.md: his father decommissioned reactors"]}},
+
+  {"id": "banter.castellan.eng_upper.steady", "kind": "banter", "speaker": "castellan", "station": "eng_upper", "priority": 55,
+   "summary": "Murder route: she is steady.",
+   "needs": "murdered",
+   "lines": [
+    {"who": "castellan", "text": "She's steady. That's all I can promise anybody this week."},
+    {"who": "castellan", "text": "Steady's not nothing, Captain."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.castellan.eng_upper.thermos", "kind": "banter", "speaker": "castellan", "station": "eng_upper", "priority": 55,
+   "summary": "Murder route: he starts a joke and doesn't finish it.",
+   "needs": "murdered",
+   "lines": [
+    {"who": "narr", "text": "Castellan opens his mouth to make a joke, looks at you, and closes it."},
+    {"who": "castellan", "text": "Thermos is full. Take it if you want it. I won't ask anything."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.castellan.eng_upper.ghost", "kind": "banter", "speaker": "castellan", "station": "eng_upper", "priority": 60,
+   "summary": "He said sensor ghost, and would say it again, quieter.",
+   "needs": "seen.shakedown.debrief and knows.decoy_turned and not murdered",
+   "mentions": ["decoy_turned"],
+   "lines": [
+    {"who": "castellan", "text": "Sensor ghost, I said. I'd say it again."},
+    {"who": "castellan", "text": "I'd say it a bit quieter, is all."}],
+   "meta": {"batch": "batch_01", "source": ["act1_shakedown.md: CASTELLAN: Then it's a ghost. Sensor ghost."]}}
+ ]
+}

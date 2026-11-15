@@ -1,0 +1,256 @@
+{
+ "_doc": "Shared condition vectors. tests/storylet_test.js (web/storylets.js) and tests/storylet_conditions_test.py (tools/storylet_lib.py) both run every row; if they disagree the grammar has drifted. state is flat; names missing from it read as unset (false / 0 / 'unset').",
+ "eval": [
+  {
+   "expr": "",
+   "state": {},
+   "expect": true
+  },
+  {
+   "expr": "act>=1",
+   "state": {
+    "act": 1
+   },
+   "expect": true
+  },
+  {
+   "expr": "act>=1",
+   "state": {
+    "act": 0
+   },
+   "expect": false
+  },
+  {
+   "expr": "act>=1, leg>=2",
+   "state": {
+    "act": 1,
+    "leg": 2
+   },
+   "expect": true
+  },
+  {
+   "expr": "act>=1, leg>=2",
+   "state": {
+    "act": 1,
+    "leg": 1
+   },
+   "expect": false
+  },
+  {
+   "expr": "act>=1 and leg>=2",
+   "state": {
+    "act": 1,
+    "leg": 3
+   },
+   "expect": true
+  },
+  {
+   "expr": "corvane==persuaded",
+   "state": {
+    "corvane": "persuaded"
+   },
+   "expect": true
+  },
+  {
+   "expr": "corvane==persuaded",
+   "state": {
+    "corvane": "killed"
+   },
+   "expect": false
+  },
+  {
+   "expr": "corvane=persuaded",
+   "state": {
+    "corvane": "persuaded"
+   },
+   "expect": true
+  },
+  {
+   "expr": "corvane!=unset",
+   "state": {},
+   "expect": false
+  },
+  {
+   "expr": "corvane==unset",
+   "state": {},
+   "expect": true
+  },
+  {
+   "expr": "murdered",
+   "state": {
+    "murdered": true
+   },
+   "expect": true
+  },
+  {
+   "expr": "murdered",
+   "state": {},
+   "expect": false
+  },
+  {
+   "expr": "not murdered",
+   "state": {},
+   "expect": true
+  },
+  {
+   "expr": "!murdered",
+   "state": {
+    "murdered": true
+   },
+   "expect": false
+  },
+  {
+   "expr": "not murdered and trust.abara>=60",
+   "state": {
+    "trust.abara": 61
+   },
+   "expect": true
+  },
+  {
+   "expr": "not murdered and trust.abara>=60",
+   "state": {
+    "trust.abara": 61,
+    "murdered": true
+   },
+   "expect": false
+  },
+  {
+   "expr": "(quiet_hour!=ended or seen.call.pell.quiet_hour)",
+   "state": {
+    "quiet_hour": "ended"
+   },
+   "expect": false
+  },
+  {
+   "expr": "(quiet_hour!=ended or seen.call.pell.quiet_hour)",
+   "state": {
+    "quiet_hour": "ended",
+    "seen.call.pell.quiet_hour": true
+   },
+   "expect": true
+  },
+  {
+   "expr": "(quiet_hour!=ended or seen.call.pell.quiet_hour)",
+   "state": {
+    "quiet_hour": "kept_quill"
+   },
+   "expect": true
+  },
+  {
+   "expr": "hunts>wiring.hunt_at",
+   "state": {
+    "hunts": 3,
+    "wiring.hunt_at": 2
+   },
+   "expect": true
+  },
+  {
+   "expr": "hunts>wiring.hunt_at",
+   "state": {
+    "hunts": 2,
+    "wiring.hunt_at": 2
+   },
+   "expect": false
+  },
+  {
+   "expr": "command.band==tight or command.band==very_tight",
+   "state": {
+    "command.band": "very_tight"
+   },
+   "expect": true
+  },
+  {
+   "expr": "command.band==tight or command.band==very_tight",
+   "state": {
+    "command.band": "neutral"
+   },
+   "expect": false
+  },
+  {
+   "expr": "logs!=opened and logs!=deleted",
+   "state": {
+    "logs": "sealed"
+   },
+   "expect": true
+  },
+  {
+   "expr": "last_hunt.hull<60",
+   "state": {
+    "last_hunt.hull": 59
+   },
+   "expect": true
+  },
+  {
+   "expr": "last_hunt.hull<60",
+   "state": {
+    "last_hunt.hull": 60
+   },
+   "expect": false
+  },
+  {
+   "expr": "not (a and b)",
+   "state": {
+    "a": true,
+    "b": true
+   },
+   "expect": false
+  },
+  {
+   "expr": "not (a and b)",
+   "state": {
+    "a": true
+   },
+   "expect": true
+  },
+  {
+   "expr": "a or b and c",
+   "state": {
+    "a": true
+   },
+   "expect": true
+  },
+  {
+   "expr": "a or b and c",
+   "state": {
+    "b": true
+   },
+   "expect": false
+  },
+  {
+   "expr": "pell.nick!=Captain",
+   "state": {
+    "pell.nick": "Captain Quick"
+   },
+   "expect": true
+  },
+  {
+   "expr": "pell.nick!=Captain",
+   "state": {
+    "pell.nick": "Captain"
+   },
+   "expect": false
+  },
+  {
+   "expr": "trust.quill<35",
+   "state": {},
+   "expect": true
+  },
+  {
+   "expr": "integration>=10",
+   "state": {
+    "integration": 10
+   },
+   "expect": true
+  }
+ ],
+ "errors": [
+  "act>=",
+  "act>=1 and",
+  "(act>=1",
+  "act>=1)",
+  ">=1",
+  "act >= 1 2",
+  "clock.decision>=22:09",
+  "and"
+ ]
+}

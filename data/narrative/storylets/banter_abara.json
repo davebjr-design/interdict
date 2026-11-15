@@ -1,0 +1,177 @@
+{
+ "_doc": "Batch 01, Abara at the control room (chart table, tactical). Ambient banter, state-aware. Written to docs/pov_sheets.md and docs/crew_cards.md: dry, plain, complains about what she is about to fix; never speaks of her grief or what Corvane was to her; 'kid' slips out only when she has decided she likes you.",
+ "batch": "batch_01",
+ "storylets": [
+  {"id": "banter.abara.control.drawers", "kind": "banter", "speaker": "abara", "station": "control", "priority": 30,
+   "summary": "Relabelling drawers.",
+   "lines": [
+    {"who": "narr", "text": "Abara is relabelling a drawer. The new label looks exactly like the old one."},
+    {"who": "abara", "text": "Don't ask. It wasn't wrong. It just wasn't mine."}],
+   "variants": [{"needs": "murdered", "lines": [
+    {"who": "narr", "text": "Abara is relabelling a drawer. She doesn't look up."},
+    {"who": "abara", "text": "Chart's corrected. Plot's corrected. Anything else, Captain?"}]}],
+   "meta": {"batch": "batch_01", "source": ["crew_cards.md: relabels drawers"]}},
+
+  {"id": "banter.abara.control.two_witnesses", "kind": "banter", "speaker": "abara", "station": "control", "priority": 30,
+   "summary": "Plot and chart disagree.",
+   "lines": [
+    {"who": "abara", "text": "Plot says one thing, chart says another. It's like having two witnesses who've both sworn on the same book."},
+    {"who": "abara", "text": "I'll believe the chart. It's never lied to me. It's just been wrong, which is different."}],
+   "variants": [{"needs": "murdered", "lines": [
+    {"who": "abara", "text": "Plot and chart disagree by a tenth. I've fixed the chart. The plot can fix itself."}]}],
+   "meta": {"batch": "batch_01", "source": ["act1_first_morning.md 1.2a"]}},
+
+  {"id": "banter.abara.control.glasses", "kind": "banter", "speaker": "abara", "station": "control", "priority": 30,
+   "summary": "Lost glasses.",
+   "lines": [
+    {"who": "narr", "text": "Abara feels along the cord at her neck. The cord is there. The glasses aren't."},
+    {"who": "abara", "text": "I'm not saying anyone moved them. I'm saying they've got a history of walking."},
+    {"who": "narr", "text": "They're on her forehead. You decide not to be the one to say so."}],
+   "meta": {"batch": "batch_01", "source": ["crew_cards.md: glasses on a cord she keeps losing"]}},
+
+  {"id": "banter.abara.control.tea", "kind": "banter", "speaker": "abara", "station": "control", "priority": 30,
+   "summary": "Tea on the hob.",
+   "needs": "not murdered",
+   "lines": [
+    {"who": "abara", "text": "Tea's on. It's strong enough to strip paint, which is how you know it's working."},
+    {"who": "abara", "text": "The mug with the chip is mine. Take any other one."}],
+   "meta": {"batch": "batch_01", "source": ["crew_cards.md: strong tea"]}},
+
+  {"id": "banter.abara.control.tight_ship", "kind": "banter", "speaker": "abara", "station": "control", "priority": 50,
+   "summary": "Approves of a tight ship.",
+   "needs": "command.band==tight or command.band==very_tight",
+   "lines": [
+    {"who": "abara", "text": "Checklist's signed, tubes are counted, and nobody's touched my chart."},
+    {"who": "abara", "text": "I'd say I could get used to it. I'm too old to get used to things. I'll just enjoy it."}],
+   "meta": {"batch": "batch_01", "source": ["command_model.md section 3: Abara prefers tight-ish"]}},
+
+  {"id": "banter.abara.control.dartboard", "kind": "banter", "speaker": "abara", "station": "control", "priority": 50,
+   "summary": "A loose ship gets a dartboard.",
+   "needs": "command.band==loose or command.band==very_loose",
+   "lines": [
+    {"who": "abara", "text": "Somebody's hung a dartboard in the mess. It's crooked."},
+    {"who": "abara", "text": "I intend to blame it for every game I lose, and I'd like you to back me up when I do."}],
+   "meta": {"batch": "batch_01", "source": ["crew_cards.md: plays darts to win and blames the board", "command_model.md section 7: loose props"]}},
+
+  {"id": "banter.abara.control.kid_slip", "kind": "banter", "speaker": "abara", "station": "control", "priority": 55,
+   "summary": "Trust is high enough that 'kid' slips out.",
+   "needs": "trust.abara>=60 and not murdered",
+   "lines": [
+    {"who": "abara", "text": "Sit down, kid. Tea's hot."},
+    {"who": "narr", "text": "She hears it a second after you do."},
+    {"who": "abara", "text": "Captain. Sit down, Captain. Habit. It'll wear off, or it won't."}],
+   "meta": {"batch": "batch_01", "source": ["crew_cards.md: calls younger crew kid until she decides she likes them"]}},
+
+  {"id": "banter.abara.control.low_trust", "kind": "banter", "speaker": "abara", "station": "control", "priority": 50,
+   "summary": "Guarded: the watch bill, strictly business.",
+   "needs": "trust.abara<30 and not murdered",
+   "lines": [
+    {"who": "abara", "text": "Watch bill's on the table. Initial it, or tell me what's wrong with it."},
+    {"who": "abara", "text": "Either's fine. Neither is also an answer."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.abara.control.third_watch", "kind": "banter", "speaker": "abara", "station": "control", "priority": 50,
+   "summary": "The captain has the third watch.",
+   "needs": "watch.captain_third and not murdered",
+   "lines": [
+    {"who": "abara", "text": "I've put you on the third watch in pen. Don't make me reach for the eraser."}],
+   "meta": {"batch": "batch_01", "source": ["act1_first_morning.md: Put me on it", "state.json watch.captain_third"]}},
+
+  {"id": "banter.abara.control.dents", "kind": "banter", "speaker": "abara", "station": "control", "priority": 55,
+   "summary": "After a rough hunt she counts the damage.",
+   "needs": "hunts>=2 and last_hunt.hull<60",
+   "lines": [
+    {"who": "narr", "text": "Abara is tallying dents on a slate. She crosses one out and writes it again."},
+    {"who": "abara", "text": "Counted them twice and got the same number both times. That's the only good news in the room."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.abara.control.own_handwriting", "kind": "banter", "speaker": "abara", "station": "control", "priority": 60,
+   "summary": "After the shakedown she keeps looking for someone else's handwriting.",
+   "needs": "seen.shakedown.debrief and knows.decoy_turned",
+   "mentions": ["decoy_turned"],
+   "lines": [
+    {"who": "abara", "text": "I wired that transponder into the guidance myself. In my own hand."},
+    {"who": "abara", "text": "I keep looking at the schematic for somebody else's handwriting. It's very rude of it to be mine."}],
+   "meta": {"batch": "batch_01", "source": ["act1_shakedown.md: Abara realises she wired the relay box into its guidance"]}},
+
+  {"id": "banter.abara.control.guest_ate", "kind": "banter", "speaker": "abara", "station": "control", "priority": 60,
+   "summary": "Persuaded route: the guest in the cabin.",
+   "needs": "corvane==persuaded",
+   "lines": [
+    {"who": "abara", "text": "Our guest ate everything again. Fenwick says that's worry."},
+    {"who": "abara", "text": "I say it's Fenwick's cooking. He can take that as a compliment or a diagnosis."}],
+   "meta": {"batch": "batch_01", "source": ["act1_aftermath.md A: she always eats everything when she's worried"]}},
+
+  {"id": "banter.abara.control.hold_two", "kind": "banter", "speaker": "abara", "station": "control", "priority": 58,
+   "summary": "The sealed store in hold two.",
+   "needs": "commission==taken",
+   "lines": [
+    {"who": "abara", "text": "That sealed store's riding in hold two like a guest nobody invited."},
+    {"who": "abara", "text": "I check the lashings every watch. Call it hospitality."}],
+   "meta": {"batch": "batch_01", "source": ["act1_commission.md"]}},
+
+  {"id": "banter.abara.control.audit", "kind": "banter", "speaker": "abara", "station": "control", "priority": 60,
+   "summary": "Advice on audits.",
+   "needs": "tally.audit_pending",
+   "lines": [
+    {"who": "abara", "text": "I've sat through four audits. The trick is boredom."},
+    {"who": "abara", "text": "Be so tidy the auditor falls asleep before they find anything. It works more often than honesty, and I say that as someone who doesn't say it lightly."}],
+   "meta": {"batch": "batch_01", "source": ["act1_close.md: Tally audit at Vesper"]}},
+
+  {"id": "banter.abara.control.old_habit_hour", "kind": "banter", "speaker": "abara", "station": "control", "priority": 50,
+   "summary": "The quiet hour is gone; her hands still remember it.",
+   "needs": "quiet_hour==ended",
+   "lines": [
+    {"who": "narr", "text": "At the usual hour, Abara gets up, looks at the bridge, and sits back down."},
+    {"who": "abara", "text": "Still reach for the switch. You'd be amazed what your hands remember."}],
+   "meta": {"batch": "batch_01", "source": ["act1_crew_meeting.md: the quiet hour ended"]}},
+
+  {"id": "banter.abara.control.bodge", "kind": "banter", "speaker": "abara", "station": "control", "priority": 55,
+   "summary": "The classifier link: a bodge that works.",
+   "needs": "seen.wiring.key_turned and integration>=10",
+   "lines": [
+    {"who": "abara", "text": "Quill says the reads are quicker. I say a bodge that works is still a bodge, and I'm not wrong."},
+    {"who": "abara", "text": "I'd just like us to agree which one it is before an inspector does."}],
+   "meta": {"batch": "batch_01", "source": ["act1_wiring.md"]}},
+
+  {"id": "banter.abara.control.nickname", "kind": "banter", "speaker": "abara", "station": "control", "priority": 40,
+   "summary": "Pell's nickname for the captain.",
+   "needs": "pell.nick!=Captain and not murdered",
+   "lines": [
+    {"who": "abara", "text": "Pell's calling you {pell.nick} now. I'll say this for it, it pays attention."},
+    {"who": "abara", "text": "I'd be more comfortable if I knew what it was paying attention for."}],
+   "meta": {"batch": "batch_01", "source": ["pell_voice.md: changing nickname"]}},
+
+  {"id": "banter.abara.control.bill_done", "kind": "banter", "speaker": "abara", "station": "control", "priority": 55,
+   "summary": "Murder route: the watch bill, done.",
+   "needs": "murdered",
+   "lines": [
+    {"who": "narr", "text": "Abara puts the watch bill on the chart table instead of handing it to you."},
+    {"who": "abara", "text": "It's done. Your name's where it has to be. Nothing else needs saying."}],
+   "meta": {"batch": "batch_01", "source": ["act1_first_morning.md: murdered, she looks at the chart and stays there"]}},
+
+  {"id": "banter.abara.control.nothing_in_range", "kind": "banter", "speaker": "abara", "station": "control", "priority": 55,
+   "summary": "Murder route: eyes on the chart.",
+   "needs": "murdered",
+   "lines": [
+    {"who": "narr", "text": "Abara keeps her eyes on the chart. There is nothing new on it."},
+    {"who": "abara", "text": "Plot's clean. Nothing in range. I'll tell you when that changes."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.abara.control.cold_mug", "kind": "banter", "speaker": "abara", "station": "control", "priority": 58,
+   "summary": "Murder route: a mug of cold tea nobody moves.",
+   "needs": "murdered",
+   "lines": [
+    {"who": "narr", "text": "A mug of tea sits cold at the end of the chart table. Nobody has moved it."},
+    {"who": "abara", "text": "That one's not for you. It's not for anyone. I just haven't thrown it out yet."}],
+   "meta": {"batch": "batch_01", "source": ["act1_first_morning.md: Who stood the third watch? She did."]}},
+
+  {"id": "banter.abara.control.read_a_ledger", "kind": "banter", "speaker": "abara", "station": "control", "priority": 45,
+   "summary": "Port authority background: you will check her arithmetic.",
+   "needs": "player.background==port_authority and not murdered",
+   "lines": [
+    {"who": "abara", "text": "Port authority, you said. So you'll be checking my arithmetic."},
+    {"who": "abara", "text": "Check it. It's right. It's always right, and I'll resent the checking anyway."}],
+   "meta": {"batch": "batch_01", "source": ["act1_pell_night.md: player.background"]}}
+ ]
+}

@@ -1,0 +1,188 @@
+{
+ "_doc": "Batch 01, Dace in the thermal bay. Fast, eager, over-explains, charming, stung by being managed; a Dawner who has never said so aboard; the expulsion is never named here (it is gated by knows.dace_expulsion and no storylet in this batch has that gate).",
+ "batch": "batch_01",
+ "storylets": [
+  {"id": "banter.dace.thermal.curve", "kind": "banter", "speaker": "dace", "station": "thermal", "priority": 30,
+   "summary": "The sink curve on the bulkhead.",
+   "lines": [
+    {"who": "narr", "text": "Dace has the sink curve chalked on the bulkhead and is studying it the way other people study weather."},
+    {"who": "dace", "text": "Look at that shoulder, it's beautiful. It's also the thing that cooks us if we're stupid. Both! It's both."}],
+   "variants": [{"needs": "murdered", "lines": [
+    {"who": "narr", "text": "Dace starts to explain the sink curve and stops."},
+    {"who": "dace", "text": "Sorry. I explain when I'm nervous. Sink's at thirty percent. That's the whole report."}]}],
+   "meta": {"batch": "batch_01", "source": ["act1_first_morning.md 1.2c: I'm explaining. I explain when I'm... it's fine"]}},
+
+  {"id": "banter.dace.thermal.crest_mug", "kind": "banter", "speaker": "dace", "station": "thermal", "priority": 30,
+   "summary": "The cracked mug with a school crest.",
+   "lines": [
+    {"who": "narr", "text": "The cracked mug with the school crest is holding his pens again."},
+    {"who": "dace", "text": "Don't look at the mug. It's a very good mug. It's seen things."}],
+   "meta": {"batch": "batch_01", "source": ["act1_first_morning.md 1.2c"]}},
+
+  {"id": "banter.dace.thermal.spy_novel", "kind": "banter", "speaker": "dace", "station": "thermal", "priority": 30,
+   "summary": "A spy novel, chapter nine.",
+   "needs": "not murdered",
+   "lines": [
+    {"who": "dace", "text": "Don't tell me who the traitor is. I'm on chapter nine and it's either the cook or the pilot."},
+    {"who": "dace", "text": "Not you, Fenwick, I can hear you thinking about it. Don't."}],
+   "meta": {"batch": "batch_01", "source": ["crew_cards.md: reads spy novels in the thermal bay"]}},
+
+  {"id": "banter.dace.thermal.not_bad", "kind": "banter", "speaker": "dace", "station": "thermal", "priority": 40,
+   "summary": "Abara said 'not bad.'",
+   "needs": "not murdered",
+   "lines": [
+    {"who": "dace", "text": "Abara looked at my flow diagram and said, 'Not bad.' Two words, and I'm fairly sure one of them was 'not.'"},
+    {"who": "dace", "text": "I'm having them framed."}],
+   "meta": {"batch": "batch_01", "source": ["crew_cards.md: Dace most wants to impress Abara"]}},
+
+  {"id": "banter.dace.thermal.pipes_ideas", "kind": "banter", "speaker": "dace", "station": "thermal", "priority": 40,
+   "summary": "Castellan says pipe tapping gives the reactor ideas.",
+   "needs": "not murdered",
+   "lines": [
+    {"who": "dace", "text": "Castellan says my pipe tapping gives the reactor ideas. I said pipes don't have ideas."},
+    {"who": "dace", "text": "He said, 'Neither do doctors.' Which is fair. Which is, hang on. Which is wrong."}],
+   "meta": {"batch": "batch_01", "source": ["crew_cards.md: rivalry with Castellan over who's smarter"]}},
+
+  {"id": "banter.dace.thermal.notebook", "kind": "banter", "speaker": "dace", "station": "thermal", "priority": 35,
+   "summary": "Coolant readings and patient notes share a page.",
+   "lines": [
+    {"who": "narr", "text": "Dace writes in his pocket notebook, then squints at the page."},
+    {"who": "dace", "text": "'Fenwick, left knee, grumbling.' 'Port sink, ninety-one.' I've put them on the same line. I think the knee's thermal."}],
+   "meta": {"batch": "batch_01", "source": ["crew_cards.md: pocket notebook mixes coolant readings with patient notes"]}},
+
+  {"id": "banter.dace.thermal.doctor", "kind": "banter", "speaker": "dace", "station": "thermal", "priority": 50,
+   "summary": "You called him Doctor.",
+   "needs": "seen.dace.hook1 and not murdered",
+   "lines": [
+    {"who": "dace", "text": "Nobody's called me 'Doctor' in a while. It got into my head."},
+    {"who": "dace", "text": "Doctor Dace. It sounds like a radio play. I'm not saying I mind."}],
+   "meta": {"batch": "batch_01", "source": ["act1_first_morning.md 1.2c: Thank you, Doctor"]}},
+
+  {"id": "banter.dace.thermal.arrangement", "kind": "banter", "speaker": "dace", "station": "thermal", "priority": 55,
+   "summary": "His arrangement with Pell, after the burn.",
+   "needs": "seen.call.dace.burn_1 and integration>=3 and not murdered",
+   "lines": [
+    {"who": "dace", "text": "Pell and I have an arrangement. I ask nicely, it answers precisely."},
+    {"who": "dace", "text": "Best working relationship I've ever had, and that includes the ones with people."}],
+   "meta": {"batch": "batch_01", "source": ["act1_calls.md call.dace.burn_1"]}},
+
+  {"id": "banter.dace.thermal.eleven_apologies", "kind": "banter", "speaker": "dace", "station": "thermal", "priority": 45,
+   "summary": "Pell's grudge ledger, from Dace's side.",
+   "needs": "not murdered",
+   "lines": [
+    {"who": "dace", "text": "Pell says I'm eleven apologies behind on the sink cooling. I apologised once."},
+    {"who": "dace", "text": "I don't see how one turns into eleven. I'm not a bookkeeper. I'm a... well. I'm something."}],
+   "meta": {"batch": "batch_01", "source": ["pell_voice.md: grudge ledger against Dace over the sink cooling"]}},
+
+  {"id": "banter.dace.thermal.shoulders", "kind": "banter", "speaker": "dace", "station": "thermal", "priority": 60,
+   "summary": "Ames lived: Dace on shoulder wounds.",
+   "needs": "ames==wounded",
+   "lines": [
+    {"who": "dace", "text": "Shoulder wounds like Ostrow's boy's are mostly boredom and infection."},
+    {"who": "dace", "text": "I'd like to be bored on his behalf. Don't tell anyone I said that."}],
+   "meta": {"batch": "batch_01", "source": ["act1_first_morning.md 1.2c: I packed the shoulder before Dunne took him"]}},
+
+  {"id": "banter.dace.thermal.music_low", "kind": "banter", "speaker": "dace", "station": "thermal", "priority": 60,
+   "summary": "Ames died: the music is down, not off.",
+   "needs": "ames==dead",
+   "lines": [
+    {"who": "narr", "text": "The music in the thermal bay is low enough that you can hear the pipes."},
+    {"who": "dace", "text": "I turned it down. Not off. Seemed the least I could do."}],
+   "meta": {"batch": "batch_01", "source": ["act1_first_morning.md 1.2c: There wasn't anything"]}},
+
+  {"id": "banter.dace.thermal.dancing_pipes", "kind": "banter", "speaker": "dace", "station": "thermal", "priority": 50,
+   "summary": "A loose ship: music is allowed again.",
+   "needs": "command.band==loose or command.band==very_loose",
+   "lines": [
+    {"who": "dace", "text": "Music's allowed again, did you notice? Loud. The pipes are practically dancing."}],
+   "meta": {"batch": "batch_01", "source": ["command_model.md section 7: music in the thermal bay"]}},
+
+  {"id": "banter.dace.thermal.the_box", "kind": "banter", "speaker": "dace", "station": "thermal", "priority": 50,
+   "summary": "A tight ship: his name in a box on the roster.",
+   "needs": "command.band==tight or command.band==very_tight",
+   "lines": [
+    {"who": "dace", "text": "There's a duty roster on the wall now. My name's in a box. It's a nice box."},
+    {"who": "dace", "text": "I'm not saying I don't feel managed. I'm saying the box is nice."}],
+   "meta": {"batch": "batch_01", "source": ["command_model.md section 7: tight props"]}},
+
+  {"id": "banter.dace.thermal.cataloguing", "kind": "banter", "speaker": "dace", "station": "thermal", "priority": 55,
+   "summary": "After a bad hunt: cataloguing, not complaining.",
+   "needs": "hunts>=2 and last_hunt.hull<60",
+   "lines": [
+    {"who": "dace", "text": "Hull took a hit and the sink took it worse. I'm not complaining. I'm cataloguing."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.dace.thermal.both_feelings", "kind": "banter", "speaker": "dace", "station": "thermal", "priority": 55,
+   "summary": "The sealed 'medical' store.",
+   "needs": "commission==taken and not murdered",
+   "lines": [
+    {"who": "dace", "text": "Hospital-ship stores. If it's medicine, I want an inventory. If it isn't, I'd rather not know."},
+    {"who": "dace", "text": "I'm having both feelings at once and neither one is winning."}],
+   "meta": {"batch": "batch_01", "source": ["act1_commission.md: DACE: It's from a hospital ship"]}},
+
+  {"id": "banter.dace.thermal.finish_sentences", "kind": "banter", "speaker": "dace", "station": "thermal", "priority": 55,
+   "summary": "High trust: you let him finish.",
+   "needs": "trust.dace>=60 and not murdered",
+   "lines": [
+    {"who": "dace", "text": "You let me finish my sentences. Do you know how rare that is?"},
+    {"who": "dace", "text": "Abara's never once let me finish one, and I have never admired anyone more."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.dace.thermal.labels", "kind": "banter", "speaker": "dace", "station": "thermal", "priority": 50,
+   "summary": "Low trust: stung, and he's labelled the valves.",
+   "needs": "trust.dace<30 and not murdered",
+   "lines": [
+    {"who": "dace", "text": "I've labelled the sink valves. If you want to check my work, the labels are right."},
+    {"who": "dace", "text": "If you want to check me, I'd rather you just said."}],
+   "meta": {"batch": "batch_01", "source": ["crew_cards.md: hates being managed"]}},
+
+  {"id": "banter.dace.thermal.cannot_sleep", "kind": "banter", "speaker": "dace", "station": "thermal", "priority": 55,
+   "summary": "Murder route: he checks whether anyone else can't sleep.",
+   "needs": "murdered",
+   "lines": [
+    {"who": "narr", "text": "Dace takes his own pulse, frowns, and does it again."},
+    {"who": "dace", "text": "I keep checking whether I'm the only one who can't sleep. Occupational. Don't answer that."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.dace.thermal.healthy", "kind": "banter", "speaker": "dace", "station": "thermal", "priority": 55,
+   "summary": "Murder route: nothing wrong to report.",
+   "needs": "murdered",
+   "lines": [
+    {"who": "dace", "text": "I've nothing wrong to report, Captain. Everyone's healthy."},
+    {"who": "dace", "text": "I wish that meant more than it does."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.dace.thermal.just_coolant", "kind": "banter", "speaker": "dace", "station": "thermal", "priority": 58,
+   "summary": "Murder route: he shields the notebook, then is ashamed of it.",
+   "needs": "murdered",
+   "lines": [
+    {"who": "narr", "text": "Dace writes in his notebook, shields it with his arm, and then, ashamed of that, lowers the arm."},
+    {"who": "dace", "text": "Coolant readings. Just coolant."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.dace.thermal.orbital", "kind": "banter", "speaker": "dace", "station": "thermal", "priority": 45,
+   "summary": "Orbital maintenance background.",
+   "needs": "player.background==orbital and not murdered",
+   "lines": [
+    {"who": "dace", "text": "Orbital maintenance, you said? Then you've seen thermal failures I've only read about."},
+    {"who": "dace", "text": "Don't tell me about them. Tell me about them slowly."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.dace.thermal.nothing_in_the_log", "kind": "banter", "speaker": "dace", "station": "thermal", "priority": 60,
+   "summary": "The decoy turned, and his notebook says 'coolant, normal'.",
+   "needs": "seen.shakedown.debrief and knows.decoy_turned and not murdered",
+   "mentions": ["decoy_turned"],
+   "lines": [
+    {"who": "dace", "text": "A hull full of nothing turned toward us, and my notebook says 'coolant, normal.'"},
+    {"who": "dace", "text": "I have never felt less useful or more interested."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.dace.thermal.labelled_twice", "kind": "banter", "speaker": "dace", "station": "thermal", "priority": 60,
+   "summary": "Before the audit: labelled twice.",
+   "needs": "tally.audit_pending and not murdered",
+   "lines": [
+    {"who": "dace", "text": "Audit at Vesper. I've labelled everything in the thermal bay twice."},
+    {"who": "dace", "text": "If it isn't labelled, it isn't mine, and I'll say so very clearly."}],
+   "meta": {"batch": "batch_01"}}
+ ]
+}

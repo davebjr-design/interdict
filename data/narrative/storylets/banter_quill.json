@@ -1,0 +1,186 @@
+{
+ "_doc": "Batch 01, Quill at sensors (control room). Formal, measured, dry; 'Captain' as punctuation; corrects, never interrupts; never says anything she isn't sure of; hides the signals until 1.9 (so nothing here names them before knows.unexplained_signals).",
+ "batch": "batch_01",
+ "storylets": [
+  {"id": "banter.quill.control.calibration", "kind": "banter", "speaker": "quill", "station": "control", "priority": 30,
+   "summary": "Calibration, in the same order as always.",
+   "lines": [
+    {"who": "narr", "text": "Quill checks her tools in the same order she checked them an hour ago."},
+    {"who": "quill", "text": "Calibration's on the schedule, between the first check and the second. It isn't negotiable, Captain. It isn't personal."}],
+   "variants": [{"needs": "murdered", "lines": [
+    {"who": "narr", "text": "Quill checks her tools in the same order she checked them an hour ago. She doesn't look up."},
+    {"who": "quill", "text": "Sensors nominal, Captain."}]}],
+   "meta": {"batch": "batch_01", "source": ["crew_cards.md: checks her tools in the same order every watch"]}},
+
+  {"id": "banter.quill.control.same_meal", "kind": "banter", "speaker": "quill", "station": "control", "priority": 30,
+   "summary": "The same meal at the same time.",
+   "lines": [
+    {"who": "quill", "text": "I eat at the same time every day. Nobody finds that interesting until they try to schedule around it."},
+    {"who": "quill", "text": "Fenwick has stopped trying. I count that as the first sensible thing he's done with the galley."}],
+   "meta": {"batch": "batch_01", "source": ["crew_cards.md: eats the same meal at the same time"]}},
+
+  {"id": "banter.quill.control.sandwich", "kind": "banter", "speaker": "quill", "station": "control", "priority": 45, "group": "running.sandwich",
+   "summary": "Castellan has left her a sandwich.",
+   "needs": "not murdered",
+   "lines": [
+    {"who": "narr", "text": "A sandwich sits on the edge of Quill's console, with a label."},
+    {"who": "quill", "text": "Castellan's. My name, spelled correctly, which I choose to read as effort."},
+    {"who": "quill", "text": "I haven't asked why. I've eaten it. Those two facts are unrelated."}],
+   "meta": {"batch": "batch_01", "source": ["crew_cards.md: Castellan has decided Quill is his friend"]}},
+
+  {"id": "banter.quill.control.holds_still", "kind": "banter", "speaker": "quill", "station": "control", "priority": 40,
+   "summary": "Dace narrates her sleep.",
+   "needs": "not murdered",
+   "lines": [
+    {"who": "quill", "text": "Dace has described my sleeping to me. Apparently I 'hold very still.'"},
+    {"who": "quill", "text": "That's what sleeping is. I'd have thought a doctor would know."}],
+   "meta": {"batch": "batch_01", "source": ["crew_cards.md: shares a cabin with Dace"]}},
+
+  {"id": "banter.quill.control.slate", "kind": "banter", "speaker": "quill", "station": "control", "priority": 50,
+   "summary": "Low trust: she hands you a slate instead of talking.",
+   "needs": "trust.quill<35 and not murdered",
+   "lines": [
+    {"who": "narr", "text": "Quill hands you a slate rather than speaking. Three lines, each a complete thought."},
+    {"who": "quill", "text": "I find a slate is less of a conversation, Captain. I'd like you to know it isn't a criticism."}],
+   "meta": {"batch": "batch_01", "source": ["act1_calls.md: low trust asks by slate"]}},
+
+  {"id": "banter.quill.control.rounding", "kind": "banter", "speaker": "quill", "station": "control", "priority": 55,
+   "summary": "High trust: you never ask her to round a number.",
+   "needs": "trust.quill>=55 and not murdered",
+   "lines": [
+    {"who": "quill", "text": "You haven't asked me to round a number since the first day. I wanted that noted somewhere."},
+    {"who": "quill", "text": "This is somewhere."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.quill.control.not_asked_again", "kind": "banter", "speaker": "quill", "station": "control", "priority": 55,
+   "summary": "You haven't asked again what she wrote down.",
+   "needs": "seen.quill.hook1 and not murdered",
+   "echoes": ["clue.signal.1"],
+   "lines": [
+    {"who": "quill", "text": "You haven't asked again what I wrote down. Thank you."},
+    {"who": "quill", "text": "I'll tell you when it's something I can stand behind."}],
+   "meta": {"batch": "batch_01", "source": ["act1_first_morning.md 1.2b: A time. I write down times."]}},
+
+  {"id": "banter.quill.control.signed", "kind": "banter", "speaker": "quill", "station": "control", "priority": 50,
+   "summary": "A tight ship: checklists.",
+   "needs": "command.band==tight or command.band==very_tight",
+   "lines": [
+    {"who": "quill", "text": "The checklist is signed and countersigned. I feel like a person, Captain."},
+    {"who": "quill", "text": "I'm not certain it's good for me."}],
+   "meta": {"batch": "batch_01", "source": ["command_model.md section 3: Quill prefers tight"]}},
+
+  {"id": "banter.quill.control.stylus_tray", "kind": "banter", "speaker": "quill", "station": "control", "priority": 50,
+   "summary": "A loose ship: someone moves her stylus tray.",
+   "needs": "command.band==loose or command.band==very_loose",
+   "lines": [
+    {"who": "quill", "text": "Someone has moved my stylus tray. I put it back. They moved it again."},
+    {"who": "quill", "text": "I'm treating it as a study. I'll have results by the end of the leg."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.quill.control.my_hour", "kind": "banter", "speaker": "quill", "station": "control", "priority": 55,
+   "summary": "Quill keeps the quiet hour.",
+   "needs": "quiet_hour==kept_quill",
+   "lines": [
+    {"who": "quill", "text": "My hour on the bridge is the best of the day. Nobody talks, and the ship still hums."},
+    {"who": "quill", "text": "I've labelled it as mine, so nobody argues."}],
+   "meta": {"batch": "batch_01", "source": ["act1_crew_meeting.md: keep it with Quill on watch"]}},
+
+  {"id": "banter.quill.control.right_about_the_hour", "kind": "banter", "speaker": "quill", "station": "control", "priority": 55,
+   "summary": "She won the argument and doesn't like how it feels.",
+   "needs": "quiet_hour==ended and not murdered",
+   "lines": [
+    {"who": "quill", "text": "I'd like it recorded that I was right about the hour."},
+    {"who": "quill", "text": "I'd also like it recorded that I don't like how it feels."}],
+   "meta": {"batch": "batch_01", "source": ["act1_aftermath.md B1: She won that argument this morning"]}},
+
+  {"id": "banter.quill.control.log_page", "kind": "banter", "speaker": "quill", "station": "control", "priority": 60,
+   "summary": "Ames died: she cannot say more than sensors nominal.",
+   "needs": "ames==dead",
+   "lines": [
+    {"who": "narr", "text": "Quill has the watch log open to one page. She closes it, squares it to the console edge, and squares it again."},
+    {"who": "quill", "text": "Sensors nominal, Captain. I'd like to say more than that, and I'm not able to."}],
+   "meta": {"batch": "batch_01", "source": ["act1_first_morning.md 1.2b: He was nervous"]}},
+
+  {"id": "banter.quill.control.wounded_word", "kind": "banter", "speaker": "quill", "station": "control", "priority": 60,
+   "summary": "Ames lived: she chose the word 'wounded' for the log.",
+   "needs": "ames==wounded",
+   "lines": [
+    {"who": "quill", "text": "I wrote 'wounded' in the log. It's a better word than the other one."},
+    {"who": "quill", "text": "I find I look at that page more often than the log requires."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.quill.control.quiet_band", "kind": "banter", "speaker": "quill", "station": "control", "priority": 50,
+   "summary": "A signals background: you know what a quiet band sounds like.",
+   "needs": "player.background==signals and not murdered",
+   "lines": [
+    {"who": "quill", "text": "You know what a quiet band sounds like. That's rarer than you'd expect, Captain."},
+    {"who": "quill", "text": "I wanted you to know I'd noticed."}],
+   "meta": {"batch": "batch_01", "source": ["act1_calls.md: player.background = signals pays off with Quill"]}},
+
+  {"id": "banter.quill.control.faster", "kind": "banter", "speaker": "quill", "station": "control", "priority": 55,
+   "summary": "The classifier link: she does not like not knowing where speed comes from.",
+   "needs": "seen.wiring.key_turned and integration>=10",
+   "lines": [
+    {"who": "quill", "text": "The classifier is faster. I don't object to faster."},
+    {"who": "quill", "text": "I object to not knowing where faster comes from."}],
+   "meta": {"batch": "batch_01", "source": ["crew_cards.md: Quietist", "mini_missions.md: Pell assists cost Quill trust"]}},
+
+  {"id": "banter.quill.control.red_ink", "kind": "banter", "speaker": "quill", "station": "control", "priority": 40,
+   "summary": "A wrong classification, written in red.",
+   "needs": "hunts>=2",
+   "lines": [
+    {"who": "quill", "text": "One of the last hunt's classifications was wrong. I've written it in red."},
+    {"who": "quill", "text": "It's a good habit. It also hurts, which I suspect is the point."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.quill.control.short_list", "kind": "banter", "speaker": "quill", "station": "control", "priority": 65,
+   "summary": "After 1.9: her list for hearing the signal from Vesper.",
+   "needs": "knows.unexplained_signals and not murdered",
+   "mentions": ["unexplained_signals"],
+   "lines": [
+    {"who": "quill", "text": "Vesper's a long way from here. I've started a list of what I'll need to hear it from there."},
+    {"who": "quill", "text": "It's a short list. Nearly every item is 'quiet.'"}],
+   "meta": {"batch": "batch_01", "source": ["act1_close.md: I need to hear it from somewhere else, a long way from here"]}},
+
+  {"id": "banter.quill.control.hands_still", "kind": "banter", "speaker": "quill", "station": "control", "priority": 55,
+   "summary": "Murder route: eyes on the console.",
+   "needs": "murdered",
+   "lines": [
+    {"who": "narr", "text": "Quill has her eyes on her console and her hands very still."},
+    {"who": "quill", "text": "No contacts, Captain. The noise floor is normal."}],
+   "meta": {"batch": "batch_01", "source": ["act1_aftermath.md C: she doesn't look up at all"]}},
+
+  {"id": "banter.quill.control.i_record", "kind": "banter", "speaker": "quill", "station": "control", "priority": 55,
+   "summary": "Murder route: she records everything.",
+   "needs": "murdered",
+   "lines": [
+    {"who": "narr", "text": "Quill writes in her log, tilts the page away, and goes on writing."},
+    {"who": "quill", "text": "I record what happens. All of it. That's the whole of my job, Captain."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.quill.control.the_ones_after", "kind": "banter", "speaker": "quill", "station": "control", "priority": 58,
+   "summary": "Murder route: she wants to know the plan.",
+   "needs": "murdered",
+   "lines": [
+    {"who": "quill", "text": "I'll complete this watch. I'll complete the next one."},
+    {"who": "quill", "text": "At some point I'd like to know what you intend for the ones after. I'd prefer to hear it from you."}],
+   "meta": {"batch": "batch_01", "source": ["crew_cards.md: Quill wants the truth, including the bad news"]}},
+
+  {"id": "banter.quill.control.turned_toward", "kind": "banter", "speaker": "quill", "station": "control", "priority": 60,
+   "summary": "The decoy's turn, written down three ways.",
+   "needs": "seen.shakedown.debrief and knows.decoy_turned",
+   "mentions": ["decoy_turned"],
+   "lines": [
+    {"who": "quill", "text": "It turned toward us for forty seconds and came back. I've written that down three ways."},
+    {"who": "quill", "text": "I still don't have a fourth, and I'd like one."}],
+   "meta": {"batch": "batch_01", "source": ["act1_shakedown.md"]}},
+
+  {"id": "banter.quill.control.declared", "kind": "banter", "speaker": "quill", "station": "control", "priority": 60,
+   "summary": "Before the audit: she wants the count to match.",
+   "needs": "tally.audit_pending and not murdered",
+   "lines": [
+    {"who": "quill", "text": "At Vesper they'll count what we've declared. I'd like the count to match what we've done."},
+    {"who": "quill", "text": "That's all I want, Captain, and it's rather a lot."}],
+   "meta": {"batch": "batch_01"}}
+ ]
+}

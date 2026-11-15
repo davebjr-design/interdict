@@ -1,0 +1,179 @@
+{
+ "_doc": "Batch 01, Fenwick in the mess. Relentlessly cheerful, corny, over-offers, over-feeds, over-shares, keeps a ledger of favours; a grief he does not talk about and a secret he does not name (nothing here uses the word survivor; the tins line is an echo of clue.fenwick.0 behind seen.fenwick.hook1).",
+ "batch": "batch_01",
+ "storylets": [
+  {"id": "banter.fenwick.mess.taste", "kind": "banter", "speaker": "fenwick", "station": "mess", "priority": 30,
+   "summary": "Taste this.",
+   "lines": [
+    {"who": "fenwick", "text": "Taste this. No, don't tell me, just taste it."},
+    {"who": "fenwick", "text": "Your face is telling me. Salt? It's salt. It's always salt, or it's never salt."}],
+   "variants": [{"needs": "murdered", "lines": [
+    {"who": "narr", "text": "Fenwick sets a bowl in front of you and doesn't hover."},
+    {"who": "fenwick", "text": "There's soup. It isn't trying to be anything. Eat it, and nobody has to talk."}]}],
+   "meta": {"batch": "batch_01", "source": ["crew_cards.md: tastes everything"]}},
+
+  {"id": "banter.fenwick.mess.ballast", "kind": "banter", "speaker": "fenwick", "station": "mess", "priority": 35,
+   "summary": "Mother's dumplings, third attempt.",
+   "needs": "not murdered",
+   "lines": [
+    {"who": "fenwick", "text": "My mother's dumplings, third attempt. Mine could anchor a ship."},
+    {"who": "fenwick", "text": "I've named this batch Ballast. If anyone says it's good, I'll know they're lying and I'll love them for it."}],
+   "meta": {"batch": "batch_01", "source": ["crew_cards.md: his mother's recipe that he can't get right"]}},
+
+  {"id": "banter.fenwick.mess.sincere", "kind": "banter", "speaker": "fenwick", "station": "mess", "priority": 40,
+   "summary": "The rival cook calls his broth sincere.",
+   "needs": "not murdered",
+   "lines": [
+    {"who": "fenwick", "text": "There's a cook on a certain station, I won't say which, there are laws, who tells people my broth is 'sincere.'"},
+    {"who": "fenwick", "text": "Sincere! I've never been so insulted by a compliment."}],
+   "meta": {"batch": "batch_01", "source": ["crew_cards.md: a feud with a rival cook on a station"]}},
+
+  {"id": "banter.fenwick.mess.ledger", "kind": "banter", "speaker": "fenwick", "station": "mess", "priority": 40,
+   "summary": "His ledger of favours owed.",
+   "needs": "not murdered",
+   "lines": [
+    {"who": "fenwick", "text": "I'm writing down who owes who. Castellan owes me a sandwich, I owe Abara a story, and Dace owes everybody an apology."},
+    {"who": "fenwick", "text": "It's a balanced book. Please don't audit it."}],
+   "meta": {"batch": "batch_01", "source": ["crew_cards.md: keeps a ledger of favors owed"]}},
+
+  {"id": "banter.fenwick.mess.tins", "kind": "banter", "speaker": "fenwick", "station": "mess", "priority": 50,
+   "summary": "Don't count the ration tins.",
+   "needs": "seen.fenwick.hook1",
+   "echoes": ["clue.fenwick.0"],
+   "lines": [
+    {"who": "fenwick", "text": "Don't count the ration tins. I know you want to. It's a thing I do."},
+    {"who": "fenwick", "text": "Optimism, they call it. I call it a pantry."}],
+   "meta": {"batch": "batch_01", "source": ["act1_first_morning.md 1.2e: I'm an optimist, Captain"]}},
+
+  {"id": "banter.fenwick.mess.tray_came_back", "kind": "banter", "speaker": "fenwick", "station": "mess", "priority": 60,
+   "summary": "Persuaded route: the tray comes back clean.",
+   "needs": "corvane==persuaded",
+   "lines": [
+    {"who": "fenwick", "text": "Tray went up to the cabin and came back clean. Again."},
+    {"who": "fenwick", "text": "I count that as a conversation."}],
+   "meta": {"batch": "batch_01", "source": ["act1_first_morning.md: I took hers in already. She said thank you."]}},
+
+  {"id": "banter.fenwick.mess.empty_place", "kind": "banter", "speaker": "fenwick", "station": "mess", "priority": 60,
+   "summary": "Corvane is dead: the place at the head of the table.",
+   "needs": "corvane==killed",
+   "lines": [
+    {"who": "fenwick", "text": "I set her place at the head of the table again. Habit."},
+    {"who": "fenwick", "text": "Then I took the plate away before anyone saw. Then I put it back. I'm a man of principle and none of it's useful."}],
+   "meta": {"batch": "batch_01", "source": ["act1_first_morning.md: The extra place is set at the head of the table", "act1_crew_meeting.md: Corvane's place"]}},
+
+  {"id": "banter.fenwick.mess.theoretical_boy", "kind": "banter", "speaker": "fenwick", "station": "mess", "priority": 60,
+   "summary": "Ames lived: soup for a theoretical boy.",
+   "needs": "ames==wounded",
+   "lines": [
+    {"who": "fenwick", "text": "If the boy's alive, he'll want soup. They always want soup."},
+    {"who": "fenwick", "text": "I've made extra. For a purely theoretical boy."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.fenwick.mess.noticed", "kind": "banter", "speaker": "fenwick", "station": "mess", "priority": 60,
+   "summary": "Ames died: Quill has skipped her usual meal.",
+   "needs": "ames==dead",
+   "lines": [
+    {"who": "fenwick", "text": "Quill's skipped her usual meal twice. I want it on record that I noticed."},
+    {"who": "fenwick", "text": "I also want it on record that I haven't said anything."}],
+   "meta": {"batch": "batch_01", "source": ["crew_cards.md: Quill eats the same meal at the same time"]}},
+
+  {"id": "banter.fenwick.mess.buoy", "kind": "banter", "speaker": "fenwick", "station": "mess", "priority": 50,
+   "summary": "A resupply buoy is coming up.",
+   "needs": "leg.resupply_stop and not murdered",
+   "lines": [
+    {"who": "fenwick", "text": "Buoy ahead! Anyone needs soap, thread, sauce, now's the time."},
+    {"who": "fenwick", "text": "I'm very good at buying. I'm very bad at counting. Those are different skills, and only one of them gets thanked."}],
+   "meta": {"batch": "batch_01", "source": ["act1_calls.md call.fenwick.crate_1"]}},
+
+  {"id": "banter.fenwick.mess.hungry_differently", "kind": "banter", "speaker": "fenwick", "station": "mess", "priority": 45,
+   "summary": "After a hunt, everyone is hungry in a different way.",
+   "needs": "hunts>=2 and not murdered",
+   "lines": [
+    {"who": "fenwick", "text": "Hunt's over and everyone's hungry in a different way."},
+    {"who": "fenwick", "text": "Quill wants it measured, Castellan wants it fried, and Dace wants to know if it's sterile. Abara just wants it hot."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.fenwick.mess.nervous", "kind": "banter", "speaker": "fenwick", "station": "mess", "priority": 55,
+   "summary": "High trust: you sat down before the table was set.",
+   "needs": "trust.fenwick>=70 and not murdered",
+   "lines": [
+    {"who": "fenwick", "text": "You know you're the first captain who sat down before the table was set?"},
+    {"who": "fenwick", "text": "It makes me nervous. In a good way, the way where I make too much and can't stop."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.fenwick.mess.standing_invitation", "kind": "banter", "speaker": "fenwick", "station": "mess", "priority": 50,
+   "summary": "Low trust: too much soup, not a hint.",
+   "needs": "trust.fenwick<40 and not murdered",
+   "lines": [
+    {"who": "fenwick", "text": "I made too much again. It isn't a hint. It's a standing invitation, which is different."},
+    {"who": "fenwick", "text": "I'm told it's also a hint. I'm told a lot of things."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.fenwick.mess.proper_dinner", "kind": "banter", "speaker": "fenwick", "station": "mess", "priority": 50,
+   "summary": "A loose ship: he angles for a proper dinner.",
+   "needs": "command.band==loose or command.band==very_loose",
+   "lines": [
+    {"who": "fenwick", "text": "I could do a proper dinner. Real eggs, a tablecloth, the works. It'd cost us a week of other things."},
+    {"who": "fenwick", "text": "Don't say yes. Just say 'maybe,' and I'll start planning."}],
+   "meta": {"batch": "batch_01", "source": ["mini_missions.json qm.feast"]}},
+
+  {"id": "banter.fenwick.mess.the_roster", "kind": "banter", "speaker": "fenwick", "station": "mess", "priority": 45,
+   "summary": "A tight ship: the galley has a roster.",
+   "needs": "command.band==tight or command.band==very_tight",
+   "lines": [
+    {"who": "fenwick", "text": "I'm told the galley has a duty roster. I'm told I'm on it."},
+    {"who": "fenwick", "text": "I'm also told I'm the only person on it, which I think is a joke, and I'm choosing to laugh."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.fenwick.mess.plate_and_standing", "kind": "banter", "speaker": "fenwick", "station": "mess", "priority": 55,
+   "summary": "Murder route: the one who does not hold it against you.",
+   "needs": "murdered",
+   "lines": [
+    {"who": "narr", "text": "Fenwick sets a plate in front of you and stays standing."},
+    {"who": "fenwick", "text": "Quill eats at the same time every day. Abara's tea is always hot. You, I'm not sure about yet."},
+    {"who": "fenwick", "text": "So. Soup."}],
+   "meta": {"batch": "batch_01", "source": ["act1_first_morning.md: the officer who doesn't hold it against you"]}},
+
+  {"id": "banter.fenwick.mess.counted_thrice", "kind": "banter", "speaker": "fenwick", "station": "mess", "priority": 55,
+   "summary": "Audit prep: he has counted the stores three times.",
+   "needs": "tally.audit_pending and seen.fenwick.hook1",
+   "echoes": ["clue.fenwick.0"],
+   "lines": [
+    {"who": "fenwick", "text": "Audit at Vesper. I've counted the stores three times and got the same number every time."},
+    {"who": "fenwick", "text": "That's what worries me. Honest counting should wobble."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.fenwick.mess.seating_plan", "kind": "banter", "speaker": "fenwick", "station": "mess", "priority": 55,
+   "summary": "Murder route: you are in the seating plan.",
+   "needs": "murdered",
+   "lines": [
+    {"who": "fenwick", "text": "Dinner's at the usual time. I've set six places, and you're in one of them."},
+    {"who": "fenwick", "text": "That isn't a favour. It's the seating plan."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.fenwick.mess.two_rules", "kind": "banter", "speaker": "fenwick", "station": "mess", "priority": 55,
+   "summary": "Murder route: two rules.",
+   "needs": "murdered",
+   "lines": [
+    {"who": "narr", "text": "Fenwick hums, stops halfway through the tune, and starts again."},
+    {"who": "fenwick", "text": "I won't ask. I will feed you. Those are my two rules and I'm not breaking either."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.fenwick.mess.pad_crew_meal", "kind": "banter", "speaker": "fenwick", "station": "mess", "priority": 45,
+   "summary": "Launch crew background: how pad crews eat.",
+   "needs": "player.background==launch_crew and not murdered",
+   "lines": [
+    {"who": "fenwick", "text": "Launch crew! Then you know how a pad crew eats. Cold, standing up, and fast."},
+    {"who": "fenwick", "text": "Sit, sit. Eat sitting down. It won't kill you."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.fenwick.mess.peaches", "kind": "banter", "speaker": "fenwick", "station": "mess", "priority": 50,
+   "summary": "The drone ruined the peaches pool.",
+   "needs": "seen.shakedown.debrief and knows.decoy_turned and not murdered",
+   "mentions": ["decoy_turned"],
+   "lines": [
+    {"who": "fenwick", "text": "I still owe the pool three tins of peaches. Nobody's collected."},
+    {"who": "fenwick", "text": "Nobody wants peaches after a drone turns round and looks at them. I never thought I'd say that."}],
+   "meta": {"batch": "batch_01", "source": ["act1_shakedown.md: the hunt pool"]}}
+ ]
+}

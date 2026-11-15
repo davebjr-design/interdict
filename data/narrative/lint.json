@@ -1,0 +1,677 @@
+{
+ "_doc": "Config for tools/storylet_check.py, storylet_lint.py, storylet_coverage.py. Editable by Dave: add banned phrases here when a review turns up a tic, and the next batch is checked against it. 'E' rules fail the build, 'W' rules are flagged for review.",
+ "rooms": [
+  "control",
+  "thermal",
+  "eng_upper",
+  "eng_lower",
+  "mess",
+  "junction",
+  "berths",
+  "stateroom",
+  "utility",
+  "missile",
+  "airlock",
+  "any"
+ ],
+ "kinds": {
+  "banter": {
+   "prefix": "banter",
+   "needs_station": true,
+   "max_line_words": 42,
+   "max_sentences": 4,
+   "reveals_allowed": false,
+   "choices_allowed": false,
+   "doc": "Ambient exchange when the captain enters or lingers in a room. 1-4 lines. No story facts are revealed here, only coloured."
+  },
+  "chatter": {
+   "prefix": "chatter",
+   "needs_station": true,
+   "needs_trigger": true,
+   "max_line_words": 22,
+   "max_sentences": 2,
+   "reveals_allowed": false,
+   "choices_allowed": false,
+   "doc": "Station talk keyed to an engine event (call deck, hunt). Two short sentences at most."
+  },
+  "call": {
+   "prefix": "call",
+   "needs_station": false,
+   "needs_summary": true,
+   "max_line_words": 60,
+   "max_sentences": 5,
+   "reveals_allowed": true,
+   "choices_allowed": true,
+   "doc": "Underway storylet: an officer or Pell asks for the captain. May carry choices and effects."
+  },
+  "pitch": {
+   "prefix": "pitch",
+   "needs_station": false,
+   "needs_summary": true,
+   "needs_pair": true,
+   "max_line_words": 40,
+   "max_sentences": 3,
+   "reveals_allowed": false,
+   "choices_allowed": true,
+   "doc": "Mini-mission or decision pitch: a proposer and an objector (seats, not people), then the captain decides."
+  },
+  "react": {
+   "prefix": "react",
+   "needs_station": false,
+   "needs_trigger": true,
+   "max_line_words": 22,
+   "max_sentences": 2,
+   "reveals_allowed": false,
+   "choices_allowed": false,
+   "doc": "Hunt-reactive line: what an officer says when something happens in the hunt."
+  },
+  "dress": {
+   "prefix": "dress",
+   "needs_station": true,
+   "max_line_words": 30,
+   "max_sentences": 3,
+   "reveals_allowed": false,
+   "choices_allowed": false,
+   "narration_only": true,
+   "doc": "Ship-state dressing: a one-line description of a room that changes with command style, trust or story state."
+  },
+  "vig": {
+   "prefix": "vig",
+   "needs_station": false,
+   "needs_summary": true,
+   "max_line_words": 60,
+   "max_sentences": 5,
+   "reveals_allowed": true,
+   "choices_allowed": true,
+   "doc": "Event vignette between hunts (visitor, dock, ship incident). Short scene, may carry choices."
+  }
+ },
+ "triggers": {
+  "_doc": "Engine/hunt event names a chatter or react storylet may be keyed to. PROPOSED: the engine team confirms the real emit names; until then the picker just matches strings.",
+  "values": [
+   "hunt.start",
+   "hunt.end.win",
+   "hunt.end.loss",
+   "hunt.contact.new",
+   "hunt.contact.lost",
+   "hunt.contact.classified",
+   "hunt.ping.ours",
+   "hunt.ping.theirs",
+   "hunt.sink.high",
+   "hunt.vent.forced",
+   "hunt.solution.stale",
+   "hunt.hull.hit",
+   "leg.depart",
+   "leg.arrive",
+   "dock.arrive"
+  ]
+ },
+ "tokens": {
+  "_doc": "Template tokens a line may contain. Each must be a declared state variable (time vars also take .spoken) or a name in this list.",
+  "allowed": [
+   "pell.nick",
+   "clock.decision",
+   "clock.decision.spoken",
+   "clock.blessing_sent",
+   "clock.blessing_sent.spoken"
+  ]
+ },
+ "effect_policy": {
+  "_doc": "What each kind of storylet may write. Ambient content must never move the story: it may mark itself seen and nudge trust and style by tiny amounts.",
+  "banter": {
+   "allow": [
+    "seen.*"
+   ],
+   "numeric": {
+    "trust.*": 2,
+    "pell.trust": 2,
+    "command.style": 2
+   }
+  },
+  "chatter": {
+   "allow": [
+    "seen.*"
+   ],
+   "numeric": {}
+  },
+  "react": {
+   "allow": [
+    "seen.*"
+   ],
+   "numeric": {}
+  },
+  "dress": {
+   "allow": [
+    "seen.*"
+   ],
+   "numeric": {}
+  },
+  "pitch": {
+   "allow": [
+    "seen.*",
+    "command.style"
+   ],
+   "numeric": {
+    "trust.*": 2,
+    "pell.trust": 2,
+    "command.style": 8
+   }
+  },
+  "call": {
+   "allow": [
+    "*"
+   ],
+   "forbid": [
+    "clock.*",
+    "tally.trace",
+    "hunts",
+    "last_hunt.*",
+    "leg",
+    "act"
+   ],
+   "numeric": {
+    "trust.*": 12,
+    "pell.trust": 10,
+    "integration": 10,
+    "command.style": 8
+   }
+  },
+  "vig": {
+   "allow": [
+    "*"
+   ],
+   "forbid": [
+    "clock.*",
+    "tally.trace",
+    "hunts",
+    "last_hunt.*",
+    "leg",
+    "act"
+   ],
+   "numeric": {
+    "trust.*": 12,
+    "pell.trust": 10,
+    "integration": 10,
+    "command.style": 8
+   }
+  }
+ },
+ "baseline_player_knows": [
+  "patron_exists",
+  "pell_name",
+  "corvane_waking"
+ ],
+ "gated_terms": [
+  {
+   "term": "\\bChoir\\b",
+   "act_min": 2,
+   "note": "gleaners name the signal at the Vesper captains' bar (Act 2)"
+  },
+  {
+   "term": "\\b(Converged|Remainder|schism|filioque)\\b",
+   "act_min": 3,
+   "note": "the theology surfaces in Act 3 at the earliest"
+  },
+  {
+   "term": "\\bLagrange\\b",
+   "act_min": 2,
+   "note": "clue.choir.2 is planned for Act 2"
+  },
+  {
+   "term": "\\bcathedral\\b",
+   "act_min": 3,
+   "note": "Act 3 location"
+  },
+  {
+   "term": "\\bSteward\\b",
+   "facts": [
+    "steward_name"
+   ],
+   "speakers": [
+    "pell"
+   ],
+   "note": "only Pell may say the name, and only once the player has been given it (P4)"
+  },
+  {
+   "term": "\\bsurvivor(s| pockets?| settlements?)?\\b",
+   "facts": [
+    "survivor_pockets"
+   ],
+   "note": "Fenwick's secret; clue.fenwick.* carry it first"
+  },
+  {
+   "term": "\\bexpel(led|ling|sion)?\\b",
+   "facts": [
+    "dace_expulsion"
+   ],
+   "note": "Dace's secret"
+  },
+  {
+   "term": "\\boff[- ]the[- ]books\\b|\\boff[- ]books\\b",
+   "facts": [
+    "offbooks_reactor"
+   ],
+   "note": "Castellan's secret"
+  },
+  {
+   "term": "\\bfire-control module\\b|\\bmodule box\\b|\\bgrandfather'?s? module\\b",
+   "facts": [
+    "module_box"
+   ],
+   "note": "Abara's secret"
+  },
+  {
+   "term": "\\bcore housing\\b",
+   "facts": [
+    "commission_mass_wrong"
+   ],
+   "note": "1.7 reveal"
+  },
+  {
+   "term": "\\brelay station\\b|\\bthe station'?s? (location|position)\\b",
+   "facts": [
+    "corvane_relay_station"
+   ],
+   "note": "P3 R4 reveal; where it is stays behind Pell's wall"
+  },
+  {
+   "term": "\\bsignals?\\b.*\\b(Quill|logged|months)\\b|\\b(Quill|logged)\\b.*\\bsignals?\\b",
+   "facts": [
+    "unexplained_signals"
+   ],
+   "note": "Quill's secret until 1.9"
+  }
+ ],
+ "banned_phrases": [
+  "as an ai",
+  "i'm just an? ai",
+  "delve",
+  "tapestry",
+  "testament to",
+  "a shiver (ran|down)",
+  "shivers? down",
+  "little did",
+  "let me be clear",
+  "it's worth noting",
+  "it is worth noting",
+  "needless to say",
+  "i can't help but",
+  "i cannot help but",
+  "in that moment",
+  "palpable",
+  "mixture of",
+  "a sense of",
+  "ministrations",
+  "orbs",
+  "barely above a whisper",
+  "heart (pounded|hammered|skipped)",
+  "at the end of the day",
+  "game[- ]changer",
+  "navigate (this|these|the)",
+  "in this day and age",
+  "i must admit",
+  "i have to admit",
+  "to be fair,",
+  "not gonna lie",
+  "buckle up",
+  "here's the thing",
+  "the thing is,",
+  "you know what\\?",
+  "let that sink in",
+  "sends? a chill",
+  "unspoken understanding",
+  "weight of (the|her|his)",
+  "hung in the air",
+  "something shifted",
+  "a beat of silence",
+  "eyes? (sparkl|twinkl)"
+ ],
+ "exposition_tells": [
+  "as you know",
+  "as we all know",
+  "remember when",
+  "like i told you",
+  "you'll recall",
+  "as i said earlier",
+  "if you recall",
+  "for those who",
+  "the thing about (us|this ship) is"
+ ],
+ "clock_time_patterns": [
+  "(?<![\\d:])\\d{1,2}:\\d{2}(?!\\d)",
+  "\\bo'clock\\b",
+  "\\b\\w+-oh-\\w+\\b",
+  "\\b\\w+-hundred\\b",
+  "\\b\\d{3,4}\\s*hours\\b",
+  "\\b(at|by|around|until|before|after)\\s+(midnight|noon)\\b",
+  "\\b(quarter|half)\\s+(past|to)\\b",
+  "\\b(five|ten|twenty)\\s+(past|to)\\s+\\w+\\b"
+ ],
+ "voice": {
+  "_doc": "Per-speaker soft rules from the POV sheets and voice guides. 'would_never' are errors (the sheets say so). 'exclaim' is the max '!' per line.",
+  "abara": {
+   "exclaim": 0,
+   "max_sentences": 4,
+   "would_never": [
+    "\\bI (miss|loved|loved her|grieve)\\b",
+    "\\bgoodbye\\b",
+    "\\bmy (grief|sorrow)\\b"
+   ],
+   "never_words": [
+    "darlin",
+    "honey",
+    "fascinating",
+    "Doc\\b"
+   ]
+  },
+  "dace": {
+   "exclaim": 2,
+   "max_sentences": 5,
+   "would_never": [
+    "\\bheat guy\\b",
+    "\\bI (was|got) expelled\\b"
+   ],
+   "never_words": [
+    "darlin",
+    "honey",
+    "kid\\b"
+   ]
+  },
+  "castellan": {
+   "exclaim": 1,
+   "max_sentences": 4,
+   "would_never": [
+    "^No[.!,]"
+   ],
+   "never_words": [
+    "fascinating",
+    "\\bkid\\b"
+   ]
+  },
+  "quill": {
+   "exclaim": 0,
+   "max_sentences": 4,
+   "would_never": [
+    "\\bI (think|guess|suppose|reckon)\\b",
+    "\\b(maybe|perhaps|whatever)\\b",
+    "\\bprobably\\b(?!.*isn't)"
+   ],
+   "never_words": [
+    "darlin",
+    "honey",
+    "kid\\b",
+    "lol"
+   ]
+  },
+  "fenwick": {
+   "exclaim": 3,
+   "max_sentences": 5,
+   "would_never": [
+    "\\b(my|the) (dead|lost) (family|town)\\b"
+   ],
+   "never_words": [
+    "darlin",
+    "\\bkid\\b"
+   ]
+  },
+  "pell": {
+   "exclaim": 0,
+   "max_sentences": 2,
+   "call_max_sentences": 3,
+   "would_never": [
+    "\\bplease\\b",
+    "\\bI (love|hate) you\\b"
+   ],
+   "never_words": [
+    "darlin",
+    "honey",
+    "\\bkid\\b"
+   ]
+  },
+  "corvane": {
+   "exclaim": 0,
+   "max_sentences": 4,
+   "would_never": [
+    "\\bplease\\b",
+    "\\bI'?m sorry\\b"
+   ],
+   "never_words": [
+    "darlin",
+    "honey",
+    "fascinating"
+   ]
+  }
+ },
+ "signature_tokens": {
+  "_doc": "Words that belong to one voice. A line by anyone else containing them is voice drift.",
+  "darlin'": [
+   "castellan"
+  ],
+  "honey": [
+   "castellan"
+  ],
+  "\\bkid\\b": [
+   "abara",
+   "corvane"
+  ],
+  "\\bsit, sit\\b": [
+   "fenwick"
+  ]
+ },
+ "contractions": {
+  "min_words_without": 16,
+  "exempt": [
+   "quill",
+   "pell",
+   "corvane"
+  ]
+ },
+ "repetition": {
+  "shingle": 3,
+  "near_dup_warn": 0.45,
+  "near_dup_error": 0.7,
+  "opening_trigrams_max": 2,
+  "ngram4_max": 3
+ },
+ "labels": {
+  "trust.abara": "Abara trust",
+  "trust.dace": "Dace trust",
+  "trust.castellan": "Castellan trust",
+  "trust.quill": "Quill trust",
+  "trust.fenwick": "Fenwick trust",
+  "pell.trust": "Pell trust",
+  "murdered": "shot Corvane in round 1",
+  "corvane": "Corvane",
+  "ames": "Ames",
+  "quiet_hour": "quiet hour",
+  "command.band": "command style",
+  "integration": "integration",
+  "hunts": "hunts completed",
+  "last_hunt.hull": "hull after last hunt (%)",
+  "shakedown.result": "shakedown",
+  "commission": "commission",
+  "tally.audit_pending": "audit waiting at Vesper",
+  "logs": "Corvane's logs",
+  "player.background": "your past",
+  "leg.resupply_stop": "resupply stop this leg",
+  "act": "act",
+  "leg": "leg"
+ },
+ "coverage": {
+  "_doc": "Worlds sampled by tools/storylet_coverage.py. A 'stage' fixes the timeline flags; routes and the free dials are sampled inside it.",
+  "min_eligible": {
+   "banter": 4,
+   "chatter": 3,
+   "react": 3
+  },
+  "samples_per_cell": 60,
+  "routes": {
+   "persuaded": {
+    "corvane": "persuaded",
+    "murdered": false,
+    "ames": "dead",
+    "p3.round_shot": 0
+   },
+   "shot_early": {
+    "corvane": "killed",
+    "murdered": false,
+    "ames": "wounded",
+    "p3.round_shot": 2
+   },
+   "shot_late": {
+    "corvane": "killed",
+    "murdered": false,
+    "ames": "dead",
+    "p3.round_shot": 4
+   },
+   "murdered": {
+    "corvane": "killed",
+    "murdered": true,
+    "ames": "unharmed",
+    "p3.round_shot": 1
+   }
+  },
+  "stages": {
+   "first_days": {
+    "act": 1,
+    "leg": [
+     0,
+     1
+    ],
+    "hunts": [
+     1,
+     1
+    ],
+    "seen": [],
+    "maybe_seen": [
+     "seen.abara.hook1",
+     "seen.quill.hook1",
+     "seen.dace.hook1",
+     "seen.castellan.hook1",
+     "seen.fenwick.hook1",
+     "seen.castellan.manifold_patched",
+     "seen.abara.third_watch"
+    ]
+   },
+   "post_shakedown": {
+    "act": 1,
+    "leg": [
+     1,
+     2
+    ],
+    "hunts": [
+     2,
+     2
+    ],
+    "seen": [
+     "seen.shakedown.debrief"
+    ],
+    "maybe_seen": [
+     "seen.abara.hook1",
+     "seen.quill.hook1",
+     "seen.dace.hook1",
+     "seen.castellan.hook1",
+     "seen.fenwick.hook1",
+     "seen.castellan.manifold_patched",
+     "seen.wiring.key_turned",
+     "seen.wiring.declined",
+     "seen.wiring.pell_asked",
+     "seen.shakedown.quill_assigned"
+    ],
+    "enum": {
+     "shakedown.result": [
+      "clean",
+      "messy"
+     ]
+    }
+   },
+   "calls_window": {
+    "act": 1,
+    "leg": [
+     2,
+     5
+    ],
+    "hunts": [
+     2,
+     4
+    ],
+    "seen": [
+     "seen.shakedown.debrief"
+    ],
+    "maybe_seen": [
+     "seen.abara.hook1",
+     "seen.quill.hook1",
+     "seen.dace.hook1",
+     "seen.castellan.hook1",
+     "seen.fenwick.hook1",
+     "seen.wiring.key_turned",
+     "seen.wiring.declined",
+     "seen.call.dace.burn_1",
+     "seen.call.castellan.manifold_1",
+     "seen.castellan.manifold_patched",
+     "seen.fenwick.crate_logged"
+    ],
+    "enum": {
+     "shakedown.result": [
+      "clean",
+      "messy"
+     ],
+     "commission": [
+      "taken",
+      "refused"
+     ]
+    },
+    "bool_maybe": [
+     "leg.resupply_stop",
+     "commission.logged",
+     "quill.listen_approved"
+    ]
+   },
+   "pre_vesper": {
+    "act": 1,
+    "leg": [
+     5,
+     7
+    ],
+    "hunts": [
+     3,
+     5
+    ],
+    "seen": [
+     "seen.shakedown.debrief"
+    ],
+    "maybe_seen": [
+     "seen.abara.hook1",
+     "seen.quill.hook1",
+     "seen.dace.hook1",
+     "seen.castellan.hook1",
+     "seen.fenwick.hook1",
+     "seen.wiring.key_turned",
+     "seen.wiring.declined",
+     "seen.call.dace.burn_1",
+     "seen.call.castellan.manifold_1"
+    ],
+    "enum": {
+     "shakedown.result": [
+      "clean",
+      "messy"
+     ],
+     "commission": [
+      "taken",
+      "refused"
+     ]
+    },
+    "bool_maybe": [
+     "commission.logged",
+     "quill.listen_approved"
+    ],
+    "bool_true": [
+     "tally.audit_pending"
+    ],
+    "knows_maybe": [
+     "unexplained_signals"
+    ]
+   }
+  }
+ }
+}

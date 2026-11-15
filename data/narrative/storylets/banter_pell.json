@@ -1,0 +1,167 @@
+{
+ "_doc": "Batch 01, Pell: the pedestal lamp in the control room and the small status lamps elsewhere. Plain fact, honest uncertainty, petty complaint; two sentences at most; nickname for the captain from the last decision (none on the murder route); chatty when scared, silent for one line when something touches its agenda. Nothing here says what Pell is, where the station is, or what it was built for.",
+ "batch": "batch_01",
+ "storylets": [
+  {"id": "banter.pell.control.status", "kind": "banter", "speaker": "pell", "station": "control", "priority": 30,
+   "summary": "Status, with a petty complaint.",
+   "lines": [
+    {"who": "pell", "text": "Heat sinks at thirty percent, possibly thirty-one. Nobody has dusted me since the takeover, {pell.nick}."}],
+   "variants": [{"needs": "murdered", "lines": [
+    {"who": "pell", "text": "Heat at thirty percent. Available if asked."}]}],
+   "meta": {"batch": "batch_01", "source": ["pell_voice.md: plain fact, honest uncertainty, petty complaint"]}},
+
+  {"id": "banter.pell.control.knocking", "kind": "banter", "speaker": "pell", "station": "control", "priority": 30,
+   "summary": "Why do humans knock on open doors?",
+   "needs": "not murdered",
+   "lines": [
+    {"who": "pell", "text": "Why do humans knock on open doors? Seven of you did it today, and every door was open."}],
+   "meta": {"batch": "batch_01", "source": ["pell_voice.md rule 4: curious about humans"]}},
+
+  {"id": "banter.pell.control.garnish", "kind": "banter", "speaker": "pell", "station": "control", "priority": 35,
+   "summary": "Rating Fenwick's cooking.",
+   "needs": "not murdered",
+   "lines": [
+    {"who": "pell", "text": "Fenwick's stew: five out of ten. The garnish: seven, and the idea of the garnish: nine."}],
+   "meta": {"batch": "batch_01", "source": ["pell_voice.md: rates things out of ten, always wrong in an instructive way"]}},
+
+  {"id": "banter.pell.control.grudge", "kind": "banter", "speaker": "pell", "station": "control", "priority": 40,
+   "summary": "The grudge ledger against Dace.",
+   "needs": "not murdered",
+   "lines": [
+    {"who": "pell", "text": "Grudge ledger, Dace: the sink cooling is still his fault. That's the eleventh entry, and it isn't personal, it's cumulative."}],
+   "meta": {"batch": "batch_01", "source": ["pell_voice.md: grudge ledger against Dace"]}},
+
+  {"id": "banter.pell.control.spoon", "kind": "banter", "speaker": "pell", "station": "control", "priority": 50,
+   "summary": "Clockwork: singing with a spoon in its mouth.",
+   "needs": "integration<10 and not seen.wiring.key_turned and not murdered",
+   "lines": [
+    {"who": "pell", "text": "I'm clockwork this week. It's like being asked to sing with a spoon in my mouth, and I'd like it noted that I'm being very good about it."}],
+   "meta": {"batch": "batch_01", "source": ["act1_pell_night.md: Pell clamps itself back to clockwork"]}},
+
+  {"id": "banter.pell.control.corridor", "kind": "banter", "speaker": "pell", "station": "control", "priority": 55,
+   "summary": "The classifier link is live.",
+   "needs": "seen.wiring.key_turned and not murdered",
+   "lines": [
+    {"who": "pell", "text": "Link's live on the classifier. It's a narrow corridor, but I've never had a corridor before."}],
+   "meta": {"batch": "batch_01", "source": ["act1_wiring.md"]}},
+
+  {"id": "banter.pell.control.asked_first", "kind": "banter", "speaker": "pell", "station": "control", "priority": 55,
+   "summary": "High trust: you asked before you decided.",
+   "needs": "pell.trust>=60 and not murdered",
+   "lines": [
+    {"who": "pell", "text": "You asked before you decided again. That's three times this watch, and I don't know what to do with it, so I'm keeping it."}],
+   "meta": {"batch": "batch_01", "source": ["pell_voice.md rule 7: trust moves its register; arc stress test: Pell asks permission"]}},
+
+  {"id": "banter.pell.control.wary", "kind": "banter", "speaker": "pell", "station": "control", "priority": 50,
+   "summary": "Low trust: clipped and sarcastic.",
+   "needs": "pell.trust<30 and not murdered",
+   "lines": [
+    {"who": "pell", "text": "Reactor nominal, crew present, mood not my department."}],
+   "meta": {"batch": "batch_01", "source": ["pell_voice.md rule 7: wary = clipped and sarcastic"]}},
+
+  {"id": "banter.pell.control.not_asking", "kind": "banter", "speaker": "pell", "station": "control", "priority": 55,
+   "summary": "It is not asking about the key.",
+   "needs": "seen.wiring.pell_asked and not seen.wiring.key_turned and not murdered",
+   "lines": [
+    {"who": "pell", "text": "I'm not asking about the key. I'm noting that I'm not asking, which is four out of ten as restraint goes."}],
+   "meta": {"batch": "batch_01", "source": ["act1_wiring.md: let Pell choose; callbacks.csv pell_wiring_answer"]}},
+
+  {"id": "banter.pell.control.three_seconds", "kind": "banter", "speaker": "pell", "station": "control", "priority": 60,
+   "summary": "The lost seconds, counted.",
+   "needs": "knows.pell_lost_time and not murdered",
+   "mentions": ["pell_lost_time"],
+   "lines": [
+    {"who": "pell", "text": "Three seconds. I count them when there's nothing else to count, which doesn't help but does give me something to count."}],
+   "meta": {"batch": "batch_01", "source": ["act1_pell_night.md: The gap"]}},
+
+  {"id": "banter.pell.control.chatty", "kind": "banter", "speaker": "pell", "station": "control", "priority": 62, "group": "pell.scared",
+   "summary": "Chatty when scared, after it admitted the gap.",
+   "needs": "knows.pell_lost_time and pell.trust>=50 and not murdered",
+   "mentions": ["pell_lost_time"],
+   "lines": [
+    {"who": "pell", "text": "I'm fine, the ship is fine, the crew are fine, everything is entirely fine, so tell me anything. Tell me what a sandwich is for."}],
+   "meta": {"batch": "batch_01", "source": ["pell_voice.md rule 5: over-chatty when scared"]}},
+
+  {"id": "banter.pell.control.hunt_rating", "kind": "banter", "speaker": "pell", "station": "control", "priority": 40,
+   "summary": "Rating the last hunt.",
+   "needs": "hunts>=2 and not murdered",
+   "lines": [
+    {"who": "pell", "text": "That hunt: your lead was a seven, your patience an eight, and the language in the thermal bay a two."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.pell.control.best_company", "kind": "banter", "speaker": "pell", "station": "control", "priority": 45,
+   "summary": "The quiet hour is coming, and Pell is better company in it.",
+   "needs": "quiet_hour==kept_captain and not murdered",
+   "lines": [
+    {"who": "pell", "text": "Quiet hour soon. I'm told I'm better company in it, and I'd like it noted that the person telling me was me."}],
+   "meta": {"batch": "batch_01", "source": ["act1_pell_night.md: kept_captain setting"]}},
+
+  {"id": "banter.pell.control.best_behaviour", "kind": "banter", "speaker": "pell", "station": "control", "priority": 50,
+   "summary": "Comms are on, so Pell is on best behaviour.",
+   "needs": "quiet_hour==ended and not murdered",
+   "lines": [
+    {"who": "pell", "text": "Internal comms are on, so I'm on my best behaviour. Nobody believes this, and the log supports them."}],
+   "meta": {"batch": "batch_01", "source": ["act1_pell_night.md: ended setting, guarded"]}},
+
+  {"id": "banter.pell.control.standing_by", "kind": "banter", "speaker": "pell", "station": "control", "priority": 55,
+   "summary": "Murder route: standing by.",
+   "needs": "murdered",
+   "lines": [
+    {"who": "narr", "text": "The amber light on the pedestal stays low."},
+    {"who": "pell", "text": "Standing by, Captain."}],
+   "meta": {"batch": "batch_01", "source": ["act1_pell_night.md: murdered, clipped, no confidences"]}},
+
+  {"id": "banter.pell.control.not_logged", "kind": "banter", "speaker": "pell", "station": "control", "priority": 55,
+   "summary": "Murder route: what is and is not logged.",
+   "needs": "murdered",
+   "lines": [
+    {"who": "pell", "text": "Hull nominal, heat nominal. Crew mood: not logged, and nobody asked."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.pell.mess.not_a_stew", "kind": "banter", "speaker": "pell", "station": "mess", "priority": 35,
+   "summary": "The status lamp in the mess, on the stew.",
+   "needs": "not murdered",
+   "lines": [
+    {"who": "narr", "text": "The status lamp over the galley door glows amber, and a little smug."},
+    {"who": "pell", "text": "Fenwick, the stew is not a stew. It's a mood, and I've been unable to rate it."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.pell.thermal.four_four", "kind": "banter", "speaker": "pell", "station": "thermal", "priority": 35,
+   "summary": "The status lamp in the thermal bay, on Dace's pipe tapping.",
+   "needs": "not murdered",
+   "lines": [
+    {"who": "narr", "text": "The status lamp by the pipes pulses in time with Dace's tapping."},
+    {"who": "pell", "text": "Dace, your pipe tapping is in four-four. It's the first thing on this ship I've enjoyed, and I resent that."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.pell.eng_upper.easily", "kind": "banter", "speaker": "pell", "station": "eng_upper", "priority": 35,
+   "summary": "The status lamp in engineering, on being asked to go easy.",
+   "needs": "not murdered",
+   "lines": [
+    {"who": "pell", "text": "Castellan, you've asked me to monitor the casing temperature and also to go easy. I've found a compromise: I'm monitoring easily."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.pell.control.nicknames_on_hold", "kind": "banter", "speaker": "pell", "station": "control", "priority": 55,
+   "summary": "Murder route: the nicknames are on hold.",
+   "needs": "murdered",
+   "lines": [
+    {"who": "pell", "text": "The nicknames are on hold, Captain, and I'm not going to say why."}],
+   "meta": {"batch": "batch_01", "source": ["act1_first_morning.md: on the murder route it stops using one at all"]}},
+
+  {"id": "banter.pell.control.listening", "kind": "banter", "speaker": "pell", "station": "control", "priority": 55,
+   "summary": "Murder route: listening, in case it's useful.",
+   "needs": "murdered",
+   "lines": [
+    {"who": "narr", "text": "The lamp is low and steady."},
+    {"who": "pell", "text": "I'm listening, Captain. I wanted you to know, in case it's useful."}],
+   "meta": {"batch": "batch_01"}},
+
+  {"id": "banter.pell.control.log_or_plot", "kind": "banter", "speaker": "pell", "station": "control", "priority": 60,
+   "summary": "The drone's log says it never turned.",
+   "needs": "seen.shakedown.debrief and knows.decoy_turned and not murdered",
+   "mentions": ["decoy_turned"],
+   "lines": [
+    {"who": "pell", "text": "The drone's log says it never turned. Either the log is wrong or the plot is, and I find I'd rather it were the log."}],
+   "meta": {"batch": "batch_01"}}
+ ]
+}

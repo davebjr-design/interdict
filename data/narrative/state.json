@@ -314,6 +314,19 @@
    "default": 50,
    "doc": "0 tight .. 100 loose. Bands: very tight <15, tight 15-35, neutral 35-65, loose 65-85, very loose >85. See docs/command_model.md."
   },
+  "command.band": {
+   "type": "enum",
+   "values": [
+    "very_tight",
+    "tight",
+    "neutral",
+    "loose",
+    "very_loose"
+   ],
+   "default": "neutral",
+   "derived": true,
+   "doc": "Committed band of command.style with hysteresis (docs/command_model.md section 2; web/demo_state.js bandStep). DERIVED: written only by the runtime when command.style moves; storylets read this, never the raw number, for anything the player can see."
+  },
   "shakedown.result": {
    "type": "enum",
    "values": [
@@ -404,6 +417,12 @@
    "max": 999,
    "default": 0,
    "doc": "Value of hunts when 1.6b played (written by 1.6b on every route). 'The next hunt after the wiring' is hunts > wiring.hunt_at. Read by call.pell.wiring_answer and call.castellan.wiring_again."
+  },
+  "pell.nick": {
+   "type": "string",
+   "default": "Captain",
+   "derived": true,
+   "doc": "Pell's current nickname for the captain, from the last decision (Captain Patience, Captain Quick, Captain Night Watch ...). Runtime-written; renders as {pell.nick}. Stays 'Captain' on the murder route, where Pell uses none. PROPOSED (2026-11-15): used by ambient Pell lines; Dave to confirm."
   }
  },
  "patterns": {
