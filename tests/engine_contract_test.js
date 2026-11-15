@@ -11,8 +11,9 @@ const dist = (s, a) => { const p = E.truePos(a, s.t); return Math.hypot(p.x - s.
     for (let i = 0; i < 1200 && !s.over; i++) {
       const n0 = s.inc.length, l0 = s.log.length, e0 = s.evts.length;
       if (seed % 2 === 0) for (const a of s.an) if (a.kind === 'real' && a.aware && s.t >= a.nextFire - 0.06 && a.state === 'open') a.state = 'out';   // half the hunts: the shooter is off our plot when it fires
+      else for (const a of s.an) if (a.kind === 'real' && a.aware && s.t >= a.nextFire - 0.06 && a.state === 'open') for (const ch of ['thermal', 'reactor', 'occlusion']) a.read[ch] = { num: 0.9 * 8, den: 8, t: s.t, cat: 'strong' };   // the other half: the shooter is well read (detection level 1 at launch)
       E.tick(s, 0.05);
-      if (s.inc.length > n0) { const v = s.inc[s.inc.length - 1], k = v.seen ? 'launch' : 'seeker'; if (!found[k]) found[k] = { s, v, log: s.log.slice(l0), evts: s.evts.slice(e0), l0, e0 }; if (found.launch && found.seeker) break; }
+      if (s.inc.length > n0) { const v = s.inc[s.inc.length - 1], k = v.seen ? 'launch' : 'seeker'; if (!found[k]) { found[k] = { s, v, log: s.log.slice(l0), evts: s.evts.slice(e0), l0, e0 }; break; } }   // freeze this hunt at the find (the next volley's seeker call must not land in the slice)
     }
   }
   chk('an enemy fired on a plotted launcher within 80 seeded hunts', !!found.launch); chk('an enemy fired from the dark within 80 seeded hunts', !!found.seeker);

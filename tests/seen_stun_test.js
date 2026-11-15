@@ -13,6 +13,7 @@ const fireFrom = (seed, plotted, opts, lin) => {
   const s = calm(seed, opts); s.pd = 'off'; const a = s.an.find(x => x.kind === 'real'); if (lin) a.load = Object.assign({}, a.load, { lineage: lin }); a.aware = true; a.know = 1; a.heard = { x: s.player.x, y: s.player.y, vx: 0, vy: 0, t: s.t };
   const p = E.truePos(a, s.t); s.player.x = p.x + 60; s.player.y = p.y;   // inside fire range
   a.state = plotted ? 'open' : 'out'; a.nextFire = s.t; a.nextMan = s.t + 99;
+  if (plotted) for (const ch of ['thermal', 'reactor', 'occlusion']) a.read[ch] = { num: 8 * 0.9, den: 8, t: s.t, cat: 'strong' };   // on our plot and well read: detection level 1 (docs/mechanics_vampire_detect.md)
   const n0 = s.inc.length; for (let i = 0; i < 40 && s.inc.length === n0; i++) { if (!plotted) a.state = 'out'; E.tick(s, 0.02); }
   return { s, a, v: s.inc[s.inc.length - 1], fresh: s.inc.length > n0 };
 };

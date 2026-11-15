@@ -221,8 +221,8 @@ function cRail() {
   croSet('r-clk', mmss(S.t), CC.green);
   if (TUT) ckeySet('k-pause', { t: paused ? 'RESUME' : 'PAUSE', s: 'P', lit: paused }); else ckeySet('k-pause', typeof DECK !== 'undefined' && DECK.on ? { t: 'CREW', s: 'SETTINGS' } : { t: 'NO PAUSE', s: '', dis: true });   // pausing is tutorial-only
   [0.5, 1, 2].forEach((v, i) => ckeySet('k-t' + i, { lit: tscale === v }));
-  clampSet('lMaster', S.hull < 40 || (S.melt || 0) > 0.4 || (S.vent.on && S.vent.forced) || S.inc.length > 0, { fl: true });
-  clampSet('lInc', S.inc.length > 0, { fl: true }); clampSet('lFins', !!S.vent.on); clampSet('lQuiet', S.t < S.quietUntil);
+  clampSet('lMaster', S.hull < 40 || (S.melt || 0) > 0.4 || (S.vent.on && S.vent.forced) || E.seenInc(S).length > 0, { fl: true });
+  clampSet('lInc', E.seenInc(S).length > 0, { fl: true }); clampSet('lFins', !!S.vent.on); clampSet('lQuiet', S.t < S.quietUntil);
   clampSet('lSpool', !!S.spool, { fl: true }); clampSet('lSol', S.an.some(a => a.state === 'locked' && E.solveInfo(S, a).ready), { fl: true });
   const lk = S.an.filter(a => a.state === 'locked');
   [['tac', 'TACTICAL', '1'], ['str', 'STRATEGIC', '2'], ['tgt', engageId != null ? 'TARGET ' + (engageId + 1) : 'TARGET', '3']].forEach(([v, t, k]) => ckeySet('kv-' + v, { t, s: k, lit: view === v, dis: v === 'tgt' && !lk.length && engageId == null }));
@@ -339,7 +339,7 @@ function cSlips() {
 // ----- orders bank, beacon -----
 function nextStep() {
   if (S.over) return { t: S.over === 'win' ? (S.nreal > 1 ? 'ALL SHIPS CRIPPLED' : 'SHIP CRIPPLED') : 'HUNT OVER', led: 'g' };
-  if (S.inc.length) return { t: 'INCOMING FIRE: MOVE OFF THE AIM POINT OR <em>GO QUIET</em>', led: 'r', key: 'k-quiet' };
+  if (E.seenInc(S).length) return { t: 'INCOMING FIRE: MOVE OFF THE AIM POINT OR <em>GO QUIET</em>', led: 'r', key: 'k-quiet' };
   const h = S.sink.h;
   if (S.vent.on && S.vent.forced) return { t: 'SINK FULL: FINS HOLD OUT UNTIL ' + Math.round(ME().forcedStop * 100) + '%', led: 'r' };
   if (h >= 0.95 && !S.vent.on) return { t: 'SINK PEGGED: <em>VENT</em> NOW', led: 'r', key: 'k-vent' };
