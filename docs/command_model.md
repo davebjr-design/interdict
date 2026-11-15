@@ -1,4 +1,4 @@
-# Command model: how the captain's choices change the ship (2026-10-29)
+# Command model: how the captain's choices change the ship (2026-10-29; section 2 rewritten 2026-11-15)
 
 Dave's direction: trust isn't the only thing; how tight you run the ship matters too, and it should change the look of the ship. Same crew all game, so change comes from the officers themselves, from Pell, and from visitors. Delegated jobs stay as skill checks (rating x 1.5 + noise − difficulty, `sim/delegation_sim.py`); these dials modify them.
 
@@ -10,28 +10,32 @@ Dave's direction: trust isn't the only thing; how tight you run the ship matters
 | **Integration** | Pell | firewall steps (always a human act: the red switch, a cable) | raw capability, at a cost in crew trust |
 | **Tally standing** | the world | what you declare or hide | inspections, the captains' bar, patron jobs (no skill effect) |
 
-## 2. Command style: tight vs. loose
+## 2. Command style: tight vs. loose (rewritten 2026-11-15 to match the decision-moments rule)
 State: `command.style`, 0 (tight) to 100 (loose), starts at 50. Bands: **very tight** < 15, **tight** 15-35, **neutral** 35-65, **loose** 65-85, **very loose** > 85.
 
-**Hysteresis (2026-11-02).** Entering a band and leaving it use different thresholds, so the style can't rubber-band across an edge. You *enter* tight at ≤ 35 and loose at ≥ 65 (very tight ≤ 15, very loose ≥ 85), but you *leave* them only after crossing back past an exit margin of 8: tight is held until style > 43, loose until style < 57, very tight until > 23, very loose until < 77. Props, volunteered options and officer reactions read the *committed* band (`command.band`), not the raw number. The raw number keeps moving; only the committed band has memory.
+**What moves it.** Mostly the decision moments (`decision_moments.md`; engine `E.MOMENTS`, `docs/mechanics_decisions.md`). In a hunt an officer raises a call and the captain answers **tight** or **loose**; the answer carries a hidden nudge (tight -3 / loose +3, big moments -4 / +4, at most 8 points per hunt in total). If the captain does not answer, the call times out after 14 s and runs its default, **tight**: the drilled procedure is what the crew do when the captain says nothing. **Nothing pauses; the hunt keeps running while a call is up.** Scene choices (section 4) move the style by 1 to 8 points each; moments only flavour the meter.
 
-| | Tight (drilled procedure) | Loose (judgment and ideas) |
-|---|---|---|
-| Detection → classification | faster (×0.85 time) | slower (×1.10) |
-| Firing solution time | shorter (×0.85) | longer (×1.10) |
-| Delegated checks | steadier (noise −0.3) | normal |
-| Drilled crises (heat crisis, damage control) | +1 to the check | normal |
-| Options per decision card | normal | **+1 lever**: an officer volunteers an unorthodox option (`style: loose_only` levers) |
-| Recommended lead on the firing solution | normal | more accurate (lead error ×0.7) |
-| Firing cone | normal | can tighten further before a miss (minimum cone factor −0.1) |
-| Novel problems (ghost contacts, unknown classification) | normal | +1 to the check |
-| Inspections | easier | harder (things are where they shouldn't be) |
+**The moments rule, which replaces the old blanket modifiers.**
+- **Tight = drilled procedure.** No ceiling, steady results, and in the committed tight band a small procedure-speed bonus (the tight option costs about 15% less time).
+- **Loose = a faster answer or a better result with a visible ceiling.** Every loose option names its failure mode on the button, so choosing loose is an informed gamble. Loose wins more often and loses harder.
+- The style meter no longer applies ship-wide multipliers to detection, solution time, lead or cone (the old table). Those effects now live inside the moments, on one contact, one solution, one vent or one spool, so they cannot stack into a permanent buff.
+
+**Hysteresis (2026-11-02).** Entering a band and leaving it use different thresholds, so the style can't rubber-band across an edge. You *enter* tight at <= 35 and loose at >= 65 (very tight <= 15, very loose >= 85), but you *leave* them only after crossing back past an exit margin of 8: tight is held until style > 43, loose until style < 57, very tight until > 23, very loose until < 77. Props, volunteered options and officer reactions read the *committed* band (`command.band`), not the raw number. The raw number keeps moving; only the committed band has memory.
+
+**What the committed band changes:**
+| Band | Effect |
+|---|---|
+| Committed tight | "Already running, Captain": the drilled crew starts the tight option before you choose (about 15% faster). Delegated checks steadier (noise -0.3). Drilled crises (heat crisis, damage control) get +1. Inspections go easier. |
+| Neutral | Both options always show; no bonus either way. |
+| Committed loose | An officer volunteers a **third, loose-only option** on a moment (for example Castellan reads the reactor line by ear: faster, certainty capped at 55%). Novel problems (ghost contacts, unknown classification) get +1. Inspections go harder (things are where they shouldn't be). |
 
 **The extremes cost something, so the middle is a real choice:**
-- **Very tight:** the crew stops volunteering. Cards hide their `style: loose` levers (the ideas a tight crew keeps to itself).
+- **Very tight:** the crew stops volunteering. Moments and decision cards hide the third (loose-only) option. The captain can still give the loose order.
 - **Very loose:** "nobody checked." 10% of delegated checks drop one band.
 
-(Starting numbers, to tune in the hunt sim. `tools/style_sim.py` checks that hiding loose levers never leaves a card without an acceptable plan.)
+**Standing settings.** An officer who has asked the same moment three or more times across at least two hunts offers to make the answer standing (no more popups, 90% of the benefit, full cost, half-size nudge once per hunt). One per department; any after-action report can drop it at no cost.
+
+(Starting numbers, to tune in the hunt sim: `sim/moment_accept.js` checks that, for each moment, always-loose and always-tight bots land within about 2 points of each other on the mean, with loose the higher win rate and the worse worst decile. `tools/style_sim.py` checks that hiding loose levers never leaves a decision card without an acceptable plan.)
 
 ## 3. Officers have a preferred style
 Style and trust pull on each other, so no single grind maxes everything. Each band step away from an officer's preference costs a little trust per leg; each step toward earns a little.
