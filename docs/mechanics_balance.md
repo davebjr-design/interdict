@@ -67,6 +67,23 @@ The brace mechanic (crew state, rate and injury penalties, auto-brace for a vamp
 
 Easy: steady 68, pinger 65. Hard: steady 53, pinger 32. A competent human who braces on the crew's calls and treats the injured will sit where the steady bot sits. Loss anatomy for the steady bot at normal: deaths 11%, breach-drive escapes 25% (the bot breaks off when the magazine is dry with ships left), timeouts 4%.
 
+## After the seen-volley rule, brace timing and stun (docs/mechanics_brace.md)
+
+Three changes land together: a volley is only a vampire when it is **detected** (the launcher is on our plot at launch, or the seeker lights at `AI.seekerActive` = 12 units, about 5 s out), the CO braces when a seen volley is within braceTime x 1.5 (about 10 s) of impact instead of at launch, and a hit on an unsecure crew may **stun** officers for 6 to 12 s (injuries kept for big hits only). The bots read only seen volleys. Normal, 240 paired hunts, entry mix (`HUNT_ENGINE` frozen snapshot, `node sim/balance_hunt.js --n 240 --entry mix --diff normal`):
+
+| Bot | Win % | 1 / 2 / 3 ships | Hull on wins | Dead % | Was (brace rule only) |
+|---|---|---|---|---|---|
+| steady | **60** | 96 / 64 / 21 | 86 | 13 | 60 (95 / 64 / 23) |
+| reader | 58 | 96 / 59 / 20 | 87 | 15 | 59 |
+| pinger | **54** | 90 / 60 / 13 | 71 | 46 | 53 (93 / 51 / 14) |
+| pingfire | 45 | 86 / 40 / 9 | 63 | 53 | 48 |
+| camper | 3 | | 100 | 78 | 3 |
+| random | 3 | | 41 | 95 | 2 |
+
+Deaths and hull by ship count (n = 80 each): **pinger** wins 90 / 60 / 13, **dead 10 / 40 / 88 percent**, hull on wins 85 / 56 / 48; **steady** wins 96 / 64 / 21, dead 1 / 10 / 28, hull on wins 95 / 84 / 57. The pinger is **not tuned**: it still loses nearly nine hunts in ten against three warships. Stuns hit the bots almost never (0.00 to 0.06 per hunt): a seen volley gives the crew about 10 s, a launch is seen at flight times of 10 s and more, and once braced the crew stay secure for the rest of the fight.
+
+**The seen-volley rule changes nothing in this harness, because the rule rarely bites here.** In 90 diagnostic hunts per bot, 100 percent of enemy volleys (611 pinger, 653 steady) were fired by a contact that was open or locked on the plot, so every one was seen at launch; the harness bots never rule a contact out and a firing contact is marked hostile and reopened. The seeker route fires only for a launcher that was ruled out or lost. The upper bound, from `--set rules.launchDetect=0` (no launch is ever detected, every volley is first seen about 5 s before impact, 4.8 to 5.1 s measured): pinger **55** (95 / 59 / 13, dead 44), steady **62** (96 / 73 / 18, dead 16); stuns rise to 0.09 (pinger) and 0.63 (steady) per hunt and 30 percent of steady's hits (8 percent of pinger's) land on a bracing crew. So even the worst case moves the bots by two points, because the dodge still has five seconds and a crew that has braced once stays braced.
+
 ## Dog-leg arenas: spool at once versus clear the hunters
 
 `--dog --n 200 --sus 0.5` (hunters present half the time):

@@ -16,7 +16,8 @@
   const CONES = [0, 2, 4, 6, 9, 12];
   const EXP = (typeof process !== 'undefined' && process.env.BOT_OPT) ? JSON.parse(process.env.BOT_OPT) : {};   // exploration only: BOT_OPT='{"homing":true,"stand":40}'
   const live = s => s.an.filter(a => a.kind === 'real' && a.state !== 'disabled');
-  const incoming = s => (s.inc || []).length > 0;
+  const seenInc = s => (s.inc || []).filter(v => v.seen !== false);   // the crew only know of a volley once it is detected (launch seen, or the seeker lit)
+  const incoming = s => seenInc(s).length > 0;
   const anyAware = s => s.an.some(a => a.kind === 'real' && a.aware && a.state !== 'disabled');
   const dist = (s, a) => { const p = E.displayPos(s, a); return Math.hypot(p.x - s.player.x, p.y - s.player.y); };
   function sinkCare(s, cautious) {
@@ -34,7 +35,7 @@
     if (opt.treat && E.treat && s.crew) for (const k in s.crew) if (s.crew[k].inj && s.crew[k].treatUntil == null) { E.treat(s, k); break; }   // Fenwick sees to the hurt, one at a time
     if (s.hull < 15 && !s.spool) { E.retreat(s); return; }
     if (opt.discipline && !s.spool && s.mag && s.mag.total < s.mag.perSalvo && live(s).length && !s.volleys.length) { E.retreat(s); return; }   // dry magazine with warships left: break contact rather than stand and be shot
-    if (incoming(s)) { const v = s.inc[0]; if (mem.dodge !== v) { mem.dodge = v; const dx = v.aim.x - v.from.x, dy = v.aim.y - v.from.y, d = Math.hypot(dx, dy) || 1, sg = r() < 0.5 ? 1 : -1; E.setRoute(s, [{ x: s.player.x - dy / d * 14 * sg, y: s.player.y + dx / d * 14 * sg, speed: 'v4' }]); } }
+    if (incoming(s)) { const v = seenInc(s)[0]; if (mem.dodge !== v) { mem.dodge = v; const dx = v.aim.x - v.from.x, dy = v.aim.y - v.from.y, d = Math.hypot(dx, dy) || 1, sg = r() < 0.5 ? 1 : -1; E.setRoute(s, [{ x: s.player.x - dy / d * 14 * sg, y: s.player.y + dx / d * 14 * sg, speed: 'v4' }]); } }
     else if (mem.dodge && s.posture !== 'route') { mem.dodge = null; E.setSpeed(s, 'v2'); }
     for (const a of s.an) if (a.state === 'open') { const c = E.classify(s, a); if (a.idStatus === 'hostile' || (c.n >= 2 && c.post.real > 0.9)) E.lockContact(s, a.id); else if (c.n >= 2 && c.post.real < 0.04 && c.p > 0.9) E.dismissContact(s, a.id); }
     const locked = s.an.filter(a => a.state === 'locked'), open = s.an.filter(a => a.state === 'open' && a.idStatus !== 'plan');

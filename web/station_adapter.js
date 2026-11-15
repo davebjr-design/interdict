@@ -10,6 +10,9 @@
  * Brace (docs/mechanics_brace.md): A.order('helm', 'brace', 'Brace', { on: true|false }) strap in / release. A hard burn, a hard evasion or the jump spool
  *   ordered while the crew are free is held and raised as call H4 ("Crew not secure": Brace first / Go now / Cancel; default Brace first after 8 s); doctrine.brace:
  *   'ask' (default: H4 gate; the crew brace on their own for a vampire), 'auto' (the crew brace before any hard order, no call) or 'manual' (only on order).
+ * Stun (docs/mechanics_brace.md): a hit on a crew who are not secure can stun an officer for 6 to 12 s. The station model holds his orders and calls until he is back
+ *   (Auto/Supervised), Hands-on is locked out (A.order returns null, out event {type:'blocked'}; A.stunned(station)). Out events {type:'stun'|'recovered', officer, station}.
+ * Station verbs added: speed {speed:'v1'..'v5'|'ab'}, dismiss {id}, still, vent_stop, evade (as before). Each runs through the usual order timing (A.order or a chip).
  *   A.handsOnBlocked(station) is true while the crew are braced and that station is Hands-on: A.order() then returns null (an out event {type:'blocked'}).
  * Decision moments (docs/mechanics_decisions.md): A.update() polls HuntRT.momentCheck(); a moment arrives as a call (rows M01-M09, answers m_tight / m_loose).
  *   cfg.moments = ['M02', ...] chooses which are live (default: M02 M03 M04 M07 M09; M01 stays the hunt page's own popup); cfg.moments = false turns them off.
@@ -78,6 +81,10 @@
         switch (o.verb) {
           case 'classify': if (live(s, id)) { if (!s.analysts.every(w => w.task === id)) E.investigate(s, id); } else ok = false; break;
           case 'track': if (live(s, id)) { if (s.an[id].state === 'open') E.lockContact(s, id); else { const w = s.analysts.find(x => x.task == null) || s.analysts[0]; if (w.task !== id) E.assign(s, w.id, id); } } else ok = false; break;
+          case 'speed': { const k = d.speed || d.k; if (k === 'ab') return execute(Object.assign({}, o, { verb: 'redline' })); ok = SPD.includes(k) && E.setSpeed(s, k); break; }   // drive level v1..v5 (ab goes through the redline gate)
+          case 'dismiss': { const a = id != null ? s.an[id] : null; if (a && a.state === 'open' && a.idStatus !== 'hostile' && a.idStatus !== 'plan') E.dismissContact(s, id); else ok = false; break; }   // rule a contact out
+          case 'still': ok = E.setOrder(s, 'still', null); break;   // all stop, hold position (always; 'hold' only does it on helm rows)
+          case 'vent_stop': ok = E.stopVent(s); break;   // pull the fins in by hand
           case 'mark': case 'ignore': case 'wait': break;   // by design: nothing to do
           case 'quiet': ok = E.goQuiet(s); break;
           case 'evade': { const need = !o.forced && E.braceNeeded && E.braceNeeded(s, 'evade'); if (need) { ok = gate(o, need); break; } { const ln = !o.forced && E.linkNeeded && E.linkNeeded(s, 'evade'); if (ln) { ok = linkGate(o, ln); break; } } ok = E.setOrder(s, 'evade', live(s, id) ? id : null); break; }
@@ -116,6 +123,7 @@
     }
     function syncBody(s) {   // the crew's bodies: braced crew work from the couches, an injured officer is slower still; the doctrine sets how the crew brace on their own
       if (!E.crewEff) return;
+      for (const k in M.officers) { const c = s.crew && s.crew[k]; M.setStun(k, c && E.stunned && E.stunned(s, k) ? M.now + (c.stunUntil - s.t) * M.secPerMin : null); }   // a stunned officer's station is dead: the model holds his orders and calls until he is back
       s.braceAuto = M.doctrine.brace === 'auto' ? 'all' : M.doctrine.brace === 'manual' ? 'off' : 'vampire';
       const mul = s.brace === 'secure' ? (s.me.braceReact || 1.3) : s.brace === 'bracing' ? (s.me.braceReactMoving || 1.6) : 1;
       for (const k in M.officers) { const e = E.crewEff(s, k), v = mul / Math.max(0.25, e); M.setBody(k, Math.abs(v - 1) < 1e-9 ? null : v); }
@@ -125,7 +133,7 @@
       syncBody(s);
       if (A.moments.length && E.momentCheck && !s.over) { try { E.momentCheck(s, { enabled: A.moments, drilled: cfg.command === 'tight' }); } catch (e) { A.errors.push(String(e && e.stack || e)); } }
       const evts = s.evts || [];
-      for (let i = A.seenEvt; i < evts.length; i++) { try { M.onEvent(evts[i]); } catch (e) { A.errors.push(String(e)); } }
+      for (let i = A.seenEvt; i < evts.length; i++) { const ev = evts[i]; if (ev.type === 'stun' || ev.type === 'recovered') outQ.push({ type: ev.type, officer: ev.data.officer, station: ev.data.station, until: ev.data.until }); try { M.onEvent(evts[i]); } catch (e) { A.errors.push(String(e)); } }
       A.seenEvt = evts.length;
       if (s.log.length > A.seenLog) { try { M.ingest(s.log.slice(A.seenLog)); } catch (e) { A.errors.push(String(e)); } A.seenLog = s.log.length; }
       if (dt > 0) M.tick(dt);
@@ -138,9 +146,11 @@
       const out = outQ; outQ = []; return out;
     }
     A.update = update;
-    A.handsOnBlocked = station => !!(A.s && A.s.brace && A.s.brace !== 'free' && station !== 'helm-brace' && M.autonomy[station] === 'hands-on');
+    A.stunned = station => !!(A.s && E.stunned && Stations.OFFICER[station] && E.stunned(A.s, Stations.OFFICER[station]));   // the officer at this station is down from an impact
+    A.handsOnBlocked = station => !!(A.s && A.s.brace && A.s.brace !== 'free' && station !== 'helm-brace' && M.autonomy[station] === 'hands-on') || (M.autonomy[station] === 'hands-on' && A.stunned(station));
     A.order = (station, verb, label, data) => {
       if (verb !== 'brace' && A.handsOnBlocked(station)) { A.blocked.push({ t: A.s.t, station, verb }); outQ.push({ type: 'blocked', station, verb, why: 'braced: unstrap first (A.order helm brace {on:false})' }); return null; }   // a strapped-in officer cannot work the controls by hand
+      if (A.stunned(station) && M.autonomy[station] === 'hands-on') { outQ.push({ type: 'blocked', station, verb, why: 'stunned: ' + Stations.OFFICER[station] + ' is down' }); return null; }   // an Auto or Supervised order is simply held by the model until he is back
       return M.command(station, verb, label, data);
     };
     A.setPreset = id => { A.salvo = Presets.get(id); return A.salvo; };

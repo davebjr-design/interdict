@@ -4,19 +4,30 @@ let bad = 0; const chk = (m, c) => { console.log(c ? 'ok   ' : 'FAIL ', m); if (
 const reals = s => s.an.filter(a => a.kind === 'real');
 const dist = (s, a) => { const p = E.truePos(a, s.t); return Math.hypot(p.x - s.player.x, p.y - s.player.y); };
 
-// 1. enemy launches are announced: s.warn, a log line, a structured vampire event, the shooter marked hostile
-{ let found = null;
-  for (let seed = 1; seed <= 40 && !found; seed++) {
+// 1. enemy launches are announced only when DETECTED: either the launcher is on our plot at launch, or the seeker goes active (v.seen, v.via)
+{ const found = { launch: null, seeker: null };
+  for (let seed = 1; seed <= 80 && !(found.launch && found.seeker); seed++) {
     const s = E.newHunt(seed, { nreal: 2 });
-    for (let i = 0; i < 600 && !s.over; i++) {
-      const n0 = s.inc.length, l0 = s.log.length, e0 = s.evts.length; E.tick(s, 0.05);
-      if (s.inc.length > n0) { found = { s, v: s.inc[s.inc.length - 1], log: s.log.slice(l0), evts: s.evts.slice(e0) }; break; }
+    for (let i = 0; i < 1200 && !s.over; i++) {
+      const n0 = s.inc.length, l0 = s.log.length, e0 = s.evts.length;
+      if (seed % 2 === 0) for (const a of s.an) if (a.kind === 'real' && a.aware && s.t >= a.nextFire - 0.06 && a.state === 'open') a.state = 'out';   // half the hunts: the shooter is off our plot when it fires
+      E.tick(s, 0.05);
+      if (s.inc.length > n0) { const v = s.inc[s.inc.length - 1], k = v.seen ? 'launch' : 'seeker'; if (!found[k]) found[k] = { s, v, log: s.log.slice(l0), evts: s.evts.slice(e0), l0, e0 }; if (found.launch && found.seeker) break; }
     }
   }
-  chk('an enemy fired within 40 seeded hunts', !!found);
-  if (found) { const { s, v, log, evts } = found, ve = evts.find(e => e.type === 'vampire');
+  chk('an enemy fired on a plotted launcher within 80 seeded hunts', !!found.launch); chk('an enemy fired from the dark within 80 seeded hunts', !!found.seeker);
+  if (found.seeker) { const { s, v } = found.seeker;
+    chk('seeker route: the volley is unseen at launch (v.seen false, no warn, no Dace line)', v.seen === false && !(s.warn || []).some(w => w.id === v.id && Math.abs(w.t - v.t0) < 1e-6) && !found.seeker.log.some(l => /has launched|Vampire/.test(l.text)));
+    chk('seeker route: seekAt is before impact and after launch', v.seekAt >= v.t0 && v.seekAt <= v.at && v.via == null);
+    const l1 = s.log.length, e1 = s.evts.length; let guard = 0; while (v.seen === false && s.inc.includes(v) && guard++ < 4000 && !s.over) E.tick(s, 0.02);
+    if (s.inc.includes(v) || v.seen) { chk('seeker route: it lights up (seen, via seeker) before it lands', v.seen === true && v.via === 'seeker');
+      const ve = s.evts.slice(e1).find(e => e.type === 'vampire'); chk('seeker route: vampire event says via seeker, no contact number', ve && ve.data.via === 'seeker' && ve.data.n == null && ve.data.etaSec > 0 && ve.data.etaSec < 9);
+      chk('seeker route: Dace calls it ("Vampire, seeker active, bearing NNN, impact in S seconds")', s.log.slice(l1).some(l => /Vampire, seeker active, bearing \d{3}, impact in \d+ seconds/.test(l.text) && l.urgent && l.who === 'Dace'));
+      const M = S.create({ seed: 1 }); const c = M.onEvent(ve); chk('seeker route: the station model maps it to W5 with an eta', c && c.row === 'W5' && /\d+ seconds/.test(c.line)); } }
+  if (found.launch) { const { s, v, log, evts } = found.launch, ve = evts.find(e => e.type === 'vampire');
+    chk('launch route: v.seen true, v.via launch', v.seen === true && v.via === 'launch');
     chk('s.warn gets an entry for the launch', (s.warn || []).some(w => w.id === v.id && Math.abs(w.t - v.t0) < 1e-6));
-    chk('a log line announces it (Dace, urgent, "has fired on us")', log.some(l => /Contact \d+ has fired on us\. Impact in/.test(l.text) && l.urgent && l.who === 'Dace'));
+    chk('a log line announces it (Dace, urgent, "Contact N has launched, impact in")', log.some(l => /Contact \d+ has launched, impact in/.test(l.text) && l.urgent && l.who === 'Dace'));
     chk('a vampire event carries bearing and eta', ve && ve.data.id === v.id && ve.data.bearing >= 0 && ve.data.bearing < 360 && Math.abs(ve.data.at - v.at) < 1e-6 && ve.data.etaSec > 0);
     chk('the shooter is marked hostile', s.an[v.id].idStatus === 'hostile');
     const M = S.create({ seed: 1 }); const c = M.onEvent(ve); chk('the station model maps the vampire event to W5 (priority 4) with an eta', c && c.row === 'W5' && c.pri === 4 && /Impact in \d+ seconds/.test(c.line)); } }

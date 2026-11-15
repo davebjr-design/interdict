@@ -61,7 +61,7 @@ const calm = seed => E.newHunt(seed, { nreal: 1, entry: 'standard' });
 
 // auto-brace for a vampire, and the doctrine
 { const s = calm(5); s.inc.push({ id: s.an.find(a => a.kind === 'real').id, foe: true, t0: s.t, at: s.t + 25 / SPM, from: { x: 100, y: 100 }, aim: { x: s.player.x, y: s.player.y }, dir: 0, cone: 4, disp: 1, off: [], stretch: 1, killR: 7, dmgW: 38 });
-  run(s, 1); chk('a vampire in the air: the crew brace on their own (default doctrine)', s.brace === 'bracing' && s.braceBy === 'auto'); run(s, 8); chk('and are secure before a 25 s impact', s.brace === 'secure' && evs(s, 'brace_complete')[0].data.by === 'auto');
+  run(s, 1); chk('a seen vampire 24 s out: nobody braces yet (the CO calls it at braceTime x 1.5, about 10 s out)', s.brace === 'free'); run(s, 15); chk('about 10 s before impact the crew brace on their own (default doctrine)', s.brace === 'bracing' && s.braceBy === 'auto'); run(s, 8); chk('and are secure before a 25 s impact', s.brace === 'secure' && evs(s, 'brace_complete')[0].data.by === 'auto');
   s.inc.length = 0; run(s, 24); chk('they stand easy about a game minute (16 s) after the threat has gone', s.brace === 'free');
   const q = E.newHunt(5, { nreal: 1, braceAuto: 'off' }); q.inc.push({ id: 0, foe: true, t0: 0, at: 25 / SPM, from: { x: 100, y: 100 }, aim: { x: q.player.x, y: q.player.y }, dir: 0, cone: 4, disp: 1, off: [], stretch: 1, killR: 7, dmgW: 38 }); run(q, 5); chk("braceAuto 'off': nobody braces on their own", q.brace === 'free'); }
 

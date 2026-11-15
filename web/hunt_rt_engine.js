@@ -2,12 +2,12 @@
 // Three analysts (thermal / reactor / occlusion) read contacts on their own schedule; the player directs attention, interprets, locks, tracks, fires.
 const HuntRT = (() => {
   // RULES: the world, the same for every ship. Never trimmed, never scaled by difficulty.
-  const RULES = { dmgExp: 2, sensRef: 40, visDiv: 0.2, visFloor: 0.06, visCap: 0.85, ventSig: 1, floorM: 0.12, blockM: 0.12, edge: 18, N: 8, nreal: 2, nlure: 3, arena: 240, sub: 0.05, secPerMin: 16, halfLife: 3, bait: 0.75, blastSat: 1.6 };
+  const RULES = { dmgExp: 2, sensRef: 40, visDiv: 0.2, visFloor: 0.06, visCap: 0.85, ventSig: 1, floorM: 0.12, blockM: 0.12, edge: 18, N: 8, nreal: 2, nlure: 3, arena: 240, sub: 0.05, secPerMin: 16, halfLife: 3, bait: 0.75, blastSat: 1.6, launchDetect: 1 };   // launchDetect 0: what-if for the balance sweep, no launch is ever detected (every volley is first seen when its seeker lights)
   // PLAYER: our ship and our actions. Copied into s.me for each hunt; trims, Pell assists and decision moments touch only s.me (applyPlayer).
   const PLAYER = { meltHull: 3, meltSys: 0.15, forcedRetract: 0.8, readDone: 8, pingSolve: 0.6, pingGain: 0.4, pingWeight: 2, spoolMove: 0.3, spoolDog: 11.25, spool: 3, spoolVis: 0.9, spoolHeat: 0.06, homeWarned: 0.15, missQuiet: 0.08, homePull: 0.5, missiles: 6, dispMin: 0.8, dispK: 0.03, closeDmg: 32, empRecover: 0.02, symP: 0.8, classDen: 12, sinkK: 0.7, ventFull: 4, ventMin: 0.08, forcedStop: 0.25, sensR: 120, pingAlert: 0.3, launchAlert: 0.15, launchSeen: 0.35, pingFix: 0.7, hitFix: 0.75, salvoFix: 0.5, coilAlert: 0.2, solveStale: 3, uncDen: 20, uncMin: 2, uncMax: 16, solveMin: 0.8, solveMax: 3, solveDen: 8, clutterR: 18, base: 0.02, glowFocus: 0.01, glowTrack: 0.03, chase: 5, decoyStall: 0.55, rescan: 5, engage: 1, missileSpeed: 40, alongStretch: 1.5, autoPeriod: 0.8, focusPeriod: 0.45, killR: 7, glowPell: 0.012, integrationPerMin: 0.8, fixLo: 0.35, fixSpan: 0.4, driftK: 0.9, certReady: 0.6, certBleed: 0.5, manPen: 1.5, manWin: 3, manLoss: 0.35, spdK: 0.2, backK: 0.6, quietDur: 2.5, quietCd: 10, quietHaz: 0.2, suggestShort: 0.72, tubes: 3, reload: 4, darkWindow: 6, darkHaz: 0.5, darkWarm: 4, wakeDur: 3, wakeGlow: 0.1, wpReach: 2, moveRate: 1.1, shipSpeed: 1, holdOff: 5, pingCd: 4, pingDur: 1.5, pingGlow: 0.14, selfRadius: 7, closeRange: 18, closeCd: 2, closeKill: 8, closeAcc: 0.85, closeGlow: 0.12, closeDur: 2, blastGlow: 0.08, blastDur: 1.5, nearGlow: 0.025, nearRange: 24, closeBump: 0.5, beamGlow: 0.08, beamDur: 1, beamCd: 2, beamBump: 0.35, shareReads: 2, pellFriction: 0.08, classNoise: 1, pingRounds: 3, noRedline: 0, ventAfterglow: 0, leadSpread: 1, pingReach: 2, magTotal: 60, magSalvos: 10, magLow: 12, magHe: 54, magEmp: 3, magFlare: 3, pdGrid: 'light', pdArm: 0.125, pdDur: 0.6, pdGlow: 0.08, pdAlert: 0.08, pdCold: 0.3, probeR: 22, probeCd: 0.5,
-    forceAt: 1, redHeat: 1, braceTime: 0.4, braceHold: 1, gThresh: 0.3, injGate: 0.5, injK: 0.5, impactInj: 0.6, treatTime: 1, braceReact: 1.3, braceReactMoving: 1.6, rateSecure: 0.95, rateBracing: 0.9, rateLoaded: 0.75, hurtQuill: 0.8, hurtDace: 0.9, hurtAbara: 1.4, hurtVent: 0.8, hurtSpool: 1.3 };   // brace (docs/mechanics_brace.md); times in game minutes (0.4 = about 6 s)
+    forceAt: 1, redHeat: 1, braceTime: 0.4, braceHold: 1, gThresh: 0.3, injGate: 0.5, injK: 0.5, impactInj: 0.3, treatTime: 1, braceReact: 1.3, braceReactMoving: 1.6, rateSecure: 0.95, rateBracing: 0.9, rateLoaded: 0.75, stunP: 0.4, stunRef: 30, stunMin: 0.4, stunSpan: 0.35, injDmg: 20, hurtQuill: 0.8, hurtDace: 0.9, hurtAbara: 1.4, hurtVent: 0.8, hurtSpool: 1.3 };   // brace (docs/mechanics_brace.md); times in game minutes (0.4 = about 6 s)
   // AI: enemy warship defaults. Copied into a.ai per contact at spawn, scaled by its loadout and the difficulty. Nothing on the player side reads or writes it.
-  const AI = { heatK: 1.4, sinkDiv: 3, ventFull: 4, empRecover: 0.15, litDecay: 0.15, sensR: 120, knowK: 0.4, knowDecay: 0.05, knowLose: 0.15, aimSigMax: 36, aimSigMin: 3.5, standoff: 60, fireCd0: 1.2, fireCd: 4.5, cone: 9, coneStill: 0.7, coneMove: 0.3, missileSpeed: 40, manPatrol: [6,  9], manAware: [3,  5], missRate: 0.5, evadeV: 10, evadeMax: 36, dmgW: 38, missiles: 6, killR: 7, alongStretch: 1.5, dispMin: 0.8, dispK: 0.03, fireRange: 110, aimRange: 120, quietBlur: 4, searchStart: 7, searchRamp: 12, searchK: 0.05, searchDecay: 0.85, closeIn: 0.6, probeCd: 7, probeKnow: 0.12, probeGain: 0.22 };
+  const AI = { heatK: 1.4, sinkDiv: 3, ventFull: 4, empRecover: 0.15, litDecay: 0.15, sensR: 120, knowK: 0.4, knowDecay: 0.05, knowLose: 0.15, aimSigMax: 36, aimSigMin: 3.5, standoff: 60, fireCd0: 1.2, fireCd: 4.5, cone: 9, coneStill: 0.7, coneMove: 0.3, missileSpeed: 40, seekerActive: 12, manPatrol: [6,  9], manAware: [3,  5], missRate: 0.5, evadeV: 10, evadeMax: 36, dmgW: 38, missiles: 6, killR: 7, alongStretch: 1.5, dispMin: 0.8, dispK: 0.03, fireRange: 110, aimRange: 120, quietBlur: 4, searchStart: 7, searchRamp: 12, searchK: 0.05, searchDecay: 0.85, closeIn: 0.6, probeCd: 7, probeKnow: 0.12, probeGain: 0.22 };
   const P = Object.assign(RULES, { player: PLAYER, ai: AI });   // P is the rules object; P.player and P.ai are the default blocks (read-only templates)
   // DIFFICULTY: six knobs that scale enemy competence only (higher = tougher). Applied to each enemy's a.ai at spawn; never touches s.me or the rules.
   // notice: how fast they build a fix on us. memory: how long they keep it. gunnery: aim and cone. tempo: fire and maneuver cadence. punch: warhead damage. cunning: search, salvo spotting.
@@ -53,14 +53,15 @@ const HuntRT = (() => {
   function rng(seed) { let a = seed >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
   function gauss(r) { let u = 0, v = 0; while (!u) u = r(); while (!v) v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const SEEKER_LINEAGE = { orrin: 0.6, vask: 1.5, halden: 1 };   // x AI.seekerActive: an Orrin seeker lights up late (close in), a Vask seeker early
   const mins = m => { const r = Math.round(m * 10) / 10; return (r === 1 ? 'one minute' : (Number.isInteger(r) ? r : r.toFixed(1)) + ' minutes'); };   // crew always speak in game minutes
   const LOADOUTS = [   // the same fields rule our ship and theirs: sensor = how well it reads others, sig = how loud it is, crew = reaction and discipline, sink = heat capacity, spd = drive, dmg = warhead
     { id: 'cutter', cls: 'destroyer', name: 'Salvage cutter', sensor: 1.0, sig: 1.0, crew: 1.0, sink: 1.0, spd: 1.0, dmg: 1.0 },
-    { id: 'picket', cls: 'destroyer', name: 'Picket', sensor: 1.0, sig: 1.0, crew: 1.0, sink: 1.0, spd: 1.0, dmg: 1.0, blurb: 'Standard patrol ship.' },
-    { id: 'hound', cls: 'destroyer', name: 'Hound', sensor: 1.3, sig: 1.2, crew: 1.0, sink: 0.9, spd: 1.15, dmg: 1.0, blurb: 'Sharp sensors, loud drive.' },
-    { id: 'shade', cls: 'cruiser', name: 'Shade', sensor: 0.9, sig: 0.72, crew: 1.0, sink: 0.9, spd: 0.9, dmg: 0.8, blurb: 'Stealthy, lightly armed.' },
-    { id: 'veteran', cls: 'cruiser', name: 'Veteran', sensor: 1.0, sig: 1.0, crew: 1.25, sink: 1.1, spd: 1.0, dmg: 1.1, blurb: 'Fast hands, vents only when it is safe.' },
-    { id: 'green', cls: 'destroyer', name: 'Green crew', sensor: 0.85, sig: 1.0, crew: 0.75, sink: 0.9, spd: 1.0, dmg: 1.0, blurb: 'Slow to react, careless about heat.' },
+    { id: 'picket', lineage: 'halden', cls: 'destroyer', name: 'Picket', sensor: 1.0, sig: 1.0, crew: 1.0, sink: 1.0, spd: 1.0, dmg: 1.0, blurb: 'Standard patrol ship.' },
+    { id: 'hound', lineage: 'vask', cls: 'destroyer', name: 'Hound', sensor: 1.3, sig: 1.2, crew: 1.0, sink: 0.9, spd: 1.15, dmg: 1.0, blurb: 'Sharp sensors, loud drive.' },
+    { id: 'shade', lineage: 'orrin', cls: 'cruiser', name: 'Shade', sensor: 0.9, sig: 0.72, crew: 1.0, sink: 0.9, spd: 0.9, dmg: 0.8, blurb: 'Stealthy, lightly armed.' },
+    { id: 'veteran', lineage: 'vask', cls: 'cruiser', name: 'Veteran', sensor: 1.0, sig: 1.0, crew: 1.25, sink: 1.1, spd: 1.0, dmg: 1.1, blurb: 'Fast hands, vents only when it is safe.' },
+    { id: 'green', lineage: 'halden', cls: 'destroyer', name: 'Green crew', sensor: 0.85, sig: 1.0, crew: 0.75, sink: 0.9, spd: 1.0, dmg: 1.0, blurb: 'Slow to react, careless about heat.' },
     { id: 'brute', cls: 'battleship', name: 'Brute', sensor: 0.9, sig: 1.25, crew: 0.95, sink: 1.4, spd: 0.85, dmg: 1.4, blurb: 'Big heat sinks, loud, hits hard.' }];
   function makeBodies(r, start) {   // two bright backdrops (eclipse screens) and one or two dark planets (cover)
     const A = P.arena, out = [], far = (x, y, m) => out.every(b => Math.hypot(b.x - x, b.y - y) > m) && Math.hypot(start.x - x, start.y - y) > 70;
@@ -86,7 +87,7 @@ const HuntRT = (() => {
     for (const a of an) { if (a.kind === 'real' && opts.warn) a.know = opts.warn * 0.7; if (a.kind === 'real' && opts.dog) a.sil = opts.warn > 0 ? 0.7 : 1.25; a.eff = 1; a.lit = 0; if (a.kind === 'real' || a.kind === 'friend') { a.hpMax = a.hp = HPMAX[a.kind === 'real' ? a.load.cls : 'cruiser']; } }
     for (const a of an) if (a.kind === 'real') { a.sink = { h: 0.15 + 0.6 * r() }; a.vx *= a.load.spd; a.vy *= a.load.spd; a.v *= a.load.spd; }
     const S0 = { nreal: NR, N: NN, nlure: NL, difficulty: D.name, get spoolMin() { return (this.dog ? this.me.spoolDog : this.me.spool) * (this.crew.Castellan.inj ? this.me.hurtSpool : 1); }, rP: rng(seed ^ 0x9E3779B9), rFx: rng(seed ^ 0x85EBCA6B), dog: !!opts.dog, events: [], evN: 0, holdEvents: false, hold: false, sysEff: 1, bodies, me: makeMe(LOADOUTS[0]), sink: { h: opts.sink0 ?? 0.05 }, vent: { on: false, forced: false, t0: 0, n: 0, total: 0 }, sinkWarn: 0, entry, route: (opts.route || []).map(p => ({ x: p.x, y: p.y })), routeI: 0, speed: SPD_ALIAS[opts.speed] || opts.speed || 'v3', orderId: null, pingCd: 0, pingUntil: 0, pingFx: [], hull: 100, blastUntil: 0, blastV: 0, cwCd: 0, hullWarned: false, friendly: !!opts.friendly, beamCd: 0, beamUntil: 0, fratricide: 0, r, seed, t: 0, stage: 0, an, tempo, posture: (opts.route && opts.route.length) ? 'route' : 'still', pell: false, integration: opts.integration ?? 0, thresholdsHit: {}, pellAct: false, analysts: ANALYSTS.map((a, i) => ({ ...a, task: null, next: 0.15 + 0.12 * i })), pellNext: 0.5, pending: null, quietUntil: 0, quietCd: 0, volleys: [], inc: [], vel: { vx: 0, vy: 0 }, tubes: Array(PLAYER.tubes).fill(0), rescanAt: null, log: [], beats: 0, over: null, disabled: 0, player: { x: start.x, y: start.y }, shots: 0, wrong: 0, evts: [], mag: newMag(opts.mag), pd: 'armed', pdUntil: 0, pdReadyAt: 0, probes: [], probeCd: 0, rPD: rng(seed ^ 0x165667B1),
-      pset: newRack(opts.probeSets), brace: 'free', braceBy: null, braceT0: 0, braceDone: 0, braceAuto: opts.braceAuto || 'vampire', braceRule: opts.brace !== false, gLoad: 0, unsecure: false, calmSince: 0, rBrace: rng(seed ^ 0x27D4EB2F), crew: Object.fromEntries(Object.keys(CREW).map(k => [k, { inj: false, at: 0, treatUntil: null }])) };
+      pset: newRack(opts.probeSets), seekerActive: opts.seekerActive, brace: 'free', braceBy: null, braceT0: 0, braceDone: 0, braceAuto: opts.braceAuto || 'vampire', braceRule: opts.brace !== false, gLoad: 0, unsecure: false, calmSince: 0, rBrace: rng(seed ^ 0x27D4EB2F), crew: Object.fromEntries(Object.keys(CREW).map(k => [k, { inj: false, at: 0, treatUntil: null, stunUntil: null }])) };
     if (opts.player) applyPlayer(S0, opts.player);   // underway prep (decision moments M06 M08 M10): player-only, through the one door
     return S0;
   }
@@ -119,6 +120,14 @@ const HuntRT = (() => {
     report(s, 'Dace', text || `Contact ${a.id + 1} has noticed us. Expect it to maneuver and shoot.`, 'danger', true);
   }
   const aimSigma = a => { const kq = clamp(((a.know || 0) - 0.33) / 0.67, 0, 1); return (a.ai.aimSigMax + (a.ai.aimSigMin - a.ai.aimSigMax) * kq) / Math.sqrt(a.load ? a.load.crew : 1); };
+  function warnVampire(s, v, via) {   // the crew learn of a volley: at launch if the launcher is on our plot, otherwise when the seeker goes active
+    v.seen = true; v.via = via; v.seenT = s.t; if (via === 'seeker' && s.an[v.id]) markHostile(s, s.an[v.id]); const eta = Math.max(0, v.at - s.t), f = v.from;
+    (s.warn || (s.warn = [])).push({ id: v.id, t: s.t, lead: eta });
+    if (via === 'launch') report(s, 'Dace', `Contact ${v.id + 1} has launched, impact in ${mins(eta)}. Move, or go quiet.`, 'danger', true);
+    else report(s, 'Dace', `Vampire, seeker active, bearing ${String(Math.round(brgOf(s.player, f))).padStart(3, '0')}, impact in ${Math.max(1, Math.round(eta * P.secPerMin))} seconds.`, 'danger', true);
+    evt(s, 'vampire', { n: via === 'launch' ? v.id + 1 : undefined, id: via === 'launch' ? v.id : null, bearing: brgOf(s.player, f), eta, etaSec: eta * P.secPerMin, at: v.at, count: v.count, via });
+  }
+  const seenInc = s => s.inc.filter(v => v.seen !== false);   // what the crew know is in the air: volleys without a seen flag (tests, tutorial) count as seen
   function foes(s) {   // contacts move, maneuver, and the aware warships shoot back
     const rnd = (r, rr) => r[0] + rr() * (r[1] - r[0]);
     for (const a of s.an) {
@@ -141,11 +150,13 @@ const HuntRT = (() => {
         const sg = Math.hypot(aimSigma(a) * (0.5 + dGo / a.ai.aimRange) / Math.sqrt(perf(a)), blur), aim = { x: hq.x + hq.vx * (tf0 + (s.t - hq.t)) * lead + gauss(a.r) * sg, y: hq.y + hq.vy * (tf0 + (s.t - hq.t)) * lead + gauss(a.r) * sg }, tf = Math.hypot(aim.x - f.x, aim.y - f.y) / a.ai.missileSpeed;
         s.inc.push({ dmg: a.load.dmg, id: a.id, foe: true, t0: s.t, at: s.t + tf, from: { x: f.x, y: f.y }, aim, dir: Math.atan2(aim.y - f.y, aim.x - f.x), cone: a.ai.cone * (1.4 - 0.7 * clamp(((a.know || 0) - 0.33) / 0.67, 0, 1)) * a.ai.coneStill + a.ai.coneMove * Math.hypot(hq.vx, hq.vy) * tf0, disp: dispOf(a.ai, Math.hypot(aim.x - f.x, aim.y - f.y)), off: Array.from({ length: a.ai.missiles }, () => [gauss(a.r), gauss(a.r)]), stretch: a.ai.alongStretch, killR: a.ai.killR, dmgW: a.ai.dmgW });
         a.nextFire = s.t + a.ai.fireCd * (0.8 + 0.4 * a.r()) * (1.3 - 0.4 * clamp(((a.know || 0) - 0.33) / 0.67, 0, 1)) / (a.load.crew * perf(a));   // a firm fix on us means a faster rhythm
-        a.lastFire = s.t; markHostile(s, a); (s.warn || (s.warn = [])).push({ id: a.id, t: s.t, lead: tf });
-        report(s, 'Dace', `Contact ${a.id + 1} has fired on us. Impact in ${mins(tf)}. Move, or go quiet.`, 'danger', true);
-        evt(s, 'vampire', { n: a.id + 1, id: a.id, bearing: brgOf(s.player, f), eta: tf, etaSec: tf * P.secPerMin, at: s.t + tf, count: a.ai.missiles });
+        a.lastFire = s.t;
+        const vq = s.inc[s.inc.length - 1], det = !!(s.tut || (RULES.launchDetect && ['open', 'locked'].includes(a.state) && a.idStatus !== 'plan')), sd = (s.seekerActive ?? a.ai.seekerActive) * (SEEKER_LINEAGE[a.load.lineage] || 1);   // is the launcher on our plot when it fires? a hidden launch is only noticed when the seeker lights up
+        vq.seen = det; vq.seekAt = Math.max(vq.t0, vq.at - sd / a.ai.missileSpeed); vq.count = a.ai.missiles; vq.via = det ? 'launch' : null;
+        if (det) { markHostile(s, a); warnVampire(s, vq, 'launch'); }   // an unseen shooter is marked hostile only when its seeker lights
       }
     }
+    for (const v of s.inc) if (v.seen === false && s.t >= v.seekAt) warnVampire(s, v, 'seeker');   // the seeker lit up: now we know
     for (const v of s.inc.filter(v => s.t >= v.at)) {
       s.inc.splice(s.inc.indexOf(v), 1); const ls = landings(v), pl = s.player, R = v.killR; let f = 0, n = 0, cutN = 0;
       const tutFoe = !!(s.tut && s.tut.foeSure > 0 && v.id === s.tut.sure);   // tutorial only (web/tutorial.js): her answer lands once, for a fixed bite
@@ -492,10 +503,11 @@ const HuntRT = (() => {
     const tutKeep = !!(s.tut && s.tut.keep);   // tutorial only (web/tutorial.js): the solution never goes stale or bleeds
     if (!tutKeep) for (const a of s.an) if (a.state === 'locked' && (a.solve || 0) >= 1 && a.anchor && s.t - a.anchor.t > staleT(s, a)) { a.solve = 0; a.stale = true; report(s, 'Abara', `The solution on contact ${a.id + 1} has gone stale. Refresh it when you want a new one; an analyst on the contact keeps the track fresh.`, 'bad'); }
     if (!tutKeep) for (const a of s.an) if (a.state === 'locked' && !a.stale && (a.solve || 0) > 0 && a.anchor && uncertainty(s, a).conf < s.me.certReady) a.solve = Math.max(0, a.solve - s.me.certBleed * h);
-    if (!quiet) for (const a of s.an) if (a.state === 'locked' && !a.stale && (a.solve || 0) < 1) { { const si = solveInfo(s, a); if (!si.paused) a.solve = Math.min(decoy(a) ? s.me.decoyStall : 1, (a.solve || 0) + h / si.T); if (decoy(a) && a.solve >= s.me.decoyStall && !a.stallSaid) { a.stallSaid = true; report(s, 'Abara', `Contact ${a.id + 1}: the trace will not resolve. The solution has stalled.`, 'bad'); } } if (a.solve >= 1) { a.track = Math.max(a.track, 3); scan(s, a, 1); report(s, 'Abara', `Firing solution on contact ${a.id + 1}. The track is tight. Ready when you are.`, 'good'); } }
+    if (!quiet && !stunned(s, 'Abara')) for (const a of s.an) if (a.state === 'locked' && !a.stale && (a.solve || 0) < 1) { { const si = solveInfo(s, a); if (!si.paused) a.solve = Math.min(decoy(a) ? s.me.decoyStall : 1, (a.solve || 0) + h / si.T); if (decoy(a) && a.solve >= s.me.decoyStall && !a.stallSaid) { a.stallSaid = true; report(s, 'Abara', `Contact ${a.id + 1}: the trace will not resolve. The solution has stalled.`, 'bad'); } } if (a.solve >= 1) { a.track = Math.max(a.track, 3); scan(s, a, 1); report(s, 'Abara', `Firing solution on contact ${a.id + 1}. The track is tight. Ready when you are.`, 'good'); } }
     for (const w of s.analysts) {
       if (s.t < w.next) continue;
       if (quiet) { w.next = s.quietUntil; continue; }
+      if (stunned(s, w.name)) { w.next = s.crew[w.name].stunUntil; continue; }   // a stunned analyst reads nothing
       if (s.t < (s.cutUntil || 0)) { w.task = null; w.next = s.cutUntil; continue; }   // Dace has cut the stations (M09 loose)
       if (w.task != null && !['open', 'locked'].includes(s.an[w.task].state)) w.task = null;
       if (w.task != null && s.an[w.task].state === 'open' && readIsDone(s, s.an[w.task], w.ch)) { const a0 = s.an[w.task]; w.task = null; report(s, w.name, `Contact ${a0.id + 1}: ${w.role.toLowerCase()} read complete. Standing down on it.`, 'info'); }
@@ -552,7 +564,7 @@ const HuntRT = (() => {
       }
       if (!mainHit && a.state !== 'disabled') report(s, 'Abara', 'Volley: no damage to the target.', 'bad');
     }
-    if (s.pd === 'active' && !s.inc.length && s.t >= s.pdUntil) { s.pd = 'armed'; evt(s, 'pd', { state: 'armed', was: 'active' }); }   // nothing incoming: back to cold
+    if (s.pd === 'active' && !seenInc(s).length && s.t >= s.pdUntil) { s.pd = 'armed'; evt(s, 'pd', { state: 'armed', was: 'active' }); }   // nothing incoming: back to cold
     for (const pr of (s.probes || []).filter(q => s.t >= q.at)) { s.probes.splice(s.probes.indexOf(pr), 1); probeLand(s, pr); }
     for (const a of s.an) if (a.state === 'locked' && a.anchor) { const lost = trackState(s, a).state === 'last'; if (lost && !a.lostSaid) { a.lostSaid = true; evt(s, 'track_lost', { n: a.id + 1, id: a.id, ghost: true }); } else if (!lost) a.lostSaid = false; }
     const live = s.an.some(a => ['open', 'locked', 'chasing'].includes(a.state) && a.idStatus !== 'plan');
@@ -632,7 +644,7 @@ const HuntRT = (() => {
   function fire(s, id, L, cone, kind = 'he', homing = false) {
     if (!WARHEAD[kind]) kind = 'he';
     const a = s.an[id]; if (a && a.pm && a.pm.coneMin) cone = Math.max(cone, a.pm.coneMin);   // a hand-reused solution cannot be tightened below its default cone (M04)
-    if (s.over || s.t < s.quietUntil || a.state !== 'locked' || (a.solve || 0) < 1 || (a.kind === 'friend' && (a.idStatus === 'plan' || a.idStatus === 'confirmed'))) return false;
+    if (s.over || s.t < s.quietUntil || stunned(s, 'Abara') || a.state !== 'locked' || (a.solve || 0) < 1 || (a.kind === 'friend' && (a.idStatus === 'plan' || a.idStatus === 'confirmed'))) return false;
     const tb = s.tubes.findIndex(x => s.t >= x); if (tb < 0) return false;
     if (s.mag && (s.mag.total <= 0 || !(s.mag.byKind[kind] > 0))) { report(s, 'Abara', s.mag.total <= 0 ? 'Magazine empty, Captain. The tubes are dry.' : `No ${WARHEAD[kind].name} warheads left, Captain.`, 'bad'); evt(s, 'mag_empty', { kind, total: s.mag.total }); return false; }
     s.tubes[tb] = s.t + s.me.reload; const nm = spend(s, kind, s.me.missiles);   // a short salvo when fewer than six are left of that kind
@@ -640,7 +652,7 @@ const HuntRT = (() => {
   }
   function closeInfo(s, a) { const tau = (s.t - a.anchor.t) + 0.1, est = estAt(a, tau); return { est, d: Math.hypot(est.x - s.player.x, est.y - s.player.y) }; }
   function fireClose(s, id) {   // coilgun: instant, ignores scatter grids, short range, loud
-    const a = s.an[id]; if (s.over || s.t < s.quietUntil || !a || a.state !== 'locked' || !a.anchor || s.t < s.cwCd) return false;
+    const a = s.an[id]; if (s.over || s.t < s.quietUntil || stunned(s, 'Abara') || !a || a.state !== 'locked' || !a.anchor || s.t < s.cwCd) return false;
     const ci = closeInfo(s, a); if (ci.d > s.me.closeRange || !['lock', 'track'].includes(trackState(s, a).state)) return false;
     s.cwCd = s.t + s.me.closeCd; s.blastUntil = Math.max(s.blastUntil, s.t + s.me.closeDur); s.blastV = s.me.closeGlow; s.shots++;
     const tp = truePos(a, s.t + 0.1), err = Math.hypot(ci.est.x - tp.x, ci.est.y - tp.y), hit = err < s.me.closeKill && s.rFx() < s.me.closeAcc;
@@ -728,25 +740,33 @@ const HuntRT = (() => {
       evt(s, 'injury', { officer: k, station: CREW[k], cause }); report(s, 'Pell', `${k} is hurt at ${CREW[k]}.`, 'bad');
     }
   }
-  function impactInjury(s, dmg, from) {   // a hit lands: a crew not secure gets hurt (bracing halves the chance)
+  function stunned(s, who) { const c = s.crew && s.crew[who]; return !!(c && c.stunUntil != null && s.t < c.stunUntil); }   // a stunned officer's station is dead: Auto work stops, orders are held, Hands-on is locked out
+  function stun(s, who, cause) {
+    const c = s.crew[who], dur = s.me.stunMin + s.me.stunSpan * s.rBrace(), until = s.t + dur; if (c.stunUntil != null && c.stunUntil >= until) return;
+    c.stunUntil = until; evt(s, 'stun', { officer: who, station: CREW[who], until, dur, cause }); report(s, 'Pell', `${who} is down, stunned, at ${CREW[who]}.`, 'bad');
+  }
+  function impactInjury(s, dmg, from) {   // a hit lands on a crew who are not secure: each officer may be stunned for a few seconds (chance scales with damage; bracing halves it, secure is spared); a big hit may also injure
     if (!s.braceRule || s.brace === 'secure') return;
-    const p = s.me.impactInj * (s.brace === 'bracing' ? 0.5 : 1) * Math.min(1, 0.5 + dmg / 40);
-    if (s.rBrace() < p) injure(s, 'impact', dmg >= 30 ? 2 : 1);
+    const me = s.me, k = s.brace === 'bracing' ? 0.5 : 1;
+    for (const o in s.crew) if (s.rBrace() < Math.min(0.9, me.stunP * k * dmg / me.stunRef)) stun(s, o, 'impact');
+    if (dmg >= me.injDmg && s.rBrace() < me.impactInj * k * Math.min(1, dmg / 40)) injure(s, 'impact', dmg >= 30 ? 2 : 1);
   }
   function treat(s, who) {   // Fenwick treats an officer (a minute; longer if he is hurt himself)
     const k = who && s.crew[who] && s.crew[who].inj ? who : Object.keys(s.crew).find(q => s.crew[q].inj && s.crew[q].treatUntil == null);
-    if (!k || s.over) return false;
+    if (!k || s.over || stunned(s, 'Fenwick')) return false;
     const c = s.crew[k]; if (c.treatUntil != null) return true;
     c.treatUntil = s.t + s.me.treatTime * (s.crew.Fenwick.inj && k !== 'Fenwick' ? 1.6 : 1); evt(s, 'treat', { officer: k, until: c.treatUntil }); return true;
   }
   function braceStep(s, h) {
     const me = s.me;
     for (const k in s.crew) { const c = s.crew[k]; if (c.inj && c.treatUntil != null && s.t >= c.treatUntil) { c.inj = false; c.treatUntil = null; evt(s, 'treated', { officer: k }); report(s, 'Pell', `${k} is back on station.`, 'info'); } }
+    for (const k in s.crew) { const c = s.crew[k]; if (c.stunUntil != null && s.t >= c.stunUntil) { c.stunUntil = null; evt(s, 'recovered', { officer: k, station: CREW[k] }); report(s, 'Pell', `${k} is back on the board.`, 'info'); } }
     if (s.brace === 'bracing' && s.t >= s.braceDone) { s.brace = 'secure'; evt(s, 'brace_complete', { by: s.braceBy }); }
-    const L = loadNow(s), soon = s.inc.some(v => v.at - s.t < me.braceTime * 1.2), loaded = L.g >= me.gThresh, mode = s.braceAuto;
-    if (s.brace === 'free' && s.braceRule) { if ((mode === 'vampire' || mode === 'all') && s.inc.length) brace(s, true, 'auto'); else if (mode === 'all' && loaded) brace(s, true, 'auto'); }
+    const L = loadNow(s), seen = seenInc(s), soon = seen.some(v => v.at - s.t < me.braceTime * 1.2), near = seen.some(v => v.at - s.t <= me.braceTime * 1.5), loaded = L.g >= me.gThresh, mode = s.braceAuto;   // only a SEEN volley counts: the crew cannot brace for what they have not detected
+    if (s.brace === 'free' && s.braceRule) { if ((mode === 'vampire' || mode === 'all') && near) brace(s, true, 'auto');   // a seen volley within braceTime x 1.5 of impact (about 10 s); one first seen late (the seeker route) braces at once
+      else if (mode === 'all' && loaded) brace(s, true, 'auto'); }
     if (s.brace === 'secure' && s.braceBy === 'auto' && mode !== 'off') {   // the crew stand easy on their own once the load and the threat have gone
-      if (loaded || s.inc.length) s.calmSince = s.t; else if (s.t - s.calmSince >= me.braceHold) brace(s, false, 'auto');
+      if (loaded || seen.length) s.calmSince = s.t; else if (s.t - s.calmSince >= me.braceHold) brace(s, false, 'auto');
     } else s.calmSince = s.t;
     const uns = s.braceRule && s.brace !== 'secure' && (loaded || soon);
     s.gLoad = soon && s.brace !== 'secure' ? Math.max(L.g, GLOAD.impact) : L.g;
@@ -781,7 +801,7 @@ const HuntRT = (() => {
       tight: { nudge: -4, react: ['Quill', "Good. I'll give her a fresh fix to work from."], trust: 'quill', fx(s, c) { pmAdd(s.an[c.id], { solveT: 0.85 }); refreshSolution(s, c.id); } },
       loose: { nudge: 4, react: ['Dace', "Oh, bold. I love it. I'm going to go stand somewhere sturdy."], look: '(Quill\'s pen stops.)', fx(s, c) { const a = s.an[c.id]; pmAdd(a, { solveStale: 1.5 * pmv(a, 'solveStale', 1), coneMin: 4 }); a.stale = false; a.solve = 1; report(s, 'Abara', `Old numbers on contact ${a.id + 1}. Tube is yours, Captain.`, 'info'); } } },
     M07: { officer: 'Dace', key: 'heat.vent_timing',
-      trigger(s) { return !s.vent.on && s.sink.h >= 0.65 && !s.inc.length && !s.spool ? { n: 0 } : null; },
+      trigger(s) { return !s.vent.on && s.sink.h >= 0.65 && !seenInc(s).length && !s.spool ? { n: 0 } : null; },
       tight: { nudge: -3, react: ['Quill', 'On schedule. Thank you. Schedules are how people stay alive.'], trust: 'quill', fx(s) { startVent(s); } },
       loose: { nudge: 3, react: ['Dace', "Oh, you won't regret this. You might. You won't."], look: '(Quill takes a long breath.)', fx(s) { s.mom.hold = { kind: 'vent', t0: s.t, last: s.t, calm: 0, know: liveReal(s).reduce((q, a) => q + (a.know || 0), 0) }; report(s, 'Dace', 'Holding the vent for a quiet moment. Say the word and I dump it now.', 'info'); } } },
     M09: { officer: 'Dace', key: 'heat.analyst_load',
@@ -817,7 +837,7 @@ const HuntRT = (() => {
     if (m.hold && m.hold.kind === 'vent') {   // M07 loose: hold the vent for a quiet moment, up to the ceiling
       const h = m.hold, know = liveReal(s).reduce((q, a) => q + (a.know || 0), 0), dt = s.t - h.last; h.last = s.t;
       if (s.vent.on) { m.hold = null; }
-      else { h.calm = know > h.know + 0.005 || s.inc.length ? 0 : h.calm + dt; h.know = know;
+      else { h.calm = know > h.know + 0.005 || seenInc(s).length ? 0 : h.calm + dt; h.know = know;
         if (s.sink.h >= MOMENT_RULES.ceilingVent || h.calm >= 0.5 || s.t - h.t0 > 8) { const was = [s.me.ventFull, s.me.ventAfterglow]; applyPlayer(s, { mul: { ventFull: 0.75 }, set: { ventAfterglow: 0.8 } }); m.hold = null; if (startVent(s)) m.fast = { was }; else { s.me.ventFull = was[0]; s.me.ventAfterglow = was[1]; } } }
     }
     if (m.fast && !s.vent.on) { s.me.ventFull = m.fast.was[0]; s.me.ventAfterglow = m.fast.was[1]; m.fast = null; }   // the fast fins are for that one vent
@@ -901,6 +921,6 @@ const HuntRT = (() => {
     }
   }
   function setPellAct(s, on) { s.pellAct = !!on && s.integration >= 75; }
-  return { evt, brgOf, setPD, probe: probeSalvo, markHostile, pdIntercept, emit, setDifficulty, getDifficulty, DIFFICULTY, applyPlayer, RULES, PLAYER, AI, maneuver, trackState, redlineBurn, navBlocked, reanalyze, investigate, heatRate, visIf, arenaPlan, PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge, PSET, deployProbes, setProbeLink, recoverProbes, linkNeeded, MOMENTS, MOMENT_RULES, PREP, momentCheck, momentPing, moment, prep, brace, setBrace: (s, on) => brace(s, on, 'co'), braceNeeded, crewEff, treat, GLOAD, CREW };
+  return { evt, brgOf, setPD, probe: probeSalvo, markHostile, pdIntercept, emit, setDifficulty, getDifficulty, DIFFICULTY, applyPlayer, RULES, PLAYER, AI, maneuver, trackState, redlineBurn, navBlocked, reanalyze, investigate, heatRate, visIf, arenaPlan, PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge, PSET, deployProbes, setProbeLink, recoverProbes, linkNeeded, MOMENTS, MOMENT_RULES, PREP, momentCheck, momentPing, moment, prep, brace, stunned, seenInc, SEEKER_LINEAGE, setBrace: (s, on) => brace(s, on, 'co'), braceNeeded, crewEff, treat, GLOAD, CREW };
 })();
 if (typeof module !== 'undefined') module.exports = HuntRT;

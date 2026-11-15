@@ -44,7 +44,8 @@ const run = (M, secs, step = 0.25) => { for (let t = 0; t < secs; t += step) M.t
   chk('maps "just pinged us" to S6', map('Contact 2 just pinged us. It is a warship, and now it hunts.', 'danger', true) === 'S6');
   chk('maps "noticed us" to X1', map('Contact 2 has noticed us. Expect it to maneuver and shoot.', 'danger', true) === 'X1');
   chk('maps "firm solution on us" to X3', map('Contact 2 has a firm solution on us. Expect accurate fire.', 'danger', true) === 'X3');
-  chk('maps "has fired on us" to the vampire call', map('Contact 2 has fired on us. Impact in 40 seconds. Move, or go quiet.', 'danger', true) === 'W5');
+  chk('maps "has launched" to the vampire call', map('Contact 2 has launched, impact in 40 seconds. Move, or go quiet.', 'danger', true) === 'W5');
+  chk('maps "Vampire, seeker active" to the vampire call', map('Vampire, seeker active, bearing 120, impact in 6 seconds.', 'danger', true) === 'W5');
   chk('maps running hot to E1', map('We are running hot. Anything listening can hear us.', 'bad') === 'E1');
   chk('maps hull failure to D3', map('Hull integrity failed. Emergency breach drive engaged.', 'danger', true) === 'D3');
   chk('maps maneuver complete to H3 (log only)', map('Maneuver complete. Holding position.') === 'H3'); }

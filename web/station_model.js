@@ -30,7 +30,7 @@
     W2: { st: 'weapons', pri: 3, open: true, line: d => `Solution good on ${sierra(d.n)}. Tubes ready.`, opts: O(['Fire (preset)', 'fire'], ['Probe', 'probe'], ['Hold', 'hold']), def: 2, cost: 'solution may go stale' },
     W3: { st: 'fire', pri: 2, line: d => `Solution on ${sierra(d.n)} is going stale.`, opts: O(['Refresh', 'refresh'], ['Hold', 'hold']), def: 1, cost: 'poor odds' },
     W4: { st: 'weapons', pri: 1, line: d => d.text },
-    W5: { st: 'weapons', pri: 4, line: d => `Vampire, vampire.${d.eta ? ' Impact in ' + d.eta + '.' : ''}`, opts: O(['Go active', 'pd_active'], ['Stay cold', 'pd_cold']), def: (ctx) => ctx.doctrine.pd === 'active-on-vampire' ? 0 : 1, cost: 'a false go-active reveals us; a late one is a hit' },
+    W5: { st: 'weapons', pri: 4, line: d => `${d.via === 'seeker' ? 'Vampire, seeker active.' : d.n ? 'Contact ' + d.n + ' has launched. Vampire.' : 'Vampire, vampire.'}${d.eta ? ' Impact in ' + d.eta + '.' : ''}`, opts: O(['Go active', 'pd_active'], ['Stay cold', 'pd_cold']), def: (ctx) => ctx.doctrine.pd === 'active-on-vampire' ? 0 : 1, cost: 'a false go-active reveals us; a late one is a hit' },
     W6: { st: 'weapons', pri: 2, line: d => d.text },
     W7: { st: 'damage', pri: 3, line: d => d.text },
     W8: { st: 'weapons', pri: 2, line: d => d.text },
@@ -76,7 +76,7 @@
   };
   // engine report() text -> catalog row. First match wins.
   const MAP = [
-    [/Vampire|has fired on us/i, 'W5'], [/noticed us/i, 'X1'], [/closing in/i, 'X2'], [/firm solution on us/i, 'X3'], [/lost us/i, 'X4'],
+    [/Vampire|has launched|has fired on us/i, 'W5'], [/noticed us/i, 'X1'], [/closing in/i, 'X2'], [/firm solution on us/i, 'X3'], [/lost us/i, 'X4'],
     [/just pinged us/i, 'S6'], [/Active ping/i, 'S7'], [/changed course/i, 'S4'],
     [/folded its fins|thermal blaze|has vented|just vented/i, 'X5'],
     [/running hot/i, 'E1'], [/Venting|vent (started|ended)|fins/i, 'E3'],
@@ -89,7 +89,7 @@
   const NUMW = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
   const nw = n => NUMW[n] || String(n);
   const EVT = {
-    vampire: d => ['W5', { n: d.n, id: d.id, bearing: d.bearing, at: d.at, eta: d.etaSec != null ? Math.max(5, Math.round(d.etaSec / 5) * 5) + ' seconds' : '' }],
+    vampire: d => ['W5', { n: d.n, via: d.via, id: d.id, bearing: d.bearing, at: d.at, eta: d.etaSec != null ? Math.max(5, Math.round(d.etaSec / 5) * 5) + ' seconds' : '' }],
     ping_alert: d => ['S6', { n: d.n, id: d.id, bearing: d.bearing }],
     probe_reaction: d => ['W9', { n: d.n, id: d.id, how: d.how }],
     probe_quiet: d => ['W4', { text: 'Probe landed. No reaction.' }],
@@ -128,6 +128,8 @@
     const doctrine = Object.assign({}, DOCTRINE, cfg.doctrine);
     const officers = {}; for (const k in SKILL) officers[k] = { busyUntil: 0 };
     const cmdMul = cfg.command === 'loose' ? 1.3 : cfg.command === 'tight' ? 0.8 : 1;
+    const stun = {};                                       // officer -> model time (s) until which he is stunned by an impact: his station is dead (nothing is said, nothing is ordered, Hands-on is locked out)
+    const stunned = o => stun[o] != null && stun[o] > st.now;
     const body = {};                                       // officer -> reaction multiplier from the body: braced crew work from the couches (slower), an injured officer is slower still (docs/mechanics_brace.md)
     const patience = cfg.command === 'loose' ? 6 : 12;
     const secPerMin = cfg.secPerMin || 16;
@@ -164,6 +166,7 @@
       // the officer must be free (a critical call cuts in)
       const off = officers[officer];
       if (pri < 4) { let free = Math.max(st.now, off.busyUntil); for (const q of st.calls) if (q !== call && q.officer === officer && q.state === 'queued') free = Math.max(free, q.readyAt + speakSecs(q.line)); call.readyAt = free; }
+      if (stunned(officer)) call.readyAt = Math.max(call.readyAt, stun[officer]);
       st.history.push(call);
       return call;
     }
@@ -184,7 +187,7 @@
       const opt = call.opts[i], officer = call.officer, off = officers[officer];
       const [lo, hi] = SKILL[officer] || [1, 2];
       const react = (lo + rnd() * (hi - lo)) * cmdMul * (body[officer] || 1);
-      const start = Math.max(st.now, off.busyUntil);
+      const start = Math.max(st.now, off.busyUntil, stunned(officer) ? stun[officer] : 0);   // a stunned officer's orders are held until he is back
       const o = { id: st.orders.length + 1, callId: call.id, station: call.station, officer, verb: opt.verb, label: opt.label, data: call.data, by, issuedAt: st.now,
         ackAt: start + react, execAt: start + react + 0.6, doneAt: start + react + 0.6 + 1.5, stage: 'issued' };
       off.busyUntil = Math.max(off.busyUntil, o.ackAt + 0.5);
@@ -198,6 +201,7 @@
     function next() { const p = pending(); return p.length ? p[0] : null; }
     function answer(id, i) {
       const c = st.calls.find(x => x.id === id); if (!c || c.state !== 'raised' || !c.opts || !c.opts[i]) return null;
+      if (stunned(c.officer) && autonomy[c.station] === 'hands-on') return null;   // Hands-on is locked out while the officer is down
       c.state = 'answered'; c.choice = i; c.by = 'co'; return issue(c, i, 'co');
     }
     // a proactive order from the CO (radial menu, hold-V report): same lifecycle as a chip (issued, acked, executing, reported)
@@ -266,7 +270,7 @@
       return { seconds: st.now, raised: st.raised.length, urgent: big.length, own: st.raised.filter(own).length, urgentPer20s: big.length / (span / w), maxBurst5s: burst,
         suppressed: st.suppressed, defaults: st.calls.filter(c => c.state === 'defaulted').length, settled: st.calls.filter(c => c.state === 'settled').length, logged: st.calls.filter(c => c.state === 'logged').length };
     }
-    return { raise, ingest, onEvent, command, report, dismiss, defaultIndex, tick, pending, next, answer, standBy, stats, on: f => st.listeners.push(f), setAutonomy: (k, m) => { autonomy[k] = m; }, setBody: (o, m) => { if (m == null) delete body[o]; else body[o] = m; }, body, autonomy, doctrine, setDoctrine: o => Object.assign(doctrine, o),
+    return { raise, ingest, onEvent, command, report, dismiss, defaultIndex, tick, pending, next, answer, standBy, stats, on: f => st.listeners.push(f), setAutonomy: (k, m) => { autonomy[k] = m; }, setStun: (o, until) => { if (until == null) delete stun[o]; else stun[o] = until; }, stunned, setBody: (o, m) => { if (m == null) delete body[o]; else body[o] = m; }, body, autonomy, doctrine, setDoctrine: o => Object.assign(doctrine, o),
       get now() { return st.now; }, get calls() { return st.calls; }, get orders() { return st.orders; }, officers, secPerMin };
   }
   const API = { create, ROWS, MAP, EVT, OFFICER, DOCTRINE, spoken, captainLine, ackLine, clipId, numWord: nw };

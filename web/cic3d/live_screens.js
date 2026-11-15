@@ -21,7 +21,7 @@
   function rel(a) { const S = ctx.S, E = ctx.E, p = pos(a), me = S.player; return { brg: E.brgOf(me, p), rng: Math.hypot(p.x - me.x, p.y - me.y), x: p.x, y: p.y }; }
   // contact colour + fill rules (one place, used by every screen and the hologram)
   function style(a) {
-    const S = ctx.S, E = ctx.E, foe = (S.inc || []).some(v => v.id === a.id && v.foe !== false);
+    const S = ctx.S, E = ctx.E, foe = (S.inc || []).some(v => v.id === a.id && v.foe !== false && v.seen !== false);   // a volley the crew have not detected is not shown
     if (a.state === 'disabled') return { col: C.dim, fill: 'hollow', lab: 'DEAD', tier: 0 };
     if (a.kind === 'friend' && (a.idStatus === 'plan' || a.idStatus === 'confirmed')) return { col: C.ally, fill: 'ring', lab: 'ALLY', tier: 0 };
     if (a.idStatus === 'hostile' || foe) return { col: C.hos, fill: 'halo', lab: foe ? 'FIRING' : 'HOSTILE', tier: 5 };

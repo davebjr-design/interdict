@@ -41,17 +41,13 @@
   }
   LX.can = can;
   // ---------- orders ----------
-  const OLOG = [], later = [];
+  const OLOG = [];
   function toast(t, k) { UI_.toast(t, k); }
   function deny(why) { snd('deny'); toast(why, 'w'); }
   function order(stn, verb, label, data, note) {
     const o = A().order(stn, verb, label, data), m = M(); if (!o) { if (A().handsOnBlocked && A().handsOnBlocked(stn)) toast('CREW BRACED: hands-on orders are blocked at ' + OFF[stn] + '. Stand easy (B) or set the station to Auto.', 'w'); return null; } const hands = modeOf(stn) === 'hands-on';
     if (hands) { o.ackAt = o.execAt = m.now; o.doneAt = m.now + .6; o.instant = true; }
     toast((hands ? 'DIRECT: ' : 'ORDER: ') + (note || label) + (hands ? '' : '  → ' + OFF[stn]), 'g'); return o;
-  }
-  function custom(stn, label, fn) {   // a control the adapter has no verb for yet
-    const m = M(), hands = modeOf(stn) === 'hands-on'; if (hands) { fn(); toast('DIRECT: ' + label, 'g'); return; }
-    const react = 1.0 + Math.random() * .8; later.push({ at: m.now + react, fn, label, officer: OFF[stn] }); toast('ORDER: ' + label + '  → ' + OFF[stn], 'g'); say('Captain', Stations.captainLine(label), 3);
   }
   const speedOf = k => ({ v1: 20, v2: 40, v3: 60, v4: 80, v5: 100, ab: 'Redline' }[k]);
   function run(id) {
@@ -61,7 +57,7 @@
       case 'act:lock': order('fire', 'track', 'Lock' + lab, d); snd('lock'); break;
       case 'act:ping': order('sensors', 'ping', 'Ping' + lab, d); snd('click'); break;
       case 'act:probe': order('weapons', 'probe', 'Probe' + lab, d); snd('click'); break;
-      case 'act:rule': { const id2 = a.id; custom('sensors', 'Rule out' + lab, () => E.dismissContact(S(), id2)); snd('click'); break; }
+      case 'act:rule': { const id2 = a.id; order('sensors', 'dismiss', 'Rule out' + lab, { id: id2 }); snd('click'); break; }
       case 'act:rescan': order('sensors', 'rescan', 'Rescan' + lab, d); snd('click'); break;
       case 'act:refresh': order('fire', 'refresh', 'Refresh solution' + lab, d); snd('click'); break;
       case 'act:mark': order('weapons', 'mark_hostile', 'Mark hostile' + lab, d); snd('click'); break;
@@ -70,10 +66,10 @@
       case 'pd:active': order('weapons', 'pd_active', 'Go active'); snd('click'); break;
       case 'pd:cold': order('weapons', 'pd_cold', 'Stay cold'); snd('click'); break;
       case 'pd:toggle': return run(s.pd === 'active' ? 'pd:cold' : 'pd:active');
-      case 'vent': if (s.vent.on) custom('thermal', 'Retract fins', () => E.stopVent(S())); else order('thermal', 'vent', 'Vent now'); snd('click'); break;
+      case 'vent': if (s.vent.on) order('thermal', 'vent_stop', 'Retract fins'); else order('thermal', 'vent', 'Vent now'); snd('click'); break;
       case 'spd:cut': order('thermal', 'cut_thrust', 'Cut thrust'); snd('click'); break;
       case 'spd:ab': order('engineering', 'redline', 'Redline'); snd('click'); break;
-      case 'post:still': custom('helm', 'Hold still', () => E.setOrder(S(), 'still', null)); snd('click'); break;
+      case 'post:still': order('helm', 'still', 'Hold still'); snd('click'); break;
       case 'post:evade': if (s.posture === 'evade') return run('post:still'); order('helm', 'evade', 'Evasive', d); snd('click'); break;
       case 'prio:save_sink': order('damage', 'save_sink', 'Save the sink'); break;
       case 'prio:save_drive': order('damage', 'save_drive', 'Save the drive'); break;
@@ -84,7 +80,7 @@
       case 'sel:prev': selStep(-1); break;
       case 'guard': toggleGuard(); break;
       default:
-        if (/^spd:v\d$/.test(id)) { const k = id.slice(4); custom('helm', 'Speed ' + speedOf(k) + '%', () => E.setSpeed(S(), k)); snd('click'); }
+        if (/^spd:v\d$/.test(id)) { const k = id.slice(4); order('helm', 'speed', 'Speed ' + speedOf(k) + '%', { speed: k }); snd('click'); }
         else if (id.startsWith('sel:')) select(+id.slice(4));
         else if (id.startsWith('preset:')) { const p = A().setPreset(id.slice(7)); toast('SALVO PRESET: ' + p.name.toUpperCase() + '  (' + p.pattern + ', cone ' + p.cone + ')', 'g'); snd('toggle'); }
         else if (id.startsWith('auto:')) { const [, k, m] = id.split(':'); M().setAutonomy(k, m); toast(k.toUpperCase() + ': ' + m.toUpperCase() + (m === 'hands-on' ? '  (your orders here are instant)' : ''), m === 'hands-on' ? 'w' : 'g'); snd('toggle'); }
@@ -228,7 +224,7 @@
   // ---------- per-frame: pick, guards, latching switches, bars ----------
   let obT = 0, hudT = 0, lastCall = null;
   const SEC_TITLE = () => C.tier;
-  C.on('begin', () => { LX.armed = {}; LX.guardUp = false; later.length = 0; });
+  C.on('begin', () => { LX.armed = {}; LX.guardUp = false; });
   C.on('view', v => { closeRadial(); UI_.tip(false); });
   function buildBar() {
     const a = selA(), st = a ? LS.style(a) : null, r = a ? LS.rel(a) : null, B = (id, label, key, cls, o) => { const c = can(id); o = o || {}; return { id, label, key, cls, off: c.ok === false, on: !!o.on, armed: !!o.armed || (LX.armed[id] || 0) > now(), confirm: o.confirm, tip: c.ok === false ? c.why : (DESC[id] ? DESC[id][1] : '') }; };
@@ -239,8 +235,6 @@
   C.on('frame', (dt, t) => { const s = S(), tNow = now();
     if (!gather.done || t - gather.t > 3) { gather(); gather.done = true; gather.t = t; }
     if (mdirty) { mdirty = false; if (!radialOpen) { const p = pick(); setHover(p); const d = describe(p); if (d) UI_.tip(true, mx, my, d); else UI_.tip(false); } }
-    // custom later-queue (model time)
-    for (let i = later.length - 1; i >= 0; i--) if (M().now >= later[i].at) { const q = later.splice(i, 1)[0]; try { q.fn(); } catch (e) { console.error(e); } say(q.officer, 'Aye. ' + q.label + '.', 3); }
     if (LX.guardUp && tNow > guardT) closeGuard();
     for (const k in LX.armed) if (LX.armed[k] < tNow) delete LX.armed[k];
     // fire box guard + toggle guards + lever states + rotary labels

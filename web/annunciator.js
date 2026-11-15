@@ -40,6 +40,7 @@
     ['fire', 'FIRE', 'dmg', 'Coolant failing or a fire aboard: the sink is pegged and systems are cooking.'],
     ['breach', 'BREACH', 'dmg', 'Hull breach: integrity below 25% or a breach call.'],
     ['crewinj', 'CREW INJ', 'dmg', 'An officer is injured: their station is slower until Fenwick treats them or the injury passes.'],
+    ['stun', 'CREW DWN', 'dmg', 'An officer is stunned by an impact for a few seconds: his station is dead until he recovers (Auto work waits, orders are held, Hands-on is locked out).'],
     ['linkofr', 'LINK OFR', 'com', 'An ally offers a data link (an emission), or Pell offers to take a station.'],
     ['prblink', 'PRB LINK', 'com', 'A laser probe link is broken: the ship changed course or speed. It returns after half a minute of steady running, or switch the set to radio.'],
     ['prbout', 'PRB OUT', 'com', 'A probe set is deployed and feeding the picture.'],
@@ -75,7 +76,8 @@
         if (ts.state === 'last') lift('brgonly', 'caution', 'S' + (a.id + 1));
       }
       // weapons
-      const inc = (s.inc || []).filter(v => v.foe !== false).length, warned = (s.warn || []).some(w => t >= w.t && t < w.t + (w.lead || 0));
+      const inc = (s.inc || []).filter(v => v.foe !== false && v.seen !== false).length,   // only a volley the crew have detected lights the lamp
+         warned = (s.warn || []).some(w => t >= w.t && t < w.t + (w.lead || 0));
       if (inc || warned || recent('vampire', 0.5)) lift('incoming', 'warning', inc ? inc + ' inbound' : 'vampire');
       if (s.mag) { if (s.mag.total <= 0) lift('maglow', 'warning', 'magazine empty'); else if (s.mag.total <= MAG_LOW) lift('maglow', 'caution', s.mag.total + ' left'); }
       if (s.pd === 'armed') lift('pdarm', 'advisory', 'armed, cold'); else if (s.pd === 'active') lift('pdact', 'caution', 'radars lit');
@@ -95,6 +97,7 @@
       if (s.hull < 40) lift('hull', 'warning', Math.round(s.hull) + '%'); else if (s.hull < 70) lift('hull', 'caution', Math.round(s.hull) + '%');
       if ((s.melt || 0) > 0.05) lift('fire', 'warning', 'coolant failing');
       if (s.crew) { const hurt = Object.keys(s.crew).filter(k => s.crew[k].inj); if (hurt.length) lift('crewinj', 'caution', hurt.join(', ')); }
+      if (s.crew) { const down = Object.keys(s.crew).filter(k => s.crew[k].stunUntil != null && t < s.crew[k].stunUntil); if (down.length) lift('stun', 'caution', down.join(', ') + ' stunned'); }
       if (s.hull < 25) lift('breach', 'warning', 'hull ' + Math.round(s.hull) + '%');
     }
     if (model) {   // calls: a priority 3 call lights its station's caution, a priority 4 call a warning; a waiting priority 2 call an advisory
