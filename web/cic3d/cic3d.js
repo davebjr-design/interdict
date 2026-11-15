@@ -107,7 +107,9 @@
   // ---------- brace: FREE -> BRACING (2.5 s, klaxon) -> SECURE; the engine's s.brace wins when it exists ----------
   let braceLocal = 'free', braceT = 0, brVisT = 0, brVis = false;
   function braceState() { const b = S && S.brace; if (b === undefined || b === null) return braceLocal; if (typeof b === 'string') return b.toLowerCase(); if (typeof b === 'object') return String(b.state || b.co || 'free').toLowerCase(); return b ? 'secure' : 'free'; }
-  function setBrace(on) { if (typeof E.setBrace === 'function' && S && 'brace' in S) { try { E.setBrace(S, !!on); } catch (e) { } return; } if (on && braceLocal === 'free') { braceLocal = 'bracing'; braceT = 0; } else if (!on && braceLocal !== 'free') braceLocal = 'free'; }
+  function setBrace(on) {   // the engine owns brace when it has E.brace (s.brace 'free'|'bracing'|'secure'); strap-in goes through the helm order, standing easy is instant; else the local B state
+    if (S && typeof S.brace === 'string' && typeof E.brace === 'function') { try { if (on) { if (!(A && A.order('helm', 'brace', 'Brace', { on: true }))) E.brace(S, true, 'co'); } else E.brace(S, false, 'co'); } catch (e) { } return; }
+    if (on && braceLocal === 'free') { braceLocal = 'bracing'; braceT = 0; } else if (!on && braceLocal !== 'free') braceLocal = 'free'; }
 
   // ---------- loop ----------
   const stats = { frames: 0, paints: 0, ema: .016, scale: () => rscale }; let govT = 0, last = performance.now(), paintT = 0, secPaint = {}, lastHull = 100, lastShots = 0, lastBlast = 0, lastVol = 0, shakeA = 0, flashA = 0, sway = 1, tm = 0;

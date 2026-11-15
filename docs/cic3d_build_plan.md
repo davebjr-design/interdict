@@ -6,7 +6,7 @@ Goal: the hunt plays in a fully 3D CIC. Screens stay 2D canvas on CRT glass. Pla
 1. **Shell (this commit)** `web/hunt3d.html` + `web/cic3d/*`: room, three benches (sensors, attack, systems), map table with hologram, CO couch, wall racks, overhead annunciator. Live engine (`HuntRT`), `StationAdapter` (Auto autonomy), `Annunciator`. Tiers ROOM / SECTION / SCREEN via keys; brace state FREE / BRACING / SECURE (B).
 2. **Meshy swap** drop `assets/props/glb/<slot>.glb` and list the slot in `assets/props/glb/manifest.json`. No code change.
 3. **Free-roam walking, crew rigs and animation** after F-key cuts feel right.
-4. **Interaction**: click hardware (fire box, toggles) -> station orders; scope on the map table.
+4. **Interaction (done, see docs/cic3d_interaction.md)**: click hardware and screens -> adapter orders, guarded FIRE, autonomy switch, radial menu, order bar, audio, simplified tutorial (`?tutorial=1`).
 
 ## Controls
 F1 room · F2 sensors · F3 attack · F4 systems · Q/W/E screens of the current section · Esc/wheel out · 1-3 answer the top call · Backspace stand by · B brace · Space ack annunciator · T tick speed (1x/2x/4x).

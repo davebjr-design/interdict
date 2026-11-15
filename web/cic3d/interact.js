@@ -45,7 +45,7 @@
   function toast(t, k) { UI_.toast(t, k); }
   function deny(why) { snd('deny'); toast(why, 'w'); }
   function order(stn, verb, label, data, note) {
-    const o = A().order(stn, verb, label, data), m = M(); if (!o) return null; const hands = modeOf(stn) === 'hands-on';
+    const o = A().order(stn, verb, label, data), m = M(); if (!o) { if (A().handsOnBlocked && A().handsOnBlocked(stn)) toast('CREW BRACED: hands-on orders are blocked at ' + OFF[stn] + '. Stand easy (B) or set the station to Auto.', 'w'); return null; } const hands = modeOf(stn) === 'hands-on';
     if (hands) { o.ackAt = o.execAt = m.now; o.doneAt = m.now + .6; o.instant = true; }
     toast((hands ? 'DIRECT: ' : 'ORDER: ') + (note || label) + (hands ? '' : '  → ' + OFF[stn]), 'g'); return o;
   }
@@ -180,7 +180,7 @@
   // ---------- radial menu ----------
   let radialOpen = false;
   function openRadial(x, y) { const a = selA(); if (!a) return; const mk = (id, label) => ({ id, label, off: can(id).ok === false });
-    const items = [mk('act:classify', 'CLASSIFY'), mk('act:lock', 'LOCK'), mk('act:ping', 'PING'), mk('act:probe', 'PROBE'), mk('act:rule', 'RULE OUT'), mk('fire', LX.guardUp ? 'FIRE' : 'ARM FIRE')]; items.title = tag(a); UI_.radial(true, x, y, items); radialOpen = true; snd('tick'); }
+    const items = [mk('act:classify', 'CLASSIFY'), mk('act:lock', 'LOCK'), mk('act:ping', 'PING'), mk('act:probe', 'PROBE'), mk('act:rule', 'RULE OUT'), mk('fire', LX.guardUp ? 'FIRE' : 'ARM FIRE')]; items.title = tag(a); UI_.tip(false); UI_.radial(true, x, y, items); radialOpen = true; snd('tick'); }
   function closeRadial() { if (radialOpen) { UI_.radial(false); radialOpen = false; } }
   // ---------- pointer ----------
   const cv = C.R.domElement;
