@@ -30,6 +30,8 @@
     ['burn', 'BURN', 'helm', 'The drive is at full burn (100%) or a burn call is open.'],
     ['linkbrk', 'LINK BRK', 'helm', 'Laser or wire link broken by a manoeuvre. Not yet simulated.', true],
     ['crschg', 'CRS CHG', 'helm', 'Course or stance changed in the last few seconds.'],
+    ['brace', 'BRACE', 'helm', 'The crew are bracing or secure in their couches (s.brace). Braced crew work at a reduced rate and cannot work Hands-on controls.'],
+    ['unsecure', 'UNSECURE', 'helm', 'A hard burn, a hard evasion or the jump spool is under way and the crew are not secure: reads slow, officers may be hurt.'],
     ['runhot', 'RUN HOT', 'eng', 'Our signature is HOT: anything listening can hear us.'],
     ['sinkhi', 'SINK HI', 'eng', 'Heat sink at 80% or more (warning at 95%).'],
     ['venting', 'VENTING', 'eng', 'Cooling fins are out: we are fully visible (caution when the vent was forced).'],
@@ -37,16 +39,17 @@
     ['hull', 'HULL', 'dmg', 'Hull integrity below 70% (warning below 40%).'],
     ['fire', 'FIRE', 'dmg', 'Coolant failing or a fire aboard: the sink is pegged and systems are cooking.'],
     ['breach', 'BREACH', 'dmg', 'Hull breach: integrity below 25% or a breach call.'],
+    ['crewinj', 'CREW INJ', 'dmg', 'An officer is injured: their station is slower until Fenwick treats them or the injury passes.'],
     ['linkofr', 'LINK OFR', 'com', 'An ally offers a data link (an emission), or Pell offers to take a station.'],
-    ['prblink', 'PRB LINK', 'com', 'Probe link state. Probe sets are not yet simulated.', true],
-    ['prbout', 'PRB OUT', 'com', 'Probe sets deployed. Not yet simulated.', true],
-    ['prblost', 'PRB LOST', 'com', 'Probe set lost or link dropped. Not yet simulated.', true]
+    ['prblink', 'PRB LINK', 'com', 'A laser probe link is broken: the ship changed course or speed. It returns after half a minute of steady running, or switch the set to radio.'],
+    ['prbout', 'PRB OUT', 'com', 'A probe set is deployed and feeding the picture.'],
+    ['prblost', 'PRB LOST', 'com', 'A probe set has run out of battery and is drifting.']
   ].map(([id, label, st, tip, stub]) => ({ id, label, st, tip, stub: !!stub, key: GROUPS.find(g => g.st === st).key }));
   const RANK = { off: 0, normal: 1, advisory: 2, caution: 3, warning: 4 };
   // catalog row -> tile (every row lands in its own station's group)
   const ROW_TILE = { S1: 'newtrk', S8: 'newtrk', S6: 'pinghrd', S4: 'trklost', S5: 'trklost', X1: 'detect', X2: 'detect', X3: 'detect', X4: 'detect', X5: 'newtrk',
     W1: 'brgonly', W3: 'solstl', W2: 'solrdy', W5: 'incoming', W8: 'maglow', W9: 'salvo', W4: 'salvo', W6: 'salvo', W7: 'hull',
-    H1: 'burn', H2: 'linkbrk', H3: 'crschg', E1: 'runhot', E2: 'venting', E3: 'venting', E4: 'redline', D1: 'hull', D2: 'fire', D3: 'breach', C1: 'linkofr', C3: 'linkofr' };
+    H1: 'burn', H2: 'linkbrk', H2P: 'prblink', S10: 'prblink', H3: 'crschg', H4: 'unsecure', H5: 'brace', D4: 'crewinj', E1: 'runhot', E2: 'venting', E3: 'venting', E4: 'redline', D1: 'hull', D2: 'fire', D3: 'breach', C1: 'linkofr', C3: 'linkofr' };
   const STATION_TILE = { sensors: 'newtrk', fire: 'solrdy', weapons: 'incoming', helm: 'crschg', engineering: 'redline', thermal: 'runhot', damage: 'hull', comms: 'linkofr' };
   const STATION_GROUP = { sensors: 'sen', fire: 'fc', weapons: 'wpn', helm: 'helm', engineering: 'eng', thermal: 'eng', damage: 'dmg', comms: 'com' };
   const MAG_LOW = 12;
@@ -77,7 +80,11 @@
       if (s.mag) { if (s.mag.total <= 0) lift('maglow', 'warning', 'magazine empty'); else if (s.mag.total <= MAG_LOW) lift('maglow', 'caution', s.mag.total + ' left'); }
       if (s.pd === 'armed') lift('pdarm', 'advisory', 'armed, cold'); else if (s.pd === 'active') lift('pdact', 'caution', 'radars lit');
       if ((s.volleys || []).length || (s.probes || []).length) lift('salvo', 'advisory', ((s.volleys || []).length + (s.probes || []).length) + ' in flight');
-      // helm
+      // probe sets (s.pset): out = advisory, a broken laser link = caution, a lost set = caution
+      if (s.pset) { const out = s.pset.filter(p => p.state === 'out'); if (out.length) lift('prbout', 'advisory', out.map(p => p.id + ' ' + p.link).join(', ')); const brk = out.filter(p => p.link === 'laser' && !p.linkOk); if (brk.length) lift('prblink', 'caution', 'set ' + brk.map(p => p.id).join(', ') + ' link broken'); const lost = s.pset.filter(p => p.state === 'lost'); if (lost.length) lift('prblost', 'caution', 'set ' + lost.map(p => p.id).join(', ') + ' lost'); }
+      // helm: the brace state is a game rule (s.brace: free | bracing | secure; s.unsecure: load above the threshold with the crew not secure)
+      if (s.brace === 'bracing' || s.brace === 'secure') lift('brace', 'advisory', s.brace);
+      if (s.unsecure) lift('unsecure', 'caution', 'load ' + (s.gLoad != null ? s.gLoad.toFixed(1) + ' g' : '') + ', crew not secure');
       if (s.speed === 'v5' && ['route', 'close', 'separate', 'evade', 'orbit'].includes(s.posture)) lift('burn', 'advisory', 'full burn');
       // engineering and thermal
       if (s.heat === 'hot') lift('runhot', 'caution', 'signature hot');
@@ -87,6 +94,7 @@
       // damage
       if (s.hull < 40) lift('hull', 'warning', Math.round(s.hull) + '%'); else if (s.hull < 70) lift('hull', 'caution', Math.round(s.hull) + '%');
       if ((s.melt || 0) > 0.05) lift('fire', 'warning', 'coolant failing');
+      if (s.crew) { const hurt = Object.keys(s.crew).filter(k => s.crew[k].inj); if (hurt.length) lift('crewinj', 'caution', hurt.join(', ')); }
       if (s.hull < 25) lift('breach', 'warning', 'hull ' + Math.round(s.hull) + '%');
     }
     if (model) {   // calls: a priority 3 call lights its station's caution, a priority 4 call a warning; a waiting priority 2 call an advisory

@@ -15,6 +15,7 @@
   const TIMEOUT = { 2: 45, 3: 16, 4: 7 };                                                      // seconds until the default runs
   const sierra = n => 'Sierra ' + n;
   const O = (...a) => a.map(([label, verb]) => ({ label, verb }));
+  const OM = (tight, loose) => [Object.assign({ side: 'tight', verb: 'm_tight' }, tight), Object.assign({ side: 'loose', verb: 'm_loose' }, loose)];   // a decision moment: TIGHT left, LOOSE right, each with its effects in plain words
   // the catalog (docs/systems_contract.md s3). open: Auto still raises it at priority 2 because doctrine does not settle it.
   const ROWS = {
     S1: { st: 'sensors', pri: 2, line: d => `New thermal return, ${sierra(d.n)}.`, batch: c => `${c} new thermal returns.`, opts: O(['Isolate and classify', 'classify'], ['Mark and continue', 'mark'], ['Ignore', 'ignore']), def: 1, cost: 'slower identification' },
@@ -41,11 +42,32 @@
     E2: { st: 'thermal', pri: 3, line: d => 'Forced vent coming.', opts: O(['Vent now', 'vent'], ['Hold', 'hold']), def: 0, cost: 'none' },
     E3: { st: 'thermal', pri: 1, line: d => d.text },
     E4: { st: 'engineering', pri: 2, line: d => 'Redline available.', opts: O(['No', 'hold'], ['Redline', 'redline']), def: 0, cost: 'none' },
+    // brace (docs/mechanics_brace.md): the body state of the crew is a game rule. H4 gates a hard burn or jump on the crew being SECURE.
+    H4: { st: 'helm', pri: 3, to: 8, noBucket: true, line: d => ({ burn: 'Crew not secure for the burn. Brace first?', spool: 'Crew not secure for the jump. Brace first?', evade: 'Crew not secure for hard manoeuvring. Brace first?', load: 'We are under load and the crew is not secure. Brace?' }[d.why] || 'Crew not secure. Brace first?'),
+      opts: O(['Brace first', 'brace_first'], ['Go now', 'go_now'], ['Cancel', 'cancel']), def: 0, cost: 'delay (about six seconds)' },
+    H2P: { st: 'helm', pri: 3, to: 10, noBucket: true, line: d => 'Turning now breaks the probe link.', opts: O(['Hold course', 'cancel'], ['Turn anyway', 'go_now'], ['Switch probes to radio', 'probes_radio_go']), def: 0, cost: 'delay' },   // probe sets (docs/mechanics_probes.md)
+    S10: { st: 'sensors', pri: 3, to: 14, noBucket: true, line: d => d.state === 'lost' ? `Set ${d.set} is lost.` : `The laser link to set ${d.set} is broken. Our ${d.cause} change did it.`, opts: O(['Wait for it', 'hold'], ['Switch to radio', 'probes_radio'], ['Recover the set', 'probes_recover']), def: 0, cost: 'the picture ages' },
+    H5: { st: 'helm', pri: 1, line: d => d.text || 'Brace complete. Crew secure.' },
+    D4: { st: 'damage', pri: 3, to: 14, line: d => `${d.officer || 'Someone'} is hurt${d.station ? ' at ' + d.station : ''}.`, opts: O(['Send Fenwick', 'treat'], ['Carry on', 'hold']), def: 0, cost: 'Fenwick leaves his post for a minute' },
     D1: { st: 'damage', pri: 3, line: d => d.text, opts: O(['Save the sink', 'save_sink'], ['Save the drive', 'save_drive'], ['Seal and sacrifice', 'seal']), def: 0, cost: 'drive degraded' },
     D2: { st: 'damage', pri: 4, line: d => 'Fire in stores and a breach aft. Which first?', opts: O(['Save the sink', 'save_sink'], ['Save the drive', 'save_drive']), def: 0, cost: 'the other burns' },
     D3: { st: 'damage', pri: 4, line: d => d.text },
     C1: { st: 'comms', pri: 2, open: true, line: d => 'An ally offers a link. It is an emission.', opts: O(['Decline', 'decline'], ['Accept', 'accept']), def: 0, cost: 'none' },
     C3: { st: 'comms', pri: 2, open: true, line: d => 'I can run the sensors. It would be seen.', opts: O(['Not yet', 'hold'], ['Do it', 'pell_take']), def: 0, cost: 'none' },
+    // decision moments (docs/decision_moments.md, resolved in docs/mechanics_decisions.md): a call with a TIGHT and a LOOSE option.
+    // The engine owns the trigger and the effects (HuntRT.MOMENTS, momentCheck, moment); this table is the words. The default is TIGHT: it is the drilled procedure.
+    M01: { st: 'sensors', pri: 3, to: 14, noBucket: true, moment: 'M01', line: d => `Captain. ${sierra(d.n)} is shaping into something. I could give you a call now. It would be a guess with good manners. Or I run the full processors and give you a reading.`,
+      opts: OM({ label: 'Run the full processors', eff: 'The call comes when two channels finish. Certainty uncapped. Guess noise x0.85.' }, { label: 'Best guess now', eff: 'The call comes about 40% sooner, reads reach 15% farther. Certainty capped at 70%, guess noise x1.5, a lock on it is a hunch lock.', risk: 'A wrong guess becomes a chase, and the full reading takes 20% longer.' }), def: 0, cost: 'none' },
+    M02: { st: 'sensors', pri: 3, to: 14, noBucket: true, moment: 'M02', line: d => 'Before you ping, Captain. Something out there is already listening, I think. A full ping answers every question we have and tells them exactly where we are. I can narrow it.',
+      opts: OM({ label: 'Full ping', eff: 'Three read rounds, a full fix. Standard heat and alert.' }, { label: 'Narrow it', eff: 'Ping heat halved, alert x0.6, two read rounds. Certainty from the ping capped at 70%; a fix on a locked contact is weaker.', risk: 'You may need a second ping, and the second one is full size.' }), def: 0, cost: 'none' },
+    M03: { st: 'fire', pri: 3, to: 14, noBucket: true, moment: 'M03', line: d => 'Locked. Now, I can work this solution by the book, which is fast and a bit dumb. Or I hand-tune the lead, which is better until it isn\'t. Your ship, kid. Captain.',
+      opts: OM({ label: 'By the book', eff: 'Solution time x0.85 on this contact. The lead stays at the default.' }, { label: 'Hand-tune the lead', eff: 'Lead error x0.7. The solution goes stale 35% sooner.', risk: 'If the target manoeuvres after the solution is built, the lead overcorrects (error x1.4 until refreshed).' }), def: 0, cost: 'none' },
+    M04: { st: 'fire', pri: 3, to: 14, noBucket: true, moment: 'M04', line: d => `Solution on ${sierra(d.n)} just went stale. I can rework it, two minutes give or take. Or we put a volley on the old numbers right now and hope she's kept her course. She usually has. Usually.`,
+      opts: OM({ label: 'Rework it', eff: 'A fresh solution; re-solve time x0.85.' }, { label: 'Fire on the old numbers', eff: 'The solution stays valid 50% longer, so you can fire now. The cone cannot be tightened below its default.', risk: 'A miss costs a tube for the reload and lights you up with the blast glow.' }), def: 0, cost: 'none' },
+    M07: { st: 'thermal', pri: 3, to: 14, noBucket: true, moment: 'M07', line: d => 'Sink\'s at sixty-five, Captain. By the book we vent now. Fins out, every sensor sees them, done in a couple of minutes. Or you let me pick the moment, somewhere nobody\'s looking, and I dump it fast. I\'m very good at picking moments.',
+      opts: OM({ label: 'Vent now, by the schedule', eff: 'Vent starts now at the standard rate. Fins visible the whole time.' }, { label: 'Pick your moment', eff: 'Dace holds until nobody\'s picture of us is improving, up to a hard ceiling at 92% sink, then vents with fast fins (x0.75 time, 0.8 minute of afterglow).', risk: 'A spike past 100% during the hold forces an emergency vent.' }), def: 0, cost: 'none' },
+    M09: { st: 'thermal', pri: 3, to: 14, noBucket: true, moment: 'M09', line: d => 'The analyst stations are cooking us, Captain. I can throttle them, thirty percent cooler, slower reads. Or I let them run flat out and keep an eye on it. I\'ll be watching anyway. I\'m always watching.',
+      opts: OM({ label: 'Throttle them', eff: 'For the rest of the hunt: analyst heat x0.8, reads 15% slower.' }, { label: 'Let them run flat out', eff: 'Reads 10% faster, analyst heat x1.25. At 85% sink Dace cuts the stations for a minute.', risk: 'The cut lands mid-read and costs you the fresh fixes.' }), def: 0, cost: 'none' },
     X1: { st: 'sensors', pri: 3, line: d => `${sierra(d.n)} has noticed us.`, opts: O(['Go quiet', 'quiet'], ['Evade', 'evade'], ['Hold', 'hold']), def: 0, cost: 'lost initiative' },
     X2: { st: 'sensors', pri: 3, line: d => `${sierra(d.n)} is closing. Her fix on us is tightening.`, opts: O(['Evade', 'evade'], ['Hold', 'hold'], ['Ready salvo', 'ready']), def: 0, cost: 'closer to a shot' },
     X3: { st: 'sensors', pri: 4, line: d => `${sierra(d.n)} has a firm solution on us.`, opts: O(['Evade', 'evade'], ['Fire first', 'fire'], ['Hold', 'hold']), def: 0, cost: 'lost initiative' },
@@ -73,7 +95,13 @@
     probe_quiet: d => ['W4', { text: 'Probe landed. No reaction.' }],
     mag_low: d => ['W8', { text: `Magazine low. ${nw(d.salvos)} salvo${d.salvos === 1 ? '' : 's'} left.` }],
     mag_empty: d => ['W8', { text: 'Magazine empty.' }],
-    track_lost: d => ['S5', { n: d.n, id: d.id, ghost: d.ghost }]
+    track_lost: d => ['S5', { n: d.n, id: d.id, ghost: d.ghost }],
+    brace_complete: d => ['H5', { text: d.by === 'auto' ? 'Crew secure. The crew braced on their own.' : 'Brace complete. Crew secure.' }],
+    unsecure: d => ['H4', { why: d.why, g: d.g }],
+    injury: d => ['D4', { officer: d.officer, station: d.station, cause: d.cause }],
+    probe_link: d => d.state === 'broken' ? ['S10', { set: d.set, cause: d.cause }] : null,
+    probe_lost: d => ['S10', { set: d.set, state: 'lost' }],
+    moment: d => [d.id, Object.assign({ n: d.n }, d.ctx || {})]
   };
   // speech helpers shared by the call deck and tools/tts/catalog_lines.js, so a rendered clip is found by its exact words
   const spoken = t => String(t || '').replace(/Sierra (\d+)/g, (m, n) => 'Sierra ' + nw(+n)).replace(/\s+/g, ' ').trim();
@@ -100,6 +128,7 @@
     const doctrine = Object.assign({}, DOCTRINE, cfg.doctrine);
     const officers = {}; for (const k in SKILL) officers[k] = { busyUntil: 0 };
     const cmdMul = cfg.command === 'loose' ? 1.3 : cfg.command === 'tight' ? 0.8 : 1;
+    const body = {};                                       // officer -> reaction multiplier from the body: braced crew work from the couches (slower), an injured officer is slower still (docs/mechanics_brace.md)
     const patience = cfg.command === 'loose' ? 6 : 12;
     const secPerMin = cfg.secPerMin || 16;
     const emit = ev => { for (const f of st.listeners) try { f(ev); } catch (e) {} };
@@ -118,7 +147,7 @@
       const key = rowId + ':' + (d.n || 0);
       if (pri > 1 && st.last[key] != null && st.now - st.last[key] < COOL[pri]) { st.suppressed = (st.suppressed || 0) + 1; return null; }   // same news again: say it once
       st.last[key] = st.now;
-      if (pri >= 3) {                                        // spend attention; with none left a priority 3 call is a notice, not an interruption
+      if (pri >= 3 && !row.noBucket) {                       // spend attention (decision moments and the brace gate have their own caps and skip it); with none left a priority 3 call is a notice, not an interruption
         st.tokens = Math.min(BUCKET.cap, st.tokens + (st.now - st.tokT) / BUCKET.every); st.tokT = st.now;
         if (pri === 4) st.tokens = Math.max(0, st.tokens - 1);   // a critical call always gets through, but it uses up attention too
         else if (st.tokens >= 1) st.tokens -= 1; else pri = 2;
@@ -129,7 +158,7 @@
       else if (mode === 'auto' && pri === 2 && hasOpts && !row.open) { raiseIt = false; settled = true; }
       else if (mode === 'supervised' && !hasOpts && pri === 2) raiseIt = true;
       const call = { id: st.nextId++, row: rowId, station: row.st, officer, pri, demoted: pri !== row.pri, at: st.now, readyAt: st.now, state: raiseIt ? 'queued' : 'logged', count: 1,
-        line: row.line(d) || d.text || '', data: d, opts: row.opts || null, def: row.def, cost: row.cost, route: mode === 'hands-on' ? 'player' : 'co', expiresAt: null, stood: false, settled };
+        line: row.line(d) || d.text || '', data: d, opts: row.opts || null, def: row.def, cost: row.cost, to: row.to || null, moment: row.moment || null, route: mode === 'hands-on' ? 'player' : 'co', expiresAt: null, stood: false, settled };
       st.calls.push(call);
       if (!raiseIt) { if (settled) defaultOutcome(call, 'doctrine'); else call.state = 'logged'; st.history.push(call); emit({ type: 'info', call }); return call; }
       // the officer must be free (a critical call cuts in)
@@ -154,7 +183,7 @@
     function issue(call, i, by) {
       const opt = call.opts[i], officer = call.officer, off = officers[officer];
       const [lo, hi] = SKILL[officer] || [1, 2];
-      const react = (lo + rnd() * (hi - lo)) * cmdMul;
+      const react = (lo + rnd() * (hi - lo)) * cmdMul * (body[officer] || 1);
       const start = Math.max(st.now, off.busyUntil);
       const o = { id: st.orders.length + 1, callId: call.id, station: call.station, officer, verb: opt.verb, label: opt.label, data: call.data, by, issuedAt: st.now,
         ackAt: start + react, execAt: start + react + 0.6, doneAt: start + react + 0.6 + 1.5, stage: 'issued' };
@@ -194,7 +223,7 @@
       for (const c of st.calls) {
         if (c.state === 'queued' && c.readyAt <= st.now) {            // officer is free: say it
           c.state = c.opts || c.pri >= 2 ? 'raised' : 'logged';
-          c.raisedAt = st.now; c.expiresAt = st.now + (TIMEOUT[c.pri] || 45);
+          c.raisedAt = st.now; c.expiresAt = st.now + (c.to || TIMEOUT[c.pri] || 45);
           officers[c.officer].busyUntil = Math.max(officers[c.officer].busyUntil, st.now + speakSecs(c.line));
           if (c.pri === 4) { for (const o of st.calls) if (o !== c && o.state === 'raised' && o.expiresAt) o.expiresAt = Math.min(o.expiresAt, st.now + 6); }   // a critical call shortens the others
           st.raised.push({ t: st.now, pri: c.pri, id: c.id, row: c.row });
@@ -228,16 +257,16 @@
     function onEvent(e) {
       if (!e || !EVT[e.type]) return null;
       const d = e.data || Object.assign({}, e); delete d.type;
-      const [row, cd] = EVT[e.type](d);
+      const r = EVT[e.type](d); if (!r) return null; const [row, cd] = r;
       return raise(row, cd);
     }
     function stats(winSec) {
-      const w = winSec || 20, big = st.raised.filter(r => r.pri >= 3), span = Math.max(1, st.now);
+      const w = winSec || 20, own = r => !!(ROWS[r.row] && ROWS[r.row].noBucket), big = st.raised.filter(r => r.pri >= 3 && !own(r)), span = Math.max(1, st.now);   // decision moments and the brace gate have their own caps: they are not part of the rhythm budget
       let burst = 0; for (const r of st.raised) burst = Math.max(burst, st.raised.filter(q => q.t >= r.t && q.t < r.t + 5).length);
-      return { seconds: st.now, raised: st.raised.length, urgent: big.length, urgentPer20s: big.length / (span / w), maxBurst5s: burst,
+      return { seconds: st.now, raised: st.raised.length, urgent: big.length, own: st.raised.filter(own).length, urgentPer20s: big.length / (span / w), maxBurst5s: burst,
         suppressed: st.suppressed, defaults: st.calls.filter(c => c.state === 'defaulted').length, settled: st.calls.filter(c => c.state === 'settled').length, logged: st.calls.filter(c => c.state === 'logged').length };
     }
-    return { raise, ingest, onEvent, command, report, dismiss, defaultIndex, tick, pending, next, answer, standBy, stats, on: f => st.listeners.push(f), setAutonomy: (k, m) => { autonomy[k] = m; }, autonomy, doctrine, setDoctrine: o => Object.assign(doctrine, o),
+    return { raise, ingest, onEvent, command, report, dismiss, defaultIndex, tick, pending, next, answer, standBy, stats, on: f => st.listeners.push(f), setAutonomy: (k, m) => { autonomy[k] = m; }, setBody: (o, m) => { if (m == null) delete body[o]; else body[o] = m; }, body, autonomy, doctrine, setDoctrine: o => Object.assign(doctrine, o),
       get now() { return st.now; }, get calls() { return st.calls; }, get orders() { return st.orders; }, officers, secPerMin };
   }
   const API = { create, ROWS, MAP, EVT, OFFICER, DOCTRINE, spoken, captainLine, ackLine, clipId, numWord: nw };

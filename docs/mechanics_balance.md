@@ -48,9 +48,24 @@ Reading the table:
 
 * **A competent bot wins about two in three normal hunts** (96% against one ship, 69% against two, 29% against three). Three warships is meant to be the hard case.
 * **Passive play is clearly worse**: the camper never wins a real fight (3%), and the patient pinger (pingfire) wins 48%, 17 points under the competent bot.
-* **The aggressive pinger is the open item**: 57% against 65%. Rushing and pinging everything still works too well on one ship (93%). The brace rule (docs/mechanics_brace.md) is the lever for that: a redline burn with the crew free now costs reading rate and injuries. Its before and after numbers are in that doc.
+* **The aggressive pinger is the open item**: 57% against 65% before the brace rule, 53% against 60% with it. Rushing and pinging everything still works too well on one ship (93%). The brace rule does not close the gap (docs/mechanics_brace.md: the pinger is limited by pings and the coilgun, not by reading rate), so the open lever is how hunters answer a noisy approach.
 * **Easy is only slightly easier than normal** (68 / 65). That is a preset question for Dave: easy mostly changes how fast enemies find us, not how hard the fights are.
 * **Hard is no longer punishing**: 54% (it was 30%, where a good bot lost most of its hunts to an empty magazine).
+
+## After the brace rule (docs/mechanics_brace.md)
+
+The brace mechanic (crew state, rate and injury penalties, auto-brace for a vampire) lands after this retune and costs the competent bot about 5 points at normal. Final numbers with the brace rule in (engine at the commit that adds it), normal, 240 paired hunts:
+
+| Bot | Win % | 1 / 2 / 3 ships | Hull on wins | Target |
+|---|---|---|---|---|
+| steady | **60** | 95 / 64 / 23 | 88 | 60-70, at the lower edge |
+| reader | 59 | 95 / 60 / 23 | 88 | |
+| pinger | 53 | 93 / 51 / 14 | 72 | clearly lower |
+| pingfire | 48 | 85 / 48 / 10 | 61 | clearly lower |
+| camper | 3 | 10 / 0 / 0 | 100 | under 25 |
+| random | 2 | 6 / 0 / 0 | 33 | under 20 |
+
+Easy: steady 68, pinger 65. Hard: steady 53, pinger 32. A competent human who braces on the crew's calls and treats the injured will sit where the steady bot sits. Loss anatomy for the steady bot at normal: deaths 11%, breach-drive escapes 25% (the bot breaks off when the magazine is dry with ships left), timeouts 4%.
 
 ## Dog-leg arenas: spool at once versus clear the hunters
 

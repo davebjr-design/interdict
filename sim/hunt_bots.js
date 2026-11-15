@@ -5,7 +5,7 @@
  *   pinger    aggressive: redline at the nearest contact, pings everything, locks on thin odds, fires tight, coilgun in range.
  *   reader    the original competent bot (written for unlimited ammunition: fires whenever the hit chance is over 35%).
  *   steady    the competent bot for the magazine era: reader, plus ammunition discipline (a stricter hit-chance gate when
- *             the magazine runs short of the ships still alive) and the coilgun to finish a hull at close range.
+ *             the magazine runs short of the ships still alive), the coilgun to finish a hull at close range, and Fenwick on the injured (E.treat).
  *   random    presses buttons with no plan.
  * Every bot takes (s, k, r, mem): hunt state, step counter, a seeded random function and a scratch object.
  * Deterministic for a given seed. No DOM. */
@@ -31,6 +31,7 @@
   function reader(s, k, r, mem, opt) {
     opt = opt || {};
     sinkCare(s, true);
+    if (opt.treat && E.treat && s.crew) for (const k in s.crew) if (s.crew[k].inj && s.crew[k].treatUntil == null) { E.treat(s, k); break; }   // Fenwick sees to the hurt, one at a time
     if (s.hull < 15 && !s.spool) { E.retreat(s); return; }
     if (opt.discipline && !s.spool && s.mag && s.mag.total < s.mag.perSalvo && live(s).length && !s.volleys.length) { E.retreat(s); return; }   // dry magazine with warships left: break contact rather than stand and be shot
     if (incoming(s)) { const v = s.inc[0]; if (mem.dodge !== v) { mem.dodge = v; const dx = v.aim.x - v.from.x, dy = v.aim.y - v.from.y, d = Math.hypot(dx, dy) || 1, sg = r() < 0.5 ? 1 : -1; E.setRoute(s, [{ x: s.player.x - dy / d * 14 * sg, y: s.player.y + dx / d * 14 * sg, speed: 'v4' }]); } }
@@ -91,7 +92,7 @@
       for (const a of s.an) if (a.state === 'locked') { if (a.stale) E.refreshSolution(s, a.id); if (fireReady(s, a)) E.fire(s, a.id, null, 0); if (a.anchor && E.closeInfo(s, a).d <= E.P.closeRange) E.fireClose(s, a.id); }
     },
     reader: (s, k, r, mem) => reader(s, k, r, mem, {}),
-    steady: (s, k, r, mem) => reader(s, k, r, mem, Object.assign({ discipline: true, coil: true }, EXP)),
+    steady: (s, k, r, mem) => reader(s, k, r, mem, Object.assign({ discipline: true, coil: true, treat: true }, EXP)),
     random(s, k, r) {
       if (s.sink.h > 0.9 && !s.vent.on) E.startVent(s); else if (s.vent.on && r() < 0.05) E.stopVent(s);
       if (r() < 0.02) { const a = s.an[Math.floor(r() * s.an.length)]; if (a.state === 'open') r() < 0.5 ? E.lockContact(s, a.id) : E.dismissContact(s, a.id); }
