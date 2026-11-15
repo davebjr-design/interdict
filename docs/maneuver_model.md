@@ -49,3 +49,21 @@ Click a point: **Turn here** (default, left click). Click a point with the stop 
 * Limits for the turn: should a turn waypoint demand a minimum leg length, or warn only?
 * Cruise speed per leg, or one for the whole plan?
 * How a hunter's plan (AI) shares the model: same planner, so enemies also take two minutes to flip.
+
+## 6. One engine, many missions (decided 2026-11-15)
+
+The control interface, flight physics and ship rules are identical in a hunt, a salvage job or any other mode. The engine is the engine; a mission is **data**: arena, objectives, timers, what is in the field, and a schedule of events (for example "hostiles drop in at minute 12"). Modes may cross over: a salvage mission can have bogies drop in, and the player then plays the same hunt with the same stations, planner and moments. Rule for builders: no hunt-only or salvage-only physics. If a rule only makes sense in one mission, it is a mission parameter, not an engine branch.
+
+## 7. Salvage maneuvering set pieces (proposals, same physics)
+
+Standard maneuvering is anticipatory (commitment, flips, stop distances); combat is reactive (redline, gimbal, signature). Tension for salvage comes from the planner, not from new rules:
+
+* **Tow:** a captured wreck adds mass and inertia: less acceleration, slower flips (about 2.5 min becomes maybe 6), longer stop distance.
+* **Point of no return:** the planner shows when the ship can no longer stop before the target; overshoot means a long flip and re-burn.
+* **Rendezvous with a tumbling derelict:** match velocity, approach on a vector, tolerances at docking; early correction is cheap, late is expensive.
+* **Silent approach:** ballistic coast with the drive off; the course was committed minutes earlier.
+* **People outside:** EVA or recovery crew on the hull or tethers; no burns until they are in (hold on thrust, tied to the brace and UNSECURE rules).
+* **Window or race:** a derelict decaying toward a planet, or a rival crew heading for the same wreck.
+* Moments for these are "loose" moments (faster answer, visible ceiling): overshoot, debris ahead, flash on the scope.
+
+Build order: tow and the point-of-no-return display first.
