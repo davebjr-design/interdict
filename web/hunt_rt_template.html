@@ -471,6 +471,28 @@ function drawSym(g, key, x, y, size, col, hd) {   // map symbols: 64x64 art, nos
 }
 function rotShip(g, x, y, hd, col, sc) { g.save(); g.translate(x, y); g.rotate((hd || 0) + Math.PI / 2); g.fillStyle = col; g.beginPath(); g.moveTo(0, -9 * sc); g.lineTo(7 * sc, 8 * sc); g.lineTo(-7 * sc, 8 * sc); g.closePath(); g.fill(); g.restore(); }
 const STCOL = () => { const h = E.stealthState(S); return S.t < S.quietUntil ? '#5a78ff' : h === 'hot' ? '#ff6b5a' : h === 'warm' ? '#ffb454' : '#6fc3d0'; };
+/* ---- Flight plan overlay (docs/mechanics_flight.md, B4): the planner's path with its burns, flips and brakes, heading arrows, and the plan panel ---- */
+const PH_COL = k => k === 'brake' ? '#ff5a4a' : (k === 'burn' || k === 'turnburn') ? '#4aa8ff' : '#e6c84a';   // blue burn, red brake, yellow flip and coasting (quiet)
+function mmssSec(t) { t = Math.max(0, Math.round(t)); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); }
+function drawPlan(g, px, py, K, ox, oy, sz) {
+  const pi = E.planInfo ? E.planInfo(S) : null; if (!pi || !pi.path || pi.path.length < 2 || pi.mode === 'idle') return;
+  g.save(); g.lineWidth = 2.5; g.lineCap = 'round'; let prev = null, nextArrow = S.t;
+  for (const q of pi.path) {
+    if (q.t < S.t - 0.03) continue;
+    if (prev) { g.strokeStyle = PH_COL(q.kind); g.beginPath(); g.moveTo(px(prev.x), py(prev.y)); g.lineTo(px(q.x), py(q.y)); g.stroke(); }
+    if (q.t >= nextArrow) { nextArrow = q.t + 25 / 60; g.save(); g.translate(px(q.x), py(q.y)); g.rotate(q.psi); g.fillStyle = PH_COL(q.kind); g.globalAlpha = 0.9; g.beginPath(); g.moveTo(6, 0); g.lineTo(-4, 3.5); g.lineTo(-4, -3.5); g.closePath(); g.fill(); g.restore(); }   // a heading arrow every 25 s of flight
+    prev = q;
+  }
+  g.font = '10px IBM Plex Mono, monospace'; g.fillStyle = '#cfe3da';
+  (pi.wps || []).forEach(w => { if (w.t == null || w.t < S.t - 0.05) return; g.fillText(mmssSec((w.t - S.t) * 60), px(w.x) + 8, py(w.y) - 8); });   // ETA at each waypoint
+  g.restore();
+  if (ox == null) return;
+  const L = [`PLAN ${mmssSec(pi.timeSec)}  dv ${Math.round(pi.dv)} m/s  water ${pi.propT.toFixed(1)} t`], n = pi.now;
+  if (n) L.push(`NOW ${(n.phase || '').toUpperCase()}  ${Math.round(n.speedMs)} m/s  ${n.g.toFixed(2)} g  ${Math.round(((n.psi * 180 / Math.PI) % 360 + 360) % 360)} deg  left ${mmssSec(n.remainSec)}`);
+  (pi.warn || []).slice(0, 2).forEach(wn => L.push('! ' + wn));
+  g.save(); g.font = '11px IBM Plex Mono, monospace'; const wmax = Math.max(...L.map(t => g.measureText(t).width)) + 12; g.fillStyle = 'rgba(3,5,4,.72)'; g.fillRect(ox + 6, oy + 6, wmax, 6 + L.length * 14);
+  L.forEach((t, i) => { g.fillStyle = t[0] === '!' ? '#ff8a4c' : i ? '#9fb7ad' : '#cfe3da'; g.fillText(t, ox + 12, oy + 20 + i * 14); }); g.restore();
+}
 /* ---- Strategic ---- */
 function drawMap() {
   const c = $('map'); if (!c.offsetParent) return; const { g, w, h } = fit(c), sz = Math.min(w, h) - 34, ox = (w - sz) / 2, oy = (h - sz) / 2, K = sz / P.arena * MZ, px = x => ox + sz / 2 + (x - MCX) * K, py = y => oy + sz / 2 + (y - MCY) * K; mapG = { ox, oy, K, sz };
@@ -480,6 +502,7 @@ function drawMap() {
   g.strokeStyle = '#3a4a44'; g.lineWidth = 2; g.strokeRect(px(0), py(0), P.arena * K, P.arena * K);
   if (trail.length > 1) { g.strokeStyle = 'rgba(111,195,208,.5)'; g.lineWidth = 1.5; g.beginPath(); trail.forEach((q, i) => i ? g.lineTo(px(q.x), py(q.y)) : g.moveTo(px(q.x), py(q.y))); g.lineTo(px(S.player.x), py(S.player.y)); g.stroke(); }
   const rest = S.route.slice(S.routeI); if (rest.length) { g.setLineDash([6, 5]); g.lineWidth = 1.5; { let fx = S.player.x, fy = S.player.y; rest.forEach(q => { g.strokeStyle = legCol(q); g.beginPath(); g.moveTo(px(fx), py(fy)); g.lineTo(px(q.x), py(q.y)); g.stroke(); fx = q.x; fy = q.y; }); } g.setLineDash([]); rest.forEach((q, i) => { g.fillStyle = legCol(q); g.beginPath(); g.arc(px(q.x), py(q.y), 6, 0, 7); g.fill(); g.fillStyle = '#0a0e0d'; g.font = '700 10px IBM Plex Mono, monospace'; g.fillText(i + 1, px(q.x) - 3, py(q.y) + 3.5); }); }
+  drawPlan(g, px, py, K, ox, oy, sz);
   g.setLineDash([3, 5]); g.strokeStyle = 'rgba(255,180,84,.5)'; g.beginPath(); g.arc(px(S.player.x), py(S.player.y), ME().closeRange * K, 0, 7); g.stroke(); g.setLineDash([]);
   const xp = E.exposure(S), sr = (xp.quiet ? 1.2 : 2 + Math.min(1, xp.total / 0.2) * 6) * K; g.strokeStyle = STCOL(); g.lineWidth = 1.5; g.beginPath(); g.arc(px(S.player.x), py(S.player.y), sr, 0, 7); g.stroke();
   S.an.forEach((a, i) => {

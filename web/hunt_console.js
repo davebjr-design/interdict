@@ -511,6 +511,7 @@ function cStrategic() {
 function cPlanUI() {
   const left = S.route.length - S.routeI, rest = S.route.slice(S.routeI); let L = 0, T = 0, px = S.player.x, py = S.player.y;
   rest.forEach(w => { const d = Math.hypot(w.x - px, w.y - py); L += d; T += d / E.SPEED[w.speed || S.speed].v; px = w.x; py = w.y; });
+  { const pi = S.posture === 'route' && E.planInfo ? E.planInfo(S) : null; if (pi && pi.mode === 'route') T = Math.max(0, pi.endT - S.t); }   // the planner knows the real time: flips and brakes included
   ckeySet('k-pedit', { t: planEdit ? 'DONE' : 'EDIT PLAN', s: planEdit ? 'CLICK THE MAP' : 'ADD WAYPOINTS', lit: planEdit });
   ckeySet('k-pclear', { t: 'CLEAR PLAN', s: '', dis: !left }); ckeySet('k-presume', { t: 'RESUME PLAN', s: left ? left + ' LEFT' : '', dis: !left || S.posture === 'route', rec: left > 0 && S.posture !== 'route' });
   croSet('r-plen', Math.round(L), left ? CC.cyan : '#6f877d'); croSet('r-peta', left ? mmss(T) : '--:--', left ? CC.cyan : '#6f877d');
