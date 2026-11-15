@@ -1,0 +1,69 @@
+<!doctype html><html><head><meta charset="utf-8"><title>CIC toon preview (A+B props)</title>
+<style>html,body{margin:0;background:#2a3438;overflow:hidden;font:14px 'Arial Narrow',Arial,sans-serif;color:#fff}canvas{display:block}
+.b{position:fixed;background:rgba(10,20,22,.82);border:1px solid #3a5a60;padding:8px 12px}#t{right:14px;top:14px;text-align:right}#t b{color:#e8a33a;letter-spacing:.1em}#c{left:50%;transform:translateX(-50%);bottom:14px;width:640px;border-color:#7a5a1d}#c b{color:#e8a33a}</style></head><body>
+<div class="b" id="t"></div><div class="b" id="c"></div>
+<script src="three.min.js"></script><script src="screens.js"></script><script src="props.js"></script><script src="props_b.js"></script>
+<script>
+'use strict';
+const Q=new URLSearchParams(location.search),SHOT=Q.get('shot')||'room_free',BR=/brace/.test(SHOT);
+const W=1600,H=900;const R=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});R.setSize(W,H);R.setPixelRatio(1);document.body.appendChild(R.domElement);
+OUT.uniforms.asp.value=W/H;R.setClearColor(BR?0x1a1012:0x0c1618);
+const S=new THREE.Scene();const cam=new THREE.PerspectiveCamera(40,W/H,.1,60);
+const toon=(c,o)=>new THREE.MeshToonMaterial(Object.assign({color:c,gradientMap:grad},o||{}));
+// floor
+{const [c,x]=(()=>{const c=document.createElement('canvas');c.width=c.height=512;return[c,c.getContext('2d')]})();x.fillStyle='#2b3b3f';x.fillRect(0,0,512,512);x.strokeStyle='#18262a';x.lineWidth=3;for(let r=0;r<9;r++)for(let q=0;q<7;q++){const ox=(r%2)*36,cx=q*72+ox,cy=r*62;x.beginPath();for(let k=0;k<6;k++){const a=k*Math.PI/3+.52;x.lineTo(cx+33*Math.cos(a),cy+33*Math.sin(a));}x.closePath();x.stroke();}
+ const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(2.6,2.6);const f=new THREE.Mesh(new THREE.CylinderGeometry(5.9,5.9,.2,64),toon(0xffffff,{map:t}));f.position.y=-.1;S.add(f);
+ for(const r of[1.7,3.0,4.9]){const rg=new THREE.Mesh(new THREE.TorusGeometry(r,.02,6,96),new THREE.MeshBasicMaterial({color:BR?0x8a5a52:0xb8cfcc}));rg.rotation.x=Math.PI/2;rg.position.y=.005;S.add(rg);}}
+// wall: curved back, ribs, pipes, cable swags
+{const wl=new THREE.Mesh(new THREE.CylinderGeometry(6,6,3.6,64,1,true,Math.PI*.62,Math.PI*.76),toon(0x23353a,{side:THREE.DoubleSide}));wl.position.y=1.8;S.add(wl);
+ for(let i=0;i<13;i++){const a=Math.PI*.62+i*(Math.PI*.76)/12;const rb=M(RB(.22,3.6,.16,.05),K.steel,S,6*Math.sin(a),1.8,6*Math.cos(a));rb.rotation.y=a;}
+ for(const y of[.55,3.4]){const pts=[];for(let i=0;i<=30;i++){const a=Math.PI*.62+i*(Math.PI*.76)/30;pts.push(new THREE.Vector3(5.9*Math.sin(a),y,5.9*Math.cos(a)));}M(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),60,.05,8),K.brass,S);}
+ for(let k=0;k<5;k++){const a0=Math.PI*(.7+k*.13);const pts=[];for(let i=0;i<=20;i++){const t=i/20,a=a0+t*Math.PI*.1;pts.push(new THREE.Vector3(5.4*Math.sin(a),3.3-.35*Math.sin(t*Math.PI)-k*.05,5.4*Math.cos(a)));}M(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),40,.07,8),K.black,S);}}
+// systems rack + breaker panel on the wall
+{const r1=rack(true);r1.position.set(-1.7,0,-5.4);S.add(r1);const r2=rack(false);r2.position.set(1.7,0,-5.4);S.add(r2);const b=breaker();b.position.set(3.7,1.5,-4.6);b.rotation.y=-.6;S.add(b);}
+// overhead annunciator hung from a ceiling rail
+{const a=annHW(annTex());a.position.set(0,3.0,-5.0);a.rotation.x=-.6;S.add(a);}
+// benches
+const BENCH={};
+function station(name,phi,def,occ,deskFn){const dir=new THREE.Vector3(Math.sin(phi),0,-Math.cos(phi));const g=new THREE.Group();g.position.copy(dir.clone().multiplyScalar(3.1));g.rotation.y=Math.atan2(-dir.x,-dir.z);S.add(g);
+ g.add(bench(def));deskFn&&deskFn(g);BENCH[name]=g;
+ if(occ!==null){const c=couch({recline:BR?1.05:.2,gimbal:BR?.5:0,leg:BR?1.15:.45,harness:BR?'on':null,occ:occ});c.rotation.y=Math.PI;g.add(c);}return g}
+const ph=Math.PI/180;
+const sensors=station('sensors',-58*ph,{span:1.75,screens:[screenTex('contacts'),screenTex('waterfall'),screenTex('tid')],gap:.95},0x4a4f7a,g=>{
+ onArc(g,keypad(),1.25,.5,.95);const tb=trackball();onArc(g,tb,1.25,-.45,.95);
+ for(let i=0;i<3;i++)onArc(g,rotary(),1.15,-.9+i*.17,.95);onArc(g,toggles(6,[0,2]),1.4,.9,.96);
+ onArc(g,gauge('SINK',.45,.7),1.72,-1.05,1.3);onArc(g,gauge('PWR',.6,.8),1.72,1.05,1.3);});
+const attack=station('attack',58*ph,{span:1.45,tall:true,screens:[screenTex('tma'),screenTex('engage'),screenTex('payload')],gap:.95,sh:.66},0x2f6a5e,g=>{
+ const f=fireBox();onArc(g,f,1.22,.0,.96);onArc(g,joystick(),1.2,-.55,.96);onArc(g,keypad(),1.25,.55,.95);
+ for(let i=0;i<3;i++)onArc(g,rotary(),1.1,-.95+i*.17,.95);onArc(g,toggles(5,[1,3]),1.45,.85,.96);
+ onArc(g,gauge('HULL',.7,.8),1.72,-.8,1.42);onArc(g,gauge('MAG',.9,.95),1.72,.8,1.42);});
+const systems=station('systems',0,{span:1.75,screens:[screenTex('thermal'),screenTex('damage'),screenTex('comms')],gap:.95},null,g=>{
+ onArc(g,toggles(6,[1,4]),1.3,-.6,.96);onArc(g,keypad(),1.25,.5,.95);onArc(g,gauge('SINK',.8,.7),1.72,-1.0,1.3);onArc(g,gauge('VENT',.3,.8),1.72,1.0,1.3);
+ const jump=new THREE.Group();M(RB(.46,.08,.46,.02),K.olive,jump,0,.4,0);M(RB(.46,.5,.08,.02),K.olive,jump,0,.7,.22);g.add(jump);jump.position.set(.3,0,.3);jump.rotation.y=Math.PI;});
+// table
+{const t=new THREE.Group();S.add(t);M(CYL(.58,.82,.82,40),K.steel,t,0,.41,0);M(CYL(1.05,1.05,.1,48),K.steel,t,0,.86,0);M(CYL(.92,.92,.03,48),0x0d1c1e,t,0,.92,0);
+ const rm=new THREE.Mesh(new THREE.TorusGeometry(1.1,.045,10,64),toon(K.brass));rm.rotation.x=Math.PI/2;rm.position.y.valueOf;rm.position.y=.93;t.add(rm);rm.add(new THREE.Mesh(rm.geometry,OUT));
+ for(let i=0;i<6;i++){const a=i*Math.PI/3+.3;M(CYL(.025,.025,.07,8),K.grey,t,1.1*Math.cos(a),.9,1.1*Math.sin(a));}
+ M(RB(.34,.01,.26,.003,1),0xcfc8a8,t,-.42,.945,.38).rotation.y=.4;M(RB(.28,.01,.2,.003,1),0xcfc8a8,t,.5,.945,.4).rotation.y=-.5;M(RB(.2,.03,.28,.01),K.olive,t,.45,.95,-.55).rotation.y=.2;
+ const holo=new THREE.Group();holo.position.y=1.5;t.add(holo);const bm=(c,o,w)=>new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:o,wireframe:!!w});
+ holo.add(new THREE.Mesh(new THREE.SphereGeometry(.5,22,14),bm(0x4fe0d0,.34,true)));holo.add(new THREE.Mesh(new THREE.SphereGeometry(.5,22,14),bm(0x0c5a52,.13)));
+ for(const rr of[.17,.33]){const q=new THREE.Mesh(new THREE.TorusGeometry(rr,.004,6,64),bm(0x4fe0d0,.8));q.rotation.x=Math.PI/2;holo.add(q);}
+ [[.3,.12,-.2,0xf2d03b],[-.25,-.08,-.28,0x4fe0d0],[.1,.2,.34,0x4a78f0],[.38,-.05,.1,0xff4a3d],[-.35,.1,.2,0x4fe0d0]].forEach(p=>{const m=new THREE.Mesh(new THREE.SphereGeometry(.026,10,8),bm(p[3],1));m.position.set(p[0],p[1],p[2]);holo.add(m);});
+ const L=new THREE.PointLight(0x4fe0d0,.9,5);L.position.set(0,1.6,0);S.add(L);}
+// CO couch + captain seat at table head
+const co=couch({co:true,recline:BR?1.05:.15,gimbal:BR?.5:0,leg:BR?1.15:.45,harness:BR?'on':'open',occ:0x6a4a2a});co.position.set(0,0,2.4);co.rotation.y=Math.PI;S.add(co);
+// lights
+S.add(new THREE.AmbientLight(BR?0xff9a88:0xb8d8d4,.5));const dl=new THREE.DirectionalLight(BR?0xff7050:0xfff0d0,.4);dl.position.set(3,7,5);S.add(dl);
+const pl=new THREE.PointLight(BR?0xff3a20:0xffd9a0,BR?1.2:1.0,12);pl.position.set(0,3.2,0);S.add(pl);if(BR){const p2=new THREE.PointLight(0xff3a20,1,8);p2.position.set(-3,2.5,-2);S.add(p2);}
+// cameras + overlay
+S.updateMatrixWorld(true);const w=(n,v)=>BENCH[n].localToWorld(new THREE.Vector3(...v));
+const SH={room_free:{p:()=>new THREE.Vector3(.6,4.4,9.6),a:()=>new THREE.Vector3(0,1.0,-1.2),f:42,t:'ROOM',s:'Gemini props + toon shader · total view',c:['QUILL · SENSORS','Sierra 2 has noticed us.','1 Go quiet ✓   2 Evade   3 Hold']},
+ room_brace:{p:()=>new THREE.Vector3(.6,4.4,9.6),a:()=>new THREE.Vector3(0,1.0,-1.2),f:42,t:'ROOM · BRACE',s:'harnesses on · couches reclined and gimballed',c:['PELL · PA','All hands, brace. Burn in six seconds.','1 Go now ✓   2 Cancel burn']},
+ section_sensors:{p:()=>w('sensors',[1.05,1.75,.7]),a:()=>w('sensors',[-.3,1.2,-1.6]),f:56,t:'SECTION · SENSORS',s:'three CRT screens, desk hardware, couch',c:['QUILL · SENSORS','New thermal return, Sierra 7.','1 Isolate ✓   2 Mark   3 Ignore']},
+ section_attack:{p:()=>w('attack',[-1.05,1.75,.7]),a:()=>w('attack',[.3,1.2,-1.6]),f:56,t:'SECTION · ATTACK',s:'guarded FIRE, joystick, selectors',c:['ABARA · WEAPONS','Solution good on Sierra 1. Tubes ready.','1 Fire (Ambush) ✓   2 Probe   3 Hold']},
+ screen:{p:()=>w('sensors',[0,1.6,-.45]),a:()=>w('sensors',[0,1.62,-1.5]),f:38,t:'SCREEN',s:'one CRT, full game screen',c:null}};
+const sh=SH[SHOT]||SH.room_free;cam.position.copy(sh.p());cam.lookAt(sh.a());cam.fov=sh.f;cam.updateProjectionMatrix();
+document.getElementById('t').innerHTML='<b>'+sh.t+'</b><div style="color:#9ab">'+sh.s+'</div>';
+if(sh.c)document.getElementById('c').innerHTML='<b>'+sh.c[0]+'</b><div style="font-size:18px;margin:3px 0">'+sh.c[1]+'</div><div style="color:#8ad">'+sh.c[2]+'</div>';else document.getElementById('c').style.display='none';
+R.render(S,cam);window.done=true;
+</script></body></html>
