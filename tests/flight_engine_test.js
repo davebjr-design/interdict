@@ -39,4 +39,33 @@ const untilPhase = (s, ph, max = 400) => { for (let t = 0; t < max && s.phase !=
   chk('a half-kilometre stop leg at v5 is cut to a short hop, not refused (peak cut or a warning)', pi.warn.length > 0 || pi.cuts.length > 0 || pi.timeSec > 0);
   chk('propellant is reported in tonnes of water, under the 250 t tank', pi.propT >= 0 && pi.propT < 250); }
 
+// ---- B3: enemies fly the same planner and limits ----
+{ const s = fresh(8); const a = s.an.find(x => x.kind === 'real'); a.state = 'open'; a.legs = null; a.x0 = 100; a.y0 = 100; a.vx = 3; a.vy = 0; a.v = 3;   // 3 km/gmin east
+  const v0 = E.truePos(a, 0); E.maneuver(s, a, Math.PI / 2, null);   // turn left by 90 degrees
+  const vel = t => { const p1 = E.truePos(a, t - 0.01), p2 = E.truePos(a, t + 0.01); return { vx: (p2.x - p1.x) / 0.02, vy: (p2.y - p1.y) / 0.02 }; };
+  const early = vel(0.5), late = vel(12), sp = q => Math.hypot(q.vx, q.vy);
+  chk(`a 90 degree course change is not instant: at half a minute the velocity is still east (${early.vx.toFixed(2)}, ${early.vy.toFixed(2)})`, Math.abs(early.vx - 3) < 0.05 && Math.abs(early.vy) < 0.05);
+  chk(`after the flip and the burn it flies the new heading at the old speed (${late.vx.toFixed(2)}, ${late.vy.toFixed(2)})`, Math.abs(sp(late) - 3) < 0.05 && late.vy > 2.9);
+  chk('a change of course takes minutes: no velocity change in the first minute, done within five', Math.hypot(vel(1).vx - 3, vel(1).vy) < 0.3 && Math.abs(sp(vel(5)) - 3) < 0.1);
+  const thr = []; for (let t = 0; t < 8; t += 0.1) thr.push(E.enemyThrust ? E.enemyThrust(a, t) : 0);
+  chk('the enemy drive burns only while it changes the velocity (some thrust, mostly coasting)', thr.some(x => x > 0.99) && thr.filter(x => x === 0).length > thr.length * 0.4);
+  chk('the track is spoilt when the burn starts, not when the order is given', a.manFx && a.manFx.at > 0.5); }
+
+// enemies keep inside the arena by turning in time, not by bouncing
+{ let outside = 0, n = 0;
+  for (const seed of [21, 22, 23]) { const s = fresh(seed, { nreal: 3 }); for (let t = 0; t < 4000 && !s.over; t += 1) { E.tick(s, 0.1); if (t % 20 === 0) for (const a of s.an) if (a.kind === 'real') { const q = E.truePos(a, s.t); n++; if (q.x < 5 || q.x > 235 || q.y < 5 || q.y > 235) outside++; } } }
+  chk(`real warships stay inside the arena (${outside} of ${n} samples outside the 5 km margin)`, outside < n * 0.01); }
+
+// the signature follows the thrust: a coasting warship is quiet, a burning one hot (same rule as ours)
+{ const s = fresh(9); const a = s.an.find(x => x.kind === 'real'); a.legs = null; a.x0 = 100; a.y0 = 100; a.vx = 3; a.vy = 0; a.aware = false;
+  const q0 = E.enemyVis(s, a); E.maneuver(s, a, 1.2, null); let burn = 0, coast = 0; for (let t = 0; t < 8; t += 0.05) { s.t = t; const v = E.enemyVis(s, a); if (E.enemyThrust(a, t) > 0) burn = Math.max(burn, v); else coast = Math.max(coast, v); }
+  chk(`visibility: coasting ${q0.toFixed(3)}, burning ${burn.toFixed(3)} (the burn is the louder)`, burn > q0 * 1.05 || burn > 0.05); }
+
+// propellant is water, tracked as a mass; empty tanks mean drift
+{ const s = fresh(11); s.player.x = 60; s.player.y = 60; E.setSpeed(s, 'v3'); E.setRoute(s, [{ x: 110, y: 60 }, { x: 110, y: 110 }]); run(s, 1); const plan = E.planInfo(s).propT, w0 = s.water;
+  for (let t = 0; t < 3000 && s.posture === 'route' && !s.over; t += 0.5) E.tick(s, 0.5 / SPM);
+  chk(`water used ${s.waterUsed.toFixed(1)} t against ${plan.toFixed(1)} t planned (a 250 t tank, ${w0.toFixed(0)} t at the start)`, Math.abs(s.waterUsed - plan) < 0.08 * plan && Math.abs(250 - s.water - s.waterUsed) < 1e-6 && w0 > 248);
+  s.water = 0.3; E.setRoute(s, [{ x: 200, y: 200 }]); run(s, 400); const v1 = Math.hypot(s.vel.vx, s.vel.vy); run(s, 60);
+  chk('with the tanks dry the ship drifts: a tank-empty event, no thrust, the velocity holds', s.water === 0 && s.nav.mode === 'dry' && s.thrust === 0 && Math.abs(Math.hypot(s.vel.vx, s.vel.vy) - v1) < 1e-6 && (s.evts || []).some(e => e.type === 'tanks_dry')); }
+
 console.log(bad ? bad + ' FAILED' : 'ALL OK'); process.exit(bad ? 1 : 0);

@@ -36,6 +36,7 @@ const hotC = avg(cases.hot, 'minCert'), coldC = avg(cases.icy, 'minCert');
 chk('hot near target keeps certainty above 85% (' + hotC.toFixed(2) + ')', hotC > 0.85);
 chk('cold far target visibly loses certainty (' + coldC.toFixed(2) + ')', coldC < 0.8);
 const cov = avg(cases.hot, 'cover'); chk('stated wedge covers the true position at least 80% of the time (' + cov.toFixed(2) + ')', cov >= 0.8);
-{ const { s, a } = setup({ v: 4.5 }); E.lockContact(s, a.id); a.solve = 1; E.maneuver(s, a, 1.1, null); chk('a course change costs solution progress', Math.abs(a.solve - (1 - E.PLAYER.manLoss)) < 1e-9);
+{ const { s, a } = setup({ v: 4.5 }); E.lockContact(s, a.id); a.solve = 1; E.maneuver(s, a, 1.1, null); const s0 = a.solve; let guard = 0; while (a.manFx && guard++ < 200) { E.tick(s, 0.05); if (a.manFx) { /* still turning: the track is untouched */ } }
+  chk('a course change costs solution progress, once the drive actually changes the velocity (a flip first, then the burn)', s0 === 1 && Math.abs(a.solve - (1 - E.PLAYER.manLoss)) < 0.02 && guard > 3);
   const { s: s2, a: a2 } = setup({ v: 0 }); E.lockContact(s2, a2.id); a2.solve = 1; E.maneuver(s2, a2, 1.1, null); chk('a stationary target turning in place costs nothing', a2.solve === 1); }
 console.log(bad ? 'FAILED' : 'ALL OK'); process.exit(bad ? 1 : 0);

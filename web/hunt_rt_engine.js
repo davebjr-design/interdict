@@ -107,14 +107,27 @@ const HuntRT = (() => {
   function evt(s, type, data) { (s.evts || (s.evts = [])).push({ type, data: data || {}, t: s.t }); }
   const brgOf = (from, to) => Math.round(((Math.atan2(to.x - from.x, -(to.y - from.y)) * 180 / Math.PI) + 360) % 360);   // compass bearing, 0 = north (up), clockwise
   const fold = v => { const lo = 6, hi = P.arena - 1.5, w = hi - lo; let u = (v - lo) % (2 * w); if (u < 0) u += 2 * w; return lo + (u > w ? 2 * w - u : u); };
+  // Enemy flight (docs/mechanics_flight.md, B3): a warship flies the same planner and limits as ours. a.navs is a list of plans [{t0, plan}] (the last with t0 <= t is in force; a plan coasts on past its end);
+  // before its first manoeuvre a ship coasts on the straight line a.x0 + a.vx t. a.legs is the older piecewise-straight model, still read for ships that have no navs (tests, tutorial dummies).
+  function navAt(a, t) { const N = a.navs; if (!N) return null; for (let i = N.length - 1; i >= 0; i--) if (N[i].t0 <= t) return N[i]; return null; }
+  function enemyState(a, t) { const L = navAt(a, t); return L ? FL.stateAt(L.plan, (t - L.t0) * GM) : null; }
   function truePos(a, t) { const q = truePos0(a, t); return { x: fold(q.x), y: fold(q.y) }; }
-  function truePos0(a, t) { let L = null; if (a.legs) for (const g of a.legs) { if (g.t <= t) L = g; else break; } if (L) return { x: L.x + L.vx * (t - L.t), y: L.y + L.vy * (t - L.t) }; return { x: a.x0 + a.vx * t, y: a.y0 + a.vy * t }; }
-  function legVel(a, t) { let L = null; if (a.legs) for (const g of a.legs) { if (g.t <= t) L = g; else break; } return L ? { vx: L.vx, vy: L.vy } : { vx: a.vx, vy: a.vy }; }
+  function truePos0(a, t) { const q = enemyState(a, t); if (q) return { x: q.p.x / KM, y: q.p.y / KM }; let L = null; if (a.legs) for (const g of a.legs) { if (g.t <= t) L = g; else break; } if (L) return { x: L.x + L.vx * (t - L.t), y: L.y + L.vy * (t - L.t) }; return { x: a.x0 + a.vx * t, y: a.y0 + a.vy * t }; }
+  function legVel(a, t) { const q = enemyState(a, t); if (q) return { vx: q.v.x * KMGM, vy: q.v.y * KMGM }; let L = null; if (a.legs) for (const g of a.legs) { if (g.t <= t) L = g; else break; } return L ? { vx: L.vx, vy: L.vy } : { vx: a.vx, vy: a.vy }; }
+  function enemyThrust(a, t) { const q = enemyState(a, t); return q ? q.thrust : 0; }   // drive level in units of 100 percent thrust: 0 when coasting or flipping
   function velAt(a, t) { const p1 = truePos(a, t - 0.05), p2 = truePos(a, t + 0.05); return { vx: (p2.x - p1.x) / 0.1, vy: (p2.y - p1.y) / 0.1 }; }
-  function maneuver(s, a, dh, steer) {
+  function maneuver(s, a, dh, steer) {   // a warship changes course: a replan to a far waypoint on the new heading at its own cruise speed. It must turn (RCS flip rate) and burn (100 percent thrust) before the velocity changes.
     const p = truePos0(a, s.t), v = legVel(a, s.t), sp = Math.hypot(v.vx, v.vy), h0 = steer != null ? steer : Math.atan2(v.vy, v.vx) + dh;
-    (a.legs || (a.legs = [])).push({ t: s.t, x: p.x, y: p.y, vx: Math.cos(h0) * sp, vy: Math.sin(h0) * sp }); a.lastMan = s.t; if (a.state === 'locked' && sp > 0.5 && (a.solve || 0) > 0 && !(s.tut && s.tut.keep)) a.solve *= 1 - s.me.manLoss;
-    if (a.state === 'locked' && sp > 0.5) report(s, 'Dace', `Contact ${a.id + 1} has changed course. Our track is off until we rescan it.`, 'bad');
+    const cur = enemyState(a, s.t), st = cur ? { p: cur.p, v: cur.v, psi: cur.psi, omega: cur.w } : { p: toM(p), v: { x: v.vx * MS, y: v.vy * MS }, psi: sp > 0.05 ? Math.atan2(v.vy, v.vx) : h0, omega: 0 };
+    const cr = Math.max(sp, a.cruise || 0.8 * (a.v || 2)), tgt = { p: { x: st.p.x + Math.cos(h0) * 400 * KM, y: st.p.y + Math.sin(h0) * 400 * KM }, kind: 'turn', cruise: cr * MS, thrust: 1 };
+    const ship = a.shipP || (a.shipP = Object.assign({}, FL.SHIP, (a.ai && a.ai.ship) || {})), pl = FL.plan(st, [tgt], { cruise: cr * MS, thrust: 1, ship });
+    (a.navs || (a.navs = [])).push({ t0: s.t, plan: pl }); if (!a.cruise) a.cruise = cr; a.lastMan = s.t;
+    const b0 = pl.segs.find(g => g.thrust > 0 && (g.kind === 'burn' || g.kind === 'turnburn' || g.kind === 'brake')); a.manFx = { at: s.t + (b0 ? b0.t0 / GM : 0), sp };   // the track is spoilt when the velocity actually starts to change, not when the order is given
+  }
+  function manFx(s, a) {   // the velocity of a contact begins to change: our track on it is off
+    const m = a.manFx; if (!m || s.t < m.at) return; a.manFx = null;
+    if (a.state === 'locked' && m.sp > 0.5 && (a.solve || 0) > 0 && !(s.tut && s.tut.keep)) a.solve *= 1 - s.me.manLoss;
+    if (a.state === 'locked' && m.sp > 0.5) report(s, 'Dace', `Contact ${a.id + 1} has changed course. Our track is off until we rescan it.`, 'bad');
   }
   function makeAware(s, a, text, know = 0.4) {   // know: how good a fix the event gave it (a hit or a ping points straight back at us)
     if (a.kind !== 'real' || a.state === 'disabled') return; a.know = Math.max(a.know || 0, know); if (a.aware) return; a.aware = true; a.nextFire = s.t + (a.ai.fireCd0 + a.r() * 1.5) / (a.load ? a.load.crew : 1); a.nextMan = Math.min(a.nextMan ?? 1e9, s.t + 1 + a.r() * 2);
@@ -144,9 +157,10 @@ const HuntRT = (() => {
     const rnd = (r, rr) => r[0] + rr() * (r[1] - r[0]);
     for (const a of s.an) {
       if (a.kind === 'friend' || a.state === 'disabled') continue;
-      const p = truePos0(a, s.t), v = legVel(a, s.t), e = P.edge, A = P.arena;
-      if ((p.x < e && v.vx < 0) || (p.x > A - e && v.vx > 0) || (p.y < e && v.vy < 0) || (p.y > A - e && v.vy > 0)) { maneuver(s, a, 0, Math.atan2(A / 2 - p.y, A / 2 - p.x) + (a.r() - 0.5) * 0.9); continue; }
-      { const pb = s.bodies.find(b => b.kind === 'planet' && Math.hypot(b.x - p.x, b.y - p.y) < b.r + 10 && ((b.x - p.x) * v.vx + (b.y - p.y) * v.vy) > 0); if (pb) { maneuver(s, a, 0, Math.atan2(p.y - pb.y, p.x - pb.x) + (a.r() - 0.5) * 0.8); continue; } }
+      manFx(s, a);
+      const p = truePos0(a, s.t), v = legVel(a, s.t), e = P.edge, A = P.arena, sp0 = Math.hypot(v.vx, v.vy), lead = (106 + 2 * sp0 * MS / FL.SHIP.a100) / GM, px = p.x + v.vx * lead, py = p.y + v.vy * lead, fresh = a.lastEdge != null && s.t - a.lastEdge < lead * 1.3;   // the lead: a turn-around takes a flip and a burn, so the ship must start before the edge or the planet is on it
+      if (!fresh && ((px < e && v.vx < 0) || (px > A - e && v.vx > 0) || (py < e && v.vy < 0) || (py > A - e && v.vy > 0))) { a.lastEdge = s.t; maneuver(s, a, 0, Math.atan2(A / 2 - p.y, A / 2 - p.x) + (a.r() - 0.5) * 0.9); continue; }
+      { const pb = fresh ? null : s.bodies.find(b => b.kind === 'planet' && Math.hypot(b.x - px, b.y - py) < b.r + 10 && ((b.x - p.x) * v.vx + (b.y - p.y) * v.vy) > 0); if (pb) { a.lastEdge = s.t; maneuver(s, a, 0, Math.atan2(p.y - pb.y, p.x - pb.x) + (a.r() - 0.5) * 0.8); continue; } }
       if (a.kind !== 'ghost') { const cr = a.load ? a.load.crew : 1; if (a.nextMan == null) a.nextMan = s.t + rnd(a.ai.manPatrol, a.r); if (s.t >= a.nextMan) {
         if (a.aware && a.kind === 'real' && a.r() < 0.65) { const sg = aimSigma(a), bx = s.player.x + gauss(a.r) * sg, by = s.player.y + gauss(a.r) * sg, dd = Math.hypot(bx - p.x, by - p.y), hd = Math.atan2(by - p.y, bx - p.x); maneuver(s, a, 0, dd > a.ai.standoff ? hd + (a.r() - 0.5) * 0.4 : hd + (a.r() < 0.5 ? 1 : -1) * (1.2 + a.r() * 0.5)); }
         else if (a.kind === 'real' && !a.aware && a.r() < searchLvl(s, a) * a.ai.closeIn) { const g = 30 + 60 * (1 - searchLvl(s, a)), bx = s.player.x + gauss(a.r) * g, by = s.player.y + gauss(a.r) * g; maneuver(s, a, 0, Math.atan2(by - p.y, bx - p.x)); }   // closing in on the area the noise came from
@@ -237,7 +251,7 @@ const HuntRT = (() => {
   const visOf = total => clamp(total / P.visDiv, P.visFloor, P.visCap);
   function ourVis(s) { if (s.me.ventAfterglow && !s.vent.on && s.ventOffT != null && s.t < s.ventOffT + s.me.ventAfterglow) return Math.max(P.ventSig * 0.6, ourVis0(s)); return ourVis0(s); }
   function ourVis0(s) { if (s.spool) return Math.max(s.me.spoolVis, s.vent.on ? P.ventSig : 0); return s.vent.on ? P.ventSig : Math.min(1, visOf(exposure(s).total) * s.me.sig ); }   // how visible we are, 0..1
-  function enemyAct(s, a, sp) { return (0.016 + 0.03 * (sp / 4.5) ** 2 + (a.aware ? 0.02 : 0) + (s.t < (a.lastFire ?? -9) + 1.5 ? 0.1 : 0)) * (a.state === 'disabled' ? 0 : 1); }
+  function enemyAct(s, a, sp) { return (0.016 + 0.03 * Math.min(2, enemyThrust(a, s.t)) + (a.aware ? 0.02 : 0) + (s.t < (a.lastFire ?? -9) + 1.5 ? 0.1 : 0)) * (a.state === 'disabled' ? 0 : 1); }
   function enemyVis(s, a) { return Math.min(1, enemyVis0(s, a) + (a.lit || 0) * 0.6); }
   function enemyVis0(s, a) {   // how visible that ship is to us, 0..1
     if (a.kind === 'lure') return 0.55; if (a.kind === 'ghost') return 0.2; if (a.vent) return P.ventSig; if (a.state === 'disabled') return 0.1;
@@ -516,12 +530,15 @@ const HuntRT = (() => {
     if (!s.shipP) s.shipP = Object.assign({}, FL.SHIP, s.me.ship || {});
     if (!s.nav) navMake(s, FL.plan({ p: toM(s.player), v: { x: s.vel.vx * MS, y: s.vel.vy * MS }, psi: s.hdg || 0 }, [], { ship: s.shipP }), 'idle', { wps: [], goal: null });
     else if (Math.hypot(s.player.x - s.nav.last.x, s.player.y - s.nav.last.y) > 1e-6) { const q = navState(s, s.t), v = { x: q.v.x, y: q.v.y }; navMake(s, FL.plan({ p: toM(s.player), v, psi: q.psi }, [], { ship: s.shipP }), 'idle', { wps: [], goal: null }); }   // somebody moved us (a push out of a planet, a test): fly on from here
-    navPosture(s);
+    if (s.water == null) { s.water = s.shipP.tank / 1000; s.waterReserve = 20; s.waterUsed = 0; s.navT = s.t; }   // propellant is water: the drive tanks (tonnes) and a locked crew reserve (not touched in this pass)
+    if (s.water <= 0) { if (s.nav.mode !== 'dry') { const q0 = navState(s); navMake(s, FL.plan({ p: q0.p, v: q0.v, psi: q0.psi }, [], { ship: s.shipP }), 'dry', { wps: [], goal: null }); } }   // empty tanks: no change of velocity, the ship drifts
+    else navPosture(s);
     let q = navState(s), pk = toKm(q.p);
     const c = { x: clamp(pk.x, 4, P.arena - 4), y: clamp(pk.y, 4, P.arena - 4) }, edge = Math.abs(c.x - pk.x) > 1e-9 || Math.abs(c.y - pk.y) > 1e-9;
     if (edge) { navMake(s, FL.plan({ p: toM(c), v: { x: 0, y: 0 }, psi: q.psi }, [], { ship: s.shipP }), 'idle', { wps: [], goal: null }); q = navState(s); pk = c; if (s.posture === 'route') { s.posture = 'still'; } if (!s.edgeSaid || s.t - s.edgeSaid > 4) { s.edgeSaid = s.t; report(s, 'Abara', 'We have reached the edge of the arena. Drive off, holding position.', 'info'); } }
     s.player.x = pk.x; s.player.y = pk.y; s.nav.last = { x: pk.x, y: pk.y };
     s.vel = { vx: q.v.x * KMGM, vy: q.v.y * KMGM }; s.hdg = q.psi; s.omega = q.w; s.thrust = q.thrust; s.phase = q.kind; s.gNow = q.g;
+    { const dt = Math.max(0, s.t - s.navT) * GM, used = q.thrust * s.shipP.a100 * s.shipP.mass / (s.shipP.isp * FL.G0) * dt / 1000; s.navT = s.t; s.water = Math.max(0, s.water - used); s.waterUsed += used; if (s.water <= 0 && !s.dryTold) { s.dryTold = true; evt(s, 'tanks_dry', {}); report(s, 'Castellan', 'Drive tanks are dry, Captain. We hold what velocity we have.', 'bad', true); } }
     if (s.posture === 'route') {   // waypoints are reached when the plan says so; the end of the plan is the end of the route
       const nav = s.nav, tau = navTau(s); let i = s.routeI - nav.base;
       while (nav.mode === 'route' && i < nav.plan.wpT.length && nav.plan.wpT[i] <= tau && s.routeI < s.route.length) { s.routeI++; i++; if (s.routeI >= s.route.length) { if (nav.plan.stats.time <= tau + 1e-6 || s.route[s.route.length - 1].kind !== 'turn') { s.posture = 'still'; report(s, 'Abara', 'Flight plan complete. Holding position.', 'info'); } else { s.posture = 'still'; report(s, 'Abara', 'Flight plan complete. Braking to hold position.', 'info'); } } else { const nx = s.route[s.routeI]; if (nx.speed && SPEED[nx.speed]) s.speed = nx.speed; report(s, 'Abara', `Waypoint ${s.routeI} reached. On to waypoint ${s.routeI + 1}.`, 'info'); } }
@@ -1004,6 +1021,6 @@ const HuntRT = (() => {
     }
   }
   function setPellAct(s, on) { s.pellAct = !!on && s.integration >= 75; }
-  return { evt, brgOf, setPD, probe: probeSalvo, markHostile, pdIntercept, emit, setDifficulty, getDifficulty, DIFFICULTY, applyPlayer, RULES, PLAYER, AI, maneuver, trackState, redlineBurn, navBlocked, reanalyze, investigate, heatRate, visIf, arenaPlan, PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, planInfo, navState, navStart, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge, PSET, deployProbes, setProbeLink, recoverProbes, linkNeeded, MOMENTS, MOMENT_RULES, PREP, momentCheck, momentPing, moment, prep, brace, stunned, seenInc, detectLevel, SEEKER_LINEAGE, setBrace: (s, on) => brace(s, on, 'co'), braceNeeded, crewEff, treat, GLOAD, CREW };
+  return { evt, brgOf, setPD, probe: probeSalvo, markHostile, pdIntercept, emit, setDifficulty, getDifficulty, DIFFICULTY, applyPlayer, RULES, PLAYER, AI, maneuver, trackState, redlineBurn, navBlocked, reanalyze, investigate, heatRate, visIf, arenaPlan, PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, planInfo, navState, navStart, enemyThrust, enemyState, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge, PSET, deployProbes, setProbeLink, recoverProbes, linkNeeded, MOMENTS, MOMENT_RULES, PREP, momentCheck, momentPing, moment, prep, brace, stunned, seenInc, detectLevel, SEEKER_LINEAGE, setBrace: (s, on) => brace(s, on, 'co'), braceNeeded, crewEff, treat, GLOAD, CREW };
 })();
 if (typeof module !== 'undefined') module.exports = HuntRT;
