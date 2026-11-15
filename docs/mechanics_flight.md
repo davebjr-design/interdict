@@ -11,8 +11,8 @@ Code: `web/flight_model.js` (pure physics and planner, global `Flight`, no engin
 | A | `68b0031` | Vampire detection rule (see `docs/mechanics_vampire_detect.md`) |
 | B1 | `63bbb5b` | The physics module and its tests |
 | B2 | `2203528` | Player ship on the module |
-| B3 | see git log | Enemies on the module |
-| B4 | see git log | 2D plan overlay |
+| B3 | `182dc5e` | Enemies on the module, water tracked |
+| B4 | `0fccdbd` | 2D plan overlay |
 
 ## The numbers
 
@@ -59,7 +59,7 @@ A warship flies the same planner and limits (`a.navs`, a list of plans evaluated
 
 ## Tests
 
-`node tests/flight_model_test.js` (48), `node tests/flight_engine_test.js` (30). The other suites were rewritten where they assumed instant velocity: `brace_test` (loaded cases use a redline-thrust jink: `hardBurn`), `combattest` (heat follows the burn), `probes_test` (the laser link breaks on a real burn; stopping takes a flip and a brake before the link returns), `tracktest` (the manoeuvre penalty lands when the burn starts), `station_model_test` (flood limit 4 to 5: the engine log is ingested once a game minute so a ping and a hot burn can land together), `cic3d_smoke` (PD falls back to armed when nothing is incoming, so the test reads the `pd` event). All of `tests/*.js` pass (`moments_test` is wall-clock flaky and passed).
+`node tests/flight_model_test.js` (48), `node tests/flight_engine_test.js` (30). The other suites were rewritten where they assumed instant velocity: `brace_test` (loaded cases use a redline-thrust jink: `hardBurn`), `combattest` (heat follows the burn), `probes_test` (the laser link breaks on a real burn; stopping takes a flip and a brake before the link returns), `tracktest` (the manoeuvre penalty lands when the burn starts), `station_model_test` (flood limit 4 to 5: the engine log is ingested once a game minute so a ping and a hot burn can land together), `cic3d_smoke` (PD falls back to armed when nothing is incoming, so the test reads the `pd` event). All of `tests/*.js` pass (`moments_test` is wall-clock flaky and passed; `tests/smoke4.py` "investigate order" is a pre-existing flake that fails about one run in two, before and after this work).
 
 ## Balance (`sim/balance_hunt.js`, n = 300 paired hunts, entry mix, normal; win %, 1 / 2 / 3 ships)
 
