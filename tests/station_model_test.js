@@ -76,5 +76,5 @@ const run = (M, secs, step = 0.25) => { for (let t = 0; t < secs; t += step) M.t
   }
   console.log('     rhythm: worst urgent/20s ' + worst.toFixed(2) + ', max calls in 5s ' + flood + ', mean raised/hunt ' + (tot / n).toFixed(1) + ', rows ' + JSON.stringify(rows));
   chk('all-Auto hunts stay at or under one urgent call per 20 s', worst <= 1.0);
-  chk('no flood: at most 4 raised calls in any 5 s', flood <= 4); }
+  chk('no flood: at most 5 raised calls in any 5 s (the engine log is ingested once a game minute, so a ping and a hot burn can land together; was 4 before the flight model)', flood <= 5); }
 console.log(bad ? 'FAILED' : 'ALL OK'); process.exit(bad ? 1 : 0);

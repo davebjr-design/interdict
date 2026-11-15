@@ -138,6 +138,12 @@
     const dvm = dvTot, prop = propellant(dvm, S);
     return { segs, warn, wpT, ship: S, start: { p: { ...start.p }, v: { ...start.v }, psi: start.psi || 0, omega: start.omega || 0 }, cuts: Dist, end: { t: st.t, p: st.p, v: st.v, psi: st.psi }, stats: { time: st.t, dv: dvm, propKg: prop, propT: prop / 1000, peakThrust: peak, peakG: peak * S.a100 / G0 } };
   }
+  function hold(start, opts = {}) {   // all stop: flip to retrograde, burn, rest where the braking ends. A ship under 0.3 m/s is simply at rest
+    const S = Object.assign({}, SHIP, opts.ship), A = S.a100 * (opts.thrust != null ? opts.thrust : 1), vs = len(start.v), w0 = start.omega || 0;
+    if (vs < 0.3) return plan({ p: start.p, v: { x: 0, y: 0 }, psi: start.psi, omega: w0 }, [], opts);
+    const u = unit(start.v), sgn = w0 < 0 ? -1 : 1, ts = Math.abs(w0) > 1e-7 ? Math.abs(w0) / S.alpha : 0, psiS = wrap((start.psi || 0) + (ts ? sgn * w0 * w0 / (2 * S.alpha) : 0)), rt = rotTime(wrap(ang(mul(u, -1)) - psiS), S);
+    return plan(start, [{ p: add(start.p, add(mul(start.v, ts + rt), mul(u, vs * vs / (2 * A)))), kind: 'stop', cruise: vs }], opts);
+  }
   function replan(pl, tau, wps, opts) {   // a new plan from where this one has got to (an order, a hit, a new waypoint)
     const s = stateAt(pl, tau); return plan({ p: s.p, v: s.v, psi: s.psi, omega: s.w }, wps, Object.assign({ ship: pl.ship }, opts));
   }
@@ -149,6 +155,6 @@
     for (const sg of pl.segs) { const end = sg.t0 + sg.dur; while (t < end - 1e-9) { const h = Math.min(dt, end - t); s = step(s, sg.kind === 'rotate' ? { thrust: 0, psiTarget: wrap(sg.psi0 + sg.dth) } : { thrust: sg.thrust, psiTarget: sg.psi0 }, h, S); t += h; } }
     return s;
   }
-  const API = { SHIP, G0, plan, replan, stateAt, step, slew, rotTime, rotAt, sample, runPlan, propellant, wrap, stopDistance: (v, a) => v * v / (2 * a), unit, len, ang };
+  const API = { SHIP, G0, plan, hold, replan, stateAt, step, slew, rotTime, rotAt, sample, runPlan, propellant, wrap, stopDistance: (v, a) => v * v / (2 * a), unit, len, ang };
   root.Flight = API; if (typeof module !== 'undefined') module.exports = API;
 })(typeof window !== 'undefined' ? window : globalThis);

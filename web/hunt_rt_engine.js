@@ -1,11 +1,12 @@
 // Interdict hunt engine v4: REAL TIME with analyst reports. Time unit = game minutes (UI maps real seconds to game minutes).
 // Three analysts (thermal / reactor / occlusion) read contacts on their own schedule; the player directs attention, interprets, locks, tracks, fires.
 const HuntRT = (() => {
+  const FL = (typeof Flight !== 'undefined' && Flight) || require('./flight_model.js');   // Newtonian flight (web/flight_model.js, docs/mechanics_flight.md): SI inside, km and game minutes out
   // RULES: the world, the same for every ship. Never trimmed, never scaled by difficulty.
   const RULES = { dmgExp: 2, sensRef: 40, visDiv: 0.2, visFloor: 0.06, visCap: 0.85, ventSig: 1, floorM: 0.12, blockM: 0.12, edge: 18, N: 8, nreal: 2, nlure: 3, arena: 240, sub: 0.05, secPerMin: 16, halfLife: 3, bait: 0.75, blastSat: 1.6, launchDetect: 1, launchSym: 1 };   // launchDetect 0: the off switch (docs/mechanics_vampire_detect.md): no launch is ever detected, every volley is first seen when its seeker lights, and our own launches use the old flat roll. launchSym 0: only our launches use the old flat roll
   // PLAYER: our ship and our actions. Copied into s.me for each hunt; trims, Pell assists and decision moments touch only s.me (applyPlayer).
   const PLAYER = { meltHull: 3, meltSys: 0.15, forcedRetract: 0.8, readDone: 8, pingSolve: 0.6, pingGain: 0.4, pingWeight: 2, spoolMove: 0.3, spoolDog: 11.25, spool: 3, spoolVis: 0.9, spoolHeat: 0.06, homeWarned: 0.15, missQuiet: 0.08, homePull: 0.5, missiles: 6, dispMin: 0.8, dispK: 0.03, closeDmg: 32, empRecover: 0.02, symP: 0.8, classDen: 12, sinkK: 0.7, ventFull: 4, ventMin: 0.08, forcedStop: 0.25, sensR: 120, pingAlert: 0.3, launchAlert: 0.3, launchSeen: 0.35, pingFix: 0.7, hitFix: 0.75, salvoFix: 0.5, coilAlert: 0.2, solveStale: 3, uncDen: 20, uncMin: 2, uncMax: 16, solveMin: 0.8, solveMax: 3, solveDen: 8, clutterR: 18, base: 0.02, glowFocus: 0.01, glowTrack: 0.03, chase: 5, decoyStall: 0.55, rescan: 5, engage: 1, missileSpeed: 40, alongStretch: 1.5, autoPeriod: 0.8, focusPeriod: 0.45, killR: 7, glowPell: 0.012, integrationPerMin: 0.8, fixLo: 0.35, fixSpan: 0.4, driftK: 0.9, certReady: 0.6, certBleed: 0.5, manPen: 1.5, manWin: 3, manLoss: 0.35, spdK: 0.2, backK: 0.6, quietDur: 2.5, quietCd: 10, quietHaz: 0.2, suggestShort: 0.72, tubes: 3, reload: 4, darkWindow: 6, darkHaz: 0.5, darkWarm: 4, wakeDur: 3, wakeGlow: 0.1, wpReach: 2, moveRate: 1.1, shipSpeed: 1, holdOff: 5, pingCd: 4, pingDur: 1.5, pingGlow: 0.14, selfRadius: 7, closeRange: 18, closeCd: 2, closeKill: 8, closeAcc: 0.85, closeGlow: 0.12, closeDur: 2, blastGlow: 0.08, blastDur: 1.5, nearGlow: 0.025, nearRange: 24, closeBump: 0.5, beamGlow: 0.08, beamDur: 1, beamCd: 2, beamBump: 0.35, shareReads: 2, pellFriction: 0.08, classNoise: 1, pingRounds: 3, noRedline: 0, ventAfterglow: 0, leadSpread: 1, pingReach: 2, magTotal: 60, magSalvos: 10, magLow: 12, magHe: 54, magEmp: 3, magFlare: 3, pdGrid: 'light', pdArm: 0.125, pdDur: 0.6, pdGlow: 0.08, pdAlert: 0.08, pdCold: 0.3, probeR: 22, probeCd: 0.5,
-    forceAt: 1, redHeat: 1, braceTime: 0.4, braceHold: 1, gThresh: 0.3, injGate: 0.5, injK: 0.5, impactInj: 0.3, treatTime: 1, braceReact: 1.3, braceReactMoving: 1.6, rateSecure: 0.95, rateBracing: 0.9, rateLoaded: 0.75, stunP: 0.4, stunRef: 30, stunMin: 0.4, stunSpan: 0.35, injDmg: 20, hurtQuill: 0.8, hurtDace: 0.9, hurtAbara: 1.4, hurtVent: 0.8, hurtSpool: 1.3 };   // brace (docs/mechanics_brace.md); times in game minutes (0.4 = about 6 s)
+    forceAt: 1, redHeat: 1, braceTime: 0.4, braceHold: 1, gThresh: 0.3, injGate: 0.3, injK: 2.5, impactInj: 0.3, treatTime: 1, braceReact: 1.3, braceReactMoving: 1.6, rateSecure: 0.95, rateBracing: 0.9, rateLoaded: 0.75, stunP: 0.4, stunRef: 30, stunMin: 0.4, stunSpan: 0.35, injDmg: 20, hurtQuill: 0.8, hurtDace: 0.9, hurtAbara: 1.4, hurtVent: 0.8, hurtSpool: 1.3 };   // brace (docs/mechanics_brace.md); times in game minutes (0.4 = about 6 s)
   // AI: enemy warship defaults. Copied into a.ai per contact at spawn, scaled by its loadout and the difficulty. Nothing on the player side reads or writes it.
   const AI = { heatK: 1.4, sinkDiv: 3, ventFull: 4, empRecover: 0.15, litDecay: 0.15, sensR: 120, knowK: 0.4, knowDecay: 0.05, knowLose: 0.15, aimSigMax: 36, aimSigMin: 3.5, standoff: 60, fireCd0: 1.2, fireCd: 4.5, cone: 9, coneStill: 0.7, coneMove: 0.3, missileSpeed: 40, seekerActive: 12, manPatrol: [6,  9], manAware: [3,  5], missRate: 0.5, evadeV: 10, evadeMax: 36, dmgW: 38, missiles: 6, killR: 7, alongStretch: 1.5, dispMin: 0.8, dispK: 0.03, fireRange: 110, aimRange: 120, quietBlur: 4, searchStart: 7, searchRamp: 12, searchK: 0.05, searchDecay: 0.85, closeIn: 0.6, probeCd: 7, probeKnow: 0.12, probeGain: 0.22, blind: 0 };   // blind: chance that a volley fired at a stale fix (we are quiet) is a dark depth charge whose seekers never light (0 = never; mission data)
   const P = Object.assign(RULES, { player: PLAYER, ai: AI });   // P is the rules object; P.player and P.ai are the default blocks (read-only templates)
@@ -86,7 +87,7 @@ const HuntRT = (() => {
     });
     for (const a of an) { if (a.kind === 'real' && opts.warn) a.know = opts.warn * 0.7; if (a.kind === 'real' && opts.dog) a.sil = opts.warn > 0 ? 0.7 : 1.25; a.eff = 1; a.lit = 0; if (a.kind === 'real' || a.kind === 'friend') { a.hpMax = a.hp = HPMAX[a.kind === 'real' ? a.load.cls : 'cruiser']; } }
     for (const a of an) if (a.kind === 'real') { a.sink = { h: 0.15 + 0.6 * r() }; a.vx *= a.load.spd; a.vy *= a.load.spd; a.v *= a.load.spd; }
-    const S0 = { nreal: NR, N: NN, nlure: NL, difficulty: D.name, get spoolMin() { return (this.dog ? this.me.spoolDog : this.me.spool) * (this.crew.Castellan.inj ? this.me.hurtSpool : 1); }, rP: rng(seed ^ 0x9E3779B9), rFx: rng(seed ^ 0x85EBCA6B), dog: !!opts.dog, events: [], evN: 0, holdEvents: false, hold: false, sysEff: 1, bodies, me: makeMe(LOADOUTS[0]), sink: { h: opts.sink0 ?? 0.05 }, vent: { on: false, forced: false, t0: 0, n: 0, total: 0 }, sinkWarn: 0, entry, route: (opts.route || []).map(p => ({ x: p.x, y: p.y })), routeI: 0, speed: SPD_ALIAS[opts.speed] || opts.speed || 'v3', orderId: null, pingCd: 0, pingUntil: 0, pingFx: [], hull: 100, blastUntil: 0, blastV: 0, cwCd: 0, hullWarned: false, friendly: !!opts.friendly, beamCd: 0, beamUntil: 0, fratricide: 0, r, seed, t: 0, stage: 0, an, tempo, posture: (opts.route && opts.route.length) ? 'route' : 'still', pell: false, integration: opts.integration ?? 0, thresholdsHit: {}, pellAct: false, analysts: ANALYSTS.map((a, i) => ({ ...a, task: null, next: 0.15 + 0.12 * i })), pellNext: 0.5, pending: null, quietUntil: 0, quietCd: 0, volleys: [], inc: [], vel: { vx: 0, vy: 0 }, tubes: Array(PLAYER.tubes).fill(0), rescanAt: null, log: [], beats: 0, over: null, disabled: 0, player: { x: start.x, y: start.y }, shots: 0, wrong: 0, evts: [], mag: newMag(opts.mag), pd: 'armed', pdUntil: 0, pdReadyAt: 0, probes: [], probeCd: 0, rPD: rng(seed ^ 0x165667B1), rDet: rng(seed ^ 0x3C6EF372),
+    const S0 = { nreal: NR, N: NN, nlure: NL, difficulty: D.name, get spoolMin() { return (this.dog ? this.me.spoolDog : this.me.spool) * (this.crew.Castellan.inj ? this.me.hurtSpool : 1); }, rP: rng(seed ^ 0x9E3779B9), rFx: rng(seed ^ 0x85EBCA6B), dog: !!opts.dog, events: [], evN: 0, holdEvents: false, hold: false, sysEff: 1, bodies, me: makeMe(LOADOUTS[0]), sink: { h: opts.sink0 ?? 0.05 }, vent: { on: false, forced: false, t0: 0, n: 0, total: 0 }, sinkWarn: 0, entry, route: (opts.route || []).map(p => ({ x: p.x, y: p.y })), routeI: 0, speed: SPD_ALIAS[opts.speed] || opts.speed || 'v3', orderId: null, pingCd: 0, pingUntil: 0, pingFx: [], hull: 100, blastUntil: 0, blastV: 0, cwCd: 0, hullWarned: false, friendly: !!opts.friendly, beamCd: 0, beamUntil: 0, fratricide: 0, r, seed, t: 0, stage: 0, an, tempo, posture: (opts.route && opts.route.length) ? 'route' : 'still', pell: false, integration: opts.integration ?? 0, thresholdsHit: {}, pellAct: false, analysts: ANALYSTS.map((a, i) => ({ ...a, task: null, next: 0.15 + 0.12 * i })), pellNext: 0.5, pending: null, quietUntil: 0, quietCd: 0, volleys: [], inc: [], vel: { vx: 0, vy: 0 }, hdg: 0, thrust: 0, gNow: 0, tubes: Array(PLAYER.tubes).fill(0), rescanAt: null, log: [], beats: 0, over: null, disabled: 0, player: { x: start.x, y: start.y }, shots: 0, wrong: 0, evts: [], mag: newMag(opts.mag), pd: 'armed', pdUntil: 0, pdReadyAt: 0, probes: [], probeCd: 0, rPD: rng(seed ^ 0x165667B1), rDet: rng(seed ^ 0x3C6EF372),
       pset: newRack(opts.probeSets), seekerActive: opts.seekerActive, brace: 'free', braceBy: null, braceT0: 0, braceDone: 0, braceAuto: opts.braceAuto || 'vampire', braceRule: opts.brace !== false, gLoad: 0, unsecure: false, calmSince: 0, rBrace: rng(seed ^ 0x27D4EB2F), crew: Object.fromEntries(Object.keys(CREW).map(k => [k, { inj: false, at: 0, treatUntil: null, stunUntil: null }])) };
     if (opts.player) applyPlayer(S0, opts.player);   // underway prep (decision moments M06 M08 M10): player-only, through the one door
     return S0;
@@ -441,40 +442,111 @@ const HuntRT = (() => {
   }
   function displayPos(s, a) { if (a.state === 'locked' && a.anchor) return estAt(a, s.t - a.anchor.t); const p = truePos(a, s.t), u = uncertainty(s, a), m = Math.hypot(a.jit.x, a.jit.y) || 1; return { x: p.x + a.jit.x / m * 0.55 * u.r, y: p.y + a.jit.y / m * 0.55 * u.r }; }
   function missilePos(s, v) { const f = Math.max(0, Math.min(1, (s.t - v.t0) / Math.max(0.01, v.at - v.t0))); return landings(v).map(e => ({ x: v.from.x + (e.x - v.from.x) * f, y: v.from.y + (e.y - v.from.y) * f })); }
-  function moving(s) { return (s.orderId != null && ['close', 'separate', 'evade', 'orbit'].includes(s.posture)) || (s.posture === 'route' && s.routeI < s.route.length); }
-  function ownSpeed(s) { return moving(s) ? SPEED[s.speed].v * (s.spool ? s.me.spoolMove : 1) : 0; }   // slower targets let the enemy use a tighter cone
-  function engineHeat(s) { return (moving(s) ? SPEED[s.speed].heat * (s.speed === 'ab' ? s.me.redHeat : 1) : 0) + (s.entry === 'fast' && s.t < s.me.wakeDur ? s.me.wakeGlow : 0); }
+  // ---- flight (docs/mechanics_flight.md): velocity, heading and thrust are real state; the ship follows a plan from the flight model ----
+  const KM = 1000, GM = 60, KMGM = GM / KM, MS = KM / GM;   // metres per km, seconds per game minute, (m/s) -> (km/gmin), (km/gmin) -> (m/s)
+  const toM = q => ({ x: q.x * KM, y: q.y * KM }), toKm = q => ({ x: q.x / KM, y: q.y / KM });
+  const cruiseOf = (s, k) => SPEED[k].v * MS * (s.me.shipSpeed || 1) * (s.spool ? s.me.spoolMove : 1);   // the speed rung is the cruise cap of the planner, m/s
+  const thrOf = k => k === 'ab' ? FL.SHIP.aRedline / FL.SHIP.a100 : 1;   // burns run at 100 percent; redline burns at 0.4 g
+  const THRUST_HEAT = [[0, 0], [0.2, 0], [0.4, 0.012], [0.6, 0.04], [0.8, 0.12], [1, 0.3], [FL.SHIP.aRedline / FL.SHIP.a100, 0.9]];   // engine heat by thrust fraction (the old speed-rung table, read as the burn level)
+  const THRUST_RATE = [[0, 1], [0.6, 1], [0.8, 0.9], [1, 0.8], [FL.SHIP.aRedline / FL.SHIP.a100, 0.6]];   // sensor rate by thrust fraction: a coasting ship hears best
+  const lerpT = (tab, f) => { if (f <= tab[0][0]) return tab[0][1]; for (let i = 1; i < tab.length; i++) if (f <= tab[i][0]) return tab[i - 1][1] + (tab[i][1] - tab[i - 1][1]) * (f - tab[i - 1][0]) / (tab[i][0] - tab[i - 1][0]); return tab[tab.length - 1][1]; };
+  const thrustHeat = f => lerpT(THRUST_HEAT, f), thrustRate = f => lerpT(THRUST_RATE, f);
+  const speedNow = s => Math.hypot((s.vel || { vx: 0 }).vx, (s.vel || { vy: 0 }).vy);   // km per game minute
+  function moving(s) { return speedNow(s) > 0.3 || (s.thrust || 0) > 0; }   // under way: the ship has velocity or the drive is burning
+  function ownSpeed(s) { return speedNow(s); }   // slower targets let the enemy use a tighter cone
+  function engineHeat(s) {   // by what the drive is doing now (burn phases emit by thrust, coast and rotate are quiet); a hover preview of a speed rung (own s.speed) shows that rung's burn level
+    const prev = Object.prototype.hasOwnProperty.call(s, 'speed') && Object.getPrototypeOf(s) !== Object.prototype;
+    const h = prev ? (s.posture !== 'still' || s.orderId != null ? SPEED[s.speed].heat : 0) * (s.speed === 'ab' ? s.me.redHeat : 1) : thrustHeat(s.thrust || 0) * ((s.thrust || 0) > 1.2 ? s.me.redHeat : 1);
+    return h + (s.entry === 'fast' && s.t < s.me.wakeDur ? s.me.wakeGlow : 0);
+  }
+  function navStart(s) {   // the ship's state now, SI
+    if (s.nav) { const q = FL.stateAt(s.nav.plan, (s.t - s.nav.t0) * GM); return { p: q.p, v: q.v, psi: q.psi, omega: q.w }; }
+    return { p: toM(s.player), v: { x: s.vel.vx * MS, y: s.vel.vy * MS }, psi: s.hdg || 0, omega: 0 };
+  }
+  function navMake(s, plan, mode, extra) { s.nav = Object.assign({ plan, t0: s.t, mode, id: (s.navId = (s.navId || 0) + 1), made: s.t, last: { x: s.player.x, y: s.player.y }, dirty: false, base: 0 }, extra || {}); s.planInfoCache = null; return s.nav; }
+  function navSet(s, wps, o = {}) {   // plan from where we are through km waypoints [{x, y, kind, speed}]; cruise is the set speed unless a waypoint carries its own
+    const st = navStart(s), k0 = o.speed || s.speed, w = wps.map((q, i) => { const k = q.speed && SPEED[q.speed] ? q.speed : k0; return { p: toM(q), kind: q.kind || (i === wps.length - 1 ? 'stop' : 'turn'), cruise: cruiseOf(s, k), thrust: o.thrust != null ? o.thrust : thrOf(k) }; });
+    const pl = FL.plan(st, w, { cruise: cruiseOf(s, k0), thrust: o.thrust != null ? o.thrust : thrOf(k0), ship: s.shipP });
+    return navMake(s, pl, o.mode || 'route', Object.assign({ wps: wps.map(q => ({ x: q.x, y: q.y, kind: q.kind })), goal: wps.length ? wps[wps.length - 1] : null }, o.extra));
+  }
+  function navHold(s) { const pl = FL.hold(navStart(s), { ship: s.shipP }); return navMake(s, pl, 'hold', { wps: [], goal: null }); }
+  const navTau = s => (s.t - s.nav.t0) * GM;
+  function navState(s, t) { return FL.stateAt(s.nav.plan, ((t == null ? s.t : t) - s.nav.t0) * GM); }
+  function navClamp(s, x, y) { const m = 8; return { x: clamp(x, m, P.arena - m), y: clamp(y, m, P.arena - m) }; }
+  function navPosture(s) {   // the posture controllers: every posture is a rule for choosing the next waypoint, and the planner does the flying
+    const m = s.posture, pl = s.player, st = s.nav, age = s.t - st.made, A = P.arena;
+    if (m === 'still') { if (st.mode !== 'hold') navHold(s); return; }
+    if (m === 'route') { if (st.mode !== 'route' || st.dirty) navPlanRoute(s); return; }
+    const a = s.orderId != null ? s.an[s.orderId] : null;
+    if (m === 'evade') {   // a jink is a redline burn on a heading a little off the present one (a half-turn takes minutes on the thrusters); a new leg when the last is flown
+      const done = st.mode === 'evade' && s.t >= st.t0 + st.plan.stats.time / GM - 0.05;
+      if (st.mode === 'evade' && !st.dirty && !done) return;
+      const sg = st.mode === 'evade' ? -st.sg : (Math.floor(s.t / 2) % 2 ? 1 : -1), h = (s.hdg || 0) + sg * 0.35, g = navClamp(s, pl.x + Math.cos(h) * 35, pl.y + Math.sin(h) * 35);
+      navSet(s, [{ x: g.x, y: g.y, kind: 'turn' }], { mode: 'evade', speed: 'v5', thrust: FL.SHIP.aRedline / FL.SHIP.a100, extra: { sg } }); return;
+    }
+    if (!a || ['out', 'disabled'].includes(a.state)) return;
+    const t = displayPos(s, a), dx = t.x - pl.x, dy = t.y - pl.y, d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d;
+    if (m === 'close') {
+      if (d <= s.me.holdOff + 0.5) { if (st.mode !== 'hold') navHold(s); if (!s.holdSaid && speedNow(s) < 0.5) { s.holdSaid = true; report(s, 'Abara', `Holding ${s.me.holdOff} km off contact ${a.id + 1}. Closer and we would be inside our own blast.`, 'info'); } return; }
+      const g = navClamp(s, t.x - ux * s.me.holdOff, t.y - uy * s.me.holdOff); if (st.mode === 'close' && !st.dirty && age < 2 && Math.hypot(g.x - st.goal.x, g.y - st.goal.y) < 4) return;
+      navSet(s, [{ x: g.x, y: g.y, kind: 'stop' }], { mode: 'close' }); return;
+    }
+    if (m === 'separate') { const g = navClamp(s, pl.x - ux * 70, pl.y - uy * 70); if (st.mode === 'separate' && !st.dirty && age < 3 && Math.hypot(g.x - st.goal.x, g.y - st.goal.y) < 10) return; navSet(s, [{ x: g.x, y: g.y, kind: 'stop' }], { mode: 'separate' }); return; }
+    if (m === 'orbit') {
+      if (st.mode === 'orbit' && !st.dirty && age < 0.6) return;
+      const dir = s.orbitDir || 1, arc = Math.max(3, speedNow(s) * 1.2, SPEED[s.speed].v * 0.6), th = Math.atan2(-dy, -dx) + dir * arc / d, g = navClamp(s, t.x + Math.cos(th) * d, t.y + Math.sin(th) * d);
+      navSet(s, [{ x: g.x, y: g.y, kind: 'turn' }], { mode: 'orbit' }); return;
+    }
+  }
+  function planInfo(s) {   // the plan as the console and the adapter show it, in km and game minutes: segments, path samples, waypoint times, delta-v, propellant (generic mass: water), warnings
+    const nav = s.nav; if (!nav) return null;
+    if (!s.planInfoCache || s.planInfoCache.id !== nav.id) {
+      const pl = nav.plan, segs = pl.segs.map(g => ({ kind: g.kind, t0: nav.t0 + g.t0 / GM, dur: g.dur / GM, durSec: g.dur, p0: toKm(g.p0), psi0: g.psi0, dth: g.dth || 0, thrust: g.thrust, g: g.thrust * FL.SHIP.a100 / FL.G0 }));
+      s.planInfoCache = { id: nav.id, mode: nav.mode, t0: nav.t0, segs, path: FL.sample(pl, 3).map(q => ({ t: nav.t0 + q.t / GM, x: q.p.x / KM, y: q.p.y / KM, psi: q.psi, kind: q.kind, thrust: q.thrust })), wps: (nav.wps || []).map((w, i) => ({ x: w.x, y: w.y, kind: w.kind || null, t: pl.wpT[i] != null ? nav.t0 + pl.wpT[i] / GM : null })), endT: nav.t0 + pl.stats.time / GM, timeSec: pl.stats.time, dv: pl.stats.dv, propT: pl.stats.propT, peakG: pl.stats.peakG, warn: pl.warn.slice(), cuts: pl.cuts.map(c => ({ i: c.i, cutKm: c.cut / KM })), end: toKm(pl.end.p) };
+    }
+    const q = navState(s), c = s.planInfoCache; c.now = { x: s.player.x, y: s.player.y, psi: q.psi, w: q.w, speed: speedNow(s), speedMs: speedNow(s) * MS, thrust: q.thrust, g: q.g, phase: q.kind, remainSec: Math.max(0, (c.endT - s.t) * GM) };
+    return c;
+  }
+  function navPlanRoute(s) {   // fly s.route from s.routeI: intermediate points are turns, the last is a stop unless the point says otherwise
+    const rest = s.route.slice(s.routeI); if (!rest.length) return navHold(s);
+    const wps = rest.map((q, i) => ({ x: q.x, y: q.y, speed: q.speed, kind: q.kind || (i === rest.length - 1 ? 'stop' : 'turn') }));
+    return navSet(s, wps, { mode: 'route', speed: rest[0].speed || s.speed, extra: { base: s.routeI } });
+  }
+  function navStep(s) {   // run every substep: choose waypoints for the posture, evaluate the plan at s.t, and publish position, velocity, heading, thrust
+    if (!s.shipP) s.shipP = Object.assign({}, FL.SHIP, s.me.ship || {});
+    if (!s.nav) navMake(s, FL.plan({ p: toM(s.player), v: { x: s.vel.vx * MS, y: s.vel.vy * MS }, psi: s.hdg || 0 }, [], { ship: s.shipP }), 'idle', { wps: [], goal: null });
+    else if (Math.hypot(s.player.x - s.nav.last.x, s.player.y - s.nav.last.y) > 1e-6) { const q = navState(s, s.t), v = { x: q.v.x, y: q.v.y }; navMake(s, FL.plan({ p: toM(s.player), v, psi: q.psi }, [], { ship: s.shipP }), 'idle', { wps: [], goal: null }); }   // somebody moved us (a push out of a planet, a test): fly on from here
+    navPosture(s);
+    let q = navState(s), pk = toKm(q.p);
+    const c = { x: clamp(pk.x, 4, P.arena - 4), y: clamp(pk.y, 4, P.arena - 4) }, edge = Math.abs(c.x - pk.x) > 1e-9 || Math.abs(c.y - pk.y) > 1e-9;
+    if (edge) { navMake(s, FL.plan({ p: toM(c), v: { x: 0, y: 0 }, psi: q.psi }, [], { ship: s.shipP }), 'idle', { wps: [], goal: null }); q = navState(s); pk = c; if (s.posture === 'route') { s.posture = 'still'; } if (!s.edgeSaid || s.t - s.edgeSaid > 4) { s.edgeSaid = s.t; report(s, 'Abara', 'We have reached the edge of the arena. Drive off, holding position.', 'info'); } }
+    s.player.x = pk.x; s.player.y = pk.y; s.nav.last = { x: pk.x, y: pk.y };
+    s.vel = { vx: q.v.x * KMGM, vy: q.v.y * KMGM }; s.hdg = q.psi; s.omega = q.w; s.thrust = q.thrust; s.phase = q.kind; s.gNow = q.g;
+    if (s.posture === 'route') {   // waypoints are reached when the plan says so; the end of the plan is the end of the route
+      const nav = s.nav, tau = navTau(s); let i = s.routeI - nav.base;
+      while (nav.mode === 'route' && i < nav.plan.wpT.length && nav.plan.wpT[i] <= tau && s.routeI < s.route.length) { s.routeI++; i++; if (s.routeI >= s.route.length) { if (nav.plan.stats.time <= tau + 1e-6 || s.route[s.route.length - 1].kind !== 'turn') { s.posture = 'still'; report(s, 'Abara', 'Flight plan complete. Holding position.', 'info'); } else { s.posture = 'still'; report(s, 'Abara', 'Flight plan complete. Braking to hold position.', 'info'); } } else { const nx = s.route[s.routeI]; if (nx.speed && SPEED[nx.speed]) s.speed = nx.speed; report(s, 'Abara', `Waypoint ${s.routeI} reached. On to waypoint ${s.routeI + 1}.`, 'info'); } }
+    }
+  }
   const KEEP = { planet: 6, star: 16 };   // no courses into a planet's pull or into the star's glare
   function navBlocked(s, x, y) { for (const b of s.bodies) { const d = Math.hypot(b.x - x, b.y - y), k = KEEP[b.kind] ?? 0; if (k && d < b.r + k) return b.kind === 'star' ? 'Too close to the star: the glare and radiation would cook us.' : 'That is inside a planet\'s gravity well. We will not chart a course there.'; } return null; }
-  function setRoute(s, pts) { if (s.over) return false; pts = pts.filter(q => !navBlocked(s, q.x, q.y)); s.route = pts.map(q => ({ x: clamp(q.x, 6, P.arena - 6), y: clamp(q.y, 6, P.arena - 6), speed: q.speed })); s.routeI = 0; if (s.route.length) { s.posture = 'route'; s.orderId = null; s.orderUntil = null; report(s, 'Abara', `New flight plan, ${s.route.length} waypoint${s.route.length > 1 ? 's' : ''}.`, 'info'); } else { s.posture = 'still'; report(s, 'Abara', 'Flight plan cleared. Holding position.', 'info'); } return true; }
+  function setRoute(s, pts) { if (s.over) return false; pts = pts.filter(q => !navBlocked(s, q.x, q.y)); s.route = pts.map(q => ({ x: clamp(q.x, 6, P.arena - 6), y: clamp(q.y, 6, P.arena - 6), speed: q.speed, kind: q.kind })); s.routeI = 0; if (s.nav) s.nav.dirty = true; if (s.route.length) { s.posture = 'route'; s.orderId = null; s.orderUntil = null; report(s, 'Abara', `New flight plan, ${s.route.length} waypoint${s.route.length > 1 ? 's' : ''}.`, 'info'); } else { s.posture = 'still'; report(s, 'Abara', 'Flight plan cleared. Holding position.', 'info'); } return true; }
   function relBearing(s, pt) { const b = Math.atan2(pt.x - s.player.x, -(pt.y - s.player.y)) * 180 / Math.PI, h = Math.atan2(Math.cos(s.hdg || 0) * 0 + (Math.cos(s.hdg || 0)), -(Math.sin(s.hdg || 0))) * 180 / Math.PI; return ((b - h + 540) % 360) - 180; }
-  function setSpeed(s, k) { k = SPD_ALIAS[k] || k; if (s.over || !SPEED[k]) return false; s.burn = null; s.speed = k; if (s.posture === 'route' && s.route[s.routeI]) s.route[s.routeI].speed = k; return true; }
+  function setSpeed(s, k) { k = SPD_ALIAS[k] || k; if (s.over || !SPEED[k]) return false; s.burn = null; s.speed = k; if (s.posture === 'route' && s.route[s.routeI]) s.route[s.routeI].speed = k; if (s.nav) s.nav.dirty = true; return true; }
   function setOrder(s, mode, id, mins) {
     if (s.over || !POSTURE[mode]) return false;
-    if (mode === 'route') { if (s.routeI >= s.route.length) return false; s.posture = 'route'; s.orderId = null; report(s, 'Abara', `Resuming the flight plan, waypoint ${s.routeI + 1} of ${s.route.length}.`, 'info'); return true; } const a = id != null ? s.an[id] : null;
+    if (mode === 'route') { if (s.routeI >= s.route.length) return false; s.posture = 'route'; if (s.nav) s.nav.dirty = true; s.orderId = null; report(s, 'Abara', `Resuming the flight plan, waypoint ${s.routeI + 1} of ${s.route.length}.`, 'info'); return true; } const a = id != null ? s.an[id] : null;
     if ((mode === 'close' || mode === 'separate' || mode === 'orbit') && (!a || ['out', 'disabled'].includes(a.state))) return false;
-    s.posture = mode; s.orderId = (mode === 'still' || id == null) ? null : id; s.holdSaid = false; s.orderUntil = mins ? s.t + mins : null; if (mode === 'orbit') s.orbitDir = s.rP() < 0.5 ? 1 : -1;
+    s.posture = mode; if (s.nav) s.nav.dirty = true; s.orderId = (mode === 'still' || id == null) ? null : id; s.holdSaid = false; s.orderUntil = mins ? s.t + mins : null; if (mode === 'orbit') s.orbitDir = s.rP() < 0.5 ? 1 : -1;
     report(s, 'Abara', { still: 'Holding position.', evade: a ? `Evasive pattern, keeping contact ${id + 1} off our flank.` : 'Evasive pattern.', close: `Closing on contact ${id != null ? id + 1 : ''}.`, separate: `Opening distance from contact ${id != null ? id + 1 : ''}.`, orbit: `Circling contact ${id != null ? id + 1 : ''}${mins ? ' for ' + mins + ' minutes' : ''}.` }[mode], 'info');
     return true;
   }
-  function moveShip(s, h) { const ox = s.player.x, oy = s.player.y; moveShip0(s, h); for (const b of s.bodies) if (b.kind === 'planet' || b.kind === 'star') { const dx = s.player.x - b.x, dy = s.player.y - b.y, d = Math.hypot(dx, dy) || 1, k = b.kind === 'star' ? 10 : 3; if (d < b.r + k) { s.player.x = b.x + dx / d * (b.r + k); s.player.y = b.y + dy / d * (b.r + k); } } const dx = s.player.x - ox, dy = s.player.y - oy; s.vel = { vx: dx / h, vy: dy / h }; if (dx * dx + dy * dy > 1e-8) s.hdg = Math.atan2(dy, dx); if (s.hdg == null) s.hdg = 0; }
-  function moveShip0(s, h) {
+  function moveShip(s, h) {
     const m = s.posture;
-    if (s.orderUntil != null && s.t >= s.orderUntil && m !== 'route' && m !== 'still') { s.posture = 'still'; s.orderId = null; s.orderUntil = null; report(s, 'Abara', 'Maneuver complete. Holding position.', 'info'); return; }
-    if (m === 'route') {
-      const wp = s.route[s.routeI]; if (!wp) { s.posture = 'still'; return; } if (wp.speed && SPEED[wp.speed]) s.speed = wp.speed;
-      const pl = s.player, dx = wp.x - pl.x, dy = wp.y - pl.y, d = Math.hypot(dx, dy), sp = s.me.shipSpeed * SPEED[s.speed].v * h * (s.spool ? s.me.spoolMove : 1);
-      if (d <= s.me.wpReach) { s.routeI++; if (s.routeI >= s.route.length) { s.posture = 'still'; report(s, 'Abara', 'Flight plan complete. Holding position.', 'info'); } else report(s, 'Abara', `Waypoint ${s.routeI} reached. On to waypoint ${s.routeI + 1}.`, 'info'); return; }
-      const st = Math.min(sp, d); pl.x += dx / d * st; pl.y += dy / d * st; return;
-    }
-    const a = s.orderId != null ? s.an[s.orderId] : null; if (!a) return;
-    if (['out', 'disabled'].includes(a.state)) { s.posture = 'still'; s.orderId = null; report(s, 'Abara', `Contact ${a.id + 1} is out of play. Holding position.`, 'info'); return; }
-    const t = displayPos(s, a), pl = s.player, dx = t.x - pl.x, dy = t.y - pl.y, d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d, sp = s.me.shipSpeed * SPEED[s.speed].v * h * (s.spool ? s.me.spoolMove : 1);
-    if (m === 'close') { if (d <= s.me.holdOff) { if (!s.holdSaid) { s.holdSaid = true; report(s, 'Abara', `Holding ${s.me.holdOff} km off contact ${a.id + 1}. Closer and we would be inside our own blast.`, 'info'); } return; } pl.x += ux * Math.min(sp, d - s.me.holdOff); pl.y += uy * Math.min(sp, d - s.me.holdOff); }
-    else if (m === 'separate') { pl.x -= ux * sp; pl.y -= uy * sp; }
-    else if (m === 'orbit') { const dir = s.orbitDir || 1, ang = Math.atan2(-dy, -dx) + dir * sp / d; const nx = t.x + Math.cos(ang) * d, ny = t.y + Math.sin(ang) * d; pl.x = nx; pl.y = ny; }
-    else if (m === 'evade') { const sg = Math.floor(s.t / 2) % 2 ? 1 : -1; pl.x += -uy * sg * sp * 0.5; pl.y += ux * sg * sp * 0.5; }
-    pl.x = clamp(pl.x, 6, P.arena - 6); pl.y = clamp(pl.y, 6, P.arena - 6);
+    if (s.orderUntil != null && s.t >= s.orderUntil && m !== 'route' && m !== 'still') { s.posture = 'still'; s.orderId = null; s.orderUntil = null; report(s, 'Abara', 'Maneuver complete. Holding position.', 'info'); }
+    else if (m !== 'route' && m !== 'still' && m !== 'evade') { const a = s.orderId != null ? s.an[s.orderId] : null; if (a && ['out', 'disabled'].includes(a.state)) { s.posture = 'still'; s.orderId = null; report(s, 'Abara', `Contact ${a.id + 1} is out of play. Holding position.`, 'info'); } }
+    navStep(s);
+    for (const b of s.bodies) if (b.kind === 'planet' || b.kind === 'star') { const dx = s.player.x - b.x, dy = s.player.y - b.y, d = Math.hypot(dx, dy) || 1, k = b.kind === 'star' ? 10 : 3; if (d < b.r + k) { s.player.x = b.x + dx / d * (b.r + k); s.player.y = b.y + dy / d * (b.r + k); } }
+    if (s.hdg == null) s.hdg = 0;
   }
   function pingContact(s, id, mod) {   // mod (decision moment M02, narrow ping): { glow, alert, rounds, scan }   // directional active ping: a crisp fix, and anything listening hears it
     const a = s.an[id]; if (s.over || !a || !['open', 'locked'].includes(a.state) || a.idStatus === 'plan' || s.t < s.pingCd || s.t < s.quietUntil) return false;
@@ -509,7 +581,7 @@ const HuntRT = (() => {
     if (s.spool && s.t >= s.spool.at) { s.spool = null; s.escaped = s.an.filter(a => a.kind === 'real' && a.state !== 'disabled').length; s.over = s.dog ? 'jump' : s.disabled ? 'breach' : 'breach0'; report(s, 'Abara', s.dog && s.escaped ? 'Breach drive spooled. Jumping, with hostiles left behind. Expect them to warn the next sector.' : 'Breach drive spooled. Jumping.', s.dog && s.escaped ? 'danger' : 'bad'); return; }
     s.sysEff = Math.min(1, s.sysEff + s.me.empRecover * h);
     const quiet = s.t < s.quietUntil;
-    const friction = 1 - s.me.pellFriction * Math.max(0, Math.floor(s.integration / 25) - 1), rate = POSTURE[s.posture].rate * (s.entry === 'dark' && s.t < s.me.darkWarm ? 0.8 : 1) * (moving(s) || s.posture === 'evade' ? s.me.moveRate : 1) * (moving(s) ? SPEED[s.speed].rate : 1) * friction * (s.hull < 60 ? 0.85 : 1) * s.sysEff * bodyRate(s);
+    const friction = 1 - s.me.pellFriction * Math.max(0, Math.floor(s.integration / 25) - 1), rate = POSTURE[s.posture].rate * (s.entry === 'dark' && s.t < s.me.darkWarm ? 0.8 : 1) * (moving(s) || s.posture === 'evade' ? s.me.moveRate : 1) * thrustRate(s.thrust || 0) * friction * (s.hull < 60 ? 0.85 : 1) * s.sysEff * bodyRate(s);
     for (const a of s.an) if (a.pingSolve && s.t >= a.pingSolve) { a.pingSolve = null; if (a.state === 'locked') { a.solve = Math.min(decoy(a) ? s.me.decoyStall : 1, (a.solve || 0) + s.me.pingGain); a.stale = false; scan(s, a, 1.2); if (a.solve >= 1) { a.track = Math.max(a.track, 3); report(s, 'Abara', `Ping fix on contact ${a.id + 1} closed the solution. Ready when you are.`, 'good', true); } else report(s, 'Abara', `Ping fix on contact ${a.id + 1}: solution ${Math.round(a.solve * 100)} percent.`, 'info'); } }
     const tutKeep = !!(s.tut && s.tut.keep);   // tutorial only (web/tutorial.js): the solution never goes stale or bleeds
     if (!tutKeep) for (const a of s.an) if (a.state === 'locked' && (a.solve || 0) >= 1 && a.anchor && s.t - a.anchor.t > staleT(s, a)) { a.solve = 0; a.stale = true; report(s, 'Abara', `The solution on contact ${a.id + 1} has gone stale. Refresh it when you want a new one; an analyst on the contact keeps the track fresh.`, 'bad'); }
@@ -710,16 +782,16 @@ const HuntRT = (() => {
   }
   function goQuiet(s) { if (s.over || s.vent.on || s.t < s.quietCd) return false; s.quietUntil = s.t + s.me.quietDur; s.quietCd = s.t + s.me.quietCd; report(s, 'Abara', `Going quiet. Sensors dark, no launches, nobody touches anything for ${mins(s.me.quietDur)}. The drive still makes what heat it makes.`, 'info'); return true; }
   function retreat(s) {   // the breach drive has to spool before we can leave, and the spool makes us easy to see; pressing again cancels
-    if (s.over) return; if (s.spool) { s.spool = null; report(s, 'Abara', 'Breach drive spool aborted. Venting the charge.', 'info'); return; }
+    if (s.over) return; if (s.spool) { s.spool = null; if (s.nav) s.nav.dirty = true; report(s, 'Abara', 'Breach drive spool aborted. Venting the charge.', 'info'); return; }
     if (s.t < s.quietUntil) { report(s, 'Abara', 'Not while we are quiet, Captain. The spool would light us up.', 'info'); return; }
-    s.spool = { at: s.t + s.spoolMin }; report(s, 'Abara', `Breach drive spooling. ${mins(s.spoolMin)} to jump, and the spool is bright on every sensor.`, 'danger', true);
+    s.spool = { at: s.t + s.spoolMin }; if (s.nav) s.nav.dirty = true; report(s, 'Abara', `Breach drive spooling. ${mins(s.spoolMin)} to jump, and the spool is bright on every sensor.`, 'danger', true);
   }
   // ---- brace: the crew's body state (docs/mechanics_brace.md). s.brace is 'free' | 'bracing' | 'secure'; the field name is stable (web/cic3d reads it). ----
-  const GLOAD = { v1: 0, v2: 0.05, v3: 0.15, v4: 0.35, v5: 0.5, ab: 1.5, evade: 0.6, spool: 0.8, impact: 1.5 };   // stub for Newtonian thrust: load by speed rung, manoeuvre and spool
+  const GLOAD = { v1: 0.15, v2: 0.15, v3: 0.15, v4: 0.15, v5: 0.15, ab: FL.SHIP.aRedline / FL.G0, evade: 0.4, spool: 0.8, impact: 1.5 };   // thrust-derived: every normal burn is 100 percent drive, 0.15 g; redline and an evasive burn 0.4 g; the flip and every coast are free fall. Spool and impact stay stubs
   const CREW = { Quill: 'sensors', Abara: 'attack', Castellan: 'engineering', Dace: 'thermal', Fenwick: 'damage' };
   function loadNow(s) {
     let g = 0, why = null;
-    if (moving(s)) { g = GLOAD[s.speed] || 0; why = 'burn'; if (s.posture === 'evade' && GLOAD.evade > g) { g = GLOAD.evade; why = 'evade'; } }
+    if ((s.gNow || 0) > 0) { g = s.gNow; why = s.posture === 'evade' ? 'evade' : g > 0.3 ? 'burn' : 'burn'; }   // the real thrust-derived g of the burn in progress; coast and flip are weightless
     if (s.spool && GLOAD.spool > g) { g = GLOAD.spool; why = 'spool'; }
     return { g, why };
   }
@@ -932,6 +1004,6 @@ const HuntRT = (() => {
     }
   }
   function setPellAct(s, on) { s.pellAct = !!on && s.integration >= 75; }
-  return { evt, brgOf, setPD, probe: probeSalvo, markHostile, pdIntercept, emit, setDifficulty, getDifficulty, DIFFICULTY, applyPlayer, RULES, PLAYER, AI, maneuver, trackState, redlineBurn, navBlocked, reanalyze, investigate, heatRate, visIf, arenaPlan, PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge, PSET, deployProbes, setProbeLink, recoverProbes, linkNeeded, MOMENTS, MOMENT_RULES, PREP, momentCheck, momentPing, moment, prep, brace, stunned, seenInc, detectLevel, SEEKER_LINEAGE, setBrace: (s, on) => brace(s, on, 'co'), braceNeeded, crewEff, treat, GLOAD, CREW };
+  return { evt, brgOf, setPD, probe: probeSalvo, markHostile, pdIntercept, emit, setDifficulty, getDifficulty, DIFFICULTY, applyPlayer, RULES, PLAYER, AI, maneuver, trackState, redlineBurn, navBlocked, reanalyze, investigate, heatRate, visIf, arenaPlan, PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, planInfo, navState, navStart, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge, PSET, deployProbes, setProbeLink, recoverProbes, linkNeeded, MOMENTS, MOMENT_RULES, PREP, momentCheck, momentPing, moment, prep, brace, stunned, seenInc, detectLevel, SEEKER_LINEAGE, setBrace: (s, on) => brace(s, on, 'co'), braceNeeded, crewEff, treat, GLOAD, CREW };
 })();
 if (typeof module !== 'undefined') module.exports = HuntRT;

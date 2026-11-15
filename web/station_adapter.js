@@ -83,7 +83,8 @@
           case 'track': if (live(s, id)) { if (s.an[id].state === 'open') E.lockContact(s, id); else { const w = s.analysts.find(x => x.task == null) || s.analysts[0]; if (w.task !== id) E.assign(s, w.id, id); } } else ok = false; break;
           case 'speed': { const k = d.speed || d.k; if (k === 'ab') return execute(Object.assign({}, o, { verb: 'redline' })); ok = SPD.includes(k) && E.setSpeed(s, k); break; }   // drive level v1..v5 (ab goes through the redline gate)
           case 'dismiss': { const a = id != null ? s.an[id] : null; if (a && a.state === 'open' && a.idStatus !== 'hostile' && a.idStatus !== 'plan') E.dismissContact(s, id); else ok = false; break; }   // rule a contact out
-          case 'still': ok = E.setOrder(s, 'still', null); break;   // all stop, hold position (always; 'hold' only does it on helm rows)
+          case 'still': case 'stop_here': ok = E.setOrder(s, 'still', null); break;   // all stop: flip, brake, hold (stop_here is the planner's name for it)
+          case 'route': ok = !!(d.pts && d.pts.length) && E.setRoute(s, d.pts); break;   // waypoints [{x, y, speed?, kind?: 'turn'|'stop'}] through the flight planner   // all stop, hold position (always; 'hold' only does it on helm rows)
           case 'vent_stop': ok = E.stopVent(s); break;   // pull the fins in by hand
           case 'mark': case 'ignore': case 'wait': break;   // by design: nothing to do
           case 'quiet': ok = E.goQuiet(s); break;
@@ -131,6 +132,7 @@
     function update(s, dt) {
       if (A.s !== s) { A.s = s; A.seenLog = s.log.length; A.seenEvt = (s.evts || []).length; A.pdPending = null; A.braceWait = []; A.style = { total: 0, picks: [] }; }   // a new hunt: start reading from now
       syncBody(s);
+      if (E.planInfo) { const pi = s.nav && s.nav.id !== A.planId ? E.planInfo(s) : null; if (pi) { A.planId = s.nav.id; outQ.push({ type: 'plan', id: pi.id, mode: pi.mode, endT: pi.endT, timeSec: pi.timeSec, dv: pi.dv, propT: pi.propT, peakG: pi.peakG, warn: pi.warn }); } }   // the flight plan changed: a summary for the console (the full path is A.plan())
       if (A.moments.length && E.momentCheck && !s.over) { try { E.momentCheck(s, { enabled: A.moments, drilled: cfg.command === 'tight' }); } catch (e) { A.errors.push(String(e && e.stack || e)); } }
       const evts = s.evts || [];
       for (let i = A.seenEvt; i < evts.length; i++) { const ev = evts[i]; if (ev.type === 'stun' || ev.type === 'recovered') outQ.push({ type: ev.type, officer: ev.data.officer, station: ev.data.station, until: ev.data.until }); try { M.onEvent(evts[i]); } catch (e) { A.errors.push(String(e)); } }
@@ -153,6 +155,7 @@
       if (A.stunned(station) && M.autonomy[station] === 'hands-on') { outQ.push({ type: 'blocked', station, verb, why: 'stunned: ' + Stations.OFFICER[station] + ' is down' }); return null; }   // an Auto or Supervised order is simply held by the model until he is back
       return M.command(station, verb, label, data);
     };
+    A.plan = () => A.s && E.planInfo ? E.planInfo(A.s) : null;   // the live flight plan: segments, path samples, waypoints with times, delta-v, propellant (water, generic mass), warnings, and where the ship is in it
     A.setPreset = id => { A.salvo = Presets.get(id); return A.salvo; };
     A.presets = Presets;
     return A;

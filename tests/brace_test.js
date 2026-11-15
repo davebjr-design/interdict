@@ -4,6 +4,8 @@ let bad = 0; const chk = (m, c) => { console.log(c ? 'ok   ' : 'FAIL ', m); if (
 const SPM = E.RULES.secPerMin, me = E.PLAYER;
 const run = (s, secs, dt = 0.25, A) => { for (let t = 0; t < secs && !s.over; t += dt) { E.tick(s, dt / SPM); if (A) A.update(s, dt); } };
 const evs = (s, t) => (s.evts || []).filter(e => e.type === t);
+// a hard burn under real flight: evasion burns at redline thrust (0.4 g) once the ship has turned onto the jink; wait for the burn, then hold for secs
+const hardBurn = (s, secs = 0) => { E.setOrder(s, 'evade', s.an[0].id); for (let t = 0; t < 150 && s.gNow < 0.3 && !s.over; t += 0.25) E.tick(s, 0.25 / SPM); run(s, secs); };
 const calm = seed => E.newHunt(seed, { nreal: 1, entry: 'standard' });
 
 // state machine
@@ -21,31 +23,30 @@ const calm = seed => E.newHunt(seed, { nreal: 1, entry: 'standard' });
   E.brace(s, true); run(s, 8); chk('nothing needs a brace once the crew are secure', s.brace === 'secure' && !E.braceNeeded(s, 'redline')); }
 
 // load and the unsecure state
-{ const s = calm(3); E.setOrder(s, 'close', s.an[0].id); E.setSpeed(s, 'v2'); run(s, 2);
-  chk('40% drive is a light load: not unsecure', s.gLoad < me.gThresh && !s.unsecure);
-  E.setSpeed(s, 'v5'); run(s, 1); chk('full drive is over the threshold: unsecure, an unsecure event', s.gLoad >= me.gThresh && s.unsecure && evs(s, 'unsecure').length === 1 && evs(s, 'unsecure')[0].data.why === 'burn');
-  E.brace(s, true); run(s, 8); chk('secure: no longer unsecure under the same load', s.brace === 'secure' && !s.unsecure && s.gLoad >= me.gThresh); }
+{ const s = calm(3); E.setOrder(s, 'close', s.an[0].id); E.setSpeed(s, 'v2'); for (let t = 0; t < 150 && s.gNow <= 0; t += 0.25) E.tick(s, 0.25 / SPM); run(s, 1);
+  chk('a normal burn (100% drive, 0.15 g) is a light load: not unsecure', s.gNow > 0.1 && s.gLoad < me.gThresh && !s.unsecure);
+  hardBurn(s, 1); chk('a hard burn (evasion at redline thrust, 0.4 g) is over the threshold: unsecure, an unsecure event', s.gLoad >= me.gThresh && s.unsecure && evs(s, 'unsecure').length === 1 && ['burn', 'evade'].includes(evs(s, 'unsecure')[0].data.why)); }
+{ const s = calm(3); E.brace(s, true); run(s, 8); hardBurn(s, 1); chk('secure: no longer unsecure under the same load', s.brace === 'secure' && !s.unsecure && s.gLoad >= me.gThresh); }
 
 // the work rate: free 1, loaded and unsecure 0.75, secure 0.95
 { const rate = (setup) => { const s = calm(4); setup(s); run(s, 1); let n = 0; const a = s.an.find(x => x.kind === 'real'); E.assign(s, 'dace', a.id); const d0 = s.analysts.length; const r0 = Object.values(a.read).reduce((m, q) => m + (q.den || 0), 0); run(s, 40); return Object.values(a.read).reduce((m, q) => m + (q.den || 0), 0) - r0; };
-  const free = rate(s => { }), secure = rate(s => { E.brace(s, true); }), loaded = rate(s => { E.setOrder(s, 'close', s.an[0].id); E.setSpeed(s, 'v5'); });
+  const free = rate(s => { }), secure = rate(s => { E.brace(s, true); }), loaded = rate(s => { hardBurn(s); });
   chk(`reading rate: free ${free.toFixed(1)}, secure ${secure.toFixed(1)}, loaded and unsecure ${loaded.toFixed(1)}`, free > secure && secure > 0 && free > loaded); }
 
 // injuries: redline unsecure hurts people; secure does not; the rule can be switched off
 { let hurtFree = 0, hurtSec = 0, hurtOff = 0;
   for (let i = 0; i < 40; i++) {
     for (const [mode, tag] of [['free', 'a'], ['secure', 'b'], ['off', 'c']]) {
-      const s = E.newHunt(500 + i, { nreal: 1, brace: mode !== 'off', braceAuto: 'off' }); E.setOrder(s, 'close', s.an[0].id); E.setSpeed(s, 'v3'); if (mode === 'secure') { E.brace(s, true); run(s, 8); }
-      E.redlineBurn(s); run(s, 25); const n = Object.values(s.crew).filter(c => c.inj).length;
+      const s = E.newHunt(500 + i, { nreal: 1, brace: mode !== 'off', braceAuto: 'off' }); if (mode === 'secure') { E.brace(s, true); run(s, 8); } hardBurn(s, 10); const n = Object.values(s.crew).filter(c => c.inj).length;
       if (tag === 'a') hurtFree += n; else if (tag === 'b') hurtSec += n; else hurtOff += n;
     } }
-  chk(`40 redline burns of 25 s: crew hurt unsecure ${hurtFree}, secure ${hurtSec}, rule off ${hurtOff}`, hurtFree >= 3 && hurtSec === 0 && hurtOff === 0); }
+  chk(`40 redline-thrust burns of about 10 s: crew hurt unsecure ${hurtFree}, secure ${hurtSec}, rule off ${hurtOff}`, hurtFree >= 3 && hurtSec === 0 && hurtOff === 0); }
 
 // an injured officer: annunciator, effectiveness, Fenwick treats
-{ let s = null; for (let i = 0; i < 60 && !s; i++) { const q = E.newHunt(700 + i, { nreal: 1, braceAuto: 'off' }); E.setOrder(q, 'close', q.an[0].id); E.setSpeed(q, 'v3'); E.redlineBurn(q); run(q, 30); if (Object.values(q.crew).some(c => c.inj)) s = q; }
+{ let s = null; for (let i = 0; i < 60 && !s; i++) { const q = E.newHunt(700 + i, { nreal: 1, braceAuto: 'off' }); hardBurn(q, 12); if (Object.values(q.crew).some(c => c.inj)) s = q; }
   chk('some hunt produced an injury', !!s);
   if (s) { const k = Object.keys(s.crew).find(x => s.crew[x].inj), inj = evs(s, 'injury')[0];
-    chk('injury event names the officer, station and cause', inj && inj.data.officer && inj.data.station && inj.data.cause === 'burn');
+    chk('injury event names the officer, station and cause', inj && inj.data.officer && inj.data.station && ['burn', 'evade'].includes(inj.data.cause));
     chk('an injured officer works at 60 percent', E.crewEff(s, k) === 0.6 && E.crewEff(s, 'Quill') === (s.crew.Quill.inj ? 0.6 : 1));
     const L = AN.derive({ s, E }); chk('annunciator: CREW INJ lit while someone is hurt', L.crewinj && L.crewinj.state !== 'off' && L.crewinj.state !== undefined);
     E.setSpeed(s, 'v2'); E.treat(s, k); run(s, 8); chk('treatment takes a game minute (16 s): still hurt at 8 s', s.crew[k].inj); run(s, 14); chk('then back on station (treated event)', !s.crew[k].inj && evs(s, 'treated').length >= 1); } }
@@ -100,6 +101,6 @@ const calm = seed => E.newHunt(seed, { nreal: 1, entry: 'standard' });
 { const s = calm(16); let L = AN.derive({ s, E }); chk('BRACE lamp off when free', L.brace.state === 'normal');
   E.brace(s, true); L = AN.derive({ s, E }); chk('BRACE lamp advisory while bracing', L.brace.state === 'advisory');
   run(s, 8); L = AN.derive({ s, E }); chk('BRACE lamp advisory while secure', L.brace.state === 'advisory');
-  const q = calm(17); E.setOrder(q, 'close', q.an[0].id); E.setSpeed(q, 'v5'); run(q, 1); chk('UNSECURE lamp (caution) under load with the crew free', AN.derive({ s: q, E }).unsecure.state === 'caution'); }
+  const q = calm(17); hardBurn(q, 1); chk('UNSECURE lamp (caution) under load with the crew free', AN.derive({ s: q, E }).unsecure.state === 'caution'); }
 
 console.log(bad ? `\n${bad} FAILED` : '\nALL OK'); process.exit(bad ? 1 : 0);

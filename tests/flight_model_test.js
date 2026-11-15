@@ -88,4 +88,10 @@ chk('thrust 16 MN at 100 percent on 11,000 t (about 200 kg/s of water at Isp 800
 { const pl = F.plan({ p: { x: 0, y: 0 }, v: { x: 60, y: 0 }, psi: 0 }, [{ p: { x: 50000, y: 0 }, kind: 'stop' }], { cruise: 60 }); const co = pl.segs.find(q => q.kind === 'coast'); chk(`coast phase ${Math.round(co.dur)} s long with no thrust, then flip, then brake`, co.dur > 500 && co.thrust === 0 && pl.segs.map(q => q.kind).join() === 'coast,rotate,brake');
   const slow = F.plan({ p: { x: 0, y: 0 }, v: { x: 100, y: 0 }, psi: 0 }, [{ p: { x: 80000, y: 0 }, kind: 'stop', cruise: 20 }], { cruise: 20 }), e = F.stateAt(slow, slow.stats.time + 1);
   chk(`slowing from 100 to 20 m/s takes a flip and a burn first (${slow.segs.slice(0, 2).map(q => q.kind).join(', ')}) and still stops on the point`, slow.segs[0].kind === 'rotate' && d2(e.p, { x: 80000, y: 0 }) < 8 && F.len(e.v) < 1e-3); }
+
+// ---- hold: flip to retrograde and brake in place ----
+{ const st = { p: { x: 0, y: 0 }, v: { x: 60, y: 20 }, psi: 0.3 }, h = F.hold(st), e = F.stateAt(h, h.stats.time + 5), sp = Math.hypot(e.v.x, e.v.y);
+  chk(`hold from 63 m/s: a flip then a brake, ends at rest (${sp.toFixed(3)} m/s) after ${Math.round(h.stats.time)} s`, h.segs.some(q => q.kind === 'rotate') && h.segs.some(q => q.kind === 'brake') && sp < 0.05);
+  chk('hold under 0.3 m/s is no plan at all', F.hold({ p: { x: 0, y: 0 }, v: { x: 0.1, y: 0 }, psi: 0 }).segs.length === 0); }
+
 console.log(bad ? bad + ' FAILED' : 'ALL OK'); process.exit(bad ? 1 : 0);
