@@ -1,6 +1,6 @@
 # Interdict hunt screen: layout and views
 
-> Note (2026-10-25): this is the original layout spec. The arena is now 240 km (scope zoom and map ranges differ from the 40 km figures below), the heat sink header cell is the vent control, and scanner bars carry a collection-progress line. docs/detection_model.md "Current engine rules" is authoritative for mechanics.
+> Note (2026-10-25): this is the original layout spec. The arena is now 240 km (scope zoom and map ranges differ from the 40 km figures below), the heat sink header cell is the vent control, and scanner bars carry a collection-progress line. docs/detection_model.md "Current engine rules" is authoritative for mechanics. Pause is now tutorial-only; normal hunts have no pause (Stand by holds a call). Ship interior: see `docs/ship_interior_hull_spec.md`.
 
 > **Superseded (Oct 25, 2026):** the hunt screen is now the UI v2 console: a fixed 1920x1080 stage scaled to the window, built from zones and widgets. See `design/ui_v2/README.md` for the spec and `web/hunt_console.js` / `web/hunt_console.css` for the implementation. The Strategic and Target views share the same shell.
 
@@ -139,7 +139,7 @@ Everything the player must never miss lives in the strip: clock; hunter pips and
 
 - Tabs `TACTICAL / STRATEGIC / TARGET n`, hotkeys `1 / 2 / 3`.
 - Click a contact (scope or slip): the existing context menu (Close, Separate, Evade, Active ping, Target). Target opens the Targeting view. Double-click a locked blip: straight to Targeting.
-- `Esc`: closes the context menu if it is open, otherwise returns to Tactical from any other view. In Tactical with nothing open, Esc does nothing. Pause moves to `P` (today Esc is pause; keep Esc as "back", it is the more common need).
+- `Esc`: closes the context menu if it is open, otherwise returns to Tactical from any other view. In Tactical with nothing open, Esc does nothing. Pause moves to `P` (superseded: normal play has no pause, only the tutorial does; today Esc is pause; keep Esc as "back", it is the more common need).
 - `[` and `]` in Targeting: previous and next targetable contact (locked, hostile).
 - `Q` goes quiet from any view. `B` is break contact (with a confirm).
 - The clock never stops when a view changes. Only Pause stops it, and Pause blanks all views as today (including the strip's ticker and the plot).

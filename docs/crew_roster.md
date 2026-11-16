@@ -29,9 +29,9 @@ Twelve compartments and six people means several rooms would otherwise never hol
 3. **Pell talks from anywhere.** No room is silent even when it is empty. See the Pell architecture in `docs/ship_inventory_and_art_plan.md` section 21.
 
 ## Berths
-- **Captain's stateroom**, off the aft end of the control room. Small. The only private space on the ship.
-- **Officer berths**, forward end of the lower deck: three cabins, two sides each. Abara with Castellan, Dace with Quill, Fenwick with a spare side kept for a visitor.
-- **Crew bunk compartment** (lower deck, around the missile tube bases): racks folded flat against the walls with crates strapped into them. Two or three racks are still made up, which is where visitors sleep. This compartment is stowage first and berthing second.
+- **Captain's stateroom**, one puck aft of the control room (bay A, puck A2), through the floor hatch. Small. The only private space on the ship.
+- **Officer berths**, bay A, puck A3 (aft of the stateroom): three cabins, two sides each. Abara with Castellan, Dace with Quill, Fenwick with a spare side kept for a visitor.
+- **Crew bunk compartment** (the missile-bay berthing ring, around the tube bases): racks folded flat against the walls with crates strapped into them. Two or three racks are still made up, which is where visitors sleep. This compartment is stowage first and berthing second.
 - All berths follow the art staging standard: per side, a bunk-wall panel, a shelf or desk, a locker door.
 
 ## Art budget

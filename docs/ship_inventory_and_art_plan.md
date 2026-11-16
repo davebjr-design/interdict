@@ -191,6 +191,8 @@ Dave: the cramped feel is right but the rooms look artificially small on the sta
 
 ## 20. Hull layout revision 2: two decks, no corridor (2026-10-28)
 
+> **Superseded (15 November) by `docs/ship_interior_hull_spec.md`.** The ship is now 140 m with ring rooms ("pucks") stacked along the axis, down is aft, an axial trunk instead of decks, black hulls with colour only as cue marks, and a 60-missile magazine. Everything in this section (100 m overall, two decks, 72 missiles, dome and keel gun) is the old layout, kept for history and for the existing room art and walk prototype, which need rebuilding.
+
 Settled with Dave. Schematic: `design/ship_schematic.html`. This supersedes the spine-corridor layout in section 19.
 
 **Shape.** Two decks, both 76 m of pressure hull, about 10 m beam, 100 m overall. Compartments chain end to end through bulkhead hatches; there is no corridor. Decks must sum to the same length, which is what makes the map read.

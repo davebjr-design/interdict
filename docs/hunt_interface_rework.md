@@ -40,7 +40,7 @@ Dave chose **full Newtonian motion**: a ship keeps its velocity until it burns. 
 - **A coasting ship is predictable.** Anyone who has a track can extrapolate it, so tracks are easy to hold on a coaster and every burn is a *break in the track* (this is exactly "a course change should feel like a big deal"). It also changes firing solutions (lead is simple for coasters) and the hunter's search (they search where a ship *can* be after a burn).
 - **Hold still** means cancelling velocity (a burn) and then coasting at about zero relative speed; it is the quietest state and the costliest to reach.
 - **Planned paths become manoeuvre plans**: straight coasting legs joined by burn nodes (as in the mock-ups), each node showing delta-v, heat and flare, previewed before commit.
-- **Likely a propellant or delta-v budget**: DECIDE whether burns also spend reaction mass (a hard limit that forces choices) or only heat and visibility.
+- **Propellant budget: decided.** Burns spend water reaction mass (250 t drive water, about 1.8 km/s of delta-v) plus D-He-3 fuel cassettes; see `docs/resources_model.md`.
 - **Rewrite scope:** the speed ladder, `exposure`, navigation menus, enemy movement and search, the tutorial and every balance table. This is the largest item in this plan, so it needs its own design pass and a prototype before the engine changes.
 
 ### 2.2 The Wake: a lingering signature
@@ -144,7 +144,7 @@ Tests at every step: the bots (`tests/tutorial_bots.py`, `tests/hunt_pages.py`, 
 
 ## 6. DECIDE (Dave)
 1. **Scope:** polar scope first (A), true 3D (B), or flat map with new colours (C)? Recommend A.
-2. ~~Manoeuvre model~~ **Decided: full Newtonian** (2.1a). Open: propellant budget or heat-and-flare only?
+2. ~~Manoeuvre model~~ **Decided: full Newtonian** (2.1a). Propellant decided: water reaction mass plus fuel cassettes (`docs/resources_model.md`).
 3. ~~Order~~ **Decided: mock-up first.** Done: `design/mockups/scope_A_polar.png`, `scope_B_3d.png`, `scope_C_flat.png` (page `scope_mock.html?m=A|B|C`). Dave is choosing between them.
 4. **Wake:** a separate later phase, or part of the first pass?
 5. **Transponder:** can the captain ever broadcast?

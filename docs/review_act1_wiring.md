@@ -19,7 +19,7 @@ Vesper first comes up as a destination in 1.7 (day 4: "deliver it unopened to Ve
 **2. Corvane isn't "two decks up".** *Must-fix.*
 > *(persuaded)* CASTELLAN: It's why she's under arrest two decks up, eating Fenwick's soup.
 
-The hull has two decks. The CO's stateroom, which Corvane kept as one of her terms, is a side room "off the aft end of control" on the upper deck (`ship_inventory_and_art_plan.md` §20). From the control room she is one hatch away, on the same deck. "Under arrest" is fine on this route, and it's the only route that uses it.
+The CO's stateroom, which Corvane kept as one of her terms, is the puck directly aft of the control room (A2 in `docs/ship_interior_hull_spec.md`). From the control room she is one hatch away, down the axial trunk. (Revised 15 November: this replaces the earlier two-deck wording in `ship_inventory_and_art_plan.md` §20.) "Under arrest" is fine on this route, and it's the only route that uses it.
 **Fix:** "It's why she's under arrest through that hatch, eating Fenwick's soup." *(He keeps his voice down.)* This also gives "don't go asking her" a physical reason.
 
 **3. The sensors and ECM runs were "live". So what is behind the plate now, and why is the trace 0?** *Must-fix (internal contradiction).*

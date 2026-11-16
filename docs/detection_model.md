@@ -8,7 +8,7 @@ Principle: everyone always leaves a trace. Detection is an information RATE, not
 - The enemy tracks us the same way: our signature against their sensor rating. Their aim spread widens when we go cold and still, which is what makes dodging and going quiet work. The hunter "sweeps" become the enemy's information accumulating on us.
 - Loadouts: about six enemy loadouts (sensor rating, signature, crew skill, weapons, speed), randomly assigned. Our ship uses the same fields.
 - Celestial bodies: first pass is backdrops for eclipse and cover (line of sight blocked both ways). Later: nebulae that scatter signatures.
-- Field: large arena (now 240 km), speeds and ranges scaled with it, zoom and pan everywhere.
+- Field: large arena (engine 240 km; design target 150 km pending the balance pass), speeds and ranges scaled with it, zoom and pan everywhere.
 
 ## As built (2026-10-23, approved by Dave). Superseded where "Current engine rules" below differs
 
@@ -107,5 +107,5 @@ A hunt can be seen: another ship in the arena (the ally, a fleeing contact, a co
 **Arena size (target 150 km, pending a balance pass).**
 - Design goal: 5 to 8 real minutes to cross at full speed. "Full speed" is the top drive setting (100 percent, 6 km per game minute); redline is a 15 to 30 s burst, not a cruising speed. 16 real seconds = 1 game minute.
 - Crossing times at 150 km: 6.7 min at 100 percent, 4.4 min at redline, 2.8 min flip-and-burn at full thrust (that costs about 940 m/s of delta-v, roughly half a tank; the top rung costs about 200 m/s, about 11 percent).
-- Current engine arena is 240 km (`RULES.arena`): 10.7 min at 100 percent, 7.1 min at redline. Not changed yet.
+- Current engine arena is 240 km (`RULES.arena`): 10.7 min at 100 percent, 7.1 min at redline. Not changed yet; the design target is 150 km, to be resized together with the balance sweep.
 - Moving to 150 km shifts every distance-based number: `sensRef` (40 km), spawn spacing (hostiles start at least 70 km out), ping alert reach, probe reach, missile flight times. Do it together with a balance sweep (n=240 to 300), keeping the competent bot at about 60 to 65 percent.

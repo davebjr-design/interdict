@@ -251,7 +251,7 @@ Phases 1-7 need no new art and can be built and tested with the bots. 8 and 9 ca
 - **Navigation:** F-keys move between stations. A separate **hear-and-respond layer** handles tactical information and communication; its design is in `docs/station_model.md` section 3.
 
 **Still open**
-- Scope option A (polar) / B (3D) / C (flat) for the Conn view, and whether burns spend reaction mass.
+- Scope option A (polar) / B (3D) / C (flat) for the Conn view. (Burns spending reaction mass is decided: `docs/resources_model.md`.)
 - Track letter for optical contacts: M or O.
 - Whether the captain can go truly hands-on in L2 (double-click to first-person) or L2 is view only.
 - Missile stock size and resupply (see station_model.md).

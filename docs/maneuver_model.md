@@ -21,7 +21,7 @@ Sources: Reif and Tate (https://scholars.duke.edu/publication/795347), NASA PEG 
 * Rotation by RCS couple: about 5.6e-4 rad/s2, so a 180 degree flip takes **150 s** (about 290 s on two nozzles). A 90 degree turn takes about 106 s.
 * Rotation by pod gimbal (plus or minus 5 degrees): about 5e-3 rad/s2, flip about 50 s, but only while burning. Used for steering inside a burn, not for flips at rest.
 * Stop from 80 m/s (4.8 km/min): 54 s burn over 2.2 km. The flip costs more time than the burn.
-* Prototype route (three clicks, 250 km): 54 min 39 s, delta-v 344 m/s, 48 t of deuterium. Compare 250 t tank: about 1.8 km/s of delta-v total.
+* Prototype route (three clicks, 250 km): 54 min 39 s, delta-v 344 m/s, 48 t of water reaction mass. Compare 250 t tank: about 1.8 km/s of delta-v total.
 
 Consequence worth designing around: **turning is slow and braking is fast.** Changing course by more than about 90 degrees at speed costs two minutes of coast. A ship with its nose on the wrong side cannot snap-shoot or snap-flee. This is what makes the sneaking and the pinger tactics bite.
 

@@ -26,7 +26,7 @@ Code: `web/flight_model.js` (pure physics and planner, global `Flight`, no engin
 | Gimbal | 5e-3 rad/s2, plus or minus 5 degrees, while burning only | `SHIP.alphaGimbal` (integrator only; the planner ignores it, which is the conservative side) |
 | Isp, tank | 8,000 s, 250 t of water in the drive tanks | `SHIP.isp`, `SHIP.tank`; the 20 t crew reserve is locked and not touched |
 | Time | physics in SI, converted at the engine boundary: 1 game minute = 60 s of fiction = 16 real s; 1 km/gmin = 16.67 m/s | `KM`, `GM`, `MS`, `KMGM` |
-| Arena | 240 km (unchanged in this pass) | |
+| Arena | 240 km in the engine (unchanged in this pass); design target 150 km after the balance sweep | |
 
 The five speed rungs (v1 to v5, 1.2 to 6 km/gmin, redline 9) are now **cruise-speed caps** for the planner: the drive always burns at 100 percent (0.15 g), the rung says how fast to go before coasting. A normal burn to 60 m/s (v5) takes 41 s.
 

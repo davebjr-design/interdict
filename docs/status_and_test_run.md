@@ -6,7 +6,7 @@
 |---|---|
 | Hunt engine (`web/hunt_rt_engine.js`) | Reworked and balanced. Enemy ships have their own parameter block; easy/normal/hard knobs touch enemies only; trims touch only the player's ship. Targets met on normal (`docs/balance_report.md`). |
 | Hunt console (`web/hunt_rt.html`, `design/hunt.html`) | Fully playable. Tutorial hunt (`?tutorial=tern`) is unfailable and isolated (no trims, no Pell, no saved state). |
-| Decision moments | M01 (hunch call) live as a pause popup. M02-M09, standing settings, underway moments: designed, not built. |
+| Decision moments | M01 (hunch call) live as a call-deck call (no pause in normal play; pause is tutorial-only). M02-M09, standing settings, underway moments: designed, not built. |
 | Walk demo (`design/proto_iso.html`) | Playable: opening in the Tern's bunks (call, name entry, walk to the CIC), Tern briefing, tutorial hunt, Ames beat, airlock, boarding, Corvane's ship (12 rooms), red key, dock inspection. |
 | Pell | Gated until the wiring scene (1.6b) has been played; debug trigger stands in for the scene. |
 | Narrative | Act 1 scenes written and reviewed (docs/scenes/). No dialogue runner yet, so only the wiring panel and some briefing text are playable. |
