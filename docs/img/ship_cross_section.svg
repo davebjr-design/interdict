@@ -54,21 +54,20 @@
 <text x="330" y="749.64" font-size="8" fill="#fff" text-anchor="middle" font-weight="normal">~450 MWt</text>
 <rect x="298.0" y="688.2" width="64.0" height="10.2" fill="#566c78" stroke="#9fb4c0" stroke-width="1"/>
 <rect x="321.0" y="610.1" width="17.9" height="20.5" fill="#5d7f90" stroke="#9fb4c0" stroke-width="1"/>
-<rect x="298.0" y="382.3" width="55.0" height="14.1" fill="#33566a" stroke="#3ec8e0" stroke-width="1.4"/>
-<rect x="298.0" y="398.9" width="55.0" height="14.1" fill="#33566a" stroke="#e0a020" stroke-width="1.4"/>
-<rect x="298.0" y="415.6" width="55.0" height="14.1" fill="#33566a" stroke="#e0a020" stroke-width="1.4"/>
-<rect x="298.0" y="432.2" width="55.0" height="14.1" fill="#33566a" stroke="#e0a020" stroke-width="1.4"/>
-<rect x="298.0" y="448.8" width="55.0" height="14.1" fill="#33566a" stroke="#e0a020" stroke-width="1.4"/>
-<rect x="298.0" y="465.5" width="55.0" height="14.1" fill="#33566a" stroke="#4a7cff" stroke-width="1.4"/>
-<rect x="298.0" y="482.1" width="55.0" height="14.1" fill="#33566a" stroke="#e8d23a" stroke-width="1.4"/>
-<rect x="298.0" y="498.8" width="55.0" height="14.1" fill="#33566a" stroke="#e8d23a" stroke-width="1.4"/>
-<rect x="298.0" y="515.4" width="55.0" height="14.1" fill="#33566a" stroke="#e8d23a" stroke-width="1.4"/>
-<rect x="298.0" y="532.0" width="55.0" height="14.1" fill="#33566a" stroke="#e8d23a" stroke-width="1.4"/>
-<rect x="298.0" y="548.7" width="55.0" height="14.1" fill="#33566a" stroke="#e8d23a" stroke-width="1.4"/>
-<rect x="298.0" y="565.3" width="55.0" height="14.1" fill="#33566a" stroke="#e8d23a" stroke-width="1.4"/>
-<line x1="299.0" y1="381.0" x2="299.0" y2="585.8" stroke="#c9a24a" stroke-width="2"/>
-<rect x="298.0" y="384.2" width="9.0" height="6.0" fill="#c9a24a"/>
-<rect x="342.8" y="382.3" width="19.2" height="199.7" fill="none" stroke="#ff7a7a" stroke-width="1" stroke-dasharray="3 3"/>
+<rect x="285.2" y="382.3" width="55.0" height="14.1" fill="#33566a" stroke="#3ec8e0" stroke-width="1.4"/>
+<rect x="285.2" y="398.0" width="55.0" height="14.1" fill="#33566a" stroke="#e0a020" stroke-width="1.4"/>
+<rect x="285.2" y="413.6" width="55.0" height="14.1" fill="#33566a" stroke="#e0a020" stroke-width="1.4"/>
+<rect x="285.2" y="429.3" width="55.0" height="14.1" fill="#33566a" stroke="#e0a020" stroke-width="1.4"/>
+<rect x="285.2" y="445.0" width="55.0" height="14.1" fill="#33566a" stroke="#e0a020" stroke-width="1.4"/>
+<rect x="285.2" y="460.7" width="55.0" height="14.1" fill="#33566a" stroke="#4a7cff" stroke-width="1.4"/>
+<rect x="285.2" y="476.4" width="55.0" height="14.1" fill="#33566a" stroke="#e8d23a" stroke-width="1.4"/>
+<rect x="285.2" y="492.0" width="55.0" height="14.1" fill="#33566a" stroke="#e8d23a" stroke-width="1.4"/>
+<rect x="285.2" y="507.7" width="55.0" height="14.1" fill="#33566a" stroke="#e8d23a" stroke-width="1.4"/>
+<rect x="285.2" y="523.4" width="55.0" height="14.1" fill="#33566a" stroke="#e8d23a" stroke-width="1.4"/>
+<rect x="285.2" y="539.1" width="55.0" height="14.1" fill="#33566a" stroke="#e8d23a" stroke-width="1.4"/>
+<rect x="285.2" y="554.8" width="55.0" height="14.1" fill="#33566a" stroke="#e8d23a" stroke-width="1.4"/>
+<line x1="286.2" y1="381.0" x2="286.2" y2="573.0" stroke="#c9a24a" stroke-width="2"/>
+<rect x="341.5" y="382.3" width="19.2" height="188.2" fill="#2e5a4a" stroke="#7fd6a8" stroke-width="1"/>
 <rect x="285.2" y="777.8" width="89.6" height="89.6" fill="#16262f" stroke="#9fb4c0" stroke-width="1"/>
 <line x1="294.8" y1="790.6" x2="365.2" y2="790.6" stroke="#8ca3b0" stroke-width="1" stroke-dasharray="2 3"/>
 <line x1="294.8" y1="816.2" x2="365.2" y2="816.2" stroke="#8ca3b0" stroke-width="1" stroke-dasharray="2 3"/>
@@ -133,12 +132,12 @@
 <text x="420" y="330.20000000000005" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">B3 utility (heads, sickbay) 7.6 m</text>
 <line x1="380.8" y1="374.6" x2="410" y2="374.6" stroke="#8ca3b0" stroke-width="0.8"/>
 <text x="420" y="378.6" font-size="11" fill="#c9a24a" text-anchor="start" font-weight="bold">BAY T  39–73 m  (missile hall)</text>
-<text x="420" y="391.6" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">One 34 m hall, not stacked. 31 m of hold: 12 tube stations,</text>
+<text x="420" y="391.6" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">One 34 m hall, not stacked. 31 m of hold: 12 tube stations at 2.45 m,</text>
 <text x="420" y="404.1" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">each with a port and starboard tube (24), 2.3 m wide, 8.6 m long</text>
-<text x="420" y="416.6" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">from the dorsal wall; 2.1 m lane on the axis, gantry car and rail</text>
-<text x="420" y="429.1" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">(shown orange). Aft bulkhead = down under thrust.</text>
+<text x="420" y="416.6" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">from the skin (2.0 m in the ring, 6.6 m in the cell); 2.1 m lane</text>
+<text x="420" y="429.1" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">on the axis. Aft bulkhead = down under thrust.</text>
 <text x="420" y="441.6" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">Crew bunks: 3 pods of 8 around the tube bases.</text>
-<text x="420" y="454.1" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">Dashed red = 3 m ventral ordnance gallery: see open point 1.</text>
+<text x="420" y="454.1" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">Green = 3 m ventral ordnance gallery, fits under the tube bases.</text>
 <line x1="380.8" y1="601.8" x2="410" y2="601.8" stroke="#8ca3b0" stroke-width="0.8"/>
 <text x="420" y="605.8" font-size="11" fill="#c9a24a" text-anchor="start" font-weight="bold">BAY C  74.5–86.5 m</text>
 <text x="420" y="618.8" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">C1 thermal control 9.6 m, pump tower on the axis</text>
@@ -185,97 +184,131 @@
 <line x1="20" y1="1001.8000000000001" x2="84.0" y2="1001.8000000000001" stroke="#9fb4c0" stroke-width="2"/>
 <text x="20" y="1013.8000000000001" font-size="9" fill="#8ca3b0" text-anchor="start" font-weight="normal">10 m</text>
 <g>
-<text x="985" y="190" font-size="12" fill="#d7e3ea" text-anchor="middle" font-weight="bold">BAYS A, B, C: standard room (looking aft)</text>
-<circle cx="985" cy="370" r="154" fill="#0a1218" stroke="#9fb4c0" stroke-width="2"/>
-<circle cx="985" cy="370" r="150.7" fill="none" stroke="#5b7381" stroke-width="1" stroke-dasharray="2 2"/>
-<path d="M 1040.2 233.3 A 147.4 147.4 0 0 1 1129.2 339.4 L 1095.8 346.4 A 113.30000000000001 113.30000000000001 0 0 0 1027.4 265.0 Z" fill="#2f6f9a" fill-opacity="0.85" stroke="#cfe" stroke-width="0.6"/>
-<path d="M 1129.2 400.6 A 147.4 147.4 0 0 1 1040.2 506.7 L 1027.4 475.0 A 113.30000000000001 113.30000000000001 0 0 0 1095.8 393.6 Z" fill="#2f6f9a" fill-opacity="0.85" stroke="#cfe" stroke-width="0.6"/>
-<path d="M 929.8 506.7 A 147.4 147.4 0 0 1 840.8 400.6 L 874.2 393.6 A 113.30000000000001 113.30000000000001 0 0 0 942.6 475.0 Z" fill="#2f6f9a" fill-opacity="0.85" stroke="#cfe" stroke-width="0.6"/>
-<path d="M 840.8 339.4 A 147.4 147.4 0 0 1 929.8 233.3 L 942.6 265.0 A 113.30000000000001 113.30000000000001 0 0 0 874.2 346.4 Z" fill="#2f6f9a" fill-opacity="0.85" stroke="#cfe" stroke-width="0.6"/>
-<circle cx="985" cy="370" r="110" fill="#2a4757" stroke="#9fb4c0" stroke-width="2"/>
-<circle cx="985" cy="370" r="103.4" fill="none" stroke="#3c6074" stroke-width="1"/>
-<circle cx="985" cy="370" r="13.2" fill="none" stroke="#d7e3ea" stroke-dasharray="3 2"/>
-<text x="985" y="394" font-size="10" fill="#8ca3b0" text-anchor="middle" font-weight="normal">centre clear</text>
-<circle cx="875" cy="370" r="15.399999999999999" fill="#0a1218" stroke="#d0dae0" stroke-width="1.5"/>
-<line x1="864.0" y1="360" x2="886.0" y2="360" stroke="#d0dae0" stroke-width="0.8"/>
-<line x1="864.0" y1="365" x2="886.0" y2="365" stroke="#d0dae0" stroke-width="0.8"/>
-<line x1="864.0" y1="370" x2="886.0" y2="370" stroke="#d0dae0" stroke-width="0.8"/>
-<line x1="864.0" y1="375" x2="886.0" y2="375" stroke="#d0dae0" stroke-width="0.8"/>
-<line x1="864.0" y1="380" x2="886.0" y2="380" stroke="#d0dae0" stroke-width="0.8"/>
-<circle cx="1095" cy="370" r="15.399999999999999" fill="#0a1218" stroke="#d0dae0" stroke-width="1.5"/>
-<line x1="1084.0" y1="360" x2="1106.0" y2="360" stroke="#d0dae0" stroke-width="0.8"/>
-<line x1="1084.0" y1="365" x2="1106.0" y2="365" stroke="#d0dae0" stroke-width="0.8"/>
-<line x1="1084.0" y1="370" x2="1106.0" y2="370" stroke="#d0dae0" stroke-width="0.8"/>
-<line x1="1084.0" y1="375" x2="1106.0" y2="375" stroke="#d0dae0" stroke-width="0.8"/>
-<line x1="1084.0" y1="380" x2="1106.0" y2="380" stroke="#d0dae0" stroke-width="0.8"/>
-<circle cx="985" cy="499.8" r="9.9" fill="none" stroke="#c9a24a" stroke-width="1.5"/>
-<circle cx="965.2" cy="502.0" r="6.16" fill="none" stroke="#c9a24a"/>
-<circle cx="1004.8" cy="502.0" r="6.16" fill="none" stroke="#c9a24a"/>
-<rect x="969.6" y="222.6" width="30.8" height="17.6" fill="#3b5a6b" stroke="#9fb4c0" stroke-width="1"/>
-<text x="985" y="210" font-size="9" fill="#c9a24a" text-anchor="middle" font-weight="bold">DORSAL</text>
-<text x="985" y="538" font-size="9" fill="#c9a24a" text-anchor="middle" font-weight="bold">VENTRAL / keel</text>
-<text x="825" y="374" font-size="9" fill="#c9a24a" text-anchor="end" font-weight="bold">PORT</text>
+<text x="925" y="252.5" font-size="12" fill="#d7e3ea" text-anchor="middle" font-weight="bold">BAYS A, B, C: standard room</text>
+<circle cx="925" cy="380" r="101.5" fill="#0a1218" stroke="#9fb4c0" stroke-width="2"/>
+<circle cx="925" cy="380" r="99.32499999999999" fill="none" stroke="#5b7381" stroke-width="1" stroke-dasharray="2 2"/>
+<path d="M 961.4 289.9 A 97.15 97.15 0 0 1 1020.0 359.8 L 998.0 364.5 A 74.67500000000001 74.67500000000001 0 0 0 953.0 310.8 Z" fill="#2f6f9a" fill-opacity="0.85" stroke="#cfe" stroke-width="0.6"/>
+<path d="M 1020.0 400.2 A 97.15 97.15 0 0 1 961.4 470.1 L 953.0 449.2 A 74.67500000000001 74.67500000000001 0 0 0 998.0 395.5 Z" fill="#2f6f9a" fill-opacity="0.85" stroke="#cfe" stroke-width="0.6"/>
+<path d="M 888.6 470.1 A 97.15 97.15 0 0 1 830.0 400.2 L 852.0 395.5 A 74.67500000000001 74.67500000000001 0 0 0 897.0 449.2 Z" fill="#2f6f9a" fill-opacity="0.85" stroke="#cfe" stroke-width="0.6"/>
+<path d="M 830.0 359.8 A 97.15 97.15 0 0 1 888.6 289.9 L 897.0 310.8 A 74.67500000000001 74.67500000000001 0 0 0 852.0 364.5 Z" fill="#2f6f9a" fill-opacity="0.85" stroke="#cfe" stroke-width="0.6"/>
+<circle cx="925" cy="380" r="72.5" fill="#2a4757" stroke="#9fb4c0" stroke-width="2"/>
+<circle cx="925" cy="380" r="68.15" fill="none" stroke="#3c6074" stroke-width="1"/>
+<circle cx="925" cy="380" r="8.7" fill="none" stroke="#d7e3ea" stroke-dasharray="3 2"/>
+<text x="925" y="404" font-size="10" fill="#8ca3b0" text-anchor="middle" font-weight="normal">centre clear</text>
+<circle cx="852.5" cy="380" r="10.149999999999999" fill="#0a1218" stroke="#d0dae0" stroke-width="1.5"/>
+<line x1="845.25" y1="370" x2="859.75" y2="370" stroke="#d0dae0" stroke-width="0.8"/>
+<line x1="845.25" y1="375" x2="859.75" y2="375" stroke="#d0dae0" stroke-width="0.8"/>
+<line x1="845.25" y1="380" x2="859.75" y2="380" stroke="#d0dae0" stroke-width="0.8"/>
+<line x1="845.25" y1="385" x2="859.75" y2="385" stroke="#d0dae0" stroke-width="0.8"/>
+<line x1="845.25" y1="390" x2="859.75" y2="390" stroke="#d0dae0" stroke-width="0.8"/>
+<circle cx="997.5" cy="380" r="10.149999999999999" fill="#0a1218" stroke="#d0dae0" stroke-width="1.5"/>
+<line x1="990.25" y1="370" x2="1004.75" y2="370" stroke="#d0dae0" stroke-width="0.8"/>
+<line x1="990.25" y1="375" x2="1004.75" y2="375" stroke="#d0dae0" stroke-width="0.8"/>
+<line x1="990.25" y1="380" x2="1004.75" y2="380" stroke="#d0dae0" stroke-width="0.8"/>
+<line x1="990.25" y1="385" x2="1004.75" y2="385" stroke="#d0dae0" stroke-width="0.8"/>
+<line x1="990.25" y1="390" x2="1004.75" y2="390" stroke="#d0dae0" stroke-width="0.8"/>
+<circle cx="925" cy="465.55" r="6.525" fill="none" stroke="#c9a24a" stroke-width="1.5"/>
+<circle cx="911.95" cy="467.0" r="4.0600000000000005" fill="none" stroke="#c9a24a"/>
+<circle cx="938.05" cy="467.0" r="4.0600000000000005" fill="none" stroke="#c9a24a"/>
+<rect x="914.9" y="282.9" width="20.3" height="11.6" fill="#3b5a6b" stroke="#9fb4c0" stroke-width="1"/>
+<text x="925" y="272.5" font-size="9" fill="#c9a24a" text-anchor="middle" font-weight="bold">DORSAL</text>
+<text x="925" y="495.5" font-size="9" fill="#c9a24a" text-anchor="middle" font-weight="bold">VENTRAL / keel</text>
 </g>
 <g>
-<text x="1290" y="190" font-size="12" fill="#d7e3ea" text-anchor="middle" font-weight="bold">BAY D: reactor room</text>
-<circle cx="1290" cy="370" r="154" fill="#0a1218" stroke="#9fb4c0" stroke-width="2"/>
-<circle cx="1290" cy="370" r="150.7" fill="none" stroke="#5b7381" stroke-width="1" stroke-dasharray="2 2"/>
-<path d="M 1345.2 233.3 A 147.4 147.4 0 0 1 1434.2 339.4 L 1400.8 346.4 A 113.30000000000001 113.30000000000001 0 0 0 1332.4 265.0 Z" fill="#c9822b" fill-opacity="0.85" stroke="#cfe" stroke-width="0.6"/>
-<path d="M 1434.2 400.6 A 147.4 147.4 0 0 1 1345.2 506.7 L 1332.4 475.0 A 113.30000000000001 113.30000000000001 0 0 0 1400.8 393.6 Z" fill="#c9822b" fill-opacity="0.85" stroke="#cfe" stroke-width="0.6"/>
-<path d="M 1234.8 506.7 A 147.4 147.4 0 0 1 1145.8 400.6 L 1179.2 393.6 A 113.30000000000001 113.30000000000001 0 0 0 1247.6 475.0 Z" fill="#c9822b" fill-opacity="0.85" stroke="#cfe" stroke-width="0.6"/>
-<path d="M 1145.8 339.4 A 147.4 147.4 0 0 1 1234.8 233.3 L 1247.6 265.0 A 113.30000000000001 113.30000000000001 0 0 0 1179.2 346.4 Z" fill="#c9822b" fill-opacity="0.85" stroke="#cfe" stroke-width="0.6"/>
-<circle cx="1290" cy="370" r="110" fill="#2a4757" stroke="#9fb4c0" stroke-width="2"/>
-<circle cx="1290" cy="370" r="103.4" fill="none" stroke="#3c6074" stroke-width="1"/>
-<circle cx="1290" cy="370" r="92.4" fill="#4a2a24" stroke="#e8a58a" stroke-width="1.5" stroke-dasharray="4 3"/>
-<circle cx="1290" cy="370" r="66.0" fill="#b5543a" stroke="#f2b8a0"/>
-<text x="1290" y="373" font-size="10" fill="#fff" text-anchor="middle" font-weight="bold">REACTOR</text>
-<circle cx="1180" cy="370" r="15.399999999999999" fill="#0a1218" stroke="#d0dae0" stroke-width="1.5"/>
-<line x1="1169.0" y1="360" x2="1191.0" y2="360" stroke="#d0dae0" stroke-width="0.8"/>
-<line x1="1169.0" y1="365" x2="1191.0" y2="365" stroke="#d0dae0" stroke-width="0.8"/>
-<line x1="1169.0" y1="370" x2="1191.0" y2="370" stroke="#d0dae0" stroke-width="0.8"/>
-<line x1="1169.0" y1="375" x2="1191.0" y2="375" stroke="#d0dae0" stroke-width="0.8"/>
-<line x1="1169.0" y1="380" x2="1191.0" y2="380" stroke="#d0dae0" stroke-width="0.8"/>
-<circle cx="1400" cy="370" r="15.399999999999999" fill="#0a1218" stroke="#d0dae0" stroke-width="1.5"/>
-<line x1="1389.0" y1="360" x2="1411.0" y2="360" stroke="#d0dae0" stroke-width="0.8"/>
-<line x1="1389.0" y1="365" x2="1411.0" y2="365" stroke="#d0dae0" stroke-width="0.8"/>
-<line x1="1389.0" y1="370" x2="1411.0" y2="370" stroke="#d0dae0" stroke-width="0.8"/>
-<line x1="1389.0" y1="375" x2="1411.0" y2="375" stroke="#d0dae0" stroke-width="0.8"/>
-<line x1="1389.0" y1="380" x2="1411.0" y2="380" stroke="#d0dae0" stroke-width="0.8"/>
-<circle cx="1290" cy="499.8" r="9.9" fill="none" stroke="#c9a24a" stroke-width="1.5"/>
-<circle cx="1270.2" cy="502.0" r="6.16" fill="none" stroke="#c9a24a"/>
-<circle cx="1309.8" cy="502.0" r="6.16" fill="none" stroke="#c9a24a"/>
-<rect x="1274.6" y="222.6" width="30.8" height="17.6" fill="#3b5a6b" stroke="#9fb4c0" stroke-width="1"/>
-<text x="1290" y="210" font-size="9" fill="#c9a24a" text-anchor="middle" font-weight="bold">DORSAL</text>
-<text x="1290" y="538" font-size="9" fill="#c9a24a" text-anchor="middle" font-weight="bold">VENTRAL / keel</text>
-<text x="1450" y="374" font-size="9" fill="#c9a24a" text-anchor="start" font-weight="bold">STBD</text>
+<text x="1160" y="252.5" font-size="12" fill="#d7e3ea" text-anchor="middle" font-weight="bold">BAY T: tube station</text>
+<circle cx="1160" cy="380" r="101.5" fill="#0a1218" stroke="#9fb4c0" stroke-width="2"/>
+<circle cx="1160" cy="380" r="99.32499999999999" fill="none" stroke="#5b7381" stroke-width="1" stroke-dasharray="2 2"/>
+<path d="M 1214.3 299.5 A 97.15 97.15 0 0 1 1255.7 363.1 L 1233.5 367.0 A 74.67500000000001 74.67500000000001 0 0 0 1201.8 318.1 Z" fill="#2f6f9a" fill-opacity="0.85" stroke="#cfe" stroke-width="0.6"/>
+<path d="M 1254.3 403.5 A 97.15 97.15 0 0 1 1196.4 470.1 L 1188.0 449.2 A 74.67500000000001 74.67500000000001 0 0 0 1232.5 398.1 Z" fill="#2f6f9a" fill-opacity="0.85" stroke="#cfe" stroke-width="0.6"/>
+<path d="M 1123.6 470.1 A 97.15 97.15 0 0 1 1065.7 403.5 L 1087.5 398.1 A 74.67500000000001 74.67500000000001 0 0 0 1132.0 449.2 Z" fill="#2f6f9a" fill-opacity="0.85" stroke="#cfe" stroke-width="0.6"/>
+<path d="M 1064.3 363.1 A 97.15 97.15 0 0 1 1105.7 299.5 L 1118.2 318.1 A 74.67500000000001 74.67500000000001 0 0 0 1086.5 367.0 Z" fill="#2f6f9a" fill-opacity="0.85" stroke="#cfe" stroke-width="0.6"/>
+<circle cx="1160" cy="380" r="72.5" fill="#2a4757" stroke="#9fb4c0" stroke-width="2"/>
+<circle cx="1160" cy="380" r="68.15" fill="none" stroke="#3c6074" stroke-width="1"/>
+<rect x="1111.4" y="278.5" width="33.3" height="124.7" fill="#33566a" stroke="#e0a020" stroke-width="1.5"/>
+<rect x="1175.2" y="278.5" width="33.3" height="124.7" fill="#33566a" stroke="#e0a020" stroke-width="1.5"/>
+<rect x="1138.2" y="426.4" width="43.5" height="22.5" fill="#2e5a4a" stroke="#7fd6a8" stroke-width="1"/>
+<text x="1160" y="442.35" font-size="8" fill="#bfeede" text-anchor="middle" font-weight="normal">gallery</text>
+<text x="1160" y="336.5" font-size="8" fill="#8ca3b0" text-anchor="middle" font-weight="normal">lane</text>
+<circle cx="1087.5" cy="380" r="10.149999999999999" fill="#0a1218" stroke="#d0dae0" stroke-width="1.5"/>
+<line x1="1080.25" y1="370" x2="1094.75" y2="370" stroke="#d0dae0" stroke-width="0.8"/>
+<line x1="1080.25" y1="375" x2="1094.75" y2="375" stroke="#d0dae0" stroke-width="0.8"/>
+<line x1="1080.25" y1="380" x2="1094.75" y2="380" stroke="#d0dae0" stroke-width="0.8"/>
+<line x1="1080.25" y1="385" x2="1094.75" y2="385" stroke="#d0dae0" stroke-width="0.8"/>
+<line x1="1080.25" y1="390" x2="1094.75" y2="390" stroke="#d0dae0" stroke-width="0.8"/>
+<circle cx="1232.5" cy="380" r="10.149999999999999" fill="#0a1218" stroke="#d0dae0" stroke-width="1.5"/>
+<line x1="1225.25" y1="370" x2="1239.75" y2="370" stroke="#d0dae0" stroke-width="0.8"/>
+<line x1="1225.25" y1="375" x2="1239.75" y2="375" stroke="#d0dae0" stroke-width="0.8"/>
+<line x1="1225.25" y1="380" x2="1239.75" y2="380" stroke="#d0dae0" stroke-width="0.8"/>
+<line x1="1225.25" y1="385" x2="1239.75" y2="385" stroke="#d0dae0" stroke-width="0.8"/>
+<line x1="1225.25" y1="390" x2="1239.75" y2="390" stroke="#d0dae0" stroke-width="0.8"/>
+<circle cx="1160" cy="465.55" r="6.525" fill="none" stroke="#c9a24a" stroke-width="1.5"/>
+<circle cx="1146.95" cy="467.0" r="4.0600000000000005" fill="none" stroke="#c9a24a"/>
+<circle cx="1173.05" cy="467.0" r="4.0600000000000005" fill="none" stroke="#c9a24a"/>
+<rect x="1149.8" y="282.9" width="20.3" height="11.6" fill="#3b5a6b" stroke="#9fb4c0" stroke-width="1"/>
+<text x="1160" y="272.5" font-size="9" fill="#c9a24a" text-anchor="middle" font-weight="bold">DORSAL</text>
+<text x="1160" y="495.5" font-size="9" fill="#c9a24a" text-anchor="middle" font-weight="bold">VENTRAL / keel</text>
 </g>
-<text x="985" y="565" font-size="10" fill="#8ca3b0" text-anchor="middle" font-weight="normal">10.0 m room, 2.0 m ring, 14.0 m skin</text>
-<text x="1290" y="565" font-size="10" fill="#8ca3b0" text-anchor="middle" font-weight="normal">Shield well 8.4 m: ~0.1 m to each shaft</text>
-<text x="840" y="610" font-size="12" fill="#c9a24a" text-anchor="start" font-weight="bold">READING THE DRAWINGS</text>
-<rect x="842.0" y="621.0" width="12.0" height="10.0" fill="#d0dae0"/>
-<text x="862" y="630" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">Stair shafts: 1.4 m round, half in the room and half in the ring, one port and one starboard</text>
-<rect x="842.0" y="637.0" width="12.0" height="10.0" fill="#2f6f9a"/>
-<text x="862" y="646" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">Water tank arcs (forward half, ~330 m³)</text>
-<rect x="842.0" y="653.0" width="12.0" height="10.0" fill="#c9822b"/>
-<text x="862" y="662" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">Lithium tank arcs (aft half, ~1,600 m³)</text>
-<rect x="842.0" y="669.0" width="12.0" height="10.0" fill="#c9a24a"/>
-<text x="862" y="678" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">Keel: coilgun rail, crawl, two water mains (gold outlines)</text>
-<rect x="842.0" y="685.0" width="12.0" height="10.0" fill="#e8a58a"/>
-<text x="862" y="694" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">Reactor well 8.4 m, casing 6 m, on the axis in bay D</text>
-<rect x="842.0" y="701.0" width="12.0" height="10.0" fill="#3ec8e0"/>
-<text x="862" y="710" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">Tube 1 probe cyan</text>
-<rect x="842.0" y="717.0" width="12.0" height="10.0" fill="#e0a020"/>
-<text x="862" y="726" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">Tubes 2–5 HE amber</text>
-<rect x="842.0" y="733.0" width="12.0" height="10.0" fill="#4a7cff"/>
-<text x="862" y="742" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">Tube 6 EMP blue (flare white to port)</text>
-<rect x="842.0" y="749.0" width="12.0" height="10.0" fill="#e8d23a"/>
-<text x="862" y="758" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">Tubes 7–12 salvage, yellow-black stripes</text>
-<text x="840" y="788" font-size="12" fill="#c9a24a" text-anchor="start" font-weight="bold">OPEN POINTS FOUND WHILE DRAWING</text>
-<text x="842" y="806" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">1. Tubes are 8.6 m long in a 10 m cell, leaving 1.4 m to the ventral wall, so the 3 m ventral ordnance gallery</text>
-<text x="842" y="820" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">   cannot sit inside the cell under the tube bases. It needs to move (annulus or keel) or the tubes need to shorten.</text>
-<text x="842" y="834" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">2. Exact fore-aft positions of the laser domes, mast well, docking collar, probe cradle and radiator channels are not</text>
-<text x="842" y="848" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">   fixed in the spec. They are schematic here.</text>
-<text x="842" y="862" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">3. Pod and pylon positions in the aft drive section are schematic (port/starboard assumed).</text>
-<text x="842" y="876" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">4. The airlock (4.2 m long, radial) is drawn from the skin inward and overlaps the junction room wall by about 2 m.</text>
+<g>
+<text x="1395" y="252.5" font-size="12" fill="#d7e3ea" text-anchor="middle" font-weight="bold">BAY D: reactor room</text>
+<circle cx="1395" cy="380" r="101.5" fill="#0a1218" stroke="#9fb4c0" stroke-width="2"/>
+<circle cx="1395" cy="380" r="99.32499999999999" fill="none" stroke="#5b7381" stroke-width="1" stroke-dasharray="2 2"/>
+<path d="M 1431.4 289.9 A 97.15 97.15 0 0 1 1490.0 359.8 L 1468.0 364.5 A 74.67500000000001 74.67500000000001 0 0 0 1423.0 310.8 Z" fill="#c9822b" fill-opacity="0.85" stroke="#cfe" stroke-width="0.6"/>
+<path d="M 1490.0 400.2 A 97.15 97.15 0 0 1 1431.4 470.1 L 1423.0 449.2 A 74.67500000000001 74.67500000000001 0 0 0 1468.0 395.5 Z" fill="#c9822b" fill-opacity="0.85" stroke="#cfe" stroke-width="0.6"/>
+<path d="M 1358.6 470.1 A 97.15 97.15 0 0 1 1300.0 400.2 L 1322.0 395.5 A 74.67500000000001 74.67500000000001 0 0 0 1367.0 449.2 Z" fill="#c9822b" fill-opacity="0.85" stroke="#cfe" stroke-width="0.6"/>
+<path d="M 1300.0 359.8 A 97.15 97.15 0 0 1 1358.6 289.9 L 1367.0 310.8 A 74.67500000000001 74.67500000000001 0 0 0 1322.0 364.5 Z" fill="#c9822b" fill-opacity="0.85" stroke="#cfe" stroke-width="0.6"/>
+<circle cx="1395" cy="380" r="72.5" fill="#2a4757" stroke="#9fb4c0" stroke-width="2"/>
+<circle cx="1395" cy="380" r="68.15" fill="none" stroke="#3c6074" stroke-width="1"/>
+<circle cx="1395" cy="380" r="60.900000000000006" fill="#4a2a24" stroke="#e8a58a" stroke-width="1.5" stroke-dasharray="4 3"/>
+<circle cx="1395" cy="380" r="43.5" fill="#b5543a" stroke="#f2b8a0"/>
+<text x="1395" y="383" font-size="9" fill="#fff" text-anchor="middle" font-weight="bold">REACTOR</text>
+<circle cx="1322.5" cy="380" r="10.149999999999999" fill="#0a1218" stroke="#d0dae0" stroke-width="1.5"/>
+<line x1="1315.25" y1="370" x2="1329.75" y2="370" stroke="#d0dae0" stroke-width="0.8"/>
+<line x1="1315.25" y1="375" x2="1329.75" y2="375" stroke="#d0dae0" stroke-width="0.8"/>
+<line x1="1315.25" y1="380" x2="1329.75" y2="380" stroke="#d0dae0" stroke-width="0.8"/>
+<line x1="1315.25" y1="385" x2="1329.75" y2="385" stroke="#d0dae0" stroke-width="0.8"/>
+<line x1="1315.25" y1="390" x2="1329.75" y2="390" stroke="#d0dae0" stroke-width="0.8"/>
+<circle cx="1467.5" cy="380" r="10.149999999999999" fill="#0a1218" stroke="#d0dae0" stroke-width="1.5"/>
+<line x1="1460.25" y1="370" x2="1474.75" y2="370" stroke="#d0dae0" stroke-width="0.8"/>
+<line x1="1460.25" y1="375" x2="1474.75" y2="375" stroke="#d0dae0" stroke-width="0.8"/>
+<line x1="1460.25" y1="380" x2="1474.75" y2="380" stroke="#d0dae0" stroke-width="0.8"/>
+<line x1="1460.25" y1="385" x2="1474.75" y2="385" stroke="#d0dae0" stroke-width="0.8"/>
+<line x1="1460.25" y1="390" x2="1474.75" y2="390" stroke="#d0dae0" stroke-width="0.8"/>
+<circle cx="1395" cy="465.55" r="6.525" fill="none" stroke="#c9a24a" stroke-width="1.5"/>
+<circle cx="1381.95" cy="467.0" r="4.0600000000000005" fill="none" stroke="#c9a24a"/>
+<circle cx="1408.05" cy="467.0" r="4.0600000000000005" fill="none" stroke="#c9a24a"/>
+<rect x="1384.8" y="282.9" width="20.3" height="11.6" fill="#3b5a6b" stroke="#9fb4c0" stroke-width="1"/>
+<text x="1395" y="272.5" font-size="9" fill="#c9a24a" text-anchor="middle" font-weight="bold">DORSAL</text>
+<text x="1395" y="495.5" font-size="9" fill="#c9a24a" text-anchor="middle" font-weight="bold">VENTRAL / keel</text>
+</g>
+<text x="1160" y="536" font-size="9" fill="#8ca3b0" text-anchor="middle" font-weight="normal">Views look aft: port at left, starboard at right.</text>
+<text x="925" y="520" font-size="10" fill="#8ca3b0" text-anchor="middle" font-weight="normal">10.0 m room, 2.0 m ring, 14.0 m skin</text>
+<text x="1395" y="520" font-size="10" fill="#8ca3b0" text-anchor="middle" font-weight="normal">Shield well 8.4 m: ~0.1 m to shafts</text>
+<text x="1160" y="520" font-size="9" fill="#8ca3b0" text-anchor="middle" font-weight="normal">tubes start at the skin; bases end 1.6 m past axis</text>
+<text x="840" y="570" font-size="12" fill="#c9a24a" text-anchor="start" font-weight="bold">READING THE DRAWINGS</text>
+<rect x="842.0" y="581.0" width="12.0" height="10.0" fill="#d0dae0"/>
+<text x="862" y="590" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">Stair shafts: 1.4 m round, half in the room and half in the ring, one port and one starboard</text>
+<rect x="842.0" y="597.0" width="12.0" height="10.0" fill="#2f6f9a"/>
+<text x="862" y="606" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">Water tank arcs (forward half, ~330 m³)</text>
+<rect x="842.0" y="613.0" width="12.0" height="10.0" fill="#c9822b"/>
+<text x="862" y="622" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">Lithium tank arcs (aft half, ~1,600 m³)</text>
+<rect x="842.0" y="629.0" width="12.0" height="10.0" fill="#c9a24a"/>
+<text x="862" y="638" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">Keel: coilgun rail, crawl, two water mains (gold outlines)</text>
+<rect x="842.0" y="645.0" width="12.0" height="10.0" fill="#e8a58a"/>
+<text x="862" y="654" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">Reactor well 8.4 m, casing 6 m, on the axis in bay D</text>
+<rect x="842.0" y="661.0" width="12.0" height="10.0" fill="#3ec8e0"/>
+<text x="862" y="670" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">Tube 1 probe cyan</text>
+<rect x="842.0" y="677.0" width="12.0" height="10.0" fill="#e0a020"/>
+<text x="862" y="686" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">Tubes 2–5 HE amber</text>
+<rect x="842.0" y="693.0" width="12.0" height="10.0" fill="#4a7cff"/>
+<text x="862" y="702" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">Tube 6 EMP blue (flare white to port)</text>
+<rect x="842.0" y="709.0" width="12.0" height="10.0" fill="#e8d23a"/>
+<text x="862" y="718" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">Tubes 7–12 salvage, yellow-black stripes</text>
+<text x="840" y="748" font-size="12" fill="#c9a24a" text-anchor="start" font-weight="bold">CHECKS AND OPEN POINTS</text>
+<text x="842" y="766" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">1. Resolved 16 November: each tube starts at the skin, so only 6.6 m of the 8.6 m is inside the cell and the base ends</text>
+<text x="842" y="780" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">   1.6 m past the axis. That leaves 3.4 m below it, and the 3 m ventral ordnance gallery fits.</text>
+<text x="842" y="794" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">2. Exact fore-aft positions of the laser domes, mast well, docking collar, probe cradle and radiator channels are not</text>
+<text x="842" y="808" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">   fixed in the spec. They are schematic here.</text>
+<text x="842" y="822" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">3. Pod and pylon positions in the aft drive section are schematic (port/starboard assumed).</text>
+<text x="842" y="836" font-size="10" fill="#d7e3ea" text-anchor="start" font-weight="normal">4. The airlock (4.2 m long, radial) is drawn from the skin inward and overlaps the junction room wall by about 2 m.</text>
 <text x="20" y="1096" font-size="10" fill="#8ca3b0" text-anchor="start" font-weight="normal">Source: docs/ship_interior_hull_spec.md  |  figures in metres  |  conceptual reference, 15 November decisions applied</text>
 </svg>
