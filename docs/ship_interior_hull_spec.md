@@ -2,9 +2,23 @@
 
 2026-11-15 ·
 
+## Orientation: a skyscraper standing on its tail (read this first)
+
+Picture the Rocinante's skyscraper: a tall, narrow tower whose floors are stacked one above another and joined by a ladder through a hatch in the middle of each floor. The ship is that tower. It stands on its tail, 140 m tall and 10 m across, with the bow at the top and the engines at the bottom. Every deck is a round floor you would look down onto, and going to the next deck means climbing up or down the ladder. It is not a navy ship, and no deck runs along the ship's length.
+
+- **Upright, always.** Draw and describe the ship standing on its tail: bow at the top, the two engine pods at the bottom. Up is toward the bow and down is toward the engines. Down is where thrust pushes you, so it is also where "down" is for the crew.
+- **A deck is one whole round floor.** Each deck is a circular disc that fills the entire cross-section of the hull: about 10 m across and only 3 m from floor to ceiling, so wide and short, like a hockey puck or a pie tin. One deck is one room, or a ring of rooms around the central trunk. A room is never a long space running the length of the ship.
+- **Decks stack vertically.** Eleven decks make up the four stacked bays: A, B and C have three each and D has two, each deck 3.2 m above the next, like the storeys of a tower that is only 10 m wide. The one exception is the 34 m missile hall between B and C, which is a single tall open space (a vertical shaft with the tubes in rings around it), not a stack of decks. From a side cutaway you see a tall stack of flat slabs, one on top of another; from above you see one circle.
+- **The trunk is the stairwell.** A 1.4 m round shaft runs down the centre through every deck, with a 1.2 m hatch and a ladder in each floor. People move between decks by climbing the trunk, never along a corridor.
+- **If the ship must be drawn lying on its side** (a side profile or a cutaway), the decks are still floors across the hull: thin vertical slices every 3.2 m, like slices of a sausage, never one long horizontal floor from bow to stern. Standing the ship upright removes the problem, so prefer it.
+
+**Do not draw the wet-navy model.** None of these belongs in any picture of this ship: a long deck or corridor running the length of the hull; an upper deck and a lower deck with the ship lying flat; rooms laid end to end along a passage with a door at each end; a floor drawn as the long side of the hull; portholes along the flank; a flat horizontal deck seen from the side with people standing along it. If an image looks like the inside of a submarine or a destroyer, it is wrong. The right picture looks like the inside of a tall silo or a lighthouse with round floors.
+
+**Wording for an image prompt.** "A 140 m tall, 10 m wide cylindrical spaceship standing upright on its tail, engines at the bottom and bow at the top. Inside, it is a stack of round, flat, circular floors like hockey pucks, each 10 m across and 3 m tall, joined by a central vertical trunk with ladders and round hatches. It is a skyscraper standing on its tail, not a naval vessel with long decks. All hull surfaces are matte black; colour appears only as small cue marks."
+
 ## Design premise
 
-The ship is a 140 m, round-section hull built as a string of seven sealed pressure cells, and the heat sink is the space between those cells and the outer skin. Inside, every room is a round disc (a "puck") stacked along the ship's axis, like a skyscraper standing on its tail with the engines at the bottom. Everything below follows from the rules we have settled.
+The ship is a 140 m, round-section hull built as a string of seven sealed pressure cells, and the heat sink is the space between those cells and the outer skin. Inside, every room is a round disc (a "puck") stacked along the ship's axis, like a skyscraper standing on its tail with the engines at the bottom (the Orientation section above says exactly how to picture it). Everything below follows from the rules we have settled.
 
 - **Ohio proportions.** Long, slender, circular cross-section, no sail or conn tower, missile tubes in two dorsal rows.
 - **Circular rooms.** In space the hull holds air in rather than keeping water out, so the load is internal pressure. Cylinders and domed ends carry that in tension with the least metal; flat-sided rectangular rooms need heavy bracing. Round also gives round hatches, ring frames and the curved CIC we already have.
