@@ -1,0 +1,4 @@
+{
+  "_doc": "Asset slots: key -> GLB file under ./glb/, real-world size in metres (longest side), and an optional offset. A slot with no file keeps its procedural placeholder.",
+  "engine_bell": { "file": "engine_bell.glb", "size_m": 3.2, "note": "Meshy test 2026-11-16 (125 MB raw; remesh + 1K texture before committing)" }
+}

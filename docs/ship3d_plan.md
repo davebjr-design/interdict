@@ -24,3 +24,10 @@
 ## Open
 - Position of laser domes, mast well, docking collar, probe cradle and radiator channels along the hull is still schematic in the spec.
 - Gravity cue: under thrust, down is aft (floor), at coast weightless; the spine currently always shows floor-down.
+
+## Engine decision and Babylon.js spike (18 November)
+- Stay on the web for a personal project (no Steam release). Keep the simulation headless; treat the renderer as swappable.
+- `web/ship3d_babylon/` is a Babylon.js 7 port of the ship spine with the same room table and controls (click-to-move, orbit camera, shaft climb, ship view), PBR materials and an asset manifest (`assets_manifest.json`) with GLB slots.
+- Slot loader checked: the Meshy engine-bell GLB loaded and was rescaled to its manifest size (3.2 m longest side) in place of the placeholder. The raw GLB is 125 MB and is NOT committed (`glb/*.glb` is gitignored); it needs a remesh and a smaller texture first.
+- Known rough edges in the Babylon spike: floor shading shows faint banding in software rendering, and the translucent shaft cylinders show from inside. Compare against `web/ship3d` (three.js) before deciding which to keep.
+- Babylon needs no account: bundled `babylon.js` (7.54.3) and the glTF loader are copied from npm.
