@@ -31,3 +31,10 @@
 - Slot loader checked: the Meshy engine-bell GLB loaded and was rescaled to its manifest size (3.2 m longest side) in place of the placeholder. The raw GLB is 125 MB and is NOT committed (`glb/*.glb` is gitignored); it needs a remesh and a smaller texture first.
 - Known rough edges in the Babylon spike: floor shading shows faint banding in software rendering, and the translucent shaft cylinders show from inside. Compare against `web/ship3d` (three.js) before deciding which to keep.
 - Babylon needs no account: bundled `babylon.js` (7.54.3) and the glTF loader are copied from npm.
+
+## Meshy prop test (18 November): about 95 credits
+Spent: remesh of the engine bell 5; couch, round hatch and revolver tube base 30 each (20 geometry + 10 texture at 2K).
+- Raw GLBs were 36-125 MB. Free local pass (gltf-transform: simplify to ~15 percent, textures to 1024 WebP) brought them to 1.1-6.6 MB; they live in `web/ship3d_babylon/glb/` and are wired in via `assets_manifest.json`.
+- In the Babylon spine: 4 couches and the shaft hatches in the CIC, 2 tube bases in bay T, the bell at the aft end. All slots load; each GLB is loaded once and instanced, rescaled to its manifest size in metres.
+- Observations: geometry quality is strong (belts, bolts, hazard-stripe rims, brass); the couch came out as a two-seat bench (fine as a test); the tube base is a horizontal housing, not yet a six-pocket revolver drum; prompts can steer but exact counts and proportions are not reliable, so code-built shells stay the source of truth for scale and counts.
+- Meshy task IDs: bell remesh 01a1f094-017e-7308-ab07-462c1511983b; couch 01a1f094-067f-749a-bbe7-604f545a224a / refine 01a1f097-753a-70dd-91f1-a273c9fa77a0; hatch 01a1f094-15d9-7192-90ec-e30d5c353ae0 / 01a1f097-7bef-7437-8d5b-8bdb4a1597b4; tube base 01a1f094-21c3-76a1-b886-4fb7f7b3b270 / 01a1f097-8120-74ee-a538-b40c665e11b1.

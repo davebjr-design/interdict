@@ -1,4 +1,22 @@
 {
-  "_doc": "Asset slots: key -> GLB file under ./glb/, real-world size in metres (longest side), and an optional offset. A slot with no file keeps its procedural placeholder.",
-  "engine_bell": { "file": "engine_bell.glb", "size_m": 3.2, "note": "Meshy test 2026-11-16 (125 MB raw; remesh + 1K texture before committing)" }
+  "_doc": "Asset slots: key -> GLB file under ./glb/, real-world size in metres (longest side), optional yaw offset ry. A slot with no file keeps its procedural placeholder. GLBs were remeshed/decimated and textures cut to 1K (see docs/ship3d_plan.md).",
+  "engine_bell": {
+    "file": "engine_bell.glb",
+    "size_m": 3.2
+  },
+  "couch": {
+    "file": "couch.glb",
+    "size_m": 1.7,
+    "note": "two-seat bench; used 4x in the CIC as a test"
+  },
+  "hatch": {
+    "file": "hatch.glb",
+    "size_m": 1.3,
+    "note": "1.2 m door plus frame; used on every deck door"
+  },
+  "tubebase": {
+    "file": "tubebase.glb",
+    "size_m": 5.0,
+    "note": "revolver-drum base housing, bay T test"
+  }
 }

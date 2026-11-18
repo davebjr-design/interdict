@@ -23,16 +23,23 @@
   const cyl = (n, d, h, m, par, x, y, z) => { const c = B.MeshBuilder.CreateCylinder(n, { diameter: d, height: h, tessellation: 48 }, sc); c.material = m; c.parent = par || null; c.position.set(x || 0, y || 0, z || 0); return c; };
   const box = (n, w, h, d, m, par, x, y, z) => { const c = B.MeshBuilder.CreateBox(n, { width: w, height: h, depth: d }, sc); c.material = m; c.parent = par || null; c.position.set(x || 0, y || 0, z || 0); return c; };
 
-  // ---- GLB slots: a procedural placeholder stands until a GLB listed in the manifest exists, then it is swapped in at real size
-  let manifest = {};
-  const slots = {};
-  function slot(key, makeFallback, parent, x, y, z) {
-    const root = new B.TransformNode('slot:' + key, sc); root.parent = parent; root.position.set(x || 0, y || 0, z || 0);
-    const fb = makeFallback(root); slots[key] = { root, fb, glb: false };
+  // ---- GLB slots: a procedural placeholder stands until a GLB listed in the manifest exists, then it is swapped in at real size.
+  // Each GLB file is loaded once (AssetContainer) and instantiated per slot. opts: { id, ry (yaw), ground (sit on y=0), size (override) }
+  let manifest = {}; try { const xr = new XMLHttpRequest(); xr.open('GET', 'assets_manifest.json', false); xr.send(); manifest = JSON.parse(xr.responseText); } catch (e) { }
+  const slots = {}, conts = {};
+  function container(file) { return conts[file] || (conts[file] = B.SceneLoader.LoadAssetContainerAsync('glb/', file, sc)); }
+  function slot(key, makeFallback, parent, x, y, z, opts) {
+    opts = opts || {}; const id = opts.id || key, root = new B.TransformNode('slot:' + id, sc); root.parent = parent; root.position.set(x || 0, y || 0, z || 0);
+    const fb = makeFallback(root); slots[id] = { root, fb, glb: false, key };
     const m = manifest[key]; if (!m) return root;
-    fetch('glb/' + m.file, { method: 'HEAD' }).then(r => { if (!r.ok) return; return B.SceneLoader.ImportMeshAsync('', 'glb/', m.file, sc).then(res => {
-      const top = res.meshes[0]; top.parent = root; const bb = root.getHierarchyBoundingVectors(true, n => n !== fb && !(fb.getChildMeshes && fb.getChildMeshes().includes(n)));
-      const ext = bb.max.subtract(bb.min), k = m.size_m / Math.max(ext.x, ext.y, ext.z, 1e-6); top.scaling.scaleInPlace(k); fb.dispose(); slots[key].glb = true; hud(); }); }).catch(() => { });
+    container(m.file).then(c => {
+      const inst = c.instantiateModelsToScene(n => n, false), top = inst.rootNodes[0], holder = new B.TransformNode('glb:' + id, sc); holder.parent = root; top.parent = holder;
+      holder.rotation.y = (opts.ry || 0) + (m.ry || 0);
+      const bb = holder.getHierarchyBoundingVectors(true), ext = bb.max.subtract(bb.min), k = (opts.size || m.size_m) / Math.max(ext.x, ext.y, ext.z, 1e-6);
+      holder.scaling.setAll(k); const b2 = holder.getHierarchyBoundingVectors(true), cx = (b2.min.x + b2.max.x) / 2 - root.getAbsolutePosition().x, cz = (b2.min.z + b2.max.z) / 2 - root.getAbsolutePosition().z;
+      holder.position.x -= cx; holder.position.z -= cz; holder.position.y -= opts.ground ? b2.min.y - root.getAbsolutePosition().y : ((b2.min.y + b2.max.y) / 2 - root.getAbsolutePosition().y);
+      fb.setEnabled(false); slots[id].glb = true; hud();
+    }).catch(e => console.warn('slot ' + id, e));
     return root;
   }
   window.SHIP_BJS = { R, slots, B, sc };
@@ -41,11 +48,11 @@
   const hullM = pbr('#05080a', { alpha: .16 }), hull = cyl('hull', SKIN_R * 2, 104, hullM, null, 0, yOf(64), 0);
   const nose = B.MeshBuilder.CreateSphere('nose', { diameter: SKIN_R * 2, slice: .5, segments: 32 }, sc); nose.material = hullM; nose.position.set(0, yOf(12), 0);
   for (const sx of [-1, 1]) cyl('shaft', 1.4, 90, pbr('#7f95a1', { alpha: .5 }), null, sx * CELL_R, yOf(57), 0);
-  function makeSlots() { slot('engine_bell', root => cyl('bellfb', 3.2, 4, pbr('#33566a'), root, 0, 0, 0), null, 0, yOf(141), 0); hud(); }
+  slot('engine_bell', root => cyl('bellfb', 3.2, 4, pbr('#33566a'), root, 0, 0, 0), null, 0, yOf(141), 0);
 
   const roomG = {};
   function prop(kind, g, r, h) {
-    if (kind === 'cic') { for (let i = 0; i < 7; i++) { const a = -1.1 + i * .37, c = box('couch', .9, .5, .9, pbr('#4a4f7a'), g, Math.sin(a) * 3.1, .45, -Math.cos(a) * 3.1); c.rotation.y = a; } box('table', 2, .12, 1.2, steel, g, 0, .9, 0); }
+    if (kind === 'cic') { for (let i = 0; i < 4; i++) { const a = -.9 + i * .6, x = Math.sin(a) * 3.2, z = -Math.cos(a) * 3.2; const t = slot('couch', rt => { const c = box('couch', 1.6, .5, .9, pbr('#4a4f7a'), rt, 0, .25, 0); return c; }, g, x, 0, z, { id: 'couch' + i, ry: -a, ground: true }); } box('table', 2, .12, 1.2, steel, g, 0, .9, 0); }
     else if (kind === 'berths') { for (let i = 0; i < 3; i++) { const a = i * 2.094 + .5; for (const k of [0, 1]) { const b = box('bunk', 2.2, .5, .9, steel, g, Math.cos(a) * 3.2, .5 + k * 1.1, Math.sin(a) * 3.2); b.rotation.y = -a; } } cyl('pod', 3.4, 2.4, pbr('#3b5a6b'), g, 0, 1.2, 0); }
     else if (kind === 'mess') { const t = B.MeshBuilder.CreateTorus('tbl', { diameter: 5.2, thickness: .9, tessellation: 40 }, sc); t.material = steel; t.parent = g; t.position.y = .85; for (let i = 0; i < 14; i++) { const a = i / 14 * 6.283; cyl('stool', .44, .5, brass, g, Math.cos(a) * 3.5, .3, Math.sin(a) * 3.5); } }
     else if (kind === 'junction') { for (const a of [0, 1.571, 3.142, 4.712]) { const t = B.MeshBuilder.CreateTorus('hatch', { diameter: 1.2, thickness: .12 }, sc); t.material = brass; t.parent = g; t.position.set(Math.cos(a) * (r - .1), 1.2, Math.sin(a) * (r - .1)); t.rotation.z = Math.PI / 2; t.rotation.y = a; } cyl('hub', 1, 2.9, steel, g, 0, 1.45, 0); }
@@ -57,6 +64,7 @@
       const cols = ['#3ec8e0', '#e0a020', '#e0a020', '#e0a020', '#e0a020', '#4a7cff', '#e8d23a', '#e8d23a', '#e8d23a', '#e8d23a', '#e8d23a', '#e8d23a'];
       for (let i = 0; i < 12; i++) for (const sz of [-1, 1]) { const t = cyl('tube', 2.3, 8.6, pbr('#33566a', { emit: cols[i], ei: .6 }), g, -2.7, h - 2.35 - 2.45 * i, sz * 2.2); t.rotation.z = Math.PI / 2; }
       box('gallery', 1, 29.4, 3, pbr('#2e5a4a'), g, 4.2, h - 1.2 - 14.7, 0);
+      for (const sz of [-1, 1]) slot('tubebase', rt => cyl('tbfb', 2.3, 2, pbr('#33566a'), rt, 0, 0, 0), g, 2.4, h - 2.35 - 2.45 * 1, sz * 2.2, { id: 'tubebase' + (sz < 0 ? 'p' : 's'), ry: Math.PI / 2 });
     }
   }
   R.forEach(r => {
@@ -64,7 +72,7 @@
     const fl = cyl('floor:' + r.id, r.r * 2, .3, floorM, g, 0, -.15, 0); fl.metadata = { floor: r.id };
     const wl = B.MeshBuilder.CreateCylinder('wall', { diameter: r.r * 2, height: r.h, tessellation: 56, sideOrientation: B.Mesh.BACKSIDE }, sc); wl.material = wallM; wl.parent = g; wl.position.y = r.h / 2; wl.isPickable = false;
     for (const rr of [r.r * .35, r.r * .7, r.r - .2]) { const t = B.MeshBuilder.CreateTorus('ring', { diameter: rr * 2, thickness: .04, tessellation: 64 }, sc); t.material = ringM; t.parent = g; t.position.y = .04; t.isPickable = false; }
-    for (const sx of [-1, 1]) { const d = B.MeshBuilder.CreateTorus('door', { diameter: 1.2, thickness: .12 }, sc); d.material = brass; d.parent = g; d.position.set(sx * (r.r - .02), 1, 0); d.rotation.z = Math.PI / 2; d.isPickable = false; }
+    for (const sx of [-1, 1]) { slot('hatch', rt => { const d = B.MeshBuilder.CreateTorus('door', { diameter: 1.2, thickness: .12 }, sc); d.material = brass; d.parent = rt; d.rotation.z = Math.PI / 2; d.isPickable = false; return d; }, g, sx * (r.r - .05), 1.0, 0, { id: 'hatch:' + r.id + (sx < 0 ? 'p' : 's'), ry: sx < 0 ? Math.PI / 2 : -Math.PI / 2 }); }
     prop(r.kind, g, r.r, r.h);
   });
 
@@ -91,6 +99,5 @@
   sc.onBeforeRenderObservable.add(() => { step(Math.min(.05, eng.getDeltaTime() / 1000)); cam.target = B.Vector3.Lerp(cam.target, st.tgt, .12); hull.isVisible = nose.isVisible = st.mode === 'ship'; });
   eng.runRenderLoop(() => sc.render()); addEventListener('resize', () => eng.resize());
   place('A1', 0, 2.5); enter('A1'); cam.target = st.tgt.clone(); hud();
-  fetch('assets_manifest.json').then(r => r.json()).then(m => { manifest = m; }).catch(() => { }).finally(makeSlots);
   window.SHIP_BJS.api = { st, goTo, enter, place, step, roomG, loadManifest: () => fetch('assets_manifest.json').then(r => r.json()).then(m => { manifest = m; return m; }) };
 })();
