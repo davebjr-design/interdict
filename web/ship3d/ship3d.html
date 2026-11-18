@@ -1,0 +1,11 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Interdict: 3D ship spine</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>html,body{margin:0;height:100%;background:#0c1618;color:#d7e3ea;font:13px Helvetica,Arial,sans-serif;overflow:hidden}
+#hud{position:fixed;left:12px;top:10px;pointer-events:none;line-height:1.5}#hud b{color:#c9a24a}
+#decks{position:fixed;right:10px;top:10px;display:flex;flex-direction:column;gap:3px;max-height:92vh;overflow:auto}
+#decks button,#shipbtn{background:#1d3340;color:#d7e3ea;border:1px solid #3c6074;border-radius:4px;padding:4px 8px;font:12px inherit;cursor:pointer;text-align:left}
+#decks button.on{background:#c9a24a;color:#111}#shipbtn{position:fixed;left:12px;bottom:12px}
+#tip{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);color:#8ca3b0}</style></head><body>
+<div id="hud"></div><div id="decks"></div><button id="shipbtn">Ship view</button>
+<div id="tip">Click the floor to walk. Drag to orbit, wheel to zoom. Pick a deck to walk to a shaft door and climb.</div>
+<script src="three.min.js"></script><script src="ship3d.js"></script></body></html>
