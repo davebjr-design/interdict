@@ -25,9 +25,14 @@
 
   // ---- GLB slots: a procedural placeholder stands until a GLB listed in the manifest exists, then it is swapped in at real size.
   // Each GLB file is loaded once (AssetContainer) and instantiated per slot. opts: { id, ry (yaw), ground (sit on y=0), size (override) }
-  let manifest = {}; try { const xr = new XMLHttpRequest(); xr.open('GET', 'assets_manifest.json', false); xr.send(); manifest = JSON.parse(xr.responseText); } catch (e) { }
+  let manifest = window.SHIP_MANIFEST || {}; if (!window.SHIP_MANIFEST) try { const xr = new XMLHttpRequest(); xr.open('GET', 'assets_manifest.json', false); xr.send(); manifest = JSON.parse(xr.responseText); } catch (e) { }
   const slots = {}, conts = {};
-  function container(file) { return conts[file] || (conts[file] = B.SceneLoader.LoadAssetContainerAsync('glb/', file, sc)); }
+  function container(file) {
+    if (conts[file]) return conts[file];
+    const D = window.GLB_DATA && window.GLB_DATA[file];   // hosted page: models are embedded as base64 in script files (no .glb hosting there)
+    if (D) { const bin = atob(D), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i); return conts[file] = B.SceneLoader.LoadAssetContainerAsync(new File([u8], file), undefined, sc); }
+    return conts[file] = B.SceneLoader.LoadAssetContainerAsync('glb/', file, sc);
+  }
   function slot(key, makeFallback, parent, x, y, z, opts) {
     opts = opts || {}; const id = opts.id || key, root = new B.TransformNode('slot:' + id, sc); root.parent = parent; root.position.set(x || 0, y || 0, z || 0);
     const fb = makeFallback(root); slots[id] = { root, fb, glb: false, key };
