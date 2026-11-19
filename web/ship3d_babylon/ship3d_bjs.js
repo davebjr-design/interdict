@@ -201,7 +201,7 @@
         slot('couch', rt => box('couch', 1.2, .5, .6, pbr('#4a4f7a'), rt, 0, .25, 0), g, s * 3.15, 0, c * 3.15, { id: 'couch' + i, ry: -a + Math.PI, ground: true, size: 1.15 });
         crewSlot(g, 'crew' + i, s * 3.33, c * 3.33, Math.PI - a, 0); }
       box('table', 1.6, .1, 1, steel, g, 0, .8, .45);
-      slot('abara', rt => B.MeshBuilder.CreateCapsule('abfb', { radius: .24, height: 1.7 }, sc), g, .15, 0, 1.45, { id: 'abara', ry: Math.PI, ground: true, onload: h => { life.crew.push({ h, ph: 1.7 }); } });   // Abara stands at the chart table, glasses on, looking down at the plot
+      slot('abara', rt => B.MeshBuilder.CreateCapsule('abfb', { radius: .24, height: 1.7 }, sc), g, .15, 0, 1.45, { id: 'abara', ry: Math.PI, ground: true });   // Abara stands at the chart table, glasses on, looking down at the plot
       slot('command_chair', rt => box('chairfb', .7, .9, .7, pbr('#4a4f7a'), rt, 0, .45, 0), g, 0, 0, -.9, { id: 'cochair', ry: 0, ground: true, size: 1.2 });
       if (HS.ok) [['helm', 'annun', 'power'], ['stores', 'crew', 'probes']].forEach((row, ri) => row.forEach((n, ci) => mkPassive(g, n, Math.PI / 2 + (ci - 1) * .44, 4.62, ri ? .92 : 2.1, 1.5)));
       for (const a of [.5, 2.65]) slot('dc_locker', rt => box('dcfb', .8, 1.6, .4, pbr('#8a2a22'), rt, 0, .8, 0), g, Math.cos(a) * 4.5, 0, Math.sin(a) * 4.5, { id: 'dclocker' + (a < 1 ? 0 : 1), ry: face(a), ground: true, size: 1.2 }); }
