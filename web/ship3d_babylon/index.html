@@ -4,8 +4,8 @@
 canvas{width:100%;height:100%;display:block;outline:none}
 #hud{position:fixed;left:12px;top:10px;pointer-events:none;line-height:1.5}#hud b{color:#c9a24a}
 #decks{position:fixed;right:10px;top:10px;display:flex;flex-direction:column;gap:3px;max-height:92vh;overflow:auto}
-#decks button,#shipbtn{background:#1d3340;color:#d7e3ea;border:1px solid #3c6074;border-radius:4px;padding:4px 8px;font:12px inherit;cursor:pointer;text-align:left}
-#decks button.on{background:#c9a24a;color:#111}#shipbtn{position:fixed;left:12px;bottom:12px}
+#decks button,#shipbtn,#cams button{background:#1d3340;color:#d7e3ea;border:1px solid #3c6074;border-radius:4px;padding:4px 8px;font:12px inherit;cursor:pointer;text-align:left}
+#decks button.on,#cams button.on{background:#c9a24a;color:#111}#shipbtn{position:fixed;left:12px;bottom:12px}
 #tip{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);color:#8ca3b0}</style></head><body>
 <canvas id="c"></canvas><div id="hud"></div><div id="decks"></div><button id="shipbtn">Ship view</button>
 <div id="tip">Click the floor to walk. Drag to orbit, wheel to zoom. Pick a deck to walk to a shaft door and climb.</div>
