@@ -50,3 +50,9 @@ Balance 3045 -> 2865 (six previews at 20, six 2K refines at 10).
 - Not yet ported: radial menu, brace, annunciator lamps and hologram, hardware toggles and guard switches on the console model (the desk GLB has baked keys, not hotspots), audio, the per-station Auto / Hands-on switch UI. Hunt runs in the background whenever the page is open; screens only repaint while you are in A1.
 - Hosted page is packaged by web/ship3d_babylon/build_hosted.py (GLBs become base64 .js because the artifact host will not serve .glb).
 - Open: tune monitor overlay positions per console (they are placed by fraction of the model, one pair of offsets for all five); decide Babylon vs three.js (the three.js CIC still has the full interaction set).
+
+## Deck plating and fading walls (18 November, evening)
+- Floors and walls now carry generated normal maps: 1.2 m deck plates with chamfered seams, bolts, tread diamonds and dotted grip; wall panels with inset recess, vent slits, brass band and hazard marks. Brass coaming at the floor and a rim at the top of each wall.
+- Each wall is 24 arc panels with ribs between them. In room view the panels that lie between the camera and the character fade to about 10 percent (only when the camera is outside the wall and the line of sight passes under the wall top), so the room is always readable from orbit or over-the-shoulder.
+- The glowing squares were the wall status LEDs; they are now small annunciator strips (dark plate, three blinking LEDs) at the panel seams.
+- CIC crew moved back onto the seats and dropped to floor level (feet were floating). Seating still approximate: the crew model's pelvis offset was tuned by eye.

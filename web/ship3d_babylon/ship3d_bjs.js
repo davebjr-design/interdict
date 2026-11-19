@@ -33,8 +33,34 @@
     g.strokeStyle = '#13212a'; g.lineWidth = 4; g.strokeRect(0, 0, w, h); g.beginPath(); g.moveTo(0, h * .62); g.lineTo(w, h * .62); g.moveTo(w / 2, 0); g.lineTo(w / 2, h); g.stroke();
     g.fillStyle = '#8fa3ad'; for (let x = 20; x < w; x += 48) for (const y of [14, h * .62 - 14, h - 14]) { g.beginPath(); g.arc(x, y, 3, 0, 6.3); g.fill(); }
     g.fillStyle = '#c9a24a'; g.fillRect(0, h * .62 - 3, w, 4); g.fillStyle = 'rgba(230,200,60,.9)'; for (let x = 0; x < w; x += 32) g.fillRect(x, h - 10, 16, 8); }, 14, 1);
+  // height canvas -> normal map (so plates, seams, rivets and ribs catch the light)
+  function normalTex(name, w, h, draw, us, vs, k) {
+    const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'); draw(g, w, h); const src = g.getImageData(0, 0, w, h).data;
+    const t = new B.DynamicTexture(name, { width: w, height: h }, sc, true), tg = t.getContext(), out = tg.createImageData(w, h), H = (x, y) => src[(((y + h) % h) * w + ((x + w) % w)) * 4] / 255;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const dx = (H(x + 1, y) - H(x - 1, y)) * k, dy = (H(x, y + 1) - H(x, y - 1)) * k, l = Math.hypot(dx, dy, 1), o = (y * w + x) * 4; out.data[o] = (-dx / l * .5 + .5) * 255; out.data[o + 1] = (dy / l * .5 + .5) * 255; out.data[o + 2] = (1 / l * .5 + .5) * 255; out.data[o + 3] = 255; }
+    tg.putImageData(out, 0, 0); t.update(); t.wrapU = t.wrapV = B.Texture.WRAP_ADDRESSMODE; t.uScale = us; t.vScale = vs; return t;
+  }
+  const RIV = [[8, 8], [248, 8], [8, 248], [248, 248], [264, 8], [504, 8], [8, 264], [248, 264], [264, 248], [504, 248], [264, 264], [504, 264], [264, 504], [504, 504], [8, 504], [248, 504]];
+  const floorBump = normalTex('floorN', 512, 512, (g, w, h) => {
+    g.fillStyle = '#808080'; g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) { const x = i * 256, y = j * 256; g.fillStyle = '#909090'; g.fillRect(x + 6, y + 6, 244, 244);
+      if ((i + j) % 2) { g.save(); g.beginPath(); g.rect(x + 14, y + 14, 228, 228); g.clip(); g.strokeStyle = '#c8c8c8'; g.lineWidth = 5; for (let d = -256; d < 512; d += 20) { g.beginPath(); g.moveTo(x + d, y); g.lineTo(x + d + 256, y + 256); g.stroke(); g.beginPath(); g.moveTo(x + d + 256, y); g.lineTo(x + d, y + 256); g.stroke(); } g.restore(); }
+      else { g.fillStyle = '#505050'; for (let a = 0; a < 7; a++) for (let b = 0; b < 7; b++) { g.beginPath(); g.arc(x + 36 + a * 30, y + 36 + b * 30, 4, 0, 6.3); g.fill(); } }
+      g.strokeStyle = '#2a2a2a'; g.lineWidth = 7; g.strokeRect(x, y, 256, 256); g.strokeStyle = '#b4b4b4'; g.lineWidth = 3; g.strokeRect(x + 9, y + 9, 238, 238); }
+    g.fillStyle = '#f0f0f0'; for (const [x, y] of RIV) { g.beginPath(); g.arc(x, y, 6, 0, 6.3); g.fill(); } }, 3, 3, 2.2);
+  const WW = 440, WH = 1024, wallTex2 = ptex('wallTex2', WW, WH, (g, w, h) => {
+    g.fillStyle = '#2d4753'; g.fillRect(0, 0, w, h * .62); g.fillStyle = '#4a5636'; g.fillRect(0, h * .62, w, h * .38); speckle(g, w, h, 9000, .1);
+    g.fillStyle = 'rgba(0,0,0,.22)'; g.fillRect(46, 70, w - 92, h * .62 - 150); g.fillStyle = 'rgba(0,0,0,.5)'; for (let k = 0; k < 8; k++) g.fillRect(70, h * .18 + k * 30, w - 140, 9);
+    g.strokeStyle = '#13212a'; g.lineWidth = 6; g.strokeRect(0, 0, w, h); g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 3; for (let x = 110; x < w; x += 110) { g.beginPath(); g.moveTo(x, h * .62 + 14); g.lineTo(x, h - 40); g.stroke(); }
+    g.fillStyle = '#8fa3ad'; for (let y = 24; y < h; y += 70) for (const x of [14, w - 14]) { g.beginPath(); g.arc(x, y, 4, 0, 6.3); g.fill(); }
+    g.fillStyle = '#c9a24a'; g.fillRect(0, h * .62 - 5, w, 10); g.fillStyle = 'rgba(230,200,60,.9)'; for (let x = 0; x < w; x += 40) g.fillRect(x, h - 26, 20, 12); }, 1, 1);
+  const wallBump = normalTex('wallN', WW, WH, (g, w, h) => {
+    g.fillStyle = '#808080'; g.fillRect(0, 0, w, h); g.fillStyle = '#6a6a6a'; g.fillRect(46, 70, w - 92, h * .62 - 150); g.strokeStyle = '#b0b0b0'; g.lineWidth = 4; g.strokeRect(46, 70, w - 92, h * .62 - 150);
+    g.fillStyle = '#383838'; for (let k = 0; k < 8; k++) g.fillRect(70, h * .18 + k * 30, w - 140, 9);
+    g.strokeStyle = '#303030'; g.lineWidth = 9; g.strokeRect(0, 0, w, h); g.fillStyle = '#b8b8b8'; g.fillRect(0, h * .62 - 5, w, 10); g.strokeStyle = '#555'; g.lineWidth = 5; for (let x = 110; x < w; x += 110) { g.beginPath(); g.moveTo(x, h * .62 + 14); g.lineTo(x, h - 40); g.stroke(); }
+    g.fillStyle = '#f0f0f0'; for (let y = 24; y < h; y += 70) for (const x of [14, w - 14]) { g.beginPath(); g.arc(x, y, 5, 0, 6.3); g.fill(); } }, 1, 1, 2.2);
   const floorM = pbr('#ffffff'), wallM = pbr('#ffffff'), brass = pbr('#c9a24a', { metal: .7, rough: .4 }), steel = pbr('#5d7f90', { metal: .5 }), ringM = pbr('#8fb0bd');
-  floorM.albedoTexture = floorTex; wallM.albedoTexture = wallTex; floorM.roughness = .85; wallM.roughness = .8;
+  floorM.albedoTexture = floorTex; floorM.bumpTexture = floorBump; floorM.roughness = .8; floorM.metallic = .35; wallM.albedoTexture = wallTex2; wallM.bumpTexture = wallBump; wallM.roughness = .75; wallM.metallic = .3;
   
   const cyl = (n, d, h, m, par, x, y, z) => { const c = B.MeshBuilder.CreateCylinder(n, { diameter: d, height: h, tessellation: 48 }, sc); c.material = m; c.parent = par || null; c.position.set(x || 0, y || 0, z || 0); return c; };
   const box = (n, w, h, d, m, par, x, y, z) => { const c = B.MeshBuilder.CreateBox(n, { width: w, height: h, depth: d }, sc); c.material = m; c.parent = par || null; c.position.set(x || 0, y || 0, z || 0); return c; };
@@ -94,10 +120,10 @@
       for (let i = 0; i < 5; i++) { const a = -1.2 + i * .6, s = Math.sin(a), c = -Math.cos(a);
         slot('console', rt => box('consfb', 2, .9, .7, steel, rt, 0, .45, 0), g, s * 4.15, 0, c * 4.15, { id: 'console' + i, ry: -a, ground: true, onload: h => mkScreens(i, h.getChildren()[0]) });
         slot('couch', rt => box('couch', 1.2, .5, .6, pbr('#4a4f7a'), rt, 0, .25, 0), g, s * 3.15, 0, c * 3.15, { id: 'couch' + i, ry: -a + Math.PI, ground: true, size: 1.15 });
-        crewSlot(g, 'crew' + i, s * 3.15, c * 3.15, Math.PI - a, .32); }
+        crewSlot(g, 'crew' + i, s * 3.33, c * 3.33, Math.PI - a, 0); }
       box('table', 1.6, .1, 1, steel, g, 0, .8, 0); }
     else if (kind === 'berths') { for (let i = 0; i < 3; i++) { const a = i * 2.094 + .5; slot('bunk', rt => box('bunk', 2.2, 1.6, .9, steel, rt, 0, .8, 0), g, Math.cos(a) * 3.3, 0, Math.sin(a) * 3.3, { id: 'bunk' + i, ry: -a - Math.PI / 2, ground: true, size: 2.2 }); } cyl('pod', 3.4, 2.4, pbr('#3b5a6b'), g, 0, 1.2, 0); crewSlot(g, 'crewB', 1.0, 1.2, 2.4, 0); }
-    else if (kind === 'mess') { slot('messtable', rt => { const t = B.MeshBuilder.CreateTorus('tbl', { diameter: 5.2, thickness: .9, tessellation: 40 }, sc); t.material = steel; t.parent = rt; t.position.y = .85; return t; }, g, 0, 0, 0, { id: 'messtable', ground: true, size: 4.4 }); crewSlot(g, 'crewM1', 1.7, 0, -1.57, .38); crewSlot(g, 'crewM2', -1.2, 1.2, 2.4, .38); }
+    else if (kind === 'mess') { slot('messtable', rt => { const t = B.MeshBuilder.CreateTorus('tbl', { diameter: 5.2, thickness: .9, tessellation: 40 }, sc); t.material = steel; t.parent = rt; t.position.y = .85; return t; }, g, 0, 0, 0, { id: 'messtable', ground: true, size: 4.4 }); crewSlot(g, 'crewM1', 1.7, 0, -1.57, 0); crewSlot(g, 'crewM2', -1.2, 1.2, 2.4, 0); }
     else if (kind === 'junction') { for (const a of [0, 1.571, 3.142, 4.712]) { const t = B.MeshBuilder.CreateTorus('hatch', { diameter: 1.2, thickness: .12 }, sc); t.material = brass; t.parent = g; t.position.set(Math.cos(a) * (r - .1), 1.2, Math.sin(a) * (r - .1)); t.rotation.z = Math.PI / 2; t.rotation.y = a; } cyl('hub', 1, 2.9, steel, g, 0, 1.45, 0); }
     else if (kind === 'array') cyl('tower', 2, 2.2, steel, g, 0, 1.1, 0);
     else if (kind === 'thermal') { slot('pumptower', rt => cyl('tower', 2.8, 2.9, steel, rt, 0, 1.45, 0), g, 0, 0, 0, { id: 'pumptower', ground: true, size: 2.85 }); for (let i = 0; i < 6; i++) { const a = i / 6 * 6.283; cyl('pump', .5, 1.2, brass, g, Math.cos(a) * 2.8, .6, Math.sin(a) * 2.8); } }
@@ -113,13 +139,22 @@
   R.forEach(r => {
     const g = new B.TransformNode('room:' + r.id, sc); g.position.y = r.y; g.metadata = { room: r }; roomG[r.id] = g;
     const fl = cyl('floor:' + r.id, r.r * 2, .3, floorM, g, 0, -.15, 0); fl.metadata = { floor: r.id };
-    const wl = B.MeshBuilder.CreateCylinder('wall', { diameter: r.r * 2, height: r.h, tessellation: 56, sideOrientation: B.Mesh.BACKSIDE }, sc); wl.material = wallM; wl.parent = g; wl.position.y = r.h / 2; wl.isPickable = false;
+    // wall = 24 arc panels (each its own mesh so the ones between the camera and the character can fade), with ribs between them
+    const NS = 24, DA = 2 * Math.PI / NS; g.metadata.segs = []; for (let i = 0; i < NS; i++) g.metadata.segs.push({ items: [], vis: 1, a: i * DA + DA / 2 });
+    const segOf = a => Math.floor((((a % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)) / DA), segAdd = (a, ms) => { const sg = g.metadata.segs[segOf(a)]; ms.forEach(m => { if (m && m.material !== undefined) sg.items.push(m); }); };
+    g.metadata.segAdd = segAdd;
+    for (let i = 0; i < NS; i++) { const w = B.MeshBuilder.CreateCylinder('wall' + i, { diameter: r.r * 2, height: r.h, tessellation: 4, arc: 1 / NS, sideOrientation: B.Mesh.BACKSIDE }, sc); w.material = wallM; w.parent = g; w.position.y = r.h / 2; w.rotation.y = -((i + 1.5) * DA); w.isPickable = false; g.metadata.segs[i].items.push(w);
+      const rb = box('rib', .14, r.h, .16, steel, g, Math.cos(i * DA) * (r.r - .07), r.h / 2, Math.sin(i * DA) * (r.r - .07)); rb.rotation.y = -i * DA + Math.PI / 2; rb.isPickable = false; g.metadata.segs[i].items.push(rb); }
+    for (const yy of [.12, r.h - .06]) { const t = B.MeshBuilder.CreateTorus('trim', { diameter: r.r * 2 - .3, thickness: yy < 1 ? .16 : .1, tessellation: 64 }, sc); t.material = brass; t.parent = g; t.position.y = yy; t.isPickable = false; }
     for (const rr of [r.r * .35, r.r * .7, r.r - .2]) { const t = B.MeshBuilder.CreateTorus('ring', { diameter: rr * 2, thickness: .04, tessellation: 64 }, sc); t.material = ringM; t.parent = g; t.position.y = .04; t.isPickable = false; }
-    for (const sx of [-1, 1]) { slot('hatch', rt => { const d = B.MeshBuilder.CreateTorus('door', { diameter: 1.2, thickness: .12 }, sc); d.material = brass; d.parent = rt; d.rotation.z = Math.PI / 2; d.isPickable = false; return d; }, g, sx * (r.r - .05), 1.0, 0, { id: 'hatch:' + r.id + (sx < 0 ? 'p' : 's'), ry: sx < 0 ? Math.PI / 2 : -Math.PI / 2 }); }
+    for (const sx of [-1, 1]) { slot('hatch', rt => { const d = B.MeshBuilder.CreateTorus('door', { diameter: 1.2, thickness: .12 }, sc); d.material = brass; d.parent = rt; d.rotation.z = Math.PI / 2; d.isPickable = false; return d; }, g, sx * (r.r - .05), 1.0, 0, { id: 'hatch:' + r.id + (sx < 0 ? 'p' : 's'), ry: sx < 0 ? Math.PI / 2 : -Math.PI / 2, onload: h => segAdd(sx < 0 ? Math.PI : 0, h.getChildMeshes()) }); segAdd(sx < 0 ? Math.PI : 0, [slots['hatch:' + r.id + (sx < 0 ? 'p' : 's')].fb]); }
     prop(r.kind, g, r.r, r.h);
-    // wall status lights: small LED boxes at 2 heights, skipping the two door positions; each LED has its own blink phase
-    const n = Math.round(r.r * 5); for (let i = 0; i < n; i++) { const a = i / n * 6.283; if (Math.abs(Math.sin(a)) < .3 && r.kind !== 'tubes') continue; if (r.kind === 'tubes' && i % 3) continue; const k = (i * 5 + r.id.length) % 8, y = r.kind === 'tubes' ? 2 + (i % 5) * 6 : 1.7 + (i % 2) * .5;
-      const l = box('led', .12, .07, .03, ledM[k], g, Math.cos(a) * (r.r - .06), y, Math.sin(a) * (r.r - .06)); l.rotation.y = -a + Math.PI / 2; l.isPickable = false; l.metadata = { k }; }
+    // wall annunciator strips: a dark plate with three LEDs (per-LED blink phase), at the panel seams, skipping the two door positions
+    const hs = r.kind === 'tubes' ? [2, 8, 14, 20, 26] : [1.9], step = r.kind === 'tubes' ? 4 : 2;
+    for (let i = 1; i < NS; i += step) { const a = (i + .5) * DA; if (Math.abs(Math.sin(a)) < .28) continue; for (const y of hs) { const px = Math.cos(a) * (r.r - .05), pz = Math.sin(a) * (r.r - .05), ms = [];
+      const pl = box('strip', .56, .2, .04, pbr('#0e1417', { metal: .5, rough: .5 }), g, px, y, pz); pl.rotation.y = -a + Math.PI / 2; pl.isPickable = false; ms.push(pl);
+      for (let q = -1; q <= 1; q++) { const k = (i * 5 + q * 3 + y * 2 + r.id.length) & 7, l = box('led', .09, .09, .03, ledM[k], g, px + Math.sin(a) * q * .17 * -1 * -1 - Math.sin(a) * 0, y, pz); l.position.x = px - Math.sin(a) * q * .17; l.position.z = pz + Math.cos(a) * q * .17; l.position.x += -Math.cos(a) * .02; l.position.z += -Math.sin(a) * .02; l.rotation.y = -a + Math.PI / 2; l.isPickable = false; ms.push(l); }
+      segAdd(a, ms); } }
   });
 
   // ---- starfield, planet and sun behind the hull
@@ -230,9 +265,19 @@
     else if (t.k === 'climb') { const to = roomG[t.id].metadata.room, ty = to.y + .95, dy = ty - who.position.y, s = 6 * dt; who.position.x = -CELL_R; if (Math.abs(dy) <= s) { who.position.y = ty; tween.shift(); t.done && t.done(); } else { who.position.y += Math.sign(dy) * s; st.tgt.y += (who.position.y - st.tgt.y) * .1; } }
   }
   sc.onBeforeRenderObservable.add(() => { step(Math.min(.05, eng.getDeltaTime() / 1000)); cam.target = B.Vector3.Lerp(cam.target, st.tgt, .12);
+    fadeWalls();
     if (st.cam === 'fp') { if (st.zoom) zoomStep(); else fp.position.set(who.position.x, who.position.y + .65, who.position.z); }
     if (st.cam === 'shoulder' && st.mode === 'room') { st.tgt.set(who.position.x, who.position.y + .35, who.position.z); cam.target.copyFrom(st.tgt); }
     hull.isVisible = nose.isVisible = st.mode === 'ship'; extG.setEnabled(st.mode === 'ship'); planet.setEnabled(st.mode === 'ship'); sun.setEnabled(st.mode === 'ship'); if (st.mode === 'ship') cam.alpha += .0006; animate(performance.now() / 1000); });
+  // walls fade out where they sit between the camera and the character (current room only)
+  function fadeWalls() {
+    const cp = sc.activeCamera.position, W = who.position;
+    for (const id in roomG) { const g = roomG[id], r = g.metadata.room, on = id === st.room && st.mode === 'room' && st.cam !== 'fp', ax = g.position.x, az = g.position.z, top = g.position.y + r.h + .3, outside = Math.hypot(cp.x - ax, cp.z - az) > r.r - .3;
+      for (const sg of g.metadata.segs) { let tv = 1;
+        if (on && outside) { const ca = sg.a, cx = ax + Math.cos(ca) * r.r, cz = az + Math.sin(ca) * r.r, tx = -Math.sin(ca) * r.r * Math.sin(Math.PI / 24) * 2.6, tz = Math.cos(ca) * r.r * Math.sin(Math.PI / 24) * 2.6;   // chord, widened a little so neighbours soften the edge
+          for (const o of [-.9, 0, .9]) { const dx = W.x - cp.x, dz = W.z - cp.z, l = Math.hypot(dx, dz) || 1, wx = W.x - dz / l * o, wz = W.z + dx / l * o, d1x = wx - cp.x, d1z = wz - cp.z, d2x = 2 * tx, d2z = 2 * tz, den = d1x * d2z - d1z * d2x; if (Math.abs(den) < 1e-6) continue;
+            const qx = (cx - tx) - cp.x, qz = (cz - tz) - cp.z, u = (qx * d2z - qz * d2x) / den, v = (qx * d1z - qz * d1x) / den; if (u > 0 && u < 1 && v > 0 && v < 1 && cp.y + u * (W.y - cp.y) < top) { tv = .1; break; } } }
+        sg.vis += (tv - sg.vis) * .18; if (Math.abs(sg.vis - (sg._v || 1)) > .01 || tv === 1 && sg.vis > .99) { sg._v = sg.vis; for (const m of sg.items) { m.visibility = sg.vis > .985 ? 1 : sg.vis; } } } } }
   function animate(t) {
     for (const b of life.blink) b.m.emissiveIntensity = b.c === 0 ? .75 + .25 * Math.sin(t * 2.1 + b.ph) : b.c === 1 ? (Math.sin(t * .9 + b.ph) > .1 ? 1.1 : .12) : b.c === 2 ? ((t * .7 + b.ph) % 4 < .25 ? 1.6 : .08) : .55 + .45 * Math.sin(t * 3.3 + b.ph);
     for (const o of life.glow) { const s = Math.sin(t * o.sp * (o.strobe ? 3 : 1) + (o.ph || 0)); o.m.emissiveIntensity = o.strobe ? (s > .85 ? o.hi : o.lo) : o.lo + (o.hi - o.lo) * (.5 + .5 * s); }
