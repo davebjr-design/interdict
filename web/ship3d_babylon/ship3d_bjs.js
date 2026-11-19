@@ -114,6 +114,33 @@
   }
   const roomG = {};
   const crewSlot = (g, id, x, z, ry, lift) => slot('crew', rt => B.MeshBuilder.CreateCapsule('cfb', { radius: .22, height: 1.2 }, sc), g, x, 0, z, { id, ry, ground: true, lift: lift || 0, onload: h => life.crew.push({ h, ph: Math.random() * 6.3 }) });
+  // ---- set dressing helpers (all cosmetic): ladders, netted supply shelves, bunk pods, head fixtures
+  const matC = {}, cm = (c, o) => matC[c + (o ? JSON.stringify(o) : '')] || (matC[c + (o ? JSON.stringify(o) : '')] = pbr(c, o));
+  const netTex = ptex('netTex', 128, 128, (g, w, h) => { g.clearRect(0, 0, w, h); g.strokeStyle = 'rgba(190,205,200,.85)'; g.lineWidth = 3; for (let i = 0; i <= 8; i++) { g.beginPath(); g.moveTo(i * 16, 0); g.lineTo(i * 16, h); g.moveTo(0, i * 16); g.lineTo(w, i * 16); g.stroke(); } }, 6, 4);
+  netTex.hasAlpha = true;
+  const netM = new B.StandardMaterial('netM', sc); netM.diffuseTexture = netTex; netM.useAlphaFromDiffuseTexture = true; netM.emissiveColor = new B.Color3(.45, .5, .48); netM.backFaceCulling = false; netM.specularColor = B.Color3.Black();
+  const CRATE = ['#6b7a3a', '#8a6a3a', '#4f6f86', '#b5543a', '#7d8a8f', '#c9a24a'];
+  function ladder(g, x, y0, z, L, ry) {   // vertical ladder, rails along local y, rungs along z; yaw ry
+    const ms = [], rm = cm('#b9c2c6', { metal: .8, rough: .35 });
+    for (const s of [-1, 1]) { const r = B.MeshBuilder.CreateBox('rail', { width: .05, height: L, depth: .05 }, sc); r.position.set(0, L / 2, s * .28); ms.push(r); }
+    for (let y = .25; y < L; y += .3) { const r = B.MeshBuilder.CreateBox('rung', { width: .04, height: .04, depth: .56 }, sc); r.position.set(0, y, 0); ms.push(r); }
+    const m = B.Mesh.MergeMeshes(ms, true); m.name = 'ladder'; m.material = rm; m.parent = g; m.position.set(x, y0, z); m.rotation.y = ry || 0; m.isPickable = false; return m;
+  }
+  function shelf(g, cx, cy, cz, rot) {   // netted supply rack: 4 posts, 4 boards, crates, netting over the open face (+local x)
+    const n = new B.TransformNode('shelf', sc); n.parent = g; n.position.set(cx, cy, cz); n.rotation.y = rot || 0; const L = 3.0, W = 1.5, H = 2.4, fm = cm('#8f9ea6', { metal: .7, rough: .4 });
+    for (const a of [-1, 1]) for (const b of [-1, 1]) box('post', .06, H, .06, fm, n, a * L / 2, 0, b * W / 2).isPickable = false;
+    for (let k = 0; k < 4; k++) { const y = -H / 2 + k * (H / 3); box('board', L, .05, W, fm, n, 0, y, 0).isPickable = false;
+      if (k < 3) for (let q = 0; q < 3; q++) { const w = .55 + rnd() * .35, hh = .3 + rnd() * .3, d = .5 + rnd() * .5; box('crate', w, hh, d, cm(CRATE[(k * 3 + q + Math.abs(cx * 7 | 0)) % 6], { rough: .8, metal: .1 }), n, -L / 2 + .55 + q * 1.0, y + .025 + hh / 2, (rnd() - .5) * (W - d)).isPickable = false; } }
+    const net = B.MeshBuilder.CreatePlane('net', { width: W, height: H, sideOrientation: B.Mesh.DOUBLESIDE }, sc); net.material = netM; net.parent = n; net.position.x = L / 2 + .02; net.rotation.y = Math.PI / 2; net.isPickable = false;
+  }
+  const bunkPod = (g, cx, cy, cz) => {   // 8 racks: 4 high x 2 columns, each a mattress slab in a steel frame, with a privacy curtain stripe
+    for (let c = 0; c < 2; c++) for (let k = 0; k < 4; k++) { const x = cx + (c ? 1 : -1) * 0.97, y = cy + k * .8;
+      box('rackframe', 1.9, .06, .8, cm('#8f9ea6', { metal: .7, rough: .4 }), g, x, y, cz).isPickable = false;
+      box('mattress', 1.8, .14, .7, cm(['#3b5a6b', '#6b4a3a', '#4a5636'][(c + k) % 3], { rough: .95, metal: 0 }), g, x, y + .1, cz).isPickable = false;
+      box('curtain', 1.9, .5, .03, cm('#2f3a40', { rough: .95, metal: 0 }), g, x, y + .38, cz + (cz > 0 ? -.4 : .4)).isPickable = false; }
+    for (const px of [-1.95, 0, 1.95]) box('rackpost', .06, 3.3, .06, cm('#8f9ea6', { metal: .7 }), g, cx + px, cy + 1.45, cz + (cz > 0 ? .4 : -.4)).isPickable = false;
+  };
+  const polar = (g, a, rad, ry0) => { const n = new B.TransformNode('fx', sc); n.parent = g; n.position.set(Math.cos(a) * rad, 0, Math.sin(a) * rad); n.rotation.y = -a + Math.PI / 2 + (ry0 || 0); return n; };   // local z = radial outward, x = tangent
   function prop(kind, g, r, h) {
     if (kind === 'cic') {
       // five stations on the aft arc: a console on the wall, a seat and a crew member in front of it facing the screens
@@ -123,8 +150,24 @@
         crewSlot(g, 'crew' + i, s * 3.33, c * 3.33, Math.PI - a, 0); }
       box('table', 1.6, .1, 1, steel, g, 0, .8, 0); }
     else if (kind === 'berths') { for (let i = 0; i < 3; i++) { const a = i * 2.094 + .5; slot('bunk', rt => box('bunk', 2.2, 1.6, .9, steel, rt, 0, .8, 0), g, Math.cos(a) * 3.3, 0, Math.sin(a) * 3.3, { id: 'bunk' + i, ry: -a - Math.PI / 2, ground: true, size: 2.2 }); } cyl('pod', 3.4, 2.4, pbr('#3b5a6b'), g, 0, 1.2, 0); crewSlot(g, 'crewB', 1.0, 1.2, 2.4, 0); }
-    else if (kind === 'mess') { slot('messtable', rt => { const t = B.MeshBuilder.CreateTorus('tbl', { diameter: 5.2, thickness: .9, tessellation: 40 }, sc); t.material = steel; t.parent = rt; t.position.y = .85; return t; }, g, 0, 0, 0, { id: 'messtable', ground: true, size: 4.4 }); crewSlot(g, 'crewM1', 1.7, 0, -1.57, 0); crewSlot(g, 'crewM2', -1.2, 1.2, 2.4, 0); }
+    else if (kind === 'mess') { slot('messtable', rt => { const t = B.MeshBuilder.CreateTorus('tbl', { diameter: 5.2, thickness: .9, tessellation: 40 }, sc); t.material = steel; t.parent = rt; t.position.y = .85; return t; }, g, 0, 0, 0, { id: 'messtable', ground: true, size: 4.4 }); crewSlot(g, 'crewM1', 1.7, 0, -1.57, 0); crewSlot(g, 'crewM2', -1.2, 1.2, 2.4, 0); for (const [k, a] of [[3, 1.2], [4, 3.9], [5, 5.2]]) crewSlot(g, 'crewM' + k, Math.cos(a) * 1.7, Math.sin(a) * 1.7, -a - Math.PI / 2, 0); }
     else if (kind === 'junction') { for (const a of [0, 1.571, 3.142, 4.712]) { const t = B.MeshBuilder.CreateTorus('hatch', { diameter: 1.2, thickness: .12 }, sc); t.material = brass; t.parent = g; t.position.set(Math.cos(a) * (r - .1), 1.2, Math.sin(a) * (r - .1)); t.rotation.z = Math.PI / 2; t.rotation.y = a; } cyl('hub', 1, 2.9, steel, g, 0, 1.45, 0); }
+    else if (kind === 'utility') {   // the head: 3 stalls, 3 showers, 2 washers, sickbay cot + med cabinet (spec: heads, showers, laundry, sickbay)
+      const wh = cm('#d7dcdc', { rough: .5, metal: .2 }), pan = cm('#3a4c56', { rough: .6, metal: .4 }), blue = cm('#4f86a8', { rough: .2, metal: .1, alpha: .35 }), chrome = cm('#b9c2c6', { metal: .9, rough: .25 });
+      for (const a of [1.3, 1.6, 1.9]) { const n = polar(g, a, 3.35);
+        box('stalldoor', .9, 1.7, .04, pan, n, 0, 1.0, -.62).isPickable = false;
+        for (const sx of [-.47, .47]) box('partition', .04, 1.9, 1.3, pan, n, sx, .95, -.05).isPickable = false;
+        cyl('bowl', .38, .34, wh, n, 0, .17, .0).isPickable = false; box('tank', .4, .45, .16, wh, n, 0, .55, .3).isPickable = false; box('stallmark', .12, .12, .02, cm('#101010', { emit: '#3fd38a', ei: 1 }), n, 0, 1.75, -.64).isPickable = false; }
+      for (const a of [4.75, 5.1, 5.45]) { const n = polar(g, a, 3.2);
+        cyl('shower', 1.0, 2.2, blue, n, 0, 1.1, 0).isPickable = false; cyl('showerhead', .22, .05, chrome, n, 0, 2.15, .15).isPickable = false; box('drain', .5, .02, .5, chrome, n, 0, .02, 0).isPickable = false; }
+      for (const a of [3.8, 4.1]) { const n = polar(g, a, 3.25);
+        box('washer', .85, .95, .75, wh, n, 0, .48, 0).isPickable = false; const d = B.MeshBuilder.CreateTorus('wdoor', { diameter: .5, thickness: .06, tessellation: 24 }, sc); d.material = chrome; d.parent = n; d.position.set(0, .5, -.39); d.rotation.x = Math.PI / 2; d.isPickable = false;
+        const gl = B.MeshBuilder.CreateDisc('wglass', { radius: .22, tessellation: 24 }, sc); gl.material = blue; gl.parent = n; gl.position.set(0, .5, -.385); gl.isPickable = false; }
+      { const n = polar(g, .75, 2.7);
+        box('cot', .8, .45, 2.0, cm('#e6e9ea', { rough: .7, metal: .1 }), n, 0, .45, 0).isPickable = false; box('cotmat', .72, .1, 1.9, cm('#4a8a9a', { rough: .9, metal: 0 }), n, 0, .72, 0).isPickable = false;
+        for (const sx of [-.36, .36]) box('cotrail', .03, .2, 1.9, chrome, n, sx, .85, 0).isPickable = false; }
+      { const n = polar(g, .4, 3.65); box('medcab', .9, 1.6, .4, wh, n, 0, 1.0, 0).isPickable = false; box('medcross', .5, .14, .02, cm('#101010', { emit: '#ff4a3d', ei: 1 }), n, 0, 1.4, -.21).isPickable = false; box('medcross', .14, .5, .02, cm('#101010', { emit: '#ff4a3d', ei: 1 }), n, 0, 1.4, -.21).isPickable = false; }
+    }
     else if (kind === 'array') cyl('tower', 2, 2.2, steel, g, 0, 1.1, 0);
     else if (kind === 'thermal') { slot('pumptower', rt => cyl('tower', 2.8, 2.9, steel, rt, 0, 1.45, 0), g, 0, 0, 0, { id: 'pumptower', ground: true, size: 2.85 }); for (let i = 0; i < 6; i++) { const a = i / 6 * 6.283; cyl('pump', .5, 1.2, brass, g, Math.cos(a) * 2.8, .6, Math.sin(a) * 2.8); } }
     else if (kind === 'sink' || kind === 'valve') for (let i = 0; i < 5; i++) { const a = i / 5 * 6.283; cyl('tank', .6, 2, pbr('#c9822b'), g, Math.cos(a) * 3.4, 1, Math.sin(a) * 3.4); }
@@ -133,6 +176,11 @@
       const cols = ['#3ec8e0', '#e0a020', '#e0a020', '#e0a020', '#e0a020', '#4a7cff', '#e8d23a', '#e8d23a', '#e8d23a', '#e8d23a', '#e8d23a', '#e8d23a'];
       for (let i = 0; i < 12; i++) for (const sz of [-1, 1]) { const tm = pbr('#33566a', { emit: cols[i], ei: .6 }); life.glow.push({ m: tm, lo: .25, hi: .9, sp: .6 + i * .07, ph: i * .5 + (sz > 0 ? 1.7 : 0) }); const t = cyl('tube', 2.3, 8.6, tm, g, -2.7, h - 2.35 - 2.45 * i, sz * 2.2); t.rotation.z = Math.PI / 2; }
       box('gallery', 1, 29.4, 3, pbr('#2e5a4a'), g, 4.2, h - 1.2 - 14.7, 0);
+      // netted supply shelves in the aisle between the two tube columns; ladders up the tube hall; crew pods on the flanks; spares on the gallery
+      for (const i of [1, 3, 5, 7, 9, 11]) shelf(g, -3.2, h - 2.35 - 2.45 * i + .6, 0, 0);
+      ladder(g, -0.3, 1.0, 0, h - 2.0, 0); ladder(g, 2.9, 1.0, 0, h - 2.0, 0);
+      [[5.5, -1], [15.5, 1], [25.5, -1]].forEach(([y, s]) => bunkPod(g, 0, y, s * 3.95));
+      for (let i = 0; i < 9; i++) { const cc = cyl('spare', .5, 2.2, cm(['#b5543a', '#6b7a3a', '#c9a24a'][i % 3], { rough: .6, metal: .4 }), g, 3.3, 3 + i * 3.0, (i % 2 ? .75 : -.75)); cc.isPickable = false; }
       for (const sz of [-1, 1]) slot('tubebase', rt => cyl('tbfb', 2.3, 2, pbr('#33566a'), rt, 0, 0, 0), g, 2.4, h - 2.35 - 2.45 * 1, sz * 2.2, { id: 'tubebase' + (sz < 0 ? 'p' : 's'), ry: Math.PI / 2 });
     }
   }
