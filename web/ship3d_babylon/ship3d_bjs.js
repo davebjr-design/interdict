@@ -75,6 +75,17 @@
     if (D) { const bin = atob(D), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i); return conts[file] = B.SceneLoader.LoadAssetContainerAsync('file:', new File([u8], file), sc); }
     return conts[file] = B.SceneLoader.LoadAssetContainerAsync('glb/', file, sc);
   }
+  // ---- collision: solid props register a room-local box (y relative to the room floor); the player is a .32 m disc. Used by keyboard walking, click-to-walk (A* path planner) and spawn.
+  const SOLID = new Set(['console', 'couch', 'messtable', 'reactor', 'pumptower', 'bunk', 'tubebase', 'galley_range', 'galley_fridge', 'suit_locker', 'captain_bunk', 'captain_desk', 'med_cot', 'head_unit', 'shower_pod', 'washer', 'command_chair', 'dc_locker', 'supply_crate', 'warhead']);
+  const SOLIDN = /^(table|hub|lockbench|partition|pump|tank|tube|gallery|tower|net|board|crate|post)$/, PR = .32;
+  function addObs(node, hint, isMesh) {
+    let n = hint; while (n && !(n.metadata && n.metadata.room)) n = n.parent; if (!n) return; let mn, mx;
+    if (isMesh) { node.computeWorldMatrix(true); const bb = node.getBoundingInfo().boundingBox; mn = bb.minimumWorld; mx = bb.maximumWorld; } else { const bb = node.getHierarchyBoundingVectors(true); mn = bb.min; mx = bb.max; }
+    const p = n.getAbsolutePosition(), r = n.metadata.room, o = { x0: mn.x - p.x, x1: mx.x - p.x, z0: mn.z - p.z, z1: mx.z - p.z, y0: mn.y - p.y, y1: mx.y - p.y };
+    if (o.y1 < .25 || !isFinite(o.x0 + o.x1 + o.z0 + o.z1)) return;
+    for (const sx of [-1, 1]) { const dx = sx * (r.r - .7); if (dx > o.x0 - PR - .1 && dx < o.x1 + PR + .1 && 0 > o.z0 - PR - .1 && 0 < o.z1 + PR + .1) { (window.OBS_SKIP = window.OBS_SKIP || []).push(r.id + ':' + (node.name || '?')); return; } }   // never block the shaft door stand-points
+    (r.obs = r.obs || []).push(o);
+  }
   function slot(key, makeFallback, parent, x, y, z, opts) {
     opts = opts || {}; const id = opts.id || key, root = new B.TransformNode('slot:' + id, sc); root.parent = parent; root.position.set(x || 0, y || 0, z || 0);
     const fb = makeFallback(root); slots[id] = { root, fb, glb: false, key };
@@ -85,7 +96,7 @@
       const bb = holder.getHierarchyBoundingVectors(true), ext = bb.max.subtract(bb.min), k = (opts.size || m.size_m) / Math.max(ext.x, ext.y, ext.z, 1e-6);
       holder.scaling.setAll(k); const b2 = holder.getHierarchyBoundingVectors(true), cx = (b2.min.x + b2.max.x) / 2 - root.getAbsolutePosition().x, cz = (b2.min.z + b2.max.z) / 2 - root.getAbsolutePosition().z;
       holder.position.x -= cx; holder.position.z -= cz; holder.position.y -= opts.ground ? b2.min.y - root.getAbsolutePosition().y : ((b2.min.y + b2.max.y) / 2 - root.getAbsolutePosition().y);
-      holder.position.y += opts.lift || 0; holder.getChildMeshes().forEach(m => { m.isPickable = false; }); fb.setEnabled(false); slots[id].glb = true; slots[id].holder = holder; if (opts.onload) opts.onload(holder, root); hud();
+      holder.position.y += opts.lift || 0; holder.getChildMeshes().forEach(m => { m.isPickable = false; }); fb.setEnabled(false); slots[id].glb = true; slots[id].holder = holder; if (SOLID.has(key)) addObs(holder, root, false); if (opts.onload) opts.onload(holder, root); hud();
     }).catch(e => console.warn('slot ' + id, e));
     return root;
   }
@@ -211,6 +222,7 @@
       // netted supply shelves in the aisle between the two tube columns, each with a crate stack; ladders up the hall; crew pods on the flanks; spares on the gallery
       for (const i of [1, 3, 5, 7, 9, 11]) { const y = h - 2.35 - 2.45 * i + .6; shelf(g, 0, y, -3.2, -Math.PI / 2); slot('supply_crate', rt => box('cratefb', .8, .7, .8, cm('#6b7a3a'), rt, 0, .35, 0), g, 0, y - .4 + .025, -2.7, { id: 'stack' + i, ry: 0, ground: true, size: .9 }); }
       ladder(g, 0, 1.0, -0.3, h - 2.0, -Math.PI / 2); ladder(g, 0, 1.0, 2.9, h - 2.0, -Math.PI / 2);
+      { const lm = pbr('#51606a', { metal: .6, rough: .5 }); for (const lv of [5, 15, 25]) { box('landing', 2.0, .12, 4.7, lm, g, 0, lv - .06, 1.15); for (const [bx, bz, bw, bd] of [[-1, 1.15, .04, 4.7], [1, 1.15, .04, 4.7], [0, 3.5, 2, .04], [0, -1.2, 2, .04]]) box('lrail', bw, .9, bd, lm, g, bx, lv + .45, bz); } }   // catwalk landings at the ladder (5, 15, 25 m)
       [[5.5, -1], [15.5, 1], [25.5, -1]].forEach(([y, s]) => bunkPod(g, s * 3.95, y, 0));
       for (let i = 0; i < 9; i++) slot('warhead', rt => cyl('spare', .5, 2.2, cm(['#b5543a', '#6b7a3a', '#c9a24a'][i % 3], { rough: .6, metal: .4 }), rt, 0, 0, 0), g, (i % 2 ? .7 : -.7), 3 + i * 3.0, 3.55, { id: 'spare' + i, rz: Math.PI / 2, size: 2.3 });
       for (const sx of [-1, 1]) slot('tubebase', rt => cyl('tbfb', 2.3, 2, pbr('#33566a'), rt, 0, 0, 0), g, sx * 2.2, h - 2.35 - 2.45 * 1, 2.4, { id: 'tubebase' + (sx < 0 ? 'p' : 's'), ry: 0 });
@@ -237,6 +249,7 @@
       segAdd(a, ms); } }
   });
 
+  Object.values(roomG).forEach(g => g.getChildMeshes().forEach(m => { if (SOLIDN.test(m.name.replace(/\d+$/, ''))) addObs(m, m, true); }));
   // ---- starfield, planet and sun behind the hull
   const skyM = new B.StandardMaterial('skyM', sc); skyM.backFaceCulling = false; skyM.disableLighting = true;
   skyM.emissiveTexture = ptex('stars', 2048, 1024, (g, w, h) => {
@@ -292,7 +305,7 @@
   // have the reactor on the axis, so 'room' falls back to first person there.
   const fp = new B.UniversalCamera('fp', new B.Vector3(0, 120, 0), sc); fp.minZ = .05; fp.maxZ = 2500; fp.fov = 1.1; fp.angularSensibility = 2200; fp.inertia = .55; fp.speed = 0; fp.inputs.removeByType('FreeCameraKeyboardMoveInput'); fp.rotation.y = Math.PI;
   const NOCENTER = { reactor: 1, reactor2: 1 };
-  const st = { room: 'A1', mode: 'room', cam: 'orbit', tgt: new B.Vector3(0, 120, 0) }, tween = [];
+  const st = { room: 'A1', mode: 'room', cam: 'orbit', tgt: new B.Vector3(0, 120, 0), lvl: 0 }, tween = [];
   const hudEl = document.getElementById('hud'), decks = document.getElementById('decks');
   // two player cameras: 'orbit' (drag to orbit the room or ship) and 'shoulder' (orbit camera locked behind the character, offset to one side).
   // 'fp' is internal: the screen-zoom camera.
@@ -308,17 +321,45 @@
   }
   const camBox = document.createElement('div'); camBox.id = 'cams'; camBox.style.cssText = 'position:fixed;left:max(16px,env(safe-area-inset-left,0px));top:calc(170px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:3px';
   const camBtns = [['orbit', '1  Orbit view'], ['shoulder', '2  Over the shoulder']].map(([k, t]) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = t; b.dataset.cam = k; b.onclick = () => setCam(k); camBox.appendChild(b); return b; }); document.body.appendChild(camBox);
+  const ladBox = document.createElement('div'); ladBox.style.cssText = 'position:fixed;left:max(16px,env(safe-area-inset-left,0px));top:calc(242px + env(safe-area-inset-top,0px));display:none;flex-direction:column;gap:3px'; [['▲  Climb up (R)', 1], ['▼  Climb down (F)', -1]].forEach(([t, d]) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = t; b.onclick = () => climbStep(d); ladBox.appendChild(b); }); document.body.appendChild(ladBox);
   cv.addEventListener('wheel', e => { if (st.cam === 'fp') { fp.fov = Math.max(.5, Math.min(1.7, fp.fov * (1 + Math.sign(e.deltaY) * .06))); e.preventDefault(); } }, { passive: false });
-  function hud() { const r = roomG[st.room].metadata.room, n = Object.values(slots).filter(s => s.glb).length; hudEl.innerHTML = '<b>INTERDICT 3D ship spine (Babylon.js)</b><br>' + ({ orbit: 'Orbit view', shoulder: 'Over the shoulder', fp: 'Screen' })[st.cam] + '<br>' + r.id + ': ' + r.name + '<br>floor ' + (r.r * 2).toFixed(1) + ' m across, ' + r.h + ' m clear<br>' + (st.mode === 'ship' ? 'Ship view (140 m)' : 'Room view') + (st.zoom ? '<br><b>SCREEN ' + st.zoom.mesh.metadata.screen.toUpperCase() + '</b>: click its soft keys · Esc steps back' : '') + '<br><span style="opacity:.7">1 orbit · 2 over the shoulder · 3 ship view · V vent fins · WASD walk · Shift run · Q/E deck down/up</span><br>GLB slots filled: ' + n + ' / ' + Object.keys(slots).length; decks.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.id === st.room)); }
+  function hud() { ladBox.style.display = st.room === 'T' && st.mode === 'room' ? 'flex' : 'none'; const r = roomG[st.room].metadata.room, n = Object.values(slots).filter(s => s.glb).length; hudEl.innerHTML = '<b>INTERDICT 3D ship spine (Babylon.js)</b><br>' + ({ orbit: 'Orbit view', shoulder: 'Over the shoulder', fp: 'Screen' })[st.cam] + '<br>' + r.id + ': ' + r.name + '<br>floor ' + (r.r * 2).toFixed(1) + ' m across, ' + r.h + ' m clear<br>' + (st.mode === 'ship' ? 'Ship view (140 m)' : 'Room view') + (st.zoom ? '<br><b>SCREEN ' + st.zoom.mesh.metadata.screen.toUpperCase() + '</b>: click its soft keys · Esc steps back' : '') + '<br><span style="opacity:.7">1 orbit · 2 over the shoulder · 3 ship view · V vent fins · WASD walk · Shift run · Q/E deck down/up · R/F ladder (tube hall)</span><br>GLB slots filled: ' + n + ' / ' + Object.keys(slots).length; decks.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.id === st.room)); }
   R.forEach(r => { const b = document.createElement('button'); b.textContent = r.id + '  ' + r.name; b.dataset.id = r.id; b.onclick = () => goTo(r.id); decks.appendChild(b); });
-  function place(id, x, z) { const r = roomG[id].metadata.room; st.room = id; who.position.set(x, r.y + .95, z); }
+  function place(id, x, z) { const r = roomG[id].metadata.room; st.room = id; st.lvl = 0; const q = pushOut(r, x, z, 0); who.position.set(q[0], r.y + .95, q[1]); }
   function enter(id) { st.mode = 'room'; st.room = id; const r = roomG[id].metadata.room; dust.emitter = roomG[id].getAbsolutePosition().clone(); dust.maxEmitBox.setAll(r.r * .85); dust.minEmitBox.set(-r.r * .85, .2, -r.r * .85); dust.maxEmitBox.y = Math.min(r.h, 6) - .3; st.tgt.set(0, r.y + (r.kind === 'tubes' ? 12 : 1.2), 0); cam.radius = r.kind === 'tubes' ? 30 : 11; cam.beta = r.kind === 'tubes' ? 1.3 : .8; hud(); }
-  const clampIn = (rr, nx, nz) => { if (rr.kind === 'junction' && Math.abs(nx) < .8 && nz < 0) return [Math.max(-.4, Math.min(.4, nx)), Math.max(nz, -(rr.r + 3.0 - .7))];   // the boarding lock off the dorsal wall
-    const m = Math.hypot(nx, nz), lim = rr.r - .6; return m > lim ? [nx * lim / m, nz * lim / m] : [nx, nz]; };
+  const feetOf = rr => who.position.y - .95 - roomG[rr.id].position.y;
+  function pushOut(rr, nx, nz, feet) { if (!rr.obs) return [nx, nz]; for (let it = 0; it < 3; it++) { let hit = false; for (const o of rr.obs) { if (o.y1 < feet + .15 || o.y0 > feet + 1.7) continue; const x0 = o.x0 - PR, x1 = o.x1 + PR, z0 = o.z0 - PR, z1 = o.z1 + PR; if (nx > x0 && nx < x1 && nz > z0 && nz < z1) { const dl = nx - x0, dr = x1 - nx, dt = nz - z0, db = z1 - nz, m = Math.min(dl, dr, dt, db); if (m === dl) nx = x0; else if (m === dr) nx = x1; else if (m === dt) nz = z0; else nz = z1; hit = true; } } if (!hit) break; } return [nx, nz]; }
+  const solidAt = (rr, x, z, feet) => { if (rr.obs) for (const o of rr.obs) { if (o.y1 < feet + .15 || o.y0 > feet + 1.7) continue; if (x > o.x0 - PR && x < o.x1 + PR && z > o.z0 - PR && z < o.z1 + PR) return true; } return false; };
+  const walkable = (rr, x, z, feet) => ((Math.hypot(x, z) <= rr.r - .6) || (rr.kind === 'junction' && Math.abs(x) <= .4 && z < 0 && z >= -(rr.r + 2.3))) && !solidAt(rr, x, z, feet);
+  const clampIn = (rr, nx, nz) => { [nx, nz] = pushOut(rr, nx, nz, feetOf(rr)); const m = Math.hypot(nx, nz), lim = rr.r - .6;
+    if (rr.kind === 'junction' && m > lim && Math.abs(nx) < .8 && nz < 0) return [Math.max(-.4, Math.min(.4, nx)), Math.max(nz, -(rr.r + 3.0 - .7))];   // the boarding lock off the dorsal wall
+    return m > lim ? [nx * lim / m, nz * lim / m] : [nx, nz]; };
+  // A* path planner on a .25 m grid, then string-pulled: click-to-walk routes around props instead of through them
+  function plan(rr, sx, sz, tx, tz, feet) {
+    const cs = .25, X0 = -(rr.r + .3), Z0 = -(rr.r + 3.4), NX = Math.ceil((2 * rr.r + .6) / cs) + 1, NZ = Math.ceil((2 * rr.r + 3.8) / cs) + 1, idx = (i, j) => j * NX + i;
+    const cx = x => Math.round((x - X0) / cs), cz = z => Math.round((z - Z0) / cs), wx = i => X0 + i * cs, wz = j => Z0 + j * cs, free = (i, j) => i >= 0 && j >= 0 && i < NX && j < NZ && walkable(rr, wx(i), wz(j), feet);
+    const los = (ax, az, bx, bz) => { const n = Math.ceil(Math.hypot(bx - ax, bz - az) / .12); for (let k = 1; k < n; k++) { const t = k / n; if (!walkable(rr, ax + (bx - ax) * t, az + (bz - az) * t, feet)) return false; } return true; };
+    const nearest = (i, j) => { if (free(i, j)) return [i, j]; let best = null, bd = 1e9; for (let di = -14; di <= 14; di++) for (let dj = -14; dj <= 14; dj++) if (free(i + di, j + dj)) { const d = di * di + dj * dj; if (d < bd) { bd = d; best = [i + di, j + dj]; } } return best; };
+    let gg = nearest(cx(tx), cz(tz)); if (!gg) return [{ x: tx, z: tz }]; const [gi, gj] = gg; tx = wx(gi); tz = wz(gj);
+    if (los(sx, sz, tx, tz)) return [{ x: tx, z: tz }];
+    const ss = nearest(cx(sx), cz(sz)); if (!ss) return [{ x: tx, z: tz }]; const [si, sj] = ss, G = new Float32Array(NX * NZ).fill(1e9), from = new Int32Array(NX * NZ).fill(-1), open = [[0, idx(si, sj)]]; G[idx(si, sj)] = 0; let found = false;
+    while (open.length) { let bi = 0; for (let k = 1; k < open.length; k++) if (open[k][0] < open[bi][0]) bi = k; const c = open.splice(bi, 1)[0][1], ci = c % NX, cj = (c - ci) / NX; if (ci === gi && cj === gj) { found = true; break; }
+      for (let di = -1; di <= 1; di++) for (let dj = -1; dj <= 1; dj++) { if (!di && !dj) continue; const ni = ci + di, nj = cj + dj; if (!free(ni, nj) || (di && dj && (!free(ci + di, cj) || !free(ci, cj + dj)))) continue; const nc = G[c] + Math.hypot(di, dj), n = idx(ni, nj); if (nc < G[n]) { G[n] = nc; from[n] = c; open.push([nc + Math.hypot(ni - gi, nj - gj), n]); } } }
+    if (!found) return [{ x: tx, z: tz }];
+    const pts = []; for (let c = idx(gi, gj); c !== -1; c = from[c]) { const i = c % NX; pts.unshift({ x: wx(i), z: wz((c - i) / NX) }); }
+    const out = []; let a = { x: sx, z: sz }, k = 0; while (k < pts.length) { let far = k; for (let m = pts.length - 1; m >= k; m--) if (los(a.x, a.z, pts[m].x, pts[m].z)) { far = m; break; } out.push(pts[far]); a = pts[far]; k = far + 1; } out[out.length - 1] = { x: tx, z: tz }; return out;
+  }
+  // tube-hall ladders: two ladders (local z) and catwalk landings at 0 / 5 / 15 / 25 m; R/F or the on-screen arrows climb one landing
+  const LAD = { z: [-.3, 2.9], lv: [0, 5, 15, 25] };
+  function ladTo(lv, done) {
+    if (st.room !== 'T' || st.mode !== 'room') return; const g = roomG.T, base = g.getAbsolutePosition(), px = who.position.x - base.x, pz = who.position.z - base.z, lz = LAD.z.reduce((b, z) => Math.abs(z - pz) < Math.abs(b - pz) ? z : b);
+    tween.length = 0; const go = () => tween.push({ k: 'lad', lv, lz, done: () => { st.lvl = lv; if (st.cam === 'shoulder') { cam.alpha = lz < 1 ? Math.PI / 2 : -Math.PI / 2; cam.beta = lv ? 1.3 : 1.15; cam.radius = lv ? 1.7 : 4.4; } hud(); done && done(); } });   // the tube columns fill both flanks, so on a landing the shoulder camera sits in the aisle looking ventral
+    if (Math.hypot(px, pz - lz) > .7) walkTo(0, lz, go); else go(); }
+  function climbStep(dir) { const to = Math.max(0, Math.min(LAD.lv.length - 1, st.lvl + dir)); if (st.room === 'T' && to !== st.lvl) ladTo(to); }
   const walkTo = (x, z, done) => tween.push({ k: 'walk', x, z, done });
-  function goTo(id) { if (id === st.room && st.mode === 'room') return; const from = roomG[st.room].metadata.room; tween.length = 0; st.mode = 'room'; walkTo(-(from.r - .7), 0, () => tween.push({ k: 'climb', id, done: () => { const to = roomG[id].metadata.room; place(id, -(to.r - .7), 0); enter(id); } })); }
+  function goTo(id) { if (id === st.room && st.mode === 'room') return; if (st.lvl && st.room === 'T') { ladTo(0, () => goTo(id)); return; } const from = roomG[st.room].metadata.room; tween.length = 0; st.mode = 'room'; walkTo(-(from.r - .7), 0, () => tween.push({ k: 'climb', id, done: () => { const to = roomG[id].metadata.room; place(id, -(to.r - .7), 0); enter(id); } })); }
   document.getElementById('shipbtn').onclick = () => { if (st.mode === 'ship') enter(st.room); else { if (st.cam !== 'orbit') setCam('orbit'); st.mode = 'ship'; st.tgt.set(0, yOf(70), 0); cam.radius = 150; cam.beta = 1.4; hud(); } };
-  sc.onPointerObservable.add(pi => { if (pi.type !== B.PointerEventTypes.POINTERTAP) return; const p = pi.pickInfo; if (!p || !p.hit || !p.pickedMesh.metadata || !p.pickedMesh.metadata.floor) return; const id = p.pickedMesh.metadata.floor; unzoom();
+  sc.onPointerObservable.add(pi => { if (pi.type !== B.PointerEventTypes.POINTERTAP) return; const p = pi.pickInfo; if (!p || !p.hit || !p.pickedMesh.metadata || !p.pickedMesh.metadata.floor) return; const id = p.pickedMesh.metadata.floor; unzoom(); if (st.lvl && st.mode !== 'ship') return;
     if (st.mode === 'ship') { st.mode = 'room'; place(id, 0, 0); enter(id); return; } if (id !== st.room) { goTo(id); return; }
     const g = roomG[id], rr = g.metadata.room, [cx, cz] = clampIn(rr, p.pickedPoint.x - g.position.x, p.pickedPoint.z - g.position.z); tween.length = 0; walkTo(cx, cz); });
   // ---- screen zoom: tap a station screen to step up to it; then its soft keys are live (CTL.activate)
@@ -348,6 +389,7 @@
   const keys = {};
   addEventListener('keydown', e => { keys[e.code] = 1; if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return; const k = e.code; if (k === 'Escape') unzoom();
     if (k === 'Digit1') setCam('orbit'); else if (k === 'Digit2') setCam('shoulder'); else if (k === 'KeyV') { if (HS.ok && typeof CTL !== "undefined") { CTL.activate('vent'); return; } FINS.to = FINS.to ? 0 : 1; if (window.UI) UI.toast(FINS.to ? 'VENT: radiator blades running out' : 'Blades retracting (silent running)', FINS.to ? 'w' : 'g'); }
+    else if (k === 'KeyR' || k === 'PageUp') climbStep(1); else if (k === 'KeyF' || k === 'PageDown') climbStep(-1);
     else if (k === 'Digit3') document.getElementById('shipbtn').click();
     else if (k === 'KeyQ' || k === 'KeyE') { const i = R.findIndex(r => r.id === st.room), j = Math.max(0, Math.min(R.length - 1, i + (k === 'KeyQ' ? 1 : -1))); if (j !== i) goTo(R[j].id); } });
   addEventListener('keyup', e => { delete keys[e.code]; }); addEventListener('blur', () => { for (const k in keys) delete keys[k]; });
@@ -355,15 +397,19 @@
   function drive(dt) {
     const dx = (keys.KeyD || keys.ArrowRight ? 1 : 0) - (keys.KeyA || keys.ArrowLeft ? 1 : 0), dz = (keys.KeyW || keys.ArrowUp ? 1 : 0) - (keys.KeyS || keys.ArrowDown ? 1 : 0); if ((!dx && !dz) || st.mode === 'ship') return; unzoom();
     const d = sc.activeCamera.getForwardRay().direction, f = new B.Vector3(d.x, 0, d.z); if (f.length() < 1e-3) return; f.normalize(); const v = f.scale(dz).add(new B.Vector3(-f.z, 0, f.x).scale(dx)); v.normalize();
-    const t0 = tween[0]; if (t0 && t0.k === 'climb') return; tween.length = 0; const g = roomG[st.room], rr = g.metadata.room, s = (keys.ShiftLeft || keys.ShiftRight ? 5.5 : 3.2) * dt;
+    const t0 = tween[0]; if (t0 && (t0.k === 'climb' || t0.k === 'lad')) return; tween.length = 0; const g = roomG[st.room], rr = g.metadata.room, s = (keys.ShiftLeft || keys.ShiftRight ? 5.5 : 3.2) * dt;
+    if (st.lvl && st.room === 'T') { const bs = g.getAbsolutePosition(), lx = Math.max(-.9, Math.min(.9, who.position.x + v.x * s - bs.x)), lz = Math.max(-1.0, Math.min(3.3, who.position.z + v.z * s - bs.z)); faceMove(bs.x + lx - who.position.x, bs.z + lz - who.position.z); who.position.x = bs.x + lx; who.position.z = bs.z + lz; return; }   // standing on a catwalk landing
     const [nx, nz] = clampIn(rr, who.position.x + v.x * s - g.position.x, who.position.z + v.z * s - g.position.z); faceMove(g.position.x + nx - who.position.x, g.position.z + nz - who.position.z); who.position.x = g.position.x + nx; who.position.z = g.position.z + nz; }
   function step(dt) {
     drive(dt); hunt(dt);
     const t = tween[0]; if (!t) return; const g = roomG[st.room], rr = g.metadata.room;
-    if (t.k === 'walk') { const tx = g.position.x + t.x, tz = g.position.z + t.z, dx = tx - who.position.x, dz = tz - who.position.z, d = Math.hypot(dx, dz), s = 3.2 * dt; if (d <= s) { who.position.x = tx; who.position.z = tz; tween.shift(); t.done && t.done(); } else { faceMove(dx, dz); who.position.x += dx / d * s; who.position.z += dz / d * s; } }
-    else if (t.k === 'climb') { const to = roomG[t.id].metadata.room, ty = to.y + .95, dy = ty - who.position.y, s = 6 * dt; who.position.x = -CELL_R; if (Math.abs(dy) <= s) { who.position.y = ty; tween.shift(); t.done && t.done(); } else { who.position.y += Math.sign(dy) * s; st.tgt.y += (who.position.y - st.tgt.y) * .1; } }
+    if (t.k === 'walk') { const base = g.getAbsolutePosition(); if (!t.path) t.path = plan(rr, who.position.x - base.x, who.position.z - base.z, t.x, t.z, feetOf(rr)); const wp = t.path[0]; if (!wp) { tween.shift(); t.done && t.done(); return; }
+      const tx = base.x + wp.x, tz = base.z + wp.z, dx = tx - who.position.x, dz = tz - who.position.z, d = Math.hypot(dx, dz), s = 3.2 * dt;
+      if (d <= s) { who.position.x = tx; who.position.z = tz; t.path.shift(); if (!t.path.length) { tween.shift(); t.done && t.done(); } } else { faceMove(dx, dz); who.position.x += dx / d * s; who.position.z += dz / d * s; } }
+    else if (t.k === 'lad') { const base = g.getAbsolutePosition(), ty = g.position.y + LAD.lv[t.lv] + .95, dy = ty - who.position.y, s = 2.6 * dt; who.position.x = base.x; who.position.z = base.z + t.lz; if (Math.abs(dy) <= s) { who.position.y = ty; tween.shift(); t.done && t.done(); } else who.position.y += Math.sign(dy) * s; }
+    else if (t.k === 'climb') { const to = roomG[t.id].metadata.room, ty = to.y + .95, dy = ty - who.position.y, near = Math.min(...R.map(q => Math.abs(q.y - (who.position.y - .95)))), s = 6 * dt * (.35 + .65 * Math.min(1, near / 1.5)); who.position.x = -CELL_R; if (Math.abs(dy) <= s) { who.position.y = ty; tween.shift(); t.done && t.done(); } else { who.position.y += Math.sign(dy) * s; st.tgt.y += (who.position.y - st.tgt.y) * .1; } }
   }
-  sc.onBeforeRenderObservable.add(() => { step(Math.min(.05, eng.getDeltaTime() / 1000)); cam.target = B.Vector3.Lerp(cam.target, st.tgt, .12);
+  sc.onBeforeRenderObservable.add(() => { step(Math.min(.05, eng.getDeltaTime() / 1000)); if (!(st.cam === 'shoulder' && st.mode === 'room')) cam.target = B.Vector3.Lerp(cam.target, st.tgt, .12);   // setTarget re-derives alpha/beta/radius from the old position, so the shoulder cam (which copies its target in place below) must not go through it
     fadeWalls();
     if (st.cam === 'fp') { if (st.zoom) zoomStep(); else fp.position.set(who.position.x, who.position.y + .65, who.position.z); }
     if (st.cam === 'shoulder' && st.mode === 'room') { st.tgt.set(who.position.x, who.position.y + .35, who.position.z); cam.target.copyFrom(st.tgt); }
