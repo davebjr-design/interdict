@@ -61,3 +61,24 @@ Balance 3045 -> 2865 (six previews at 20, six 2K refines at 10).
 - Dave: the ship still looked like a rocket. Changes in the 3D only: blunt ellipsoid bow (no spike, no mast), tapered stern with a shroud ring and four cruciform tail planes (the four engine pods and big plumes are gone), and two broad flank sponsons (long ellipsoids, about 88 m by 7.5 m by 6.2 m, centres 8.6 m off the axis, overall beam about 23 m against the spec's 14 m).
 - The sponsons hold the main heat-sink tanks (five per side, shown through the translucent skin) and the four radiator-blade channels; the eight blades (36 m by 6 m) stow flush and run out with V.
 - Spec impact if accepted: beam and the "smooth teardrop, round section" line change; heat sink moves partly from the annulus into flank tanks (volumes, the lithium tank groups, the damage model and the sensor signature of the sponsons all need re-deriving); stair-shaft naming (port and starboard) vs the dorsal tube deck needs a check, since the 3D puts the shafts at plus and minus x and the tube columns at plus and minus z.
+
+## Completeness audit and fit-out pass (18 Nov)
+
+Audit of the 3D model against the hull spec room schedule:
+
+| Spec item | 3D status |
+|---|---|
+| CIC, officer berths, array hall, mess, junction, thermal, sink, valve, reactor decks | present |
+| Utility (heads, showers, laundry, sickbay), B3 | was an empty disc; now 3 stalls, 3 showers, 2 washers, sickbay cot and medical cabinet |
+| Crew bunks, 24 racks in three pods of eight, bay T | was missing; now three pods (4 high x 2 columns) on alternating flanks |
+| Ordnance gallery, bay T | now carries 9 spare warhead and probe canisters |
+| Netted supply shelves between the tube columns (Dave's request) | six netted racks with crates in the aisle |
+| Ladders (tube hall, stair shafts) | two full-height ladders up the tube hall (cosmetic); shaft ladders are still just the hatches |
+| Mess seating for 28 | 5 seated crew now (was 2); the table is still one GLB |
+| Boarding airlock off B2 (2.8 m x 4.2 m, six suit lockers) | NOT built |
+| Galley crescent in B1 | NOT built |
+| CO stateroom pod under the CIC hatch | stand-in cylinder in A2 only |
+| Officer racks in A2 | three bunk GLBs stand for the six racks |
+
+Open interpretation: "a little bit bigger overall... a few more, like it was built for a larger crew" was read as more crew places (24 bunk racks, more mess seats), not larger cells (cell radius stays locked at about 5 m). Confirm with Dave.
+Axis check still open: the 3D puts the stair shafts at +/-x and the tube columns at +/-z; the spec says shafts are port and starboard and tubes sit on the dorsal line.
