@@ -119,5 +119,11 @@
   "file": "player.glb",
   "size_m": 1.8,
   "note": "standing crewman, the walking avatar (Meshy refine 01a1f1dc)"
+ },
+ "abara": {
+  "file": "abara.glb",
+  "size_m": 1.72,
+  "ry": 0,
+  "note": "Abara, Tactical & Navigation (Meshy crew run 2026-10-28, rig, walk clip, 1K webp)"
  }
 }

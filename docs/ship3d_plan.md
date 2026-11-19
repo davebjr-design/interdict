@@ -115,3 +115,7 @@ Still open (audit punch list): P1 prop collision in `clampIn`; tube hall racks a
 - Orbit camera: `cam.target = x` re-derives alpha/beta/radius and left the camera on the old deck; target is now changed in place (`copyFrom`), so the orbit follows the character to any deck.
 - White dots were the dust motes; removed.
 - Controls port from cic3d: B brace, T time x1/2/4, Space ack, K mute, Tab next contact, 1-3 answer a call, zoom-only letters (C L P O X R M U Y H Z F G, [ ]), call card, right-click radial menu on contacts, canvas shake, adapter events (calls, voice, toasts), status strip. Audio synth in hunt/audio.js.
+
+## Named crew in the ship (Version 12)
+- The crew from the 2026-10-28 Meshy run already exist as rigged GLBs (design/assets/meshy_output/crew/<name>/walk.glb, 40 credits each, no new spend). Pipeline per character: gltf-transform resize 1024 -> prune -> webp q85 (14.4 MB -> 2.0 MB), copy to web/ship3d_babylon/glb/<name>.glb, add a manifest entry (size_m = true height, Abara 1.72), place with `slot('<name>', fallback, parent, x, 0, z, {id, ry, ground:true})`.
+- Abara placed standing at the CIC chart table. Rig is still in its A-pose; walk/idle clip not yet driven.
