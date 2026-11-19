@@ -48,7 +48,7 @@
     power(g, t) {
       const { S, Y } = ctx; hdr(g, 'POWER / ENGINEERING', 'FUSION PODS · FISSION PLANT · BUS', C.amb); if (!Y) return;
       txt(g, 'FUSION PODS (D-He3)', 30, 100, 20, C.dim); Y.pods.forEach((v, i) => bar(g, 30, 112 + i * 46, 470, 38, v / 100, v > 100 ? C.red : C.amb, 'POD ' + (i + 1), v.toFixed(0) + '%'));
-      txt(g, 'FISSION PLANT', 30, 330, 20, C.dim); bar(g, 30, 342, 470, 38, S.hull < 15 ? .4 : 1, C.grn, 'STANDING', window.SHIPSYS.FISSION_MW + ' MW');
+      txt(g, 'FISSION PLANT', 30, 330, 20, C.dim); bar(g, 30, 342, 470, 38, S.hull < 15 ? .4 : 1, C.grn, 'STANDING', '450 MWt / ' + window.SHIPSYS.FISSION_MW + ' MWe');
       txt(g, 'BUS  ' + Y.bus.load.toFixed(0) + ' MW of ' + Y.bus.cap.toFixed(0) + ' MW', 540, 100, 24, Y.bus.load > Y.bus.cap ? C.amb : C.txt);
       Y.bus.parts.forEach(([n, v], i) => bar(g, 540, 116 + i * 40, 450, 32, v / 25, n === 'POINT DEFENCE' && v > 4 ? C.amb : C.cya, n, v.toFixed(1)));
       txt(g, 'FUSION CASSETTES', 30, 436, 20, C.dim); for (let i = 0; i < 8; i++) { const f = Math.max(0, Math.min(1, Y.cass - i)); g.fillStyle = '#0a1a22'; g.fillRect(30 + i * 62, 450, 54, 120); g.strokeStyle = C.line; g.lineWidth = 2; g.strokeRect(30 + i * 62, 450, 54, 120); g.fillStyle = Y.cass <= 2 ? C.amb : C.grn; g.fillRect(30 + i * 62, 450 + 120 * (1 - f), 54, 120 * f); }

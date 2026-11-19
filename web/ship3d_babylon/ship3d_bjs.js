@@ -313,7 +313,7 @@
   R.forEach(r => { const b = document.createElement('button'); b.textContent = r.id + '  ' + r.name; b.dataset.id = r.id; b.onclick = () => goTo(r.id); decks.appendChild(b); });
   function place(id, x, z) { const r = roomG[id].metadata.room; st.room = id; who.position.set(x, r.y + .95, z); }
   function enter(id) { st.mode = 'room'; st.room = id; const r = roomG[id].metadata.room; dust.emitter = roomG[id].getAbsolutePosition().clone(); dust.maxEmitBox.setAll(r.r * .85); dust.minEmitBox.set(-r.r * .85, .2, -r.r * .85); dust.maxEmitBox.y = Math.min(r.h, 6) - .3; st.tgt.set(0, r.y + (r.kind === 'tubes' ? 12 : 1.2), 0); cam.radius = r.kind === 'tubes' ? 30 : 11; cam.beta = r.kind === 'tubes' ? 1.3 : .8; hud(); }
-  const clampIn = (rr, nx, nz) => { if (rr.kind === 'junction' && Math.abs(nx) < .8 && nz < 0) return [Math.max(-.8, Math.min(.8, nx)), Math.max(nz, -(rr.r + 3.0 - .7))];   // the boarding lock off the dorsal wall
+  const clampIn = (rr, nx, nz) => { if (rr.kind === 'junction' && Math.abs(nx) < .8 && nz < 0) return [Math.max(-.4, Math.min(.4, nx)), Math.max(nz, -(rr.r + 3.0 - .7))];   // the boarding lock off the dorsal wall
     const m = Math.hypot(nx, nz), lim = rr.r - .6; return m > lim ? [nx * lim / m, nz * lim / m] : [nx, nz]; };
   const walkTo = (x, z, done) => tween.push({ k: 'walk', x, z, done });
   function goTo(id) { if (id === st.room && st.mode === 'room') return; const from = roomG[st.room].metadata.room; tween.length = 0; st.mode = 'room'; walkTo(-(from.r - .7), 0, () => tween.push({ k: 'climb', id, done: () => { const to = roomG[id].metadata.room; place(id, -(to.r - .7), 0); enter(id); } })); }
@@ -335,14 +335,19 @@
   sc.onPointerObservable.add(pi => { if (!HS.ok) return;
     if (pi.type === B.PointerEventTypes.POINTERMOVE) { if (!st.zoom) return; const h = scrHit(pi); LS.ctx.hover = h && h.mesh === st.zoom.mesh && h.reg ? { scr: h.n, id: h.reg.id } : { scr: null, id: null }; cv.style.cursor = LS.ctx.hover.id ? 'pointer' : ''; return; }
     if (pi.type !== B.PointerEventTypes.POINTERTAP) return; const h = scrHit(pi); if (!h) return; if (!st.zoom || st.zoom.mesh !== h.mesh) zoomTo(h.mesh); else if (h.reg) CTL.activate(h.reg.id); });
+  const almEl = document.createElement('div'); almEl.style.cssText = 'display:none;position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);max-width:70vw;padding:6px 12px;background:rgba(12,22,24,.88);border:1px solid #f0ab3a;border-radius:4px;color:#d7e3ea;font:12px system-ui,sans-serif;z-index:5;pointer-events:none'; document.body.appendChild(almEl);
   function hunt(dt) {
     if (!HS.ok) return; const S = HS.S, E = HS.E; if (!S.over && !S.hold) E.tick(S, dt / E.P.secPerMin); HS.A.update(S, S.over || S.hold ? 0 : dt); LS.ctx.annOut = HS.ANN.update({ s: S, model: HS.A.model, E }); if (HS.Y && window.SHIPSYS) { SHIPSYS.update(HS.Y, S, S.over || S.hold ? 0 : dt / E.P.secPerMin); if (window.PS) Object.assign(PS.ctx, { S, E, A: HS.A, Y: HS.Y, ann: LS.ctx.annOut }); }
+    FINS.to = S.vent && S.vent.on ? 1 : 0; st.hunting = !S.over; { const bad = [], ao = LS.ctx.annOut || { lamps: {} }; for (const id in ao.lamps) { const l = ao.lamps[id]; if (l.state === 'warning' || l.state === 'caution') bad.push([l.state, id.toUpperCase().replace(/_/g, ' ')]); }
+      if (HS.Y && window.SHIPSYS) SHIPSYS.lamps(HS.Y, S).forEach(l => { if (l.state === 'warning' || l.state === 'caution') bad.push([l.state, l.label]); });
+      const w = bad.some(b => b[0] === 'warning'), key = bad.map(b => b[1]).join('|') + w; st.alarm = w ? 2 : bad.length ? 1 : 0;
+      if (almEl._k !== key) { almEl._k = key; almEl.style.display = bad.length ? 'block' : 'none'; almEl.style.borderColor = w ? '#ff4a3d' : '#f0ab3a'; almEl.innerHTML = '<b style="color:' + (w ? '#ff7a6d' : '#f0ab3a') + '">' + (w ? 'WARNING' : 'CAUTION') + '</b> ' + bad.slice(0, 6).map(b => b[1]).join(' · ') + (bad.length > 6 ? ' +' + (bad.length - 6) : '') + ' <span style="opacity:.6">(see annunciator in the CIC)</span>'; } }
     if (!LS.ctx.sel && S.an.length) LS.ctx.sel = (S.an.find(a => a.state !== 'out') || S.an[0]).id;
     if (st.room !== 'A1' || st.mode !== 'room') return; const now = performance.now();
     for (const n in HS.tex) { const per = st.zoom && st.zoom.mesh.metadata.screen === n ? 110 : HS.tex[n].passive ? 700 : 450; if (now - (HS.last[n] || 0) < per) continue; HS.last[n] = now; HS.tex[n].o.paint(now); HS.tex[n].tex.update(false); } }
   const keys = {};
   addEventListener('keydown', e => { keys[e.code] = 1; if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return; const k = e.code; if (k === 'Escape') unzoom();
-    if (k === 'Digit1') setCam('orbit'); else if (k === 'Digit2') setCam('shoulder'); else if (k === 'KeyV') { FINS.to = FINS.to ? 0 : 1; if (window.UI) UI.toast(FINS.to ? 'VENT: radiator blades running out' : 'Blades retracting (silent running)', FINS.to ? 'w' : 'g'); }
+    if (k === 'Digit1') setCam('orbit'); else if (k === 'Digit2') setCam('shoulder'); else if (k === 'KeyV') { if (HS.ok && typeof CTL !== "undefined") { CTL.activate('vent'); return; } FINS.to = FINS.to ? 0 : 1; if (window.UI) UI.toast(FINS.to ? 'VENT: radiator blades running out' : 'Blades retracting (silent running)', FINS.to ? 'w' : 'g'); }
     else if (k === 'Digit3') document.getElementById('shipbtn').click();
     else if (k === 'KeyQ' || k === 'KeyE') { const i = R.findIndex(r => r.id === st.room), j = Math.max(0, Math.min(R.length - 1, i + (k === 'KeyQ' ? 1 : -1))); if (j !== i) goTo(R[j].id); } });
   addEventListener('keyup', e => { delete keys[e.code]; }); addEventListener('blur', () => { for (const k in keys) delete keys[k]; });
@@ -375,7 +380,7 @@
         sg.vis += (tv - sg.vis) * .18; if (Math.abs(sg.vis - (sg._v || 1)) > .01 || tv === 1 && sg.vis > .99) { sg._v = sg.vis; for (const m of sg.items) { m.visibility = sg.vis > .985 ? 1 : sg.vis; } } } } }
   function animate(t) {
     FINS.v += (FINS.to - FINS.v) * .025; FINS.hinges.forEach(h => { h.scaling.x = .02 + .98 * FINS.v; }); FINS.bladeM.emissiveIntensity = .1 + .8 * FINS.v;
-    for (const b of life.blink) b.m.emissiveIntensity = b.c === 0 ? .75 + .25 * Math.sin(t * 2.1 + b.ph) : b.c === 1 ? (Math.sin(t * .9 + b.ph) > .1 ? 1.1 : .12) : b.c === 2 ? ((t * .7 + b.ph) % 4 < .25 ? 1.6 : .08) : .55 + .45 * Math.sin(t * 3.3 + b.ph);
+    const ls = st.alarm || 0; for (const b of life.blink) b.m.emissiveIntensity = b.c === 0 ? (ls === 0 ? .8 + .2 * Math.sin(t * 2.1 + b.ph) : .08) : b.c === 1 ? (ls === 1 ? (Math.sin(t * 3 + b.ph) > -.3 ? 1.4 : .3) : .06) : b.c === 2 ? (ls === 2 ? (Math.sin(t * 8) > 0 ? 1.8 : .15) : .05) : (st.hunting ? .6 : .08);   // wall LEDs: green = all normal, amber = caution lamp lit, red = warning lamp lit, cyan = hunt running
     for (const o of life.glow) { const s = Math.sin(t * o.sp * (o.strobe ? 3 : 1) + (o.ph || 0)); o.m.emissiveIntensity = o.strobe ? (s > .85 ? o.hi : o.lo) : o.lo + (o.hi - o.lo) * (.5 + .5 * s); }
     ringM.emissiveColor = B.Color3.FromHexString('#3ddbd0'); ringM.emissiveIntensity = .12 + .1 * Math.sin(t * 1.4);
     for (const c of life.crew) { if (c.y0 === undefined) { c.y0 = c.h.position.y; c.r0 = c.h.rotation.y; } c.h.position.y = c.y0 + .008 * Math.sin(t * 1.7 + c.ph); c.h.rotation.y = c.r0 + .05 * Math.sin(t * .35 + c.ph); } }
