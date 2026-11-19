@@ -109,3 +109,9 @@ Still open (audit punch list): P1 prop collision in `clampIn`; tube hall racks a
 - **Shaft climb:** now eases down as it passes each deck (it was a constant-speed rise).
 - **Camera bug fixed:** re-assigning `cam.target` each frame re-derived the shoulder camera's alpha/beta/radius from a stale position, so camera changes made during a frame were overwritten. Shoulder mode now copies its target in place only.
 - Headless check: door-to-door walks complete in all 12 rooms with detours of at most about 0.3 s; ladder up/down verified through all landings.
+
+## Airlock / collar, orbit camera, dust, controls port (Version 11)
+- Airlock: 4.2 m lock, inner/outer hatch discs, hazard-striped collar with 12 bolts, status lamps, soft-dock tube node, vessel stub. State machine in hunt/airlock_sys.js (hatch 1.6 s, cycle 6 s, tube 4 s, interlocks, suit). Mission API: `SHIP_BJS.api.airlock.dock({id,label,p}) / arm({id,prompt}) / choose(i)`; listen to `airlock` CustomEvents (inner-open, outer-open, cycle-done, dock, undock, suit, board, look). Test panel in B2 near the lock mouth; keys H/J/C. The scripted boarding scene is still to be written on top of this API.
+- Orbit camera: `cam.target = x` re-derives alpha/beta/radius and left the camera on the old deck; target is now changed in place (`copyFrom`), so the orbit follows the character to any deck.
+- White dots were the dust motes; removed.
+- Controls port from cic3d: B brace, T time x1/2/4, Space ack, K mute, Tab next contact, 1-3 answer a call, zoom-only letters (C L P O X R M U Y H Z F G, [ ]), call card, right-click radial menu on contacts, canvas shake, adapter events (calls, voice, toasts), status strip. Audio synth in hunt/audio.js.

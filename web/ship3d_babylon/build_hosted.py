@@ -9,7 +9,7 @@ for f in files:
     open(out + '/glb_' + f[:-4] + '.js', 'w').write("window.GLB_DATA=window.GLB_DATA||{};window.GLB_DATA['%s']='%s';" % (f, b))
 tpl = open(sys.argv[2] if len(sys.argv) > 2 else out + '/ship_spine.html').read()
 i, j = tpl.index('<script>window.SHIP_MANIFEST='), tpl.index('<script src="babylon.js">')
-hunt = ['flight_model', 'hunt_rt_engine', 'station_model', 'salvo_presets', 'station_adapter', 'annunciator', 'live_screens', 'ctl_bjs', 'ship_systems', 'passive_screens']
+hunt = ['flight_model', 'hunt_rt_engine', 'station_model', 'salvo_presets', 'station_adapter', 'annunciator', 'live_screens', 'audio', 'ctl_bjs', 'airlock_sys', 'ship_systems', 'passive_screens']
 tags = '<script src="babylon.js"></script><script src="babylonjs.loaders.min.js"></script>' + ''.join('<script src="glb_%s.js"></script>' % f[:-4] for f in files) + ''.join('<script src="hunt/%s.js"></script>' % h for h in hunt) + '<script src="ship3d_bjs.js"></script>'
 open(out + '/ship_spine.html', 'w').write(tpl[:i] + '<script>window.SHIP_MANIFEST=' + json.dumps(man) + ';</script>\n' + tags + '\n')
 shutil.copy(src + '/ship3d_bjs.js', out + '/ship3d_bjs.js')

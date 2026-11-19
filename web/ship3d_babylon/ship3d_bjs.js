@@ -75,6 +75,7 @@
     if (D) { const bin = atob(D), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i); return conts[file] = B.SceneLoader.LoadAssetContainerAsync('file:', new File([u8], file), sc); }
     return conts[file] = B.SceneLoader.LoadAssetContainerAsync('glb/', file, sc);
   }
+  const LOCK_LEN = 4.2, LK = window.AIRLOCK ? AIRLOCK.create() : null; let LKV = null;   // spec: 2.8 m round chamber, 4.2 m long, lying radially from the junction wall through the annulus to the dorsal collar (x about 31)
   // ---- collision: solid props register a room-local box (y relative to the room floor); the player is a .32 m disc. Used by keyboard walking, click-to-walk (A* path planner) and spawn.
   const SOLID = new Set(['console', 'couch', 'messtable', 'reactor', 'pumptower', 'bunk', 'tubebase', 'galley_range', 'galley_fridge', 'suit_locker', 'captain_bunk', 'captain_desk', 'med_cot', 'head_unit', 'shower_pod', 'washer', 'command_chair', 'dc_locker', 'supply_crate', 'warhead']);
   const SOLIDN = /^(table|hub|lockbench|partition|pump|tank|tube|gallery|tower|net|board|crate|post)$/, PR = .32;
@@ -115,7 +116,7 @@
   if (typeof HuntRT !== 'undefined' && window.LS && window.StationAdapter && window.Annunciator) try {
     window.THREE = window.THREE || { CanvasTexture: function (c) { this.image = c; } };
     const E = HuntRT; E.P.secPerMin = 16; HS.E = E; HS.S = E.newHunt(7, { entry: 'standard', friendly: true }); HS.A = StationAdapter.create({ engine: E, seed: 7, command: 'tight', preset: 'ambush' }); HS.A.update(HS.S, 0); HS.ANN = Annunciator.create();
-    LS.ctx.S = HS.S; LS.ctx.E = E; LS.ctx.A = HS.A; LS.ctx.sel = null; window.CTL_HOST = { E, S: () => HS.S, A: () => HS.A, ANN: () => HS.ANN }; window.CTL_INIT(); HS.ok = true; if (window.SHIPSYS) { HS.Y = SHIPSYS.create(); if (window.PS) Object.assign(PS.ctx, { S: HS.S, E, A: HS.A, Y: HS.Y, ann: HS.ANN.update({ s: HS.S, model: HS.A.model, E }) }); }
+    LS.ctx.S = HS.S; LS.ctx.E = E; LS.ctx.A = HS.A; LS.ctx.sel = null; window.CTL_HOST = { E, S: () => HS.S, A: () => HS.A, ANN: () => HS.ANN }; window.CTL_INIT(); HS.ok = true; if (window.AUD) AUD.attach(); if (window.SHIPSYS) { HS.Y = SHIPSYS.create(); if (window.PS) Object.assign(PS.ctx, { S: HS.S, E, A: HS.A, Y: HS.Y, ann: HS.ANN.update({ s: HS.S, model: HS.A.model, E }) }); }
   } catch (e) { console.warn('hunt init', e); }
   const scrTex = n => HS.tex[n] || (HS.tex[n] = (() => { const o = LS.make(n), tex = new B.DynamicTexture('scr_' + n, o.c, sc, true, B.Texture.TRILINEAR_SAMPLINGMODE, B.Engine.TEXTUREFORMAT_RGBA, false); o.paint(performance.now()); tex.update(false); const m = new B.StandardMaterial('scrM_' + n, sc); m.disableLighting = true; m.emissiveTexture = tex; m.backFaceCulling = false; return { o, tex, m }; })());
   const polar = (g, a, rad, ry0) => { const n = new B.TransformNode('fx', sc); n.parent = g; n.position.set(Math.cos(a) * rad, 0, Math.sin(a) * rad); n.rotation.y = -a + Math.PI / 2 + (ry0 || 0); return n; };   // local z = radial outward, x = tangent
@@ -165,15 +166,32 @@
   function galley(g) {   // the galley crescent along the forward wall of the mess: cold stores, ranges, a prep counter and a crate stack
     [['galley_fridge', .85, 1.9, 'gfridge0'], ['galley_fridge', 1.12, 1.9, 'gfridge1'], ['galley_range', 1.45, 1.5, 'grange0'], ['galley_range', 1.85, 1.5, 'grange1'], ['galley_range', 2.25, 1.5, 'gprep'], ['supply_crate', 2.6, 1.0, 'gcrate']]
       .forEach(([k, a, size, id]) => slot(k, rt => box('gfb', size * .7, k === 'galley_fridge' ? 1.9 : 1.0, .7, steel, rt, 0, k === 'galley_fridge' ? .95 : .5, 0), g, Math.cos(a) * 4.3, 0, Math.sin(a) * 4.3, { id, ry: face(a), ground: true, size })); }
-  function airlock(g, r) {   // boarding lock off the dorsal (-z) wall: 2.8 m round chamber lying radially through the annulus, six suit lockers, bench, brass inner gate, outer hatch
-    const len = 3.0, zc = -(r + len / 2), tub = B.MeshBuilder.CreateCylinder('lock', { diameter: 2.8, height: len, tessellation: 40, sideOrientation: B.Mesh.DOUBLESIDE }, sc);
+  function airlock(g, r) {   // boarding lock off the dorsal (-z) wall: 2.8 m round chamber lying radially through the annulus to the collar, six suit lockers, bench, inner and outer iris doors, status lamps, soft-dock tube
+    const len = LOCK_LEN, zc = -(r + len / 2), zo = -(r + len), tub = B.MeshBuilder.CreateCylinder('lock', { diameter: 2.8, height: len, tessellation: 40, sideOrientation: B.Mesh.DOUBLESIDE }, sc);
     tub.material = lockM; tub.parent = g; tub.position.set(0, 1.0, zc); tub.rotation.x = Math.PI / 2; tub.isPickable = false;
     const dk = box('lockdeck', 1.96, .1, len, floorM, g, 0, -.05, zc); dk.metadata = { floor: 'B2' };
     for (let k = 0; k < 3; k++) for (const sx of [-1, 1]) slot('suit_locker', rt => box('lkfb', .6, 2.0, .6, pbr('#5d7f90'), rt, 0, 1.0, 0), g, sx * .74, 0, -(r + .7 + k * .85), { id: 'suit' + k + (sx < 0 ? 'p' : 's'), ry: sx < 0 ? Math.PI / 2 : -Math.PI / 2, ground: true, size: 2.0 });
-    box('lockbench', 1.2, .45, .4, steel, g, 0, .22, -(r + len - .45)).isPickable = false;
+    box('lockbench', 1.2, .45, .4, steel, g, 0, .22, zo + .45).isPickable = false;
     const gate = B.MeshBuilder.CreateTorus('lockgate', { diameter: 2.0, thickness: .12, tessellation: 40 }, sc); gate.material = brass; gate.parent = g; gate.position.set(0, 1.0, -(r - .02)); gate.rotation.x = Math.PI / 2; gate.isPickable = false;
-    slot('airlock_door', rt => { const d = B.MeshBuilder.CreateTorus('door', { diameter: 1.3, thickness: .12 }, sc); d.material = brass; d.parent = rt; d.rotation.x = Math.PI / 2; return d; }, g, 0, 1.0, -(r + len - .05), { id: 'lockouter', ry: 0, size: 1.3 });
+    const disc = (nm, d, z, m) => { const q = B.MeshBuilder.CreateCylinder(nm, { diameter: d, height: .1, tessellation: 40 }, sc); q.material = m; q.parent = g; q.position.set(0, 1.0, z); q.rotation.x = Math.PI / 2; q.isPickable = false; return q; };
+    const idoor = disc('lockidoor', 1.88, -(r - .02), pbr('#3c4f59', { metal: .6, rough: .45 })), odoor = disc('lockodoor', 1.22, zo + .1, pbr('#2c3a42', { metal: .6, rough: .5 }));
+    slot('airlock_door', rt => { const d = B.MeshBuilder.CreateTorus('door', { diameter: 1.3, thickness: .12 }, sc); d.material = brass; d.parent = rt; d.rotation.x = Math.PI / 2; return d; }, g, 0, 1.0, zo + .05, { id: 'lockouter', ry: 0, size: 1.3 });
+    // dorsal collar: fairing neck through the skin, 2.2 m yellow-black hazard ring, brass bolts
+    const fair = B.MeshBuilder.CreateCylinder('lockfair', { diameter: 3.2, height: 1.4, tessellation: 32 }, sc); fair.material = pbr('#222e35', { metal: .6, rough: .45 }); fair.parent = g; fair.rotation.x = Math.PI / 2; fair.position.set(0, 1.0, zo + .7); fair.isPickable = false;
+    const hazT = ptex('haz', 256, 32, (c, w, h) => { c.fillStyle = '#e0b020'; c.fillRect(0, 0, w, h); c.fillStyle = '#16181a'; for (let x = -h; x < w; x += 32) { c.beginPath(); c.moveTo(x, h); c.lineTo(x + 16, h); c.lineTo(x + 16 + h, 0); c.lineTo(x + h, 0); c.fill(); } }), hazM = new B.StandardMaterial('hazM', sc); hazM.diffuseTexture = hazT; hazM.specularColor = new B.Color3(.1, .1, .1);
+    const col = B.MeshBuilder.CreateTorus('lockcollar', { diameter: 2.4, thickness: .3, tessellation: 48 }, sc); col.material = hazM; col.parent = g; col.rotation.x = Math.PI / 2; col.position.set(0, 1.0, zo - .02); col.isPickable = false;
+    for (let i = 0; i < 12; i++) { const a = i / 12 * 6.283, bolt = B.MeshBuilder.CreateCylinder('colbolt', { diameter: .09, height: .06, tessellation: 8 }, sc); bolt.material = brass; bolt.parent = g; bolt.rotation.x = Math.PI / 2; bolt.position.set(Math.cos(a) * 1.2, 1.0 + Math.sin(a) * 1.2, zo - .18); bolt.isPickable = false; }
+    // status lamps over the inner gate (inner, cycle, outer)
+    const lamp = x => { const q = B.MeshBuilder.CreateBox('locklamp', { width: .16, height: .16, depth: .05 }, sc); const m = new B.StandardMaterial('lockLampM', sc); m.disableLighting = true; m.emissiveColor = new B.Color3(.1, .1, .1); q.material = m; q.parent = g; q.position.set(x, 2.25, -(r + .1)); q.isPickable = false; return m; };
+    // soft-dock tube (telescopes out along -z) and the mated hull
+    const tubeN = new B.TransformNode('locktube', sc); tubeN.parent = g; tubeN.position.set(0, 1.0, zo); const tm = pbr('#3a4a52', { metal: .5, rough: .6 });
+    const tcy = B.MeshBuilder.CreateCylinder('lockbellows', { diameter: 1.9, height: 6, tessellation: 32, sideOrientation: B.Mesh.DOUBLESIDE }, sc); tcy.material = tm; tcy.parent = tubeN; tcy.rotation.x = Math.PI / 2; tcy.position.z = -3; tcy.isPickable = false;
+    for (let i = 1; i <= 6; i++) { const rg = B.MeshBuilder.CreateTorus('lockrib', { diameter: 1.95, thickness: .07, tessellation: 32 }, sc); rg.material = brass; rg.parent = tubeN; rg.rotation.x = Math.PI / 2; rg.position.z = -i + .5; rg.isPickable = false; }
+    tubeN.scaling.z = .001;
+    const vesN = new B.TransformNode('lockvessel', sc); vesN.parent = g; const vm = pbr('#44525c', { metal: .6, rough: .5 }); const hullV = B.MeshBuilder.CreateCylinder('vhull', { diameter: 4.6, height: 12, tessellation: 32 }, sc); hullV.material = vm; hullV.parent = vesN; hullV.rotation.z = Math.PI / 2; hullV.position.z = -2.3; hullV.isPickable = false;
+    const vcol = B.MeshBuilder.CreateTorus('vcollar', { diameter: 2.4, thickness: .3, tessellation: 40 }, sc); vcol.material = hazM; vcol.parent = vesN; vcol.rotation.x = Math.PI / 2; vcol.isPickable = false; vesN.setEnabled(false);
     for (const i of [17, 18]) g.metadata.segs[i].items.forEach(m => { m.isVisible = false; });   // open the bulkhead where the lock joins
+    LKV = { idoor, odoor, tubeN, vesN, vm, lI: lamp(-.3), lC: lamp(0), lO: lamp(.3), r, ci: 1, co: 1 };
   }
   function prop(kind, g, r, h) {
     if (kind === 'cic') {
@@ -294,7 +312,7 @@
   const dustT = ptex('dustT', 32, 32, g => { const gr = g.createRadialGradient(16, 16, 0, 16, 16, 16); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 32, 32); }, 1, 1);
   const dust = new B.ParticleSystem('dust', 160, sc); dust.particleTexture = dustT; dust.emitter = new B.Vector3(0, 0, 0); dust.minEmitBox = new B.Vector3(-4, .2, -4); dust.maxEmitBox = new B.Vector3(4, 2.7, 4);
   dust.color1 = new B.Color4(.8, .9, 1, .35); dust.color2 = new B.Color4(1, .9, .7, .2); dust.colorDead = new B.Color4(1, 1, 1, 0); dust.minSize = .006; dust.maxSize = .02; dust.minLifeTime = 6; dust.maxLifeTime = 12; dust.emitRate = 20;
-  dust.direction1 = new B.Vector3(-.06, -.015, -.06); dust.direction2 = new B.Vector3(.06, .05, .06); dust.minEmitPower = .3; dust.maxEmitPower = 1; dust.preWarmCycles = 80; dust.preWarmStepOffset = 5; dust.start();
+  dust.direction1 = new B.Vector3(-.06, -.015, -.06); dust.direction2 = new B.Vector3(.06, .05, .06); dust.minEmitPower = .3; dust.maxEmitPower = 1; dust.preWarmCycles = 80; dust.preWarmStepOffset = 5; 
 
   // ---- character, camera, interaction
   const who = B.MeshBuilder.CreateCapsule('who', { radius: .3, height: 1.7 }, sc); who.material = pbr('#c9a24a', { emit: '#3a2c08', ei: 1 }); who.isPickable = false;
@@ -330,13 +348,13 @@
   const feetOf = rr => who.position.y - .95 - roomG[rr.id].position.y;
   function pushOut(rr, nx, nz, feet) { if (!rr.obs) return [nx, nz]; for (let it = 0; it < 3; it++) { let hit = false; for (const o of rr.obs) { if (o.y1 < feet + .15 || o.y0 > feet + 1.7) continue; const x0 = o.x0 - PR, x1 = o.x1 + PR, z0 = o.z0 - PR, z1 = o.z1 + PR; if (nx > x0 && nx < x1 && nz > z0 && nz < z1) { const dl = nx - x0, dr = x1 - nx, dt = nz - z0, db = z1 - nz, m = Math.min(dl, dr, dt, db); if (m === dl) nx = x0; else if (m === dr) nx = x1; else if (m === dt) nz = z0; else nz = z1; hit = true; } } if (!hit) break; } return [nx, nz]; }
   const solidAt = (rr, x, z, feet) => { if (rr.obs) for (const o of rr.obs) { if (o.y1 < feet + .15 || o.y0 > feet + 1.7) continue; if (x > o.x0 - PR && x < o.x1 + PR && z > o.z0 - PR && z < o.z1 + PR) return true; } return false; };
-  const walkable = (rr, x, z, feet) => ((Math.hypot(x, z) <= rr.r - .6) || (rr.kind === 'junction' && Math.abs(x) <= .4 && z < 0 && z >= -(rr.r + 2.3))) && !solidAt(rr, x, z, feet);
+  const walkable = (rr, x, z, feet) => ((Math.hypot(x, z) <= rr.r - .6) || (rr.kind === 'junction' && Math.abs(x) <= .4 && z < 0 && z >= -(rr.r + LOCK_LEN - .7))) && !solidAt(rr, x, z, feet);
   const clampIn = (rr, nx, nz) => { [nx, nz] = pushOut(rr, nx, nz, feetOf(rr)); const m = Math.hypot(nx, nz), lim = rr.r - .6;
-    if (rr.kind === 'junction' && m > lim && Math.abs(nx) < .8 && nz < 0) return [Math.max(-.4, Math.min(.4, nx)), Math.max(nz, -(rr.r + 3.0 - .7))];   // the boarding lock off the dorsal wall
+    if (rr.kind === 'junction' && m > lim && Math.abs(nx) < .8 && nz < 0) return [Math.max(-.4, Math.min(.4, nx)), Math.max(nz, -(rr.r + LOCK_LEN - .7))];   // the boarding lock off the dorsal wall
     return m > lim ? [nx * lim / m, nz * lim / m] : [nx, nz]; };
   // A* path planner on a .25 m grid, then string-pulled: click-to-walk routes around props instead of through them
   function plan(rr, sx, sz, tx, tz, feet) {
-    const cs = .25, X0 = -(rr.r + .3), Z0 = -(rr.r + 3.4), NX = Math.ceil((2 * rr.r + .6) / cs) + 1, NZ = Math.ceil((2 * rr.r + 3.8) / cs) + 1, idx = (i, j) => j * NX + i;
+    const cs = .25, X0 = -(rr.r + .3), Z0 = -(rr.r + LOCK_LEN + .3), NX = Math.ceil((2 * rr.r + .6) / cs) + 1, NZ = Math.ceil((2 * rr.r + LOCK_LEN + .7) / cs) + 1, idx = (i, j) => j * NX + i;
     const cx = x => Math.round((x - X0) / cs), cz = z => Math.round((z - Z0) / cs), wx = i => X0 + i * cs, wz = j => Z0 + j * cs, free = (i, j) => i >= 0 && j >= 0 && i < NX && j < NZ && walkable(rr, wx(i), wz(j), feet);
     const los = (ax, az, bx, bz) => { const n = Math.ceil(Math.hypot(bx - ax, bz - az) / .12); for (let k = 1; k < n; k++) { const t = k / n; if (!walkable(rr, ax + (bx - ax) * t, az + (bz - az) * t, feet)) return false; } return true; };
     const nearest = (i, j) => { if (free(i, j)) return [i, j]; let best = null, bd = 1e9; for (let di = -14; di <= 14; di++) for (let dj = -14; dj <= 14; dj++) if (free(i + di, j + dj)) { const d = di * di + dj * dj; if (d < bd) { bd = d; best = [i + di, j + dj]; } } return best; };
@@ -377,8 +395,47 @@
     if (pi.type === B.PointerEventTypes.POINTERMOVE) { if (!st.zoom) return; const h = scrHit(pi); LS.ctx.hover = h && h.mesh === st.zoom.mesh && h.reg ? { scr: h.n, id: h.reg.id } : { scr: null, id: null }; cv.style.cursor = LS.ctx.hover.id ? 'pointer' : ''; return; }
     if (pi.type !== B.PointerEventTypes.POINTERTAP) return; const h = scrHit(pi); if (!h) return; if (!st.zoom || st.zoom.mesh !== h.mesh) zoomTo(h.mesh); else if (h.reg) CTL.activate(h.reg.id); });
   const almEl = document.createElement('div'); almEl.style.cssText = 'display:none;position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);max-width:70vw;padding:6px 12px;background:rgba(12,22,24,.88);border:1px solid #f0ab3a;border-radius:4px;color:#d7e3ea;font:12px system-ui,sans-serif;z-index:5;pointer-events:none'; document.body.appendChild(almEl);
+  // ---- ported from cic3d: adapter events (calls, voice, toasts), the call card, brace / time / mute status, camera shake, keys and the radial menu
+  const cv2 = cv, FX = { sh: 0 }; window.SHIPFX = { shake(a) { FX.sh = Math.max(FX.sh, Math.min(1, a || .3)); } };
+  const tt = (t, k) => { try { window.UI && UI.toast(t, k); } catch (e) { } }, snd2 = n => { try { window.AUD && AUD.play(n); } catch (e) { } }, say2 = (w, t, p) => { try { window.AUD && AUD.say(w, t, p); } catch (e) { } };
+  function onEvents(evs) { for (const ev of evs) {
+    if (ev.type === 'raise') { const c = ev.call; say2(c.officer, c.line, c.pri); snd2(c.pri >= 4 ? 'klaxon' : c.pri === 3 ? 'caution' : 'chime'); if (c.pri >= 3) tt(String(c.officer).toUpperCase() + ': ' + c.line, c.pri >= 4 ? 'w' : 'w'); }
+    else if (ev.type === 'order' && ev.order.by === 'co' && !ev.order.instant) { if (window.Stations) { if (ev.stage === 'issued') say2('Captain', Stations.captainLine(ev.order.label), 3); else if (ev.stage === 'acked') say2(ev.order.officer, Stations.ackLine(ev.order.label), 3); } }
+    else if (ev.type === 'default') { const c = ev.call, o = c.opts && c.opts[c.choice]; tt(String(c.officer).toUpperCase() + ': no answer, crew default' + (o ? ': ' + o.label : ''), 'w'); }
+    else if (ev.type === 'noop') tt('NOT YET SIMULATED: ' + ev.order.label, 'w');
+    else if (ev.type === 'executed' && !ev.ok && ev.order.by === 'co') tt(String(ev.order.officer).toUpperCase() + ': unable (' + ev.order.label + ')', 'w'); } }
+  const callBox = document.createElement('div'), stBox = document.createElement('div');
+  callBox.style.cssText = 'display:none;position:fixed;left:50%;top:calc(52px + env(safe-area-inset-top,0px));transform:translateX(-50%);width:min(520px,86vw);padding:8px 12px;background:rgba(12,22,24,.92);border:1px solid #f0ab3a;border-radius:4px;color:#d7e3ea;font:13px system-ui,sans-serif;z-index:6';
+  stBox.style.cssText = 'position:fixed;left:max(16px,env(safe-area-inset-left,0px));bottom:calc(48px + env(safe-area-inset-bottom,0px));padding:3px 8px;background:rgba(12,22,24,.75);border:1px solid #2a4452;border-radius:3px;color:#9fb5c0;font:11px ui-monospace,monospace;z-index:4;pointer-events:none';
+  document.body.appendChild(callBox); document.body.appendChild(stBox);
+  callBox.addEventListener('click', e => { const b = e.target.closest('button'); if (b && b.dataset.i != null && typeof CTL !== 'undefined') { CTL.activate('callopt:' + b.dataset.i); snd2('click'); callKey = ''; } });
+  let callKey = '', stT = 0;
+  function callTick(dt) {
+    if (FX.sh > .01) { FX.sh *= Math.pow(.02, dt); cv2.style.transform = 'translate(' + ((Math.random() - .5) * 18 * FX.sh).toFixed(1) + 'px,' + ((Math.random() - .5) * 18 * FX.sh).toFixed(1) + 'px)'; } else if (FX.sh) { FX.sh = 0; cv2.style.transform = ''; }
+    stT += dt; if (stT < .25) return; stT = 0; if (typeof CTL === 'undefined') return;
+    const c = CTL.topCall && CTL.topCall(), key = c ? c.id + ':' + c.state : ''; if (key !== callKey) { callKey = key; if (!c) callBox.style.display = 'none'; else { callBox.style.display = 'block'; callBox.innerHTML = '<b style="color:#f0ab3a">' + String(c.officer).toUpperCase() + ' · ' + String(c.station || '').toUpperCase() + '</b><div style="margin:4px 0">' + c.line + '</div>' + (c.opts || []).map((o, i) => '<button type="button" data-i="' + i + '" style="margin:2px 4px 0 0">' + (i + 1) + '  ' + o.label + '</button>').join('') + '<div style="opacity:.6;font-size:11px;margin-top:3px">1-3 answer · no answer: the crew takes its default</div>'; } }
+    stBox.textContent = 'BRACE ' + CIC.braceState().toUpperCase() + ' · TIME x' + CIC.tscale + ' · SOUND ' + (window.AUD && AUD.muted ? 'OFF' : 'ON') + '  |  B brace · T time · Space ack · K mute' + (st.zoom ? ' · C L P O X R M U Y H Z F G [ ] Tab' : '');
+  }
+  // radial menu on a right-click of a contact on a zoomed screen
+  const radEl = document.createElement('div'); radEl.style.cssText = 'position:fixed;display:none;z-index:25;width:0;height:0'; document.body.appendChild(radEl);
+  const radClose = () => { radEl.style.display = 'none'; };
+  function radOpen(x, y, label) { const mk = (id, lab) => ({ id, lab, off: CTL.can(id).ok === false }), items = [mk('act:classify', 'CLASSIFY'), mk('act:lock', 'LOCK'), mk('act:ping', 'PING'), mk('act:probe', 'PROBE'), mk('act:rule', 'RULE OUT'), mk('fire', LS.ctx.guardUp ? 'FIRE' : 'ARM FIRE')]; radEl.innerHTML = ''; radEl.style.left = x + 'px'; radEl.style.top = y + 'px'; radEl.style.display = 'block';
+    const core = document.createElement('div'); core.textContent = label; core.style.cssText = 'position:absolute;transform:translate(-50%,-50%);color:#c4dcd2;font:bold 12px monospace;background:#08201c;border:1px solid #1d4a42;border-radius:12px;padding:4px 8px'; radEl.appendChild(core);
+    items.forEach((it, i) => { const a = -Math.PI / 2 + i * 2 * Math.PI / items.length, b = document.createElement('button'); b.type = 'button'; b.textContent = it.lab; b.style.cssText = 'position:absolute;transform:translate(-50%,-50%);width:92px;font:bold 12px monospace;padding:8px 2px;background:#08201c;color:#f0ab3a;border:2px solid #7a5a1d;border-radius:20px;cursor:pointer;opacity:' + (it.off ? .35 : 1) + ';left:' + Math.round(Math.cos(a) * 92) + 'px;top:' + Math.round(Math.sin(a) * 92) + 'px'; b.onclick = e => { e.stopPropagation(); radClose(); CTL.activate(it.id); }; radEl.appendChild(b); }); snd2('tick'); }
+  cv.addEventListener('contextmenu', e => { e.preventDefault(); radClose(); if (!HS.ok || !st.zoom || typeof CTL === 'undefined') return; sc.pointerX = e.offsetX; sc.pointerY = e.offsetY; const h = scrHit(); if (h && h.reg && /^sel:\d+$/.test(h.reg.id)) { CTL.select(+h.reg.id.slice(4)); radOpen(e.clientX, e.clientY, 'CONTACT ' + h.reg.id.slice(4)); } });
+  addEventListener('pointerdown', e => { if (!radEl.contains(e.target)) radClose(); });
+  const ZKEY = { KeyC: 'act:classify', KeyL: 'act:lock', KeyP: 'act:ping', KeyO: 'act:probe', KeyX: 'act:rule', KeyR: 'act:refresh', KeyM: 'act:mark', KeyU: 'act:quiet', KeyY: 'pd:toggle', KeyH: 'post:still', KeyZ: 'post:evade', KeyF: 'fire', KeyG: 'guard' };
+  function ctlKeys(e, k) {
+    if (!HS.ok || typeof CTL === 'undefined') return false;
+    const c = CTL.topCall && CTL.topCall(); if (c && /^Digit[1-3]$/.test(k) && c.opts && c.opts[+k.slice(5) - 1]) { CTL.activate('callopt:' + (+k.slice(5) - 1)); snd2('click'); callKey = ''; return true; }
+    if (k === 'KeyB') { CTL.activate('brace'); return true; } if (k === 'KeyT') { CTL.activate('time'); return true; } if (k === 'Space') { e.preventDefault(); CTL.activate('ack'); return true; }
+    if (k === 'KeyK') { if (window.AUD) { AUD.mute(!AUD.muted); tt(AUD.muted ? 'MUTED' : 'SOUND ON'); } return true; }
+    if (k === 'Tab') { e.preventDefault(); CTL.selStep(e.shiftKey ? -1 : 1); return true; }
+    if (k === 'Escape') { radClose(); return false; }
+    if (st.zoom) { if (ZKEY[k]) { CTL.activate(ZKEY[k]); return true; } if (k === 'BracketLeft' || k === 'BracketRight') { const L = ['v1', 'v2', 'v3', 'v4', 'v5'], i = Math.max(0, L.indexOf(HS.S.speed)), j = Math.max(0, Math.min(4, i + (k === 'BracketRight' ? 1 : -1))); CTL.activate('spd:' + L[j]); return true; } }
+    return false; }
   function hunt(dt) {
-    if (!HS.ok) return; const S = HS.S, E = HS.E; if (!S.over && !S.hold) E.tick(S, dt / E.P.secPerMin); HS.A.update(S, S.over || S.hold ? 0 : dt); LS.ctx.annOut = HS.ANN.update({ s: S, model: HS.A.model, E }); if (HS.Y && window.SHIPSYS) { SHIPSYS.update(HS.Y, S, S.over || S.hold ? 0 : dt / E.P.secPerMin); if (window.PS) Object.assign(PS.ctx, { S, E, A: HS.A, Y: HS.Y, ann: LS.ctx.annOut }); }
+    if (!HS.ok) return; const S = HS.S, E = HS.E; const ts = window.CIC ? CIC.tscale : 1; if (!S.over && !S.hold) E.tick(S, dt / E.P.secPerMin * ts); const evs = HS.A.update(S, S.over || S.hold ? 0 : dt * ts); if (evs && evs.length) onEvents(evs); LS.ctx.annOut = HS.ANN.update({ s: S, model: HS.A.model, E }); if (window.CIC) CIC.fire('frame', dt); callTick(dt); if (HS.Y && LK) HS.Y.lock = LK; if (HS.Y && window.SHIPSYS) { SHIPSYS.update(HS.Y, S, S.over || S.hold ? 0 : dt / E.P.secPerMin); if (window.PS) Object.assign(PS.ctx, { S, E, A: HS.A, Y: HS.Y, ann: LS.ctx.annOut }); }
     FINS.to = S.vent && S.vent.on ? 1 : 0; st.hunting = !S.over; { const bad = [], ao = LS.ctx.annOut || { lamps: {} }; for (const id in ao.lamps) { const l = ao.lamps[id]; if (l.state === 'warning' || l.state === 'caution') bad.push([l.state, id.toUpperCase().replace(/_/g, ' ')]); }
       if (HS.Y && window.SHIPSYS) SHIPSYS.lamps(HS.Y, S).forEach(l => { if (l.state === 'warning' || l.state === 'caution') bad.push([l.state, l.label]); });
       const w = bad.some(b => b[0] === 'warning'), key = bad.map(b => b[1]).join('|') + w; st.alarm = w ? 2 : bad.length ? 1 : 0;
@@ -387,9 +444,10 @@
     if (st.room !== 'A1' || st.mode !== 'room') return; const now = performance.now();
     for (const n in HS.tex) { const per = st.zoom && st.zoom.mesh.metadata.screen === n ? 110 : HS.tex[n].passive ? 700 : 450; if (now - (HS.last[n] || 0) < per) continue; HS.last[n] = now; HS.tex[n].o.paint(now); HS.tex[n].tex.update(false); } }
   const keys = {};
-  addEventListener('keydown', e => { keys[e.code] = 1; if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return; const k = e.code; if (k === 'Escape') unzoom();
+  addEventListener('keydown', e => { keys[e.code] = 1; if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return; const k = e.code; if (ctlKeys(e, k)) return; if (k === 'Escape') unzoom();
     if (k === 'Digit1') setCam('orbit'); else if (k === 'Digit2') setCam('shoulder'); else if (k === 'KeyV') { if (HS.ok && typeof CTL !== "undefined") { CTL.activate('vent'); return; } FINS.to = FINS.to ? 0 : 1; if (window.UI) UI.toast(FINS.to ? 'VENT: radiator blades running out' : 'Blades retracting (silent running)', FINS.to ? 'w' : 'g'); }
     else if (k === 'KeyR' || k === 'PageUp') climbStep(1); else if (k === 'KeyF' || k === 'PageDown') climbStep(-1);
+    else if (lkShown && (k === 'KeyH' || k === 'KeyJ' || k === 'KeyC')) lkAct(k === 'KeyH' ? 'inner' : k === 'KeyJ' ? 'outer' : 'cycle');
     else if (k === 'Digit3') document.getElementById('shipbtn').click();
     else if (k === 'KeyQ' || k === 'KeyE') { const i = R.findIndex(r => r.id === st.room), j = Math.max(0, Math.min(R.length - 1, i + (k === 'KeyQ' ? 1 : -1))); if (j !== i) goTo(R[j].id); } });
   addEventListener('keyup', e => { delete keys[e.code]; }); addEventListener('blur', () => { for (const k in keys) delete keys[k]; });
@@ -400,8 +458,40 @@
     const t0 = tween[0]; if (t0 && (t0.k === 'climb' || t0.k === 'lad')) return; tween.length = 0; const g = roomG[st.room], rr = g.metadata.room, s = (keys.ShiftLeft || keys.ShiftRight ? 5.5 : 3.2) * dt;
     if (st.lvl && st.room === 'T') { const bs = g.getAbsolutePosition(), lx = Math.max(-.9, Math.min(.9, who.position.x + v.x * s - bs.x)), lz = Math.max(-1.0, Math.min(3.3, who.position.z + v.z * s - bs.z)); faceMove(bs.x + lx - who.position.x, bs.z + lz - who.position.z); who.position.x = bs.x + lx; who.position.z = bs.z + lz; return; }   // standing on a catwalk landing
     const [nx, nz] = clampIn(rr, who.position.x + v.x * s - g.position.x, who.position.z + v.z * s - g.position.z); faceMove(g.position.x + nx - who.position.x, g.position.z + nz - who.position.z); who.position.x = g.position.x + nx; who.position.z = g.position.z + nz; }
+  // ---- airlock: animation of the 3D parts from the state machine, the contextual panel near the lock, and the mission API
+  const lkBox = document.createElement('div'); lkBox.style.cssText = 'display:none;position:fixed;left:max(16px,env(safe-area-inset-left,0px));top:calc(300px + env(safe-area-inset-top,0px));width:236px;padding:8px 10px;background:rgba(12,22,24,.9);border:1px solid #3c6074;border-radius:4px;color:#d7e3ea;font:12px system-ui,sans-serif;z-index:5'; document.body.appendChild(lkBox);
+  const lsnd = n => { try { window.AUD && AUD.play(n); } catch (e) { } };
+  function lkAct(a, o) { if (!LK) return; const r = AIRLOCK.act(LK, a, o); if (!r.ok && r.why && window.UI) UI.toast(r.why, 'w'); else lsnd('click'); lkKey = ''; return r; }
+  let lkKey = '', lkShown = false;
+  function lockTick(dt) {
+    if (!LK || !LKV) return; AIRLOCK.update(LK, dt); const V = LKV, e = (a, b, k) => a + (b - a) * Math.min(1, k);
+    V.ci = e(V.ci, 1 - LK.hatchI, dt * 8); V.co = e(V.co, 1 - LK.hatchO, dt * 8); const si = Math.max(.001, V.ci), so = Math.max(.001, V.co);
+    V.idoor.scaling.set(si, 1, si); V.idoor.setEnabled(V.ci > .01); V.odoor.scaling.set(so, 1, so); V.odoor.setEnabled(V.co > .01);
+    V.tubeN.scaling.z = Math.max(.001, LK.tube); const dockOn = LK.tube > .02 && LK.outside.id; V.tubeN.setEnabled(LK.tube > .02); V.vesN.setEnabled(!!dockOn);
+    if (dockOn) { V.vesN.position.set(0, 1.0, -(V.r + LOCK_LEN + 6 * LK.tube + .15)); V.vm.albedoColor = LK.outside.p >= .9 ? new B.Color3(.2, .3, .38) : LK.outside.p > 0 ? new B.Color3(.3, .24, .18) : new B.Color3(.18, .15, .15); }
+    const t = performance.now() / 1000, col = (m, r, g, b) => m.emissiveColor.set(r, g, b), blink = Math.sin(t * 8) > 0;
+    LK.inner === 'open' || LK.hatchI > 0 ? col(V.lI, 1, .65, .1) : col(V.lI, .1, .8, .4); LK.busy && LK.busy.k === 'cycle' ? (blink ? col(V.lC, 1, .65, .1) : col(V.lC, .15, .1, .02)) : col(V.lC, .1, .1, .1);
+    LK.outer === 'open' || LK.hatchO > 0 ? col(V.lO, 1, .2, .15) : col(V.lO, .1, .8, .4);
+    // panel: only when standing at the lock mouth or inside it
+    const g = roomG.B2, rr = g.metadata.room, px = who.position.x - g.position.x, pz = who.position.z - g.position.z, near = st.room === 'B2' && st.mode === 'room' && !st.zoom && pz < -(rr.r - 1.6) && Math.abs(px) < 1.4;
+    if (!near) { if (lkShown) { lkBox.style.display = 'none'; lkShown = false; } return; }
+    const key = AIRLOCK.status(LK) + (LK.busy ? 'b' + LK.busy.k : '') + (LK.mission ? LK.mission.id + LK.boarded : '') + (LK.busy ? Math.round(LK.p * 100) : '');
+    if (key === lkKey && lkShown) return; lkKey = key; lkShown = true; lkBox.style.display = 'block'; lkBox.innerHTML = '';
+    const line = (txt, css) => { const d = document.createElement('div'); d.style.cssText = css || ''; d.innerHTML = txt; lkBox.appendChild(d); return d; };
+    const btn = (label, fn, ok) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.style.cssText = 'display:block;width:100%;margin:3px 0 0;text-align:left;opacity:' + (ok === false ? .5 : 1); b.onclick = fn; lkBox.appendChild(b); return b; };
+    line('<b style="color:#c9a24a">BOARDING AIRLOCK</b>', 'margin-bottom:3px'); line(AIRLOCK.status(LK), 'font:11px ui-monospace,monospace;opacity:.85;margin-bottom:4px');
+    const c = a => AIRLOCK.can(LK, a).ok, tgt = AIRLOCK.target(LK), toOut = Math.abs(LK.p - tgt) > .05 && LK.p > .5 * (1 + tgt);
+    btn((LK.inner === 'open' ? 'Close' : 'Open') + ' inner hatch  [H]', () => lkAct('inner'), c('inner'));
+    btn(toOut ? 'Cycle lock to outside (' + AIRLOCK.pct(tgt) + ' kPa)  [C]' : 'Repressurise lock to cabin  [C]', () => lkAct('cycle'), c('cycle'));
+    btn((LK.outer === 'open' ? 'Close' : 'Open') + ' outer hatch  [J]', () => lkAct('outer'), c('outer'));
+    btn(LK.suited ? 'Stow suit' : 'Suit up (locker)', () => lkAct('suit'), true);
+    if (LK.mission && LK.docked && LK.outer === 'open') { line('<b>' + (LK.mission.label || LK.mission.id) + '</b>', 'margin-top:6px'); (LK.mission.prompt || ['Begin boarding', 'Look around first']).forEach((p, i) => btn(p, () => { AIRLOCK.choose(LK, i); lkKey = ''; if (window.UI) UI.toast(i ? 'You look around first.' : 'Boarding ' + (LK.mission.label || ''), 'g'); }, true)); }
+    line('Test: mate the soft-dock tube', 'margin-top:7px;opacity:.7;font-size:11px');
+    [['Friendly ship (101 kPa)', { id: 'tern', label: 'the Tern', p: 1 }], ['Derelict (30 kPa)', { id: 'hulk', label: 'derelict hulk', p: .3 }], ['Vented wreck (0 kPa)', { id: 'wreck', label: 'vented wreck', p: 0 }]].forEach(([t, h]) => btn(t, () => { const r = AIRLOCK.dock(LK, h); if (!r.ok && window.UI) UI.toast(r.why, 'w'); lkKey = ''; }, c('extend')));
+    btn('Retract tube / undock', () => { const r = AIRLOCK.undock(LK); if (!r.ok && window.UI) UI.toast(r.why, 'w'); lkKey = ''; }, c('retract'));
+  }
   function step(dt) {
-    drive(dt); hunt(dt);
+    drive(dt); hunt(dt); lockTick(dt);
     const t = tween[0]; if (!t) return; const g = roomG[st.room], rr = g.metadata.room;
     if (t.k === 'walk') { const base = g.getAbsolutePosition(); if (!t.path) t.path = plan(rr, who.position.x - base.x, who.position.z - base.z, t.x, t.z, feetOf(rr)); const wp = t.path[0]; if (!wp) { tween.shift(); t.done && t.done(); return; }
       const tx = base.x + wp.x, tz = base.z + wp.z, dx = tx - who.position.x, dz = tz - who.position.z, d = Math.hypot(dx, dz), s = 3.2 * dt;
@@ -409,7 +499,7 @@
     else if (t.k === 'lad') { const base = g.getAbsolutePosition(), ty = g.position.y + LAD.lv[t.lv] + .95, dy = ty - who.position.y, s = 2.6 * dt; who.position.x = base.x; who.position.z = base.z + t.lz; if (Math.abs(dy) <= s) { who.position.y = ty; tween.shift(); t.done && t.done(); } else who.position.y += Math.sign(dy) * s; }
     else if (t.k === 'climb') { const to = roomG[t.id].metadata.room, ty = to.y + .95, dy = ty - who.position.y, near = Math.min(...R.map(q => Math.abs(q.y - (who.position.y - .95)))), s = 6 * dt * (.35 + .65 * Math.min(1, near / 1.5)); who.position.x = -CELL_R; if (Math.abs(dy) <= s) { who.position.y = ty; tween.shift(); t.done && t.done(); } else { who.position.y += Math.sign(dy) * s; st.tgt.y += (who.position.y - st.tgt.y) * .1; } }
   }
-  sc.onBeforeRenderObservable.add(() => { step(Math.min(.05, eng.getDeltaTime() / 1000)); if (!(st.cam === 'shoulder' && st.mode === 'room')) cam.target = B.Vector3.Lerp(cam.target, st.tgt, .12);   // setTarget re-derives alpha/beta/radius from the old position, so the shoulder cam (which copies its target in place below) must not go through it
+  sc.onBeforeRenderObservable.add(() => { step(Math.min(.05, eng.getDeltaTime() / 1000)); if (!(st.cam === 'shoulder' && st.mode === 'room')) cam.target.copyFrom(B.Vector3.Lerp(cam.target, st.tgt, .12));   // setTarget re-derives alpha/beta/radius from the old position, so the target is always changed in place: the orbit camera then travels WITH its target to the new deck instead of staying at the old deck and just turning to look at it
     fadeWalls();
     if (st.cam === 'fp') { if (st.zoom) zoomStep(); else fp.position.set(who.position.x, who.position.y + .65, who.position.z); }
     if (st.cam === 'shoulder' && st.mode === 'room') { st.tgt.set(who.position.x, who.position.y + .35, who.position.z); cam.target.copyFrom(st.tgt); }
@@ -432,5 +522,5 @@
     for (const c of life.crew) { if (c.y0 === undefined) { c.y0 = c.h.position.y; c.r0 = c.h.rotation.y; } c.h.position.y = c.y0 + .008 * Math.sin(t * 1.7 + c.ph); c.h.rotation.y = c.r0 + .05 * Math.sin(t * .35 + c.ph); } }
   eng.runRenderLoop(() => sc.render()); addEventListener('resize', () => eng.resize());
   place('A1', 0, 2.5); enter('A1'); cam.target = st.tgt.clone(); setCam('shoulder');
-  window.SHIP_BJS.api = { zoomTo, unzoom, scrTex, who, walkTo, cam, setCam, fp, st, goTo, enter, place, step, roomG, loadManifest: () => fetch('assets_manifest.json').then(r => r.json()).then(m => { manifest = m; return m; }) };
+  window.SHIP_BJS.api = { airlock: LK && { L: LK, act: lkAct, dock: h => AIRLOCK.dock(LK, h), undock: () => AIRLOCK.undock(LK), arm: m => AIRLOCK.arm(LK, m), choose: i => AIRLOCK.choose(LK, i), status: () => AIRLOCK.status(LK), toLock: () => { goTo('B2'); } }, zoomTo, unzoom, scrTex, who, walkTo, cam, setCam, fp, st, goTo, enter, place, step, roomG, loadManifest: () => fetch('assets_manifest.json').then(r => r.json()).then(m => { manifest = m; return m; }) };
 })();

@@ -5,7 +5,11 @@ window.CTL_INIT = function () {
   const toastEl = document.createElement('div'); toastEl.style.cssText = 'position:fixed;left:50%;bottom:calc(64px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);max-width:80vw;padding:6px 12px;border-radius:6px;background:#0c1f1bee;color:#c4dcd2;border:1px solid #1d4a42;font:13px/1.3 monospace;opacity:0;transition:opacity .25s;pointer-events:none;z-index:5'; document.body.appendChild(toastEl); let tt = 0;
   window.UI = { toast(t, k) { toastEl.textContent = t; toastEl.style.borderColor = k === 'w' ? '#f0ab3a' : '#3fd38a'; toastEl.style.opacity = 1; clearTimeout(tt); tt = setTimeout(() => { toastEl.style.opacity = 0; }, 2800); } };
   const H = window.CTL_HOST;   // { E, S(), A(), ANN() } supplied by ship3d_bjs.js
-  window.CIC = { E: H.E, get S() { return H.S(); }, get A() { return H.A(); }, get ANN() { return H.ANN(); }, THREE: null, tscale: 1, shake() { }, setBrace() { }, braceState() { return 'free'; }, setTime() { } };
+  window.CIC = { E: H.E, get S() { return H.S(); }, get A() { return H.A(); }, get ANN() { return H.ANN(); }, THREE: null, tscale: 1, hooks: { shake: [], frame: [] }, on(k, f) { (this.hooks[k] = this.hooks[k] || []).push(f); }, fire(k, ...a) { (this.hooks[k] || []).forEach(f => f(...a)); }, get annOut() { return LS.ctx.annOut; },
+    shake(a) { this.fire('shake', a); window.SHIPFX && window.SHIPFX.shake(a); },
+    braceState() { const S = H.S(), b = S && S.brace; if (b === undefined || b === null) return 'free'; if (typeof b === 'string') return b.toLowerCase(); if (typeof b === 'object') return String(b.state || b.co || 'free').toLowerCase(); return b ? 'secure' : 'free'; },
+    setBrace(on) { const S = H.S(), A = H.A(), E = H.E; if (S && typeof S.brace === 'string' && typeof E.brace === 'function') { try { if (on) { if (!(A && A.order('helm', 'brace', 'Brace', { on: true }))) E.brace(S, true, 'co'); } else E.brace(S, false, 'co'); } catch (e) { } } },
+    setTime(n) { this.tscale = n; } };
   const C = CIC, E = C.E, LX = LS.ctx, TH = C.THREE, UI_ = window.UI, snd = n => { try { window.AUD && AUD.play(n); } catch (e) { } }, say = (w, t, p) => { try { window.AUD && AUD.say(w, t, p); } catch (e) { } };
   const S = () => C.S, A = () => C.A, M = () => C.A.model, OFF = Stations.OFFICER;
   const selA = () => { const s = S(); const a = LX.sel != null ? s.an[LX.sel] : null; return a && a.state !== 'out' ? a : null; };

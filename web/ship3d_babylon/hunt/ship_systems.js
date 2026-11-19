@@ -14,7 +14,7 @@
     Y.cassUsed += thr * dt / 21; Y.cass = Math.max(0, 8 - Y.cassUsed - (Y.spoolPaid ? 1 : 0));
     if (S.spool && !Y.spoolPaid) { Y.spoolPaid = true; Y.cass = Math.max(0, Y.cass - 1); }   // one cassette per breach-drive spool (resources-model)
     const pinging = S.pingUntil > S.t, pdMW = S.pd === 'active' ? 8 : S.pd === 'armed' ? 1 : 0, pumps = S.vent && S.vent.on ? 5 : 1.5;
-    const parts = [['HOTEL', HOTEL_MW], ['SENSORS', 3], ['ACTIVE PING', pinging ? 4 : 0], ['POINT DEFENCE', pdMW], ['SINK PUMPS', pumps], ['DRIVE AUX', thr * 30], ['COIL BANK', 2]];
+    const parts = [['HOTEL', HOTEL_MW], ['SENSORS', 3], ['ACTIVE PING', pinging ? 4 : 0], ['POINT DEFENCE', pdMW], ['SINK PUMPS', pumps], ['DRIVE AUX', thr * 30], ['COIL BANK', 2], ['LOCK PUMPS', Y.lock && Y.lock.busy && Y.lock.busy.k === 'cycle' ? 1.5 : 0]];
     Y.bus.parts = parts; Y.bus.load = parts.reduce((a, p) => a + p[1], 0); Y.bus.cap = FISSION_MW;   // fission carries the bus; fusion pods are the drive and do not add to it
     Y.liK = 454 + Math.min(1.2, S.sink ? S.sink.h : 0) * 500;   // lithium loop temperature
     const hullLoss = S.hull < 40 ? (40 - S.hull) / 40 : 0; Y.leakKpaMin = hullLoss * 4;   // [proposal] a holed hull leaks air
@@ -33,6 +33,7 @@
     L('co2', 'CO2', Y.co2 > 2500 ? 'warning' : Y.co2 > 1000 ? 'caution' : 'normal', Y.co2.toFixed(0) + ' ppm');
     L('spool', 'BREACH DRV', S.spool ? 'warning' : 'off', S.spool ? 'Breach drive spooling' : 'idle');
     L('fission', 'FISSION', S.hull < 15 ? 'caution' : 'normal', 'standing plant ' + FISSION_MW + ' MW');
+    if (Y.lock) { const K = Y.lock, open = K.outer === 'open' || K.inner === 'open'; L('lock', 'AIRLOCK', K.busy || open || K.tube > 0 ? 'advisory' : K.docked ? 'normal' : 'off', K.docked ? 'Mated to ' + K.outside.label + '; ' : '' + (K.outer === 'open' && !K.docked ? 'OUTER HATCH OPEN TO VACUUM; ' : '') + 'lock ' + Math.round(K.p * 101.3) + ' kPa, inner ' + K.inner + ', outer ' + K.outer); }
     return out;
   }
   root.SHIPSYS = { create, update, lamps, SOULS, PODS, FISSION_MW };
