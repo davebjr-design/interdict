@@ -44,5 +44,80 @@
  "messtable": {
   "file": "messtable.glb",
   "size_m": 4.6
+ },
+ "airlock_door": {
+  "file": "airlock_door.glb",
+  "size_m": 1.3,
+  "ry": 0
+ },
+ "suit_locker": {
+  "file": "suit_locker.glb",
+  "size_m": 2.0,
+  "ry": 0
+ },
+ "galley_range": {
+  "file": "galley_range.glb",
+  "size_m": 1.5,
+  "ry": 0
+ },
+ "galley_fridge": {
+  "file": "galley_fridge.glb",
+  "size_m": 1.9,
+  "ry": 0
+ },
+ "captain_bunk": {
+  "file": "captain_bunk.glb",
+  "size_m": 2.1,
+  "ry": 0
+ },
+ "captain_desk": {
+  "file": "captain_desk.glb",
+  "size_m": 1.6,
+  "ry": 0
+ },
+ "med_cot": {
+  "file": "med_cot.glb",
+  "size_m": 2.0,
+  "ry": 0
+ },
+ "washer": {
+  "file": "washer.glb",
+  "size_m": 0.95,
+  "ry": 0
+ },
+ "head_unit": {
+  "file": "head_unit.glb",
+  "size_m": 1.3,
+  "ry": 0
+ },
+ "shower_pod": {
+  "file": "shower_pod.glb",
+  "size_m": 1.6,
+  "ry": 0
+ },
+ "supply_crate": {
+  "file": "supply_crate.glb",
+  "size_m": 1.0,
+  "ry": 0
+ },
+ "warhead": {
+  "file": "warhead.glb",
+  "size_m": 2.3,
+  "ry": 0
+ },
+ "command_chair": {
+  "file": "command_chair.glb",
+  "size_m": 1.2,
+  "ry": 0
+ },
+ "dc_locker": {
+  "file": "dc_locker.glb",
+  "size_m": 1.2,
+  "ry": 0
+ },
+ "player": {
+  "file": "player.glb",
+  "size_m": 1.8,
+  "note": "standing crewman, the walking avatar (Meshy refine 01a1f1dc)"
  }
 }

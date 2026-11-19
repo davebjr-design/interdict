@@ -82,3 +82,19 @@ Audit of the 3D model against the hull spec room schedule:
 
 Open interpretation: "a little bit bigger overall... a few more, like it was built for a larger crew" was read as more crew places (24 bunk racks, more mess seats), not larger cells (cell radius stays locked at about 5 m). Confirm with Dave.
 Axis check still open: the 3D puts the stair shafts at +/-x and the tube columns at +/-z; the spec says shafts are port and starboard and tubes sit on the dorsal line.
+
+## Fit-out pass 2 (18-19 Nov, night): airlock, galley, stateroom, passive CIC monitors, player
+
+Built (Babylon spine, `web/ship3d_babylon/`):
+- Boarding airlock off the dorsal wall of the junction B2: **3.0 m long, not the 4.2 m in the hull spec** (a longer lock pokes through the 2 m annulus at this cell radius). Pressure door, six suit lockers, DC locker. The walking clamp lets the player enter the lock mouth only.
+- Galley crescent (range, cold store, mess hall B1), captain's stateroom in A2 (bunk, desk, command chair) - sits in the officer-berth deck directly under the CIC hatch, the nearest sensible home; head, showers, washers, sickbay cot in B3; supply crates stacked in the tube hall; warheads in the ordnance gallery.
+- Axes corrected to the spec: dorsal = -z (tube caps, airlock), port/starboard = +/-x (stair shafts, sponsons), ventral = +z (gallery). The earlier note "axis check still open" is closed.
+- Crewed-station screens 46 percent larger (0.52 x 0.39 m to 0.76 x 0.57 m); the zoom distance fills the view with the screen, and the screen plane stands 8 cm proud of the baked console monitor so no mesh clips it. Verified converged zoom shots of Target ID, helm and annunciator: text readable, not mirrored.
+- **Passive monitors** (six, CIC wall bank, 1.5 m wide): annunciator, helm, power bus, stores, crew, probes (`hunt/passive_screens.js`). Click to zoom like a crewed screen, read-only.
+- Annunciator: 32 lamps derived from engine state in `web/annunciator.js` plus 8 more from `hunt/ship_systems.js`.
+- `hunt/ship_systems.js` is **DISPLAY-ONLY and a proposal**: fusion cassettes (8, one per 21 min at 100 percent drive, one per breach-drive spool), 20 MW fission plant plus pod output on a power bus with named loads, cabin pressure/O2/CO2 (leak when hull below 40), lithium loop temperature (454 K base). Formulas marked `[proposal]` are mine, not the spec's; nothing feeds back into the hunt.
+- Standing player avatar (Meshy, 178 KB) replaces the gold capsule; faces direction of travel; hidden in first-person screen view.
+
+Meshy spend this pass: 14 props (preview 20 + refine 10 each = 420) plus the player (30) = about 450 of the 500 credits authorised. 25 GLBs total; 98 slots fill.
+
+Known open: ladders in the stair shafts are still just hatches; the 31 m tube hall is long to walk at 3.2 m/s; radial menu, brace, audio and the autonomy-switch UI are not yet ported from the three.js cic3d.
