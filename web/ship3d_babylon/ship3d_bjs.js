@@ -169,22 +169,30 @@
   const planet = B.MeshBuilder.CreateSphere('planet', { diameter: 340, segments: 48 }, sc); planet.material = planetM; planet.position.set(-420, -90, -560); planet.isPickable = false;
   const sun = B.MeshBuilder.CreateSphere('sun', { diameter: 26 }, sc); sun.material = pbr('#fff6dc', { emit: '#fff1c0', ei: 2 }); sun.position.set(380, 620, 330); sun.isPickable = false;
 
-  // ---- exterior nod to spaceship form: only drawn in ship view (hull is translucent there). Spec positions are schematic.
+  // ---- exterior: a submarine-like teardrop. Blunt rounded bow, tapered stern with a shroud ring and cruciform tail planes, and broad flank sponsons
+  // (port/starboard) that hold the main heat-sink tanks and the four radiator-blade channels. Only drawn in ship view. Press V to run the blades out.
   const extG = new B.TransformNode('ext', sc), plate = pbr('#222e35', { metal: .6, rough: .45 }), bone = pbr('#d8d4c4', { rough: .6 }), amberM = pbr('#101010', { emit: '#ff8a3a', ei: 1 });
   const TC = ['#3ec8e0', '#e0a020', '#e0a020', '#e0a020', '#e0a020', '#4a7cff', '#e8d23a', '#e8d23a', '#e8d23a', '#e8d23a', '#e8d23a', '#e8d23a'];
   for (const x of [15, 21, 112, 118]) cyl('band', SKIN_R * 2 + .3, 1.3, bone, extG, 0, yOf(x), 0);
-  { const cone = B.MeshBuilder.CreateCylinder('bow', { diameterTop: 1.4, diameterBottom: 14, height: 15, tessellation: 48 }, sc); cone.material = plate; cone.parent = extG; cone.position.y = yOf(12) + 7.5;
-    cyl('mast', .25, 11, brass, extG, 0, yOf(12) + 20.5, 0); const dock = B.MeshBuilder.CreateTorus('dock', { diameter: 3.4, thickness: .5, tessellation: 32 }, sc); dock.material = brass; dock.parent = extG; dock.position.y = yOf(12) + 14.6;
+  nose.scaling.y = 1.9;   // blunt ellipsoid bow (the translucent hull dome follows)
+  { const bow = B.MeshBuilder.CreateSphere('bow', { diameter: SKIN_R * 2, slice: .5, segments: 32 }, sc); bow.material = plate; bow.parent = extG; bow.position.y = yOf(12); bow.scaling.y = 1.9;
+    const dock = B.MeshBuilder.CreateTorus('dock', { diameter: 2.6, thickness: .4, tessellation: 32 }, sc); dock.material = brass; dock.parent = extG; dock.position.y = yOf(12) + 13.2;
     const dome = B.MeshBuilder.CreateSphere('dome', { diameter: 2.4, slice: .5 }, sc); dome.material = pbr('#6f8fa0', { metal: .7, rough: .25 }); dome.parent = extG; dome.position.set(0, yOf(12) + 2, 5.4); dome.rotation.x = Math.PI / 2; }
-  { const tp = B.MeshBuilder.CreateCylinder('taper', { diameterTop: 14.3, diameterBottom: 8, height: 14, tessellation: 48 }, sc); tp.material = plate; tp.parent = extG; tp.position.y = 17; }
-  for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2 + Math.PI / 4, px = Math.cos(a) * 4.6, pz = Math.sin(a) * 4.6;
-    cyl('pod', 2, 8, plate, extG, px, 5, pz); const bell = B.MeshBuilder.CreateCylinder('podbell', { diameterTop: 1.8, diameterBottom: 3.2, height: 2.6, tessellation: 24 }, sc); bell.material = steel; bell.parent = extG; bell.position.set(px, -.8, pz);
-    const fl = B.MeshBuilder.CreateCylinder('plume', { diameterTop: 2.2, diameterBottom: .2, height: 5, tessellation: 16 }, sc); fl.material = amberM; fl.parent = extG; fl.position.set(px, -4.1, pz); }
-  { const fl = B.MeshBuilder.CreateCylinder('plume0', { diameterTop: 2.8, diameterBottom: .2, height: 6.5, tessellation: 16 }, sc); fl.material = amberM; fl.parent = extG; fl.position.set(0, -5.6, 0); life.glow.push({ m: amberM, lo: .5, hi: 1.7, sp: 3.1 }); }
-  // radiator wings (port and starboard) with thermal stripes and nav lights
-  const radM = pbr('#2b3a42', { metal: .5, rough: .5 }), stripeM = pbr('#101010', { emit: '#e0702a', ei: .5 }); life.glow.push({ m: stripeM, lo: .2, hi: .9, sp: .4 });
-  for (const sz of [-1, 1]) { for (let i = 0; i < 4; i++) { const y0 = yOf(52 + i * 14.5); box('rad', .15, 13.5, 11, radM, extG, 0, y0 - 6.7, 0).position.z = sz * 12.5; box('radstripe', .17, 13.5, .3, stripeM, extG, 0, y0 - 6.7, 0).position.z = sz * 18; }
-    cyl('strut', .3, 60, plate, extG, 0, yOf(80), sz * 8).rotation.set(0, 0, 0); const nav = pbr('#101010', { emit: sz < 0 ? '#ff3030' : '#30ff60', ei: 1.5 }); const nl = B.MeshBuilder.CreateSphere('nav', { diameter: .6 }, sc); nl.material = nav; nl.parent = extG; nl.position.set(0, yOf(50), sz * 18.2); life.glow.push({ m: nav, lo: .1, hi: 2.4, sp: 2.2, strobe: 1, ph: sz }); }
+  { const tp = B.MeshBuilder.CreateCylinder('taper', { diameterTop: 14.3, diameterBottom: 5.6, height: 22, tessellation: 48 }, sc); tp.material = plate; tp.parent = extG; tp.position.y = 13;
+    const sh = B.MeshBuilder.CreateTorus('shroud', { diameter: 5.8, thickness: .9, tessellation: 40 }, sc); sh.material = steel; sh.parent = extG; sh.position.y = 2.2;
+    for (let i = 0; i < 4; i++) { const f = box('tailplane', .25, 9, 5.2, plate, extG, 0, 10, 0); const pv = new B.TransformNode('tp', sc); pv.parent = extG; pv.rotation.y = i * Math.PI / 2 + Math.PI / 4; f.parent = pv; f.position.set(0, 10, 0); f.position.z = 6.4; f.rotation.x = .0; }
+    const fl = B.MeshBuilder.CreateCylinder('plume0', { diameterTop: 2.6, diameterBottom: .2, height: 6, tessellation: 16 }, sc); fl.material = amberM; fl.parent = extG; fl.position.set(0, -5, 0); life.glow.push({ m: amberM, lo: .5, hi: 1.7, sp: 3.1 }); }
+  // flank sponsons: long ellipsoids, translucent like the hull so the sink tanks inside show; beam over both comes to about 23 m
+  const SP0 = yOf(118), SP1 = yOf(30), SPL = SP1 - SP0, SPC = (SP0 + SP1) / 2, ZS = 8.6, sponM = pbr('#10171b', { metal: .5, rough: .55, alpha: .3 }), tankM = [];
+  const bladeM = pbr('#1a1f23', { metal: .4, rough: .5, emit: '#e0702a', ei: .1 }), slotM = pbr('#05080a'), hinges = [];
+  for (const sz of [-1, 1]) {
+    const sp = B.MeshBuilder.CreateSphere('sponson', { diameter: 1, segments: 28 }, sc); sp.material = sponM; sp.parent = extG; sp.position.set(0, SPC, sz * ZS); sp.scaling.set(7.5, SPL, 6.2);
+    [3, 4.2, 4.6, 4.2, 3].forEach((d, k) => { const tm = pbr('#aab4b8', { metal: .8, rough: .35, emit: '#ff7a2a', ei: .15 }); life.glow.push({ m: tm, lo: .1, hi: .6, sp: .35, ph: k * .9 + sz }); const tk = B.MeshBuilder.CreateCapsule('sinktank', { radius: d / 2, height: 14, tessellation: 20 }, sc); tk.material = tm; tk.parent = extG; tk.position.set(0, SPC + (k - 2) * 15.5, sz * ZS); });
+    for (const sx of [-1, 1]) { const zs = sz * (ZS + 6.2 / 2 * Math.sqrt(1 - Math.pow(1.6 / 3.75, 2))), x = sx * 1.6;
+      box('channel', .5, SPL * .82, .3, slotM, extG, x, SPC, zs - sz * .1);
+      for (const o of [-18.5, 18.5]) { const hg = new B.TransformNode('hinge', sc); hg.parent = extG; hg.position.set(x, SPC + o, zs); hg.scaling.z = .02; hinges.push(hg); const bl = box('blade', .14, 36, 6, bladeM, hg, 0, 0, sz * 3); bl.isPickable = false; } }
+    const nav = pbr('#101010', { emit: sz < 0 ? '#ff3030' : '#30ff60', ei: 1.5 }), nl = B.MeshBuilder.CreateSphere('nav', { diameter: .6 }, sc); nl.material = nav; nl.parent = extG; nl.position.set(0, SP1 - 4, sz * (ZS + 3.2)); life.glow.push({ m: nav, lo: .1, hi: 2.4, sp: 2.2, strobe: 1, ph: sz }); }
+  const FINS = { v: 0, to: 0, hinges, bladeM };
   // dorsal tube deck caps: 12 per side, glowing the tube's colour cue
   for (let i = 0; i < 12; i++) for (const sz of [-1, 1]) { const cm = pbr('#1a2328', { emit: TC[i], ei: .5, metal: .6 }); life.glow.push({ m: cm, lo: .2, hi: .8, sp: .6 + i * .07, ph: i * .5 + (sz > 0 ? 1.7 : 0) });
     const cap = cyl('cap', 1.7, .35, cm, extG, -SKIN_R - .1, roomG['T'].position.y + 31 - 2.35 - 2.45 * i, sz * 2.2); cap.rotation.z = Math.PI / 2; }
@@ -219,7 +227,7 @@
   const camBox = document.createElement('div'); camBox.id = 'cams'; camBox.style.cssText = 'position:fixed;left:max(16px,env(safe-area-inset-left,0px));top:calc(170px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:3px';
   const camBtns = [['orbit', '1  Orbit view'], ['shoulder', '2  Over the shoulder']].map(([k, t]) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = t; b.dataset.cam = k; b.onclick = () => setCam(k); camBox.appendChild(b); return b; }); document.body.appendChild(camBox);
   cv.addEventListener('wheel', e => { if (st.cam === 'fp') { fp.fov = Math.max(.5, Math.min(1.7, fp.fov * (1 + Math.sign(e.deltaY) * .06))); e.preventDefault(); } }, { passive: false });
-  function hud() { const r = roomG[st.room].metadata.room, n = Object.values(slots).filter(s => s.glb).length; hudEl.innerHTML = '<b>INTERDICT 3D ship spine (Babylon.js)</b><br>' + ({ orbit: 'Orbit view', shoulder: 'Over the shoulder', fp: 'Screen' })[st.cam] + '<br>' + r.id + ': ' + r.name + '<br>floor ' + (r.r * 2).toFixed(1) + ' m across, ' + r.h + ' m clear<br>' + (st.mode === 'ship' ? 'Ship view (140 m)' : 'Room view') + (st.zoom ? '<br><b>SCREEN ' + st.zoom.mesh.metadata.screen.toUpperCase() + '</b>: click its soft keys · Esc steps back' : '') + '<br><span style="opacity:.7">1 orbit · 2 over the shoulder · 3 ship view · WASD walk · Shift run · Q/E deck down/up</span><br>GLB slots filled: ' + n + ' / ' + Object.keys(slots).length; decks.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.id === st.room)); }
+  function hud() { const r = roomG[st.room].metadata.room, n = Object.values(slots).filter(s => s.glb).length; hudEl.innerHTML = '<b>INTERDICT 3D ship spine (Babylon.js)</b><br>' + ({ orbit: 'Orbit view', shoulder: 'Over the shoulder', fp: 'Screen' })[st.cam] + '<br>' + r.id + ': ' + r.name + '<br>floor ' + (r.r * 2).toFixed(1) + ' m across, ' + r.h + ' m clear<br>' + (st.mode === 'ship' ? 'Ship view (140 m)' : 'Room view') + (st.zoom ? '<br><b>SCREEN ' + st.zoom.mesh.metadata.screen.toUpperCase() + '</b>: click its soft keys · Esc steps back' : '') + '<br><span style="opacity:.7">1 orbit · 2 over the shoulder · 3 ship view · V vent fins · WASD walk · Shift run · Q/E deck down/up</span><br>GLB slots filled: ' + n + ' / ' + Object.keys(slots).length; decks.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.id === st.room)); }
   R.forEach(r => { const b = document.createElement('button'); b.textContent = r.id + '  ' + r.name; b.dataset.id = r.id; b.onclick = () => goTo(r.id); decks.appendChild(b); });
   function place(id, x, z) { const r = roomG[id].metadata.room; st.room = id; who.position.set(x, r.y + .95, z); }
   function enter(id) { st.mode = 'room'; st.room = id; const r = roomG[id].metadata.room; dust.emitter = roomG[id].getAbsolutePosition().clone(); dust.maxEmitBox.setAll(r.r * .85); dust.minEmitBox.set(-r.r * .85, .2, -r.r * .85); dust.maxEmitBox.y = Math.min(r.h, 6) - .3; st.tgt.set(0, r.y + (r.kind === 'tubes' ? 12 : 1.2), 0); cam.radius = r.kind === 'tubes' ? 30 : 11; cam.beta = r.kind === 'tubes' ? 1.3 : .8; hud(); }
@@ -248,7 +256,7 @@
     for (const n in HS.tex) { const per = st.zoom && st.zoom.mesh.metadata.screen === n ? 110 : 450; if (now - (HS.last[n] || 0) < per) continue; HS.last[n] = now; HS.tex[n].o.paint(now); HS.tex[n].tex.update(false); } }
   const keys = {};
   addEventListener('keydown', e => { keys[e.code] = 1; if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return; const k = e.code; if (k === 'Escape') unzoom();
-    if (k === 'Digit1') setCam('orbit'); else if (k === 'Digit2') setCam('shoulder');
+    if (k === 'Digit1') setCam('orbit'); else if (k === 'Digit2') setCam('shoulder'); else if (k === 'KeyV') { FINS.to = FINS.to ? 0 : 1; if (window.UI) UI.toast(FINS.to ? 'VENT: radiator blades running out' : 'Blades retracting (silent running)', FINS.to ? 'w' : 'g'); }
     else if (k === 'Digit3') document.getElementById('shipbtn').click();
     else if (k === 'KeyQ' || k === 'KeyE') { const i = R.findIndex(r => r.id === st.room), j = Math.max(0, Math.min(R.length - 1, i + (k === 'KeyQ' ? 1 : -1))); if (j !== i) goTo(R[j].id); } });
   addEventListener('keyup', e => { delete keys[e.code]; }); addEventListener('blur', () => { for (const k in keys) delete keys[k]; });
@@ -279,6 +287,7 @@
             const qx = (cx - tx) - cp.x, qz = (cz - tz) - cp.z, u = (qx * d2z - qz * d2x) / den, v = (qx * d1z - qz * d1x) / den; if (u > 0 && u < 1 && v > 0 && v < 1 && cp.y + u * (W.y - cp.y) < top) { tv = .1; break; } } }
         sg.vis += (tv - sg.vis) * .18; if (Math.abs(sg.vis - (sg._v || 1)) > .01 || tv === 1 && sg.vis > .99) { sg._v = sg.vis; for (const m of sg.items) { m.visibility = sg.vis > .985 ? 1 : sg.vis; } } } } }
   function animate(t) {
+    FINS.v += (FINS.to - FINS.v) * .025; FINS.hinges.forEach(h => { h.scaling.z = .02 + .98 * FINS.v; }); FINS.bladeM.emissiveIntensity = .1 + .8 * FINS.v;
     for (const b of life.blink) b.m.emissiveIntensity = b.c === 0 ? .75 + .25 * Math.sin(t * 2.1 + b.ph) : b.c === 1 ? (Math.sin(t * .9 + b.ph) > .1 ? 1.1 : .12) : b.c === 2 ? ((t * .7 + b.ph) % 4 < .25 ? 1.6 : .08) : .55 + .45 * Math.sin(t * 3.3 + b.ph);
     for (const o of life.glow) { const s = Math.sin(t * o.sp * (o.strobe ? 3 : 1) + (o.ph || 0)); o.m.emissiveIntensity = o.strobe ? (s > .85 ? o.hi : o.lo) : o.lo + (o.hi - o.lo) * (.5 + .5 * s); }
     ringM.emissiveColor = B.Color3.FromHexString('#3ddbd0'); ringM.emissiveIntensity = .12 + .1 * Math.sin(t * 1.4);

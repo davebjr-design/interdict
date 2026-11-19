@@ -56,3 +56,8 @@ Balance 3045 -> 2865 (six previews at 20, six 2K refines at 10).
 - Each wall is 24 arc panels with ribs between them. In room view the panels that lie between the camera and the character fade to about 10 percent (only when the camera is outside the wall and the line of sight passes under the wall top), so the room is always readable from orbit or over-the-shoulder.
 - The glowing squares were the wall status LEDs; they are now small annunciator strips (dark plate, three blinking LEDs) at the panel seams.
 - CIC crew moved back onto the seats and dropped to floor level (feet were floating). Seating still approximate: the crew model's pelvis offset was tuned by eye.
+
+## Exterior reshaped toward a submarine (18 November, night) - PROPOSAL, not yet in the hull spec
+- Dave: the ship still looked like a rocket. Changes in the 3D only: blunt ellipsoid bow (no spike, no mast), tapered stern with a shroud ring and four cruciform tail planes (the four engine pods and big plumes are gone), and two broad flank sponsons (long ellipsoids, about 88 m by 7.5 m by 6.2 m, centres 8.6 m off the axis, overall beam about 23 m against the spec's 14 m).
+- The sponsons hold the main heat-sink tanks (five per side, shown through the translucent skin) and the four radiator-blade channels; the eight blades (36 m by 6 m) stow flush and run out with V.
+- Spec impact if accepted: beam and the "smooth teardrop, round section" line change; heat sink moves partly from the annulus into flank tanks (volumes, the lithium tank groups, the damage model and the sensor signature of the sponsons all need re-deriving); stair-shaft naming (port and starboard) vs the dorsal tube deck needs a check, since the 3D puts the shafts at plus and minus x and the tube columns at plus and minus z.
