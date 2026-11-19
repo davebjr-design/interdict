@@ -46,7 +46,7 @@
   function container(file) {
     if (conts[file]) return conts[file];
     const D = window.GLB_DATA && window.GLB_DATA[file];   // hosted page: models are embedded as base64 in script files (no .glb hosting there)
-    if (D) { const bin = atob(D), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i); return conts[file] = B.SceneLoader.LoadAssetContainerAsync(new File([u8], file), undefined, sc); }
+    if (D) { const bin = atob(D), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i); return conts[file] = B.SceneLoader.LoadAssetContainerAsync('file:', new File([u8], file), sc); }
     return conts[file] = B.SceneLoader.LoadAssetContainerAsync('glb/', file, sc);
   }
   function slot(key, makeFallback, parent, x, y, z, opts) {
@@ -169,18 +169,22 @@
   const NOCENTER = { reactor: 1, reactor2: 1 };
   const st = { room: 'A1', mode: 'room', cam: 'orbit', tgt: new B.Vector3(0, 120, 0) }, tween = [];
   const hudEl = document.getElementById('hud'), decks = document.getElementById('decks');
-  function setCam(m) {
-    unzoom();
-    if (m === 'room' && NOCENTER[roomG[st.room].metadata.room.kind]) m = 'fp';
+  // two player cameras: 'orbit' (drag to orbit the room or ship) and 'shoulder' (orbit camera locked behind the character, offset to one side).
+  // 'fp' is internal: the screen-zoom camera.
+  function setCam(m, keep) {
+    if (!keep) unzoom();
     if (st.mode === 'ship') { st.mode = 'room'; enter(st.room); }
     st.cam = m; const old = sc.activeCamera; if (old) old.detachControl();
-    if (m === 'orbit') { sc.activeCamera = cam; cam.attachControl(cv, true); who.isVisible = true; } else { sc.activeCamera = fp; fp.attachControl(cv, true); who.isVisible = m === 'room'; }
+    if (m === 'fp') { sc.activeCamera = fp; fp.attachControl(cv, true); who.isVisible = false; }
+    else { sc.activeCamera = cam; cam.attachControl(cv, true); who.isVisible = true;
+      if (m === 'shoulder') { cam.lowerRadiusLimit = 1.4; cam.radius = 4.4; cam.beta = 1.15; cam.targetScreenOffset.set(-.3, -.06); }
+      else { cam.lowerRadiusLimit = 3; cam.targetScreenOffset.set(0, 0); enter(st.room); } }
     camBtns.forEach(b => b.classList.toggle('on', b.dataset.cam === st.cam)); hud();
   }
   const camBox = document.createElement('div'); camBox.id = 'cams'; camBox.style.cssText = 'position:fixed;left:max(16px,env(safe-area-inset-left,0px));top:calc(170px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:3px';
-  const camBtns = [['orbit', '1  Orbit view'], ['fp', '2  First person'], ['room', '3  Room centre']].map(([k, t]) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = t; b.dataset.cam = k; b.onclick = () => setCam(k); camBox.appendChild(b); return b; }); document.body.appendChild(camBox);
-  cv.addEventListener('wheel', e => { if (st.cam !== 'orbit') { fp.fov = Math.max(.5, Math.min(1.7, fp.fov * (1 + Math.sign(e.deltaY) * .06))); e.preventDefault(); } }, { passive: false });
-  function hud() { const r = roomG[st.room].metadata.room, n = Object.values(slots).filter(s => s.glb).length; hudEl.innerHTML = '<b>INTERDICT 3D ship spine (Babylon.js)</b><br>' + ({ orbit: 'Orbit view', fp: 'First person', room: 'Room centre' })[st.cam] + '<br>' + r.id + ': ' + r.name + '<br>floor ' + (r.r * 2).toFixed(1) + ' m across, ' + r.h + ' m clear<br>' + (st.mode === 'ship' ? 'Ship view (140 m)' : 'Room view') + (st.zoom ? '<br><b>SCREEN ' + st.zoom.mesh.metadata.screen.toUpperCase() + '</b>: click its soft keys · Esc steps back' : '') + '<br><span style="opacity:.7">1 orbit · 2 first person · 3 room · 4 ship · WASD walk · Shift run · Q/E deck down/up</span><br>GLB slots filled: ' + n + ' / ' + Object.keys(slots).length; decks.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.id === st.room)); }
+  const camBtns = [['orbit', '1  Orbit view'], ['shoulder', '2  Over the shoulder']].map(([k, t]) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = t; b.dataset.cam = k; b.onclick = () => setCam(k); camBox.appendChild(b); return b; }); document.body.appendChild(camBox);
+  cv.addEventListener('wheel', e => { if (st.cam === 'fp') { fp.fov = Math.max(.5, Math.min(1.7, fp.fov * (1 + Math.sign(e.deltaY) * .06))); e.preventDefault(); } }, { passive: false });
+  function hud() { const r = roomG[st.room].metadata.room, n = Object.values(slots).filter(s => s.glb).length; hudEl.innerHTML = '<b>INTERDICT 3D ship spine (Babylon.js)</b><br>' + ({ orbit: 'Orbit view', shoulder: 'Over the shoulder', fp: 'Screen' })[st.cam] + '<br>' + r.id + ': ' + r.name + '<br>floor ' + (r.r * 2).toFixed(1) + ' m across, ' + r.h + ' m clear<br>' + (st.mode === 'ship' ? 'Ship view (140 m)' : 'Room view') + (st.zoom ? '<br><b>SCREEN ' + st.zoom.mesh.metadata.screen.toUpperCase() + '</b>: click its soft keys · Esc steps back' : '') + '<br><span style="opacity:.7">1 orbit · 2 over the shoulder · 3 ship view · WASD walk · Shift run · Q/E deck down/up</span><br>GLB slots filled: ' + n + ' / ' + Object.keys(slots).length; decks.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.id === st.room)); }
   R.forEach(r => { const b = document.createElement('button'); b.textContent = r.id + '  ' + r.name; b.dataset.id = r.id; b.onclick = () => goTo(r.id); decks.appendChild(b); });
   function place(id, x, z) { const r = roomG[id].metadata.room; st.room = id; who.position.set(x, r.y + .95, z); }
   function enter(id) { st.mode = 'room'; st.room = id; const r = roomG[id].metadata.room; dust.emitter = roomG[id].getAbsolutePosition().clone(); dust.maxEmitBox.setAll(r.r * .85); dust.minEmitBox.set(-r.r * .85, .2, -r.r * .85); dust.maxEmitBox.y = Math.min(r.h, 6) - .3; st.tgt.set(0, r.y + (r.kind === 'tubes' ? 12 : 1.2), 0); cam.radius = r.kind === 'tubes' ? 30 : 11; cam.beta = r.kind === 'tubes' ? 1.3 : .8; hud(); }
@@ -191,11 +195,11 @@
     if (st.mode === 'ship') { st.mode = 'room'; place(id, 0, 0); enter(id); return; } if (id !== st.room) { goTo(id); return; }
     const g = roomG[id], rr = g.metadata.room, lx = p.pickedPoint.x - g.position.x, lz = p.pickedPoint.z - g.position.z, d = Math.hypot(lx, lz), k = Math.min(1, (rr.r - .6) / Math.max(d, 1e-3)); tween.length = 0; walkTo(lx * k, lz * k); });
   // ---- screen zoom: tap a station screen to step up to it; then its soft keys are live (CTL.activate)
-  function unzoom() { if (!st.zoom) return; (st.zoomHid || []).forEach(n => n.setEnabled(true)); st.zoomHid = []; st.zoom = null; fp.fov = 1.1; cv.style.cursor = ''; LS.ctx.hover = { scr: null, id: null }; hud(); }
+  function unzoom() { if (!st.zoom) return; (st.zoomHid || []).forEach(n => n.setEnabled(true)); st.zoomHid = []; const prev = st.zoom.prev; st.zoom = null; fp.fov = 1.1; cv.style.cursor = ''; LS.ctx.hover = { scr: null, id: null }; setCam(prev === 'fp' ? 'shoulder' : prev, true); }
   function zoomTo(mesh) {
-    setCam('fp'); mesh.computeWorldMatrix(true); const c = mesh.getAbsolutePosition().clone(), n = B.Vector3.TransformNormal(new B.Vector3(0, 0, 1), mesh.getWorldMatrix()).normalize();
+    const prev = st.zoom ? st.zoom.prev : st.cam; setCam('fp', true); mesh.computeWorldMatrix(true); const c = mesh.getAbsolutePosition().clone(), n = B.Vector3.TransformNormal(new B.Vector3(0, 0, 1), mesh.getWorldMatrix()).normalize();
     if (B.Vector3.Dot(n, roomG[st.room].getAbsolutePosition().subtract(c)) < 0) n.scaleInPlace(-1);
-    st.zoom = { mesh, pos: c.add(n.scale(.62)), tgt: c, zt: fp.getFrontPosition(1) }; st.zoomHid = ['crew', 'couch'].map(k => slots[k + mesh.metadata.station]).filter(Boolean).map(s => s.root); st.zoomHid.forEach(n => n.setEnabled(false)); hud();
+    st.zoom = { mesh, prev, pos: c.add(n.scale(.62)), tgt: c, zt: fp.getFrontPosition(1) }; st.zoomHid = ['crew', 'couch'].map(k => slots[k + mesh.metadata.station]).filter(Boolean).map(s => s.root); st.zoomHid.forEach(n => n.setEnabled(false)); hud();
   }
   function zoomStep() { const z = st.zoom; fp.position = B.Vector3.Lerp(fp.position, z.pos, .12); z.zt = B.Vector3.Lerp(z.zt, z.tgt, .15); fp.setTarget(z.zt); fp.fov += (.85 - fp.fov) * .12; }
   const scrHit = () => { const p = sc.pick(sc.pointerX, sc.pointerY, m => !!(m.metadata && m.metadata.screen)); if (!p || !p.hit || !p.pickedMesh || !p.pickedMesh.metadata || !p.pickedMesh.metadata.screen) return null; const uv = p.getTextureCoordinates(); if (!uv) return null; const x = uv.x * LS.W, y = uv.y * LS.H; return { n: p.pickedMesh.metadata.screen, mesh: p.pickedMesh, x, y, reg: LS.hit(p.pickedMesh.metadata.screen, x, y) }; };
@@ -209,8 +213,8 @@
     for (const n in HS.tex) { const per = st.zoom && st.zoom.mesh.metadata.screen === n ? 110 : 450; if (now - (HS.last[n] || 0) < per) continue; HS.last[n] = now; HS.tex[n].o.paint(now); HS.tex[n].tex.update(false); } }
   const keys = {};
   addEventListener('keydown', e => { keys[e.code] = 1; if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return; const k = e.code; if (k === 'Escape') unzoom();
-    if (k === 'Digit1') setCam('orbit'); else if (k === 'Digit2') setCam('fp'); else if (k === 'Digit3') setCam('room');
-    else if (k === 'Digit4') document.getElementById('shipbtn').click();
+    if (k === 'Digit1') setCam('orbit'); else if (k === 'Digit2') setCam('shoulder');
+    else if (k === 'Digit3') document.getElementById('shipbtn').click();
     else if (k === 'KeyQ' || k === 'KeyE') { const i = R.findIndex(r => r.id === st.room), j = Math.max(0, Math.min(R.length - 1, i + (k === 'KeyQ' ? 1 : -1))); if (j !== i) goTo(R[j].id); } });
   addEventListener('keyup', e => { delete keys[e.code]; }); addEventListener('blur', () => { for (const k in keys) delete keys[k]; });
   // keyboard walking: relative to wherever the active camera looks (fp, room centre or orbit), clamped inside the room
@@ -226,13 +230,15 @@
     else if (t.k === 'climb') { const to = roomG[t.id].metadata.room, ty = to.y + .95, dy = ty - who.position.y, s = 6 * dt; who.position.x = -CELL_R; if (Math.abs(dy) <= s) { who.position.y = ty; tween.shift(); t.done && t.done(); } else { who.position.y += Math.sign(dy) * s; st.tgt.y += (who.position.y - st.tgt.y) * .1; } }
   }
   sc.onBeforeRenderObservable.add(() => { step(Math.min(.05, eng.getDeltaTime() / 1000)); cam.target = B.Vector3.Lerp(cam.target, st.tgt, .12);
-    if (st.cam !== 'orbit') { const rm = roomG[st.room].metadata.room; if (st.cam === 'room' && NOCENTER[rm.kind]) setCam('fp'); if (st.zoom) zoomStep(); else if (st.cam === 'room') fp.position.set(roomG[st.room].position.x, rm.y + 1.6, roomG[st.room].position.z); else fp.position.set(who.position.x, who.position.y + .65, who.position.z); } hull.isVisible = nose.isVisible = st.mode === 'ship'; extG.setEnabled(st.mode === 'ship'); planet.setEnabled(st.mode === 'ship'); sun.setEnabled(st.mode === 'ship'); if (st.mode === 'ship') cam.alpha += .0006; animate(performance.now() / 1000); });
+    if (st.cam === 'fp') { if (st.zoom) zoomStep(); else fp.position.set(who.position.x, who.position.y + .65, who.position.z); }
+    if (st.cam === 'shoulder' && st.mode === 'room') { st.tgt.set(who.position.x, who.position.y + .35, who.position.z); cam.target.copyFrom(st.tgt); }
+    hull.isVisible = nose.isVisible = st.mode === 'ship'; extG.setEnabled(st.mode === 'ship'); planet.setEnabled(st.mode === 'ship'); sun.setEnabled(st.mode === 'ship'); if (st.mode === 'ship') cam.alpha += .0006; animate(performance.now() / 1000); });
   function animate(t) {
     for (const b of life.blink) b.m.emissiveIntensity = b.c === 0 ? .75 + .25 * Math.sin(t * 2.1 + b.ph) : b.c === 1 ? (Math.sin(t * .9 + b.ph) > .1 ? 1.1 : .12) : b.c === 2 ? ((t * .7 + b.ph) % 4 < .25 ? 1.6 : .08) : .55 + .45 * Math.sin(t * 3.3 + b.ph);
     for (const o of life.glow) { const s = Math.sin(t * o.sp * (o.strobe ? 3 : 1) + (o.ph || 0)); o.m.emissiveIntensity = o.strobe ? (s > .85 ? o.hi : o.lo) : o.lo + (o.hi - o.lo) * (.5 + .5 * s); }
     ringM.emissiveColor = B.Color3.FromHexString('#3ddbd0'); ringM.emissiveIntensity = .12 + .1 * Math.sin(t * 1.4);
     for (const c of life.crew) { if (c.y0 === undefined) { c.y0 = c.h.position.y; c.r0 = c.h.rotation.y; } c.h.position.y = c.y0 + .008 * Math.sin(t * 1.7 + c.ph); c.h.rotation.y = c.r0 + .05 * Math.sin(t * .35 + c.ph); } }
   eng.runRenderLoop(() => sc.render()); addEventListener('resize', () => eng.resize());
-  place('A1', 0, 2.5); enter('A1'); cam.target = st.tgt.clone(); hud();
+  place('A1', 0, 2.5); enter('A1'); cam.target = st.tgt.clone(); setCam('shoulder');
   window.SHIP_BJS.api = { who, walkTo, cam, setCam, fp, st, goTo, enter, place, step, roomG, loadManifest: () => fetch('assets_manifest.json').then(r => r.json()).then(m => { manifest = m; return m; }) };
 })();
