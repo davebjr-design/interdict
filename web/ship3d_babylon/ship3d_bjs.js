@@ -522,7 +522,7 @@
   const shipTree = () => [{ lab: 'POSTURE', kids: Object.keys(POSTURE.LAB).map(k => ({ lab: POSTURE.LAB[k].toUpperCase() + (POSTURE.current === k ? ' •' : ''), fn: () => POSTURE.set(k) })) },
     { lab: 'READINESS', kids: Object.keys(READY.LAB).map(k => ({ lab: READY.SHAPE[k] + ' ' + READY.SHORT[k] + (READY.current === k ? ' •' : ''), fn: () => READY.set(k) })) },
     idItem('brace', 'BRACE'), { lab: 'DAMAGE CTRL', off: true }];
-  const contactTree = () => [idItem('act:classify', 'WATCH'), { lab: 'HAIL', off: true }, idItem('act:ping', 'PING'), idItem('act:mark', 'HOSTILE'), idItem('act:rule', 'RULE OUT')];
+  const contactTree = () => [idItem('act:classify', 'WATCH'), idItem('act:challenge', 'CHALLENGE'), idItem('act:hail', 'HAIL'), idItem('act:ping', 'PING'), idItem('act:mark', 'HOSTILE'), idItem('act:rule', 'RULE OUT')];
   function toIntercom(done) {   // the player goes to the nearest intercom to give ship-wide orders (four per room, on the wall at the compass points)
     if (st.mode !== 'room' || st.room === 'T' || st.lvl || st.zoom) return done(); const g = roomG[st.room]; if (!g) return done();
     const rr = g.metadata.room, base = g.getAbsolutePosition(), lx = who.position.x - base.x, lz = who.position.z - base.z, d = rr.r - .9; let best = null, bd = 1e9;

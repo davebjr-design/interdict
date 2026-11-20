@@ -91,6 +91,8 @@
           case 'evade': { const need = !o.forced && E.braceNeeded && E.braceNeeded(s, 'evade'); if (need) { ok = gate(o, need); break; } { const ln = !o.forced && E.linkNeeded && E.linkNeeded(s, 'evade'); if (ln) { ok = linkGate(o, ln); break; } } ok = E.setOrder(s, 'evade', live(s, id) ? id : null); break; }
           case 'hold': if (HELM_HOLD[row] && o.by === 'co') ok = E.setOrder(s, 'still', null); break;   // a defaulted 'hold' keeps the course (a competent crew does not stop the ship on its own)
           case 'ping': if (!live(s, id)) { ok = false; break; } if (!o.forced && A.moments.length && E.momentPing && E.momentPing(s, id, { enabled: A.moments })) { ok = true; break; } ok = E.pingContact(s, id); break;   // M02 may hold the ping for a decision
+          case 'hail': ok = id != null && E.hailContact(s, id); break;   // voice hail on the open channel (soft information)
+          case 'challenge': ok = id != null && live(s, id) && E.challenge(s, id); break;   // transponder challenge (friend or foe proof)
           case 'probe': { const pp = Presets.get('probe'); ok = id != null ? E.probe(s, id, pp.count) : d.aim ? E.probe(s, d.aim, pp.count) : false; break; }
           case 'fire': ok = id != null && fireSalvo(s, id, A.salvo); break;
           case 'pd_active': { const at = d.at, lead = 12 / ((E.RULES && E.RULES.secPerMin) || 16); if (at != null && at - s.t > lead) { E.setPD(s, 'armed'); A.pdPending = { at: at - lead, until: at }; } else ok = E.setPD(s, 'active'); break; }   // doctrine: go active at eta <= 12 s
