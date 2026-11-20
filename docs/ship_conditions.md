@@ -48,7 +48,9 @@ Three options were weighed.
 ## 5. Knocked-out interaction
 At Battle Stations an unbraced crew member is likelier to be knocked out. Their station runs at 25% unless the captain takes it; the captain can only take it once the officer has been moved to a free couch (takes about 15 s). No deaths in Act 1.
 
-## 6. Open questions for Dave
-1. Are two axes (readiness and posture) one too many for the radial? Option: merge into one list with six entries.
-2. Should Battle Stations also slow the avatar, or is the prompt enough?
-3. Voice aliases: keep "red alert" as a Trek nod?
+## 6. Decisions (Dave, 2026-11-20)
+- **Battle Stations does not slow the avatar.** The "get to a station or rail" prompt is enough. (Table row in section 2 to be read as: no walk-speed change, prompt only.)
+- **"Red alert" is a voice alias for Battle Stations**, and the voice that sounds the alert is Pell's: Pell is a ship system wired into the whole ship, so the klaxon, call-outs and "Battle stations" announcement are Pell lines, not a crew member's.
+- **Two axes stay**: readiness and posture are separate because the ship moves between two kinds of space. In FTL transit the conditions mostly set crew posture. In arenas (a salvage run or other non-combat job) the player must find the target with the standard scanners while other ships may be present, and working out who they are is part of the game: **actively** (hail or ping: fast, but it gives you away) or **passively** (watching: slow, but stealthy). Readiness and posture therefore matter most in arenas, and the contact radial (option D in the mockups) is where that choice is made.
+- Radial layout still open: four mockups made (one ring, two rings, top ring with drill-down, contact radial).
+- Implementation note: Alert escalation should treat an unidentified contact as the normal trigger in an arena, and identification (by watch, hail or ping) as the normal way to step back down.
