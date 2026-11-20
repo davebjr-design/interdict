@@ -530,6 +530,32 @@
     if (bd < 1.6) return done(); const q = pushOut(rr, best[0], best[1], feetOf(rr)); tween.length = 0; tt('To the intercom...', 'g'); walkTo(q[0], q[1], done); }
   (function mkIntercoms() { const m = new B.StandardMaterial('icomM', sc); m.diffuseColor = new B.Color3(.08, .12, .12); m.emissiveColor = new B.Color3(.08, .5, .42);
     R.forEach(r => { const g = roomG[r.id]; if (!g || !g.metadata || !g.metadata.room || g.metadata.room.kind === 'tubes') return; const rm = g.metadata.room; [[-1, 0], [1, 0], [0, -1], [0, 1]].forEach(([ux, uz], i) => { const b = B.MeshBuilder.CreateBox('icom_' + r.id + '_' + i, { width: .26, height: .18, depth: .05 }, sc); b.material = m; b.parent = g; b.position.set(ux * (rm.r - .12), rm.y + 1.4, uz * (rm.r - .12)); b.rotation.y = Math.atan2(ux, uz); b.isPickable = false; }); }); })();
+
+  // ---- brace behaviour (docs/ship_animation_and_sandbox.md section 5). On a brace order Abara walks to the nearest brace point and stand-easy sends her back. A knocked-out officer slumps. The avatar is thrown by a hit, a jump or a loaded burn unless braced: next to a belt or seat, or holding a rail or handhold while the crew are braced.
+  const BRC = window.BRACING = { S: null, seen: 0, thrown: null, ab: { ko: false, home: null }, SPEED: 1.7,
+    pts(id) { const g = roomG[id || st.room]; return (g && g.metadata && g.metadata.brace) || []; },
+    nearest(x, z, list) { let b = null, bd = 1e9; (list || []).forEach(p => { const d = Math.hypot(p.x - x, p.z - z); if (d < bd) { bd = d; b = p; } }); return { p: b, d: bd }; },
+    braced() { if (st.mode !== 'room' || !HS.ok) return false; const g = roomG[st.room]; if (!g) return false; const base = g.getAbsolutePosition(), n = this.nearest(who.position.x - base.x, who.position.z - base.z, this.pts()); if (!n.p || n.d > 1.1) return false; return n.p.type === 'belt' || n.p.type === 'seat' || HS.S.brace !== 'free'; },
+    throwAvatar(k, why) { if (this.thrown || st.mode !== 'room' || st.room === 'T' || this.braced()) return false; const h = Math.abs(Math.sin((HS.S.t + 1) * 12.9898) * 43758.5453) % 1, a = h * 6.283; this.thrown = { t: 0, dur: 1.0 + 1.4 * k, vx: Math.cos(a) * 3.2 * k, vz: Math.sin(a) * 3.2 * k, k }; tween.length = 0; tt('THROWN (' + why + '): hold a rail or sit and brace', 'w'); snd2('thud'); window.SHIPFX && SHIPFX.shake(.4 + .5 * k); return true; },
+    events(S) { if (this.S !== S) { this.S = S; this.seen = 0; } const ev = S.evts || [];
+      for (; this.seen < ev.length; this.seen++) { const e = ev[this.seen], d = e.data || {};
+        if (e.type === 'impact' && d.dmg >= 6) this.throwAvatar(Math.min(1, d.dmg / 40), 'hit');
+        else if (e.type === 'jump') this.throwAvatar(.9, 'jump');
+        else if (e.type === 'unsecure') this.throwAvatar(.35, 'hard burn');
+        else if (e.type === 'ko' && d.officer === 'Abara') this.ab.ko = true;
+        else if (e.type === 'woke' && d.officer === 'Abara') this.ab.ko = false; } },
+    update(S, dt) { this.events(S); dt = Math.min(dt, .1);
+      const T = this.thrown; if (T) { T.t += dt; const g = roomG[st.room], rr = g.metadata.room, base = g.getAbsolutePosition(), f = Math.pow(Math.max(0, 1 - T.t / T.dur), 2), [cx, cz] = clampIn(rr, who.position.x - base.x + T.vx * f * dt, who.position.z - base.z + T.vz * f * dt); who.position.x = base.x + cx; who.position.z = base.z + cz; who.rotation.z = Math.sin(Math.min(1, T.t / T.dur) * Math.PI) * 1.3; if (T.t >= T.dur) { this.thrown = null; who.rotation.z = 0; } }
+      const sl = slots.abara, root = sl && sl.root; if (!root) return; const ab = this.ab; if (!ab.home) ab.home = { x: root.position.x, z: root.position.z, y: root.position.y };
+      if (ab.ko) { root.rotation.z += (1.45 - root.rotation.z) * Math.min(1, dt * 5); root.position.y = ab.home.y + .22; return; }
+      if (root.rotation.z > .01) { root.rotation.z *= Math.max(0, 1 - dt * 4); root.position.y = ab.home.y; }
+      let tx = ab.home.x, tz = ab.home.z, face = null;
+      if (S.brace !== 'free') { if (!ab.bp) { const n = this.nearest(root.position.x, root.position.z, this.pts('A1').filter(p => p.type !== 'seat')); ab.bp = n.p; } if (ab.bp) { tx = ab.bp.x; tz = ab.bp.z; face = Math.atan2(-tx, -tz); } } else ab.bp = null;
+      const dx = tx - root.position.x, dz = tz - root.position.z, dist = Math.hypot(dx, dz), step = this.SPEED * dt;
+      if (dist > step) { root.position.x += dx / dist * step; root.position.z += dz / dist * step; root.rotation.y = Math.atan2(dx, dz); } else { root.position.x = tx; root.position.z = tz; root.rotation.y = face != null ? face : 0; } } };
+  // the other rooms have no brace points yet: eight grab rails round the wall, so the avatar can brace anywhere
+  R.forEach(r => { const g = roomG[r.id]; if (!g || !g.metadata || !g.metadata.room || g.metadata.room.kind === 'tubes' || g.metadata.brace) return; const rm = g.metadata.room, rm2 = new B.StandardMaterial('railM' + r.id, sc); rm2.diffuseColor = new B.Color3(.9, .76, .2); g.metadata.brace = [];
+    for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4 + Math.PI / 8, x = Math.cos(a) * (rm.r - .45), z = Math.sin(a) * (rm.r - .45), bar = B.MeshBuilder.CreateBox('handhold_' + r.id + '_' + i, { width: .05, height: .55, depth: .05 }, sc); bar.material = rm2; bar.parent = g; bar.position.set(x, rm.y + 1.2, z); bar.isPickable = false; g.metadata.brace.push({ x, z, y: 1.2, type: 'handhold' }); } });
   function radOpen(x, y, label) { radialOpen(contactTree(), x, y, label, { sticky: true }); }
   cv.addEventListener('mousedown', e => { if (e.button !== 1) return; e.preventDefault(); radClose(); if (!HS.ok || typeof CTL === 'undefined') return; const x = e.clientX, y = e.clientY; toIntercom(() => radialOpen(shipTree(), x, y, 'SHIP', { sticky: true })); });
   cv.addEventListener('auxclick', e => { if (e.button === 1) e.preventDefault(); });
@@ -558,7 +584,7 @@
     if (st.zoom) { if (ZKEY[k]) { CTL.activate(ZKEY[k]); return true; } if (k === 'BracketLeft' || k === 'BracketRight') { const L = ['v1', 'v2', 'v3', 'v4', 'v5'], i = Math.max(0, L.indexOf(HS.S.speed)), j = Math.max(0, Math.min(4, i + (k === 'BracketRight' ? 1 : -1))); CTL.activate('spd:' + L[j]); return true; } }
     return false; }
   function hunt(dt) {
-    if (!HS.ok) return; const S = HS.S, E = HS.E; const ts = (window.CIC ? CIC.tscale : 1) * (window.RADIAL && RADIAL.open ? .25 : 1); if (!S.over && !S.hold) E.tick(S, dt / E.P.secPerMin * ts); const evs = HS.A.update(S, S.over || S.hold ? 0 : dt * ts); if (evs && evs.length) onEvents(evs); LS.ctx.annOut = HS.ANN.update({ s: S, model: HS.A.model, E }); if (window.CIC) CIC.fire('frame', dt); callTick(dt); if (HS.Y && LK) HS.Y.lock = LK; if (HS.Y && window.SHIPSYS) { SHIPSYS.update(HS.Y, S, S.over || S.hold ? 0 : dt / E.P.secPerMin); if (window.PS) Object.assign(PS.ctx, { S, E, A: HS.A, Y: HS.Y, ann: LS.ctx.annOut }); }
+    if (!HS.ok) return; const S = HS.S, E = HS.E; const ts = (window.CIC ? CIC.tscale : 1) * (window.RADIAL && RADIAL.open ? .25 : 1); if (!S.over && !S.hold) E.tick(S, dt / E.P.secPerMin * ts); const evs = HS.A.update(S, S.over || S.hold ? 0 : dt * ts); if (evs && evs.length) onEvents(evs); LS.ctx.annOut = HS.ANN.update({ s: S, model: HS.A.model, E }); if (window.CIC) CIC.fire('frame', dt); callTick(dt); BRC.update(S, dt); if (HS.Y && LK) HS.Y.lock = LK; if (HS.Y && window.SHIPSYS) { SHIPSYS.update(HS.Y, S, S.over || S.hold ? 0 : dt / E.P.secPerMin); if (window.PS) Object.assign(PS.ctx, { S, E, A: HS.A, Y: HS.Y, ann: LS.ctx.annOut }); }
     FINS.to = S.vent && S.vent.on ? 1 : 0; st.hunting = !S.over; { const bad = [], ao = LS.ctx.annOut || { lamps: {} }; for (const id in ao.lamps) { const l = ao.lamps[id]; if (l.state === 'warning' || l.state === 'caution') bad.push([l.state, id.toUpperCase().replace(/_/g, ' ')]); }
       if (HS.Y && window.SHIPSYS) SHIPSYS.lamps(HS.Y, S).forEach(l => { if (l.state === 'warning' || l.state === 'caution') bad.push([l.state, l.label]); });
       const w = bad.some(b => b[0] === 'warning'), key = bad.map(b => b[1]).join('|') + w; st.alarm = w ? 2 : bad.length ? 1 : 0;
@@ -576,6 +602,7 @@
   addEventListener('keyup', e => { delete keys[e.code]; if (SKEY[e.code]) stationUp(e.code); if (e.code === 'Backquote') { clearTimeout(bq.timer); if (bq.held) radRelease('bq'); bq.held = false; } }); addEventListener('blur', () => { for (const k in keys) delete keys[k]; });
   // keyboard walking: relative to wherever the active camera looks (fp, room centre or orbit), clamped inside the room
   function drive(dt) {
+    if (BRC.thrown) return;   // thrown: no control until you land
     const dx = (keys.KeyD || keys.ArrowRight ? 1 : 0) - (keys.KeyA || keys.ArrowLeft ? 1 : 0), dz = (keys.KeyW || keys.ArrowUp ? 1 : 0) - (keys.KeyS || keys.ArrowDown ? 1 : 0); if ((!dx && !dz) || st.mode === 'ship') return; unzoom();
     const d = sc.activeCamera.getForwardRay().direction, f = new B.Vector3(d.x, 0, d.z); if (f.length() < 1e-3) return; f.normalize(); const v = f.scale(dz).add(new B.Vector3(-f.z, 0, f.x).scale(dx)); v.normalize();
     const t0 = tween[0]; if (t0 && (t0.k === 'climb' || t0.k === 'lad')) return; tween.length = 0; const g = roomG[st.room], rr = g.metadata.room, s = (keys.ShiftLeft || keys.ShiftRight ? 5.5 : 3.2) * dt;
@@ -648,5 +675,5 @@
     for (const c of life.crew) { if (c.y0 === undefined) { c.y0 = c.h.position.y; c.r0 = c.h.rotation.y; } c.h.position.y = c.y0 + .008 * Math.sin(t * 1.7 + c.ph); c.h.rotation.y = c.r0 + .05 * Math.sin(t * .35 + c.ph); } }
   eng.runRenderLoop(() => sc.render()); addEventListener('resize', () => eng.resize());
   place('A1', 0, 2.5); enter('A1'); cam.target = st.tgt.clone(); setCam('shoulder');
-  window.SHIP_BJS.api = { radial: { open: radialOpen, close: radClose, tree: callTree, pick: radPick, state: RADIAL, stations: mkSTN }, posture: POSTURE, readiness: READY, shipTree, contactTree, toIntercom, stationDown, stationUp, airlock: LK && { L: LK, act: lkAct, dock: h => AIRLOCK.dock(LK, h), undock: () => AIRLOCK.undock(LK), arm: m => AIRLOCK.arm(LK, m), choose: i => AIRLOCK.choose(LK, i), status: () => AIRLOCK.status(LK), toLock: () => { goTo('B2'); } }, zoomTo, unzoom, scrTex, who, walkTo, cam, setCam, fp, st, goTo, enter, place, step, roomG, loadManifest: () => fetch('assets_manifest.json').then(r => r.json()).then(m => { manifest = m; return m; }) };
+  window.SHIP_BJS.api = { radial: { open: radialOpen, close: radClose, tree: callTree, pick: radPick, state: RADIAL, stations: mkSTN }, posture: POSTURE, readiness: READY, bracing: BRC, shipTree, contactTree, toIntercom, stationDown, stationUp, airlock: LK && { L: LK, act: lkAct, dock: h => AIRLOCK.dock(LK, h), undock: () => AIRLOCK.undock(LK), arm: m => AIRLOCK.arm(LK, m), choose: i => AIRLOCK.choose(LK, i), status: () => AIRLOCK.status(LK), toLock: () => { goTo('B2'); } }, zoomTo, unzoom, scrTex, who, walkTo, cam, setCam, fp, st, goTo, enter, place, step, roomG, loadManifest: () => fetch('assets_manifest.json').then(r => r.json()).then(m => { manifest = m; return m; }) };
 })();

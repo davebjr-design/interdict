@@ -595,7 +595,7 @@ const HuntRT = (() => {
     enemyAI(s, h); sinkStep(s, h); if (s.over) return;
     braceStep(s, h);
     probeStep(s, h);
-    if (s.spool && s.t >= s.spool.at) { s.spool = null; s.escaped = s.an.filter(a => a.kind === 'real' && a.state !== 'disabled').length; s.over = s.dog ? 'jump' : s.disabled ? 'breach' : 'breach0'; report(s, 'Abara', s.dog && s.escaped ? 'Breach drive spooled. Jumping, with hostiles left behind. Expect them to warn the next sector.' : 'Breach drive spooled. Jumping.', s.dog && s.escaped ? 'danger' : 'bad'); return; }
+    if (s.spool && s.t >= s.spool.at) { s.spool = null; evt(s, 'jump', { escaped: s.an.filter(a => a.kind === 'real' && a.state !== 'disabled').length }); s.escaped = s.an.filter(a => a.kind === 'real' && a.state !== 'disabled').length; s.over = s.dog ? 'jump' : s.disabled ? 'breach' : 'breach0'; report(s, 'Abara', s.dog && s.escaped ? 'Breach drive spooled. Jumping, with hostiles left behind. Expect them to warn the next sector.' : 'Breach drive spooled. Jumping.', s.dog && s.escaped ? 'danger' : 'bad'); return; }
     s.sysEff = Math.min(1, s.sysEff + s.me.empRecover * h);
     const quiet = s.t < s.quietUntil;
     const friction = 1 - s.me.pellFriction * Math.max(0, Math.floor(s.integration / 25) - 1), rate = POSTURE[s.posture].rate * (s.entry === 'dark' && s.t < s.me.darkWarm ? 0.8 : 1) * (moving(s) || s.posture === 'evade' ? s.me.moveRate : 1) * thrustRate(s.thrust || 0) * friction * (s.hull < 60 ? 0.85 : 1) * s.sysEff * bodyRate(s);
@@ -900,7 +900,8 @@ const HuntRT = (() => {
     const c = s.crew[who], dur = s.me.stunMin + s.me.stunSpan * s.rBrace(), until = s.t + dur; if (c.stunUntil != null && c.stunUntil >= until) return;
     c.stunUntil = until; evt(s, 'stun', { officer: who, station: CREW[who], until, dur, cause }); report(s, 'Pell', `${who} is down, stunned, at ${CREW[who]}.`, 'bad');
   }
-  function impactInjury(s, dmg, from) {   // a hit lands on a crew who are not secure: each officer may be stunned for a few seconds (chance scales with damage; bracing halves it, secure is spared); a big hit may also injure
+  function impactInjury(s, dmg, from) {
+    evt(s, 'impact', { dmg, from, brace: s.brace });   // the ship moves the player avatar and the crew on this (thrown unless braced)   // a hit lands on a crew who are not secure: each officer may be stunned for a few seconds (chance scales with damage; bracing halves it, secure is spared); a big hit may also injure
     if (!s.braceRule || s.brace === 'secure') return;
     const me = s.me, k = s.brace === 'bracing' ? 0.5 : 1;
     for (const o in s.crew) if (s.rBrace() < Math.min(0.9, me.stunP * k * dmg / me.stunRef)) stun(s, o, 'impact');
