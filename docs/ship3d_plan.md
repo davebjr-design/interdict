@@ -123,3 +123,10 @@ Still open (audit punch list): P1 prop collision in `clampIn`; tube hall racks a
 ## Orbit camera under the deck above; keys (Version 14)
 - Lower decks: beta is raised each frame so the camera stays under the deck above (cos(beta) <= (ceiling - target.y) / radius, beta <= 1.5); defaults 7.5 m / beta 1.3 (control room stays 11 m / 45 degrees).
 - Keys: 1-5 answer calls, 6 orbit, 7 shoulder, 8 ship view.
+
+## Command experience and control room pass 3 (Version 16)
+- Design: docs/command_experience.md. Built: key 9 Command view (chair eye, fixed camera, free look); round overview scope (PS painter `overview`, 768 px) with ring gauges (speed, heat, hull, power), contacts by track tier, incoming flash, top threats and the waiting call; tile strip (`tiles`) with the six officers' autonomy, stunned/hurt/calling/knocked-out state.
+- Keys: F1-F8 station screens (tap = go, tap again = back, hold 0.25 s = that station's radial, Shift = peek). Backtick hold or right-click on empty space = Call radial (Quill, Abara, Castellan, Dace, Fenwick, Pell, Posture). Q/E still change deck. Radial = marking menu (flick and release; sticky second level), Ask verbs (REPORT) speak and toast from live state. Time runs at 25 percent while a radial is open (`RADIAL.open`).
+- Posture presets (silent, cruise, combat, evade) apply bundles of CTL actions; not brace. `SHIP_BJS.api.posture.set(name)`.
+- Control room: front wall scope and tiles, flanking monitors; ceiling collar of 24 lamp panels (hidden when the camera is above), pipe runs, command dais, chart table (chart texture, lamp, Abara's locked drawer), Pell's pedestal with the dead red-key slot, belts at the five stations and the command chair, handholds around the wall and by the hatches. 22 brace points are listed in `window.BRACE_POINTS.A1` (type belt/handhold/rail) for the brace system. Abara stands at the chart table.
+- Not yet: station tiles do not yet show the current order; Helm, thermal and engineering still share screens; knocked-out state not in the engine (tile reads `crew[name].ko` when it exists).

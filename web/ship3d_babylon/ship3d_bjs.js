@@ -78,7 +78,7 @@
   const LOCK_LEN = 4.2, LK = window.AIRLOCK ? AIRLOCK.create() : null; let LKV = null;   // spec: 2.8 m round chamber, 4.2 m long, lying radially from the junction wall through the annulus to the dorsal collar (x about 31)
   // ---- collision: solid props register a room-local box (y relative to the room floor); the player is a .32 m disc. Used by keyboard walking, click-to-walk (A* path planner) and spawn.
   const SOLID = new Set(['console', 'couch', 'messtable', 'reactor', 'pumptower', 'bunk', 'tubebase', 'galley_range', 'galley_fridge', 'suit_locker', 'captain_bunk', 'captain_desk', 'med_cot', 'head_unit', 'shower_pod', 'washer', 'command_chair', 'dc_locker', 'supply_crate', 'warhead']);
-  const SOLIDN = /^(table|hub|lockbench|partition|pump|tank|tube|gallery|tower|net|board|crate|post)$/, PR = .32;
+  const SOLIDN = /^(ctframe|pellbase|dais_none|table|hub|lockbench|partition|pump|tank|tube|gallery|tower|net|board|crate|post)$/, PR = .32;
   function addObs(node, hint, isMesh) {
     let n = hint; while (n && !(n.metadata && n.metadata.room)) n = n.parent; if (!n) return; let mn, mx;
     if (isMesh) { node.computeWorldMatrix(true); const bb = node.getBoundingInfo().boundingBox; mn = bb.minimumWorld; mx = bb.maximumWorld; } else { const bb = node.getHierarchyBoundingVectors(true); mn = bb.min; mx = bb.max; }
@@ -202,6 +202,48 @@
     for (const i of [17, 18]) g.metadata.segs[i].items.forEach(m => { m.isVisible = false; });   // open the bulkhead where the lock joins
     LKV = { idoor, odoor, tubeN, vesN, vm, lI: lamp(-.3), lC: lamp(0), lO: lamp(.3), r, ci: 1, co: 1 };
   }
+  // ---- control room fit-out (pass 3): ceiling collar, command dais, chart table with Abara's locked drawer, Pell's pedestal, brace points (rails, belts, handholds) tagged for the brace system
+  const hazTex = ptex('hazTex', 128, 32, (g, w, h) => { g.fillStyle = '#e8c23a'; g.fillRect(0, 0, w, h); g.fillStyle = '#141414'; for (let x = -h; x < w; x += 32) { g.beginPath(); g.moveTo(x, h); g.lineTo(x + 16, h); g.lineTo(x + 16 + h, 0); g.lineTo(x + h, 0); g.closePath(); g.fill(); } }, 1, 1);
+  const hazM = new B.StandardMaterial('hazM', sc); hazM.diffuseTexture = hazTex; hazM.emissiveColor = new B.Color3(.18, .15, .03); hazM.specularColor = B.Color3.Black();
+  const chartTex = ptex('chartTex', 512, 320, (g, w, h) => { g.fillStyle = '#cfc7a8'; g.fillRect(0, 0, w, h); speckle(g, w, h, 1800, .06); g.strokeStyle = 'rgba(40,60,70,.35)'; g.lineWidth = 1; for (let x = 0; x < w; x += 32) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke(); } for (let y = 0; y < h; y += 32) { g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke(); }
+    g.strokeStyle = 'rgba(30,50,60,.6)'; g.lineWidth = 2; for (let i = 1; i < 6; i++) { g.beginPath(); g.arc(150, 170, i * 46, 0, 7); g.stroke(); } g.strokeStyle = '#a8321f'; g.lineWidth = 3; g.beginPath(); g.moveTo(150, 170); g.lineTo(330, 80); g.lineTo(440, 120); g.stroke(); g.fillStyle = '#a8321f'; for (const [x, y] of [[330, 80], [440, 120]]) { g.beginPath(); g.arc(x, y, 6, 0, 7); g.fill(); } g.fillStyle = '#1b3a52'; g.font = 'bold 14px monospace'; g.fillText('DRIFT 1.4', 20, 24); g.fillText('SECTOR CHART', 360, 300); }, 1, 1);
+  const chartM = new B.StandardMaterial('chartM', sc); chartM.diffuseTexture = chartTex; chartM.specularColor = B.Color3.Black(); chartM.emissiveColor = new B.Color3(.12, .12, .1);
+  const ceilTex = ptex('ceilTex', 256, 256, (g, w, h) => { g.fillStyle = '#26363e'; g.fillRect(0, 0, w, h); speckle(g, w, h, 1500, .08); g.strokeStyle = '#0e171c'; g.lineWidth = 6; g.strokeRect(3, 3, w - 6, h - 6); g.fillStyle = '#c9a24a'; for (const [x, y] of [[14, 14], [w - 14, 14], [14, h - 14], [w - 14, h - 14]]) g.fillRect(x - 3, y - 3, 6, 6); }, 1, 1);
+  const ceilM = pbr('#ffffff', { metal: .3, rough: .7 }); ceilM.albedoTexture = ceilTex;
+  const lampM = pbr('#101010', { emit: '#bfe6ff', ei: .9 });
+  function cicDress(g, r, h) {
+    const BP = g.metadata.brace = [];   // brace points: { x, z, y, type, seat? } in room-local metres
+    // ceiling collar: 24 panels between the console ring and the wall, each tied to its wall segment so it fades with it; a lamp strip in each
+    for (let i = 0; i < 24; i++) { const a = (i + .5) * 2 * Math.PI / 24, rr = r - .75, pn = box('ceil', 1.15, .08, 1.5, ceilM, g, Math.cos(a) * rr, h - .05, Math.sin(a) * rr); pn.rotation.y = -a + Math.PI / 2; pn.isPickable = false;
+      const ln = box('ceillamp', .7, .03, .12, lampM, g, Math.cos(a) * (rr - .1), h - .1, Math.sin(a) * (rr - .1)); ln.rotation.y = -a + Math.PI / 2; ln.isPickable = false; (g.metadata.ceil = g.metadata.ceil || []).push(pn, ln); }
+    life.glow.push({ m: lampM, lo: .7, hi: 1.0, sp: .3 });
+    // pipe and cable runs high on the wall
+    for (const [yy, d, c] of [[2.62, .07, '#7f95a1'], [2.74, .05, '#a8321f'], [2.5, .045, '#c9a24a']]) { const t = B.MeshBuilder.CreateTorus('pipe', { diameter: (r - .12) * 2, thickness: d, tessellation: 72 }, sc); t.material = pbr(c, { metal: .6, rough: .4 }); t.parent = g; t.position.y = yy; t.isPickable = false; }
+    // command dais under the chair: a low round step with a compass inlay and a lit edge
+    { const dm = pbr('#ffffff', { metal: .35, rough: .6 }); dm.albedoTexture = ptex('daisTex', 256, 256, (q, w, hh) => { q.fillStyle = '#2b3f49'; q.fillRect(0, 0, w, hh); speckle(q, w, hh, 2000, .1); q.strokeStyle = '#c9a24a'; q.lineWidth = 3; q.beginPath(); q.arc(128, 128, 112, 0, 7); q.stroke(); q.beginPath(); q.arc(128, 128, 70, 0, 7); q.stroke(); for (let d = 0; d < 360; d += 30) { const an = d * Math.PI / 180; q.beginPath(); q.moveTo(128 + Math.cos(an) * 70, 128 + Math.sin(an) * 70); q.lineTo(128 + Math.cos(an) * 112, 128 + Math.sin(an) * 112); q.stroke(); } q.fillStyle = '#c9a24a'; q.beginPath(); q.moveTo(128, 8); q.lineTo(138, 40); q.lineTo(118, 40); q.closePath(); q.fill(); }, 1, 1);
+      const dais = cyl('dais', 3.0, .14, dm, g, 0, .07, -.9); dais.isPickable = false; const edge = B.MeshBuilder.CreateTorus('daisedge', { diameter: 3.0, thickness: .04, tessellation: 64 }, sc); edge.material = pbr('#101010', { emit: '#e0a020', ei: .9 }); edge.parent = g; edge.position.set(0, .14, -.9); edge.isPickable = false; }
+    // chart table: legs, a slightly tilted chart top with a lamp, a locked drawer (newer lock than the table)
+    { const tx = -2.2, tz = .9, tm = pbr('#3b4a52', { metal: .5, rough: .5 }); const top = box('ctable', 1.6, .08, 1.0, chartM, g, tx, .86, tz); top.rotation.x = .06; const fr = box('ctframe', 1.7, .06, 1.1, tm, g, tx, .8, tz);
+      for (const [dx, dz] of [[-.75, -.45], [.75, -.45], [-.75, .45], [.75, .45]]) box('ctleg', .08, .8, .08, tm, g, tx + dx, .4, tz + dz);
+      const dr = box('ctdrawer', .9, .2, .06, pbr('#4a5a62', { metal: .6, rough: .4 }), g, tx, .64, tz + .53); const lk = box('ctlock', .1, .08, .03, pbr('#d9d9d9', { metal: .9, rough: .25 }), g, tx + .3, .64, tz + .57);
+      const lamp = box('ctlamp', .06, .5, .06, tm, g, tx + .6, 1.1, tz - .3), lh = box('ctlamph', .25, .06, .15, pbr('#101010', { emit: '#ffd9a0', ei: 1.2 }), g, tx + .6, 1.36, tz - .3); life.glow.push({ m: lh.material, lo: .9, hi: 1.2, sp: .5 });
+      for (const q of [top, fr, dr, lk, lamp, lh]) q.isPickable = false;
+      for (const [dx, dz] of [[-.82, 0], [.82, 0], [0, -.55], [0, .55]]) BP.push({ x: tx + dx, z: tz + dz, y: 1, type: 'rail' });
+      const rl = pbr('#e8c23a', { metal: .4, rough: .5 }); for (const [dx, dz, w2, d2] of [[0, -.6, 1.8, .04], [0, .6, 1.8, .04], [-.86, 0, .04, 1.2], [.86, 0, .04, 1.2]]) { const rr2 = box('ctrail', w2, .04, d2, rl, g, tx + dx, 1.0, tz + dz); rr2.isPickable = false; } }
+    // Pell's pedestal (the red key slot, dead): beside the command dais
+    { const px = 1.9, pz = -.6, pm = pbr('#2a3a42', { metal: .6, rough: .4 }); cyl('pellbase', .6, .9, pm, g, px, .45, pz).isPickable = false; const top2 = cyl('pelltop', .72, .08, pm, g, px, .94, pz); top2.isPickable = false;
+      const core = B.MeshBuilder.CreateTorus('pellcore', { diameter: .46, thickness: .035, tessellation: 40 }, sc); core.material = pbr('#101010', { emit: '#e8a030', ei: 1 }); core.parent = g; core.position.set(px, .99, pz); core.isPickable = false; life.glow.push({ m: core.material, lo: .3, hi: 1.4, sp: .7 });
+      const slot2 = box('pellslot', .16, .02, .05, pbr('#050505'), g, px, .99, pz); slot2.isPickable = false; box('pellkey', .1, .02, .035, pbr('#101010', { emit: '#7a1410', ei: .4 }), g, px, 1.0, pz).isPickable = false; }
+    // brace points: belts at each station couch and the command chair, handholds flanking each console and locker, grab bars by the hatches
+    const belt = (x, y, z, ry, tag) => { const b1 = box('belt', .06, .5, .02, hazM, g, x, y, z), b2 = box('belt', .06, .5, .02, hazM, g, x, y, z); b1.rotation.set(0, ry, .5); b2.rotation.set(0, ry, -.5); b1.isPickable = b2.isPickable = false; BP.push({ x, z, y, type: 'belt', tag }); };
+    for (let i = 0; i < 5; i++) { const a = -1.2 + i * .6, sx = Math.sin(a) * 3.15, sz = -Math.cos(a) * 3.15; belt(sx, .62, sz, -a + Math.PI, 'station' + i); }
+    belt(0, .62, -.9 + .25, 0, 'command');
+    for (let i = 0; i < 10; i++) { const a = -1.5 + i * .33 - (i > 4 ? 0 : 0), hx = Math.sin(a) * (r - .25), hz = -Math.cos(a) * (r - .25); const bar = box('handhold', .05, .55, .05, pbr('#e8c23a', { metal: .4, rough: .5 }), g, hx, 1.2, hz); bar.isPickable = false; BP.push({ x: hx, z: hz, y: 1.2, type: 'handhold' }); }
+    for (const sx of [-1, 1]) { const bar = box('hatchbar', .05, .9, .05, pbr('#e8c23a', { metal: .4, rough: .5 }), g, sx * (r - .3), 1.0, .85); bar.isPickable = false; BP.push({ x: sx * (r - .3), z: .85, y: 1.0, type: 'handhold' }); }
+    window.BRACE_POINTS = window.BRACE_POINTS || {}; window.BRACE_POINTS.A1 = BP;
+    // one soft cyan fill from the scope so the front of the room reads
+    const L = new B.PointLight('scopeFill', new B.Vector3(0, 2.0, 3.5), sc); L.parent = g; L.diffuse = B.Color3.FromHexString('#7fe8ff'); L.intensity = .5; L.range = 7;
+  }
   function prop(kind, g, r, h) {
     if (kind === 'cic') {
       // five stations on the aft arc: a console on the wall, a seat and a crew member in front of it facing the screens
@@ -209,7 +251,7 @@
         slot('console', rt => box('consfb', 2, .9, .7, steel, rt, 0, .45, 0), g, s * 4.15, 0, c * 4.15, { id: 'console' + i, ry: -a, ground: true, onload: h => mkScreens(i, h.getChildren()[0]) });
         slot('couch', rt => box('couch', 1.2, .5, .6, pbr('#4a4f7a'), rt, 0, .25, 0), g, s * 3.15, 0, c * 3.15, { id: 'couch' + i, ry: -a + Math.PI, ground: true, size: 1.15 });
         crewSlot(g, 'crew' + i, s * 3.33, c * 3.33, Math.PI - a, 0); }
-      box('table', 1.6, .1, 1, steel, g, -2.2, .8, .9);
+      cicDress(g, r, h);
       slot('abara', rt => B.MeshBuilder.CreateCapsule('abfb', { radius: .24, height: 1.7 }, sc), g, -2.2, 0, 1.95, { id: 'abara', ry: Math.PI, ground: true });   // Abara stands at the chart table, glasses on, looking down at the plot
       slot('command_chair', rt => box('chairfb', .7, .9, .7, pbr('#4a4f7a'), rt, 0, .45, 0), g, 0, 0, -.9, { id: 'cochair', ry: 0, ground: true, size: 1.2 });
       if (HS.ok) { mkOverview(g); [['annun', -.72, 2.05], ['helm', -.72, 1.0], ['power', -1.08, 2.05], ['crew', .72, 2.05], ['stores', .72, 1.0], ['probes', 1.08, 2.05]].forEach(([n, d, y]) => mkPassive(g, n, Math.PI / 2 + d, 4.62, y, 1.15)); }
@@ -569,6 +611,7 @@
   // walls fade out where they sit between the camera and the character (current room only)
   function fadeWalls() {
     const cp = sc.activeCamera.position, W = who.position;
+    for (const id in roomG) { const gm = roomG[id].metadata; if (gm.ceil) { const show = cp.y < roomG[id].position.y + gm.room.h - .1 || st.mode === 'ship'; gm.ceil.forEach(m => { if (m.isVisible !== show) m.isVisible = show; }); } }   // ceilings are only drawn when the camera is under them
     for (const id in roomG) { const g = roomG[id], r = g.metadata.room, on = id === st.room && st.mode === 'room' && st.cam !== 'fp', ax = g.position.x, az = g.position.z, top = g.position.y + r.h + .3, outside = Math.hypot(cp.x - ax, cp.z - az) > r.r - .3;
       if (g.metadata.pod) { const pd = g.metadata.pod, inside = Math.hypot(W.x - ax, W.z - az) < pd.r - .15 && id === st.room, camIn = Math.hypot(cp.x - ax, cp.z - az) < pd.r - .1, tvp = inside && !camIn && on ? .1 : 1; pd.vis = (pd.vis == null ? 1 : pd.vis) + (tvp - (pd.vis == null ? 1 : pd.vis)) * .18; pd.walls.forEach(m => { m.visibility = pd.vis > .985 ? 1 : pd.vis; }); }
       for (const sg of g.metadata.segs) { let tv = 1;
