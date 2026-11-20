@@ -114,3 +114,12 @@ Positions that change the outcome: standing on a ladder or in the shaft (worst: 
 3. Are brace points required (walk to a seat) or abstract (the CO orders and everyone is instantly "assigned")? Required is more physical and richer in animation but more annoying in play; middle option: crew auto-walk to points, the player just orders.
 4. Does the player avatar get thrown too (player controls)? Suggest: yes, a short lose-control (2 s) unless the player holds a rail.
 5. Do the ship's passengers (e.g. Corvane in her cabin) have brace points and animations? Cheap to add later.
+
+## 5. Decisions (Dave, 2026-11-19)
+1. **Knocked-out is a real state.** The station that officer was at drops to **25 percent** effectiveness. Exception: if the captain takes that station, it runs at normal effectiveness; the knocked-out officer must then be **moved to an unoccupied couch** (carried or dragged there, which costs another crew member's time). Open detail: which couch (nearest free; sickbay cot if sickbay is free).
+2. **No deaths in Act 1.** Worst outcome is knocked out or seriously hurt (out for the hunt). A shaft fall is knocked-out at worst.
+3. **Triggers to build:** hard evasion, sudden acceleration, **the jump itself** (spooling alone is not a trigger), hits, **ship collisions** (other ships, asteroids and the like; no separate "debris" concept), hull breach, fire; the rest of the proposed list (power loss, CO2, tether snap, tube misfire) stays as later candidates.
+4. **Brace points:** crew **auto-walk** to the nearest brace point when brace is ordered. Crew already at a station are strapped in, so a station counts as a brace point (instantly secure).
+5. **The player avatar gets thrown too unless braced.** Braced can mean holding a rail or handhold, not only a belt.
+6. **Orbit camera:** the control room (top deck, nothing above) looks down at about 45 degrees. On every lower deck the camera may not look down through the deck above: its elevation is limited so it stays under that deck's ceiling (it sits near the rim looking across the room). Fading the deck above is the alternative if the rim view proves too tight.
+7. **Keys:** 1-5 answer calls, 6 orbit camera, 7 over-the-shoulder, 8 ship view (9 free).

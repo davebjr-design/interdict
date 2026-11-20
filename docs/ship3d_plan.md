@@ -119,3 +119,7 @@ Still open (audit punch list): P1 prop collision in `clampIn`; tube hall racks a
 ## Named crew in the ship (Version 12)
 - The crew from the 2026-10-28 Meshy run already exist as rigged GLBs (design/assets/meshy_output/crew/<name>/walk.glb, 40 credits each, no new spend). Pipeline per character: gltf-transform resize 1024 -> prune -> webp q85 (14.4 MB -> 2.0 MB), copy to web/ship3d_babylon/glb/<name>.glb, add a manifest entry (size_m = true height, Abara 1.72), place with `slot('<name>', fallback, parent, x, 0, z, {id, ry, ground:true})`.
 - Abara placed standing at the CIC chart table. Rig is still in its A-pose; walk/idle clip not yet driven.
+
+## Orbit camera under the deck above; keys (Version 14)
+- Lower decks: beta is raised each frame so the camera stays under the deck above (cos(beta) <= (ceiling - target.y) / radius, beta <= 1.5); defaults 7.5 m / beta 1.3 (control room stays 11 m / 45 degrees).
+- Keys: 1-5 answer calls, 6 orbit, 7 shoulder, 8 ship view.
