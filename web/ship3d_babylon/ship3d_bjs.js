@@ -132,6 +132,15 @@
     const nd = polar(g, a, rad), h = w * .75, fr = box('pbezel', w + .1, h + .1, .06, pbr('#0c1418', { metal: .6, rough: .4 }), nd, 0, y, .06); fr.isPickable = false;
     const p = B.MeshBuilder.CreatePlane('pscr:' + n, { width: w, height: h, sideOrientation: B.Mesh.DOUBLESIDE }, sc); p.material = pTex(n).m; p.parent = nd; p.position.set(0, y, -.01); p.rotation.set(0, 0, Math.PI); p.metadata = { screen: n, passive: true, station: -1, sh: h }; p.isPickable = true;
     g.metadata.segAdd(a, [fr, p]); }
+  // the Command view wall (docs/command_experience.md): a round overview scope with the six station tiles under it, centred on the front wall of the control room
+  function mkOverview(g) {
+    const a = Math.PI / 2, nd = polar(g, a, 4.62), ringMat = pbr('#0c1418', { metal: .7, rough: .35 });
+    const bz = B.MeshBuilder.CreateTorus('obezel', { diameter: 2.0, thickness: .09, tessellation: 64 }, sc); bz.material = ringMat; bz.parent = nd; bz.position.set(0, 1.78, .06); bz.rotation.x = Math.PI / 2; bz.isPickable = false;
+    const gl = B.MeshBuilder.CreateTorus('oglow', { diameter: 2.12, thickness: .03, tessellation: 64 }, sc); gl.material = pbr('#101010', { emit: '#3ddbd0', ei: 1.2 }); gl.parent = nd; gl.position.set(0, 1.78, .05); gl.rotation.x = Math.PI / 2; gl.isPickable = false; life.glow.push({ m: gl.material, lo: .5, hi: 1.3, sp: .9 });
+    const d = B.MeshBuilder.CreateDisc('pscr:overview', { radius: .96, tessellation: 64, sideOrientation: B.Mesh.DOUBLESIDE }, sc); d.material = pTex('overview').m; d.parent = nd; d.position.set(0, 1.78, -.01); d.rotation.set(0, 0, Math.PI); d.metadata = { screen: 'overview', passive: true, station: -1, sh: 1.92 }; d.isPickable = true;
+    const tb = box('tbezel', 3.1, .55, .06, ringMat, nd, 0, .44, .06); tb.isPickable = false;
+    const tl = B.MeshBuilder.CreatePlane('pscr:tiles', { width: 3.0, height: .5, sideOrientation: B.Mesh.DOUBLESIDE }, sc); tl.material = pTex('tiles').m; tl.parent = nd; tl.position.set(0, .44, -.01); tl.rotation.set(0, 0, Math.PI); tl.metadata = { screen: 'tiles', passive: true, station: -1, sh: .5 }; tl.isPickable = true;
+    g.metadata.segAdd(a, [bz, gl, d, tb, tl]); }
   const roomG = {};
   const crewSlot = (g, id, x, z, ry, lift) => slot('crew', rt => B.MeshBuilder.CreateCapsule('cfb', { radius: .22, height: 1.2 }, sc), g, x, 0, z, { id, ry, ground: true, lift: lift || 0, onload: h => life.crew.push({ h, ph: Math.random() * 6.3 }) });
   // ---- set dressing helpers (all cosmetic): ladders, netted supply shelves, bunk pods, head fixtures
@@ -200,10 +209,10 @@
         slot('console', rt => box('consfb', 2, .9, .7, steel, rt, 0, .45, 0), g, s * 4.15, 0, c * 4.15, { id: 'console' + i, ry: -a, ground: true, onload: h => mkScreens(i, h.getChildren()[0]) });
         slot('couch', rt => box('couch', 1.2, .5, .6, pbr('#4a4f7a'), rt, 0, .25, 0), g, s * 3.15, 0, c * 3.15, { id: 'couch' + i, ry: -a + Math.PI, ground: true, size: 1.15 });
         crewSlot(g, 'crew' + i, s * 3.33, c * 3.33, Math.PI - a, 0); }
-      box('table', 1.6, .1, 1, steel, g, 0, .8, .45);
-      slot('abara', rt => B.MeshBuilder.CreateCapsule('abfb', { radius: .24, height: 1.7 }, sc), g, .15, 0, 1.45, { id: 'abara', ry: Math.PI, ground: true });   // Abara stands at the chart table, glasses on, looking down at the plot
+      box('table', 1.6, .1, 1, steel, g, -2.2, .8, .9);
+      slot('abara', rt => B.MeshBuilder.CreateCapsule('abfb', { radius: .24, height: 1.7 }, sc), g, -2.2, 0, 1.95, { id: 'abara', ry: Math.PI, ground: true });   // Abara stands at the chart table, glasses on, looking down at the plot
       slot('command_chair', rt => box('chairfb', .7, .9, .7, pbr('#4a4f7a'), rt, 0, .45, 0), g, 0, 0, -.9, { id: 'cochair', ry: 0, ground: true, size: 1.2 });
-      if (HS.ok) [['helm', 'annun', 'power'], ['stores', 'crew', 'probes']].forEach((row, ri) => row.forEach((n, ci) => mkPassive(g, n, Math.PI / 2 + (ci - 1) * .44, 4.62, ri ? .92 : 2.1, 1.5)));
+      if (HS.ok) { mkOverview(g); [['annun', -.72, 2.05], ['helm', -.72, 1.0], ['power', -1.08, 2.05], ['crew', .72, 2.05], ['stores', .72, 1.0], ['probes', 1.08, 2.05]].forEach(([n, d, y]) => mkPassive(g, n, Math.PI / 2 + d, 4.62, y, 1.15)); }
       for (const a of [.5, 2.65]) slot('dc_locker', rt => box('dcfb', .8, 1.6, .4, pbr('#8a2a22'), rt, 0, .8, 0), g, Math.cos(a) * 4.5, 0, Math.sin(a) * 4.5, { id: 'dclocker' + (a < 1 ? 0 : 1), ry: face(a), ground: true, size: 1.2 }); }
     else if (kind === 'berths') {
       for (let i = 0; i < 3; i++) { const a = i * 2.094 + .5; slot('bunk', rt => box('bunk', 2.2, 1.6, .9, steel, rt, 0, .8, 0), g, Math.cos(a) * 3.3, 0, Math.sin(a) * 3.3, { id: 'bunk' + i, ry: -a - Math.PI / 2, ground: true, size: 2.2 }); }
@@ -332,17 +341,18 @@
     if (!keep) unzoom();
     if (st.mode === 'ship') { st.mode = 'room'; enter(st.room); }
     st.cam = m; const old = sc.activeCamera; if (old) old.detachControl();
-    if (m === 'fp') { sc.activeCamera = fp; fp.attachControl(cv, true); who.isVisible = false; plRoot.setEnabled(false); }
+    if (m === 'cmd') { if (st.room !== 'A1') { goTo('A1'); setTimeout(() => setCam('cmd'), 900); return; } sc.activeCamera = fp; fp.attachControl(cv, true); who.isVisible = false; plRoot.setEnabled(false); const g = roomG.A1, d = g.getAbsolutePosition(); fp.position.set(d.x, d.y + 1.3, d.z - .9); fp.fov = .95; fp.setTarget(new B.Vector3(d.x, d.y + 1.5, d.z + 4)); st.zoom = null; }
+    else if (m === 'fp') { sc.activeCamera = fp; fp.attachControl(cv, true); who.isVisible = false; plRoot.setEnabled(false); }
     else { sc.activeCamera = cam; cam.attachControl(cv, true); who.isVisible = true; plRoot.setEnabled(true);
       if (m === 'shoulder') { cam.lowerRadiusLimit = 1.4; cam.radius = 4.4; cam.beta = 1.15; cam.targetScreenOffset.set(-.3, -.06); }
       else { cam.lowerRadiusLimit = 3; cam.targetScreenOffset.set(0, 0); enter(st.room); } }
     camBtns.forEach(b => b.classList.toggle('on', b.dataset.cam === st.cam)); hud();
   }
   const camBox = document.createElement('div'); camBox.id = 'cams'; camBox.style.cssText = 'position:fixed;left:max(16px,env(safe-area-inset-left,0px));top:calc(170px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:3px';
-  const camBtns = [['orbit', '6  Orbit view'], ['shoulder', '7  Over the shoulder']].map(([k, t]) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = t; b.dataset.cam = k; b.onclick = () => setCam(k); camBox.appendChild(b); return b; }); document.body.appendChild(camBox);
+  const camBtns = [['orbit', '6  Orbit view'], ['shoulder', '7  Over the shoulder'], ['cmd', '9  Command view']].map(([k, t]) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = t; b.dataset.cam = k; b.onclick = () => setCam(k); camBox.appendChild(b); return b; }); document.body.appendChild(camBox);
   const ladBox = document.createElement('div'); ladBox.style.cssText = 'position:fixed;left:max(16px,env(safe-area-inset-left,0px));top:calc(242px + env(safe-area-inset-top,0px));display:none;flex-direction:column;gap:3px'; [['▲  Climb up (R)', 1], ['▼  Climb down (F)', -1]].forEach(([t, d]) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = t; b.onclick = () => climbStep(d); ladBox.appendChild(b); }); document.body.appendChild(ladBox);
   cv.addEventListener('wheel', e => { if (st.cam === 'fp') { fp.fov = Math.max(.5, Math.min(1.7, fp.fov * (1 + Math.sign(e.deltaY) * .06))); e.preventDefault(); } }, { passive: false });
-  function hud() { ladBox.style.display = st.room === 'T' && st.mode === 'room' ? 'flex' : 'none'; const r = roomG[st.room].metadata.room, n = Object.values(slots).filter(s => s.glb).length; hudEl.innerHTML = '<b>INTERDICT 3D ship spine (Babylon.js)</b><br>' + ({ orbit: 'Orbit view', shoulder: 'Over the shoulder', fp: 'Screen' })[st.cam] + '<br>' + r.id + ': ' + r.name + '<br>floor ' + (r.r * 2).toFixed(1) + ' m across, ' + r.h + ' m clear<br>' + (st.mode === 'ship' ? 'Ship view (140 m)' : 'Room view') + (st.zoom ? '<br><b>SCREEN ' + st.zoom.mesh.metadata.screen.toUpperCase() + '</b>: click its soft keys · Esc steps back' : '') + '<br><span style="opacity:.7">6 orbit · 7 over the shoulder · 8 ship view · V vent fins · WASD walk · Shift run · Q/E deck down/up · R/F ladder (tube hall)</span><br>GLB slots filled: ' + n + ' / ' + Object.keys(slots).length; decks.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.id === st.room)); }
+  function hud() { ladBox.style.display = st.room === 'T' && st.mode === 'room' ? 'flex' : 'none'; const r = roomG[st.room].metadata.room, n = Object.values(slots).filter(s => s.glb).length; hudEl.innerHTML = '<b>INTERDICT 3D ship spine (Babylon.js)</b><br>' + ({ orbit: 'Orbit view', shoulder: 'Over the shoulder', fp: 'Screen', cmd: 'Command view' })[st.cam] + '<br>' + r.id + ': ' + r.name + '<br>floor ' + (r.r * 2).toFixed(1) + ' m across, ' + r.h + ' m clear<br>' + (st.mode === 'ship' ? 'Ship view (140 m)' : 'Room view') + (st.zoom ? '<br><b>SCREEN ' + st.zoom.mesh.metadata.screen.toUpperCase() + '</b>: click its soft keys · Esc steps back' : '') + '<br><span style="opacity:.7">6 orbit · 7 shoulder · 8 ship · 9 command · F1-F8 stations (tap = go/back, hold = radial, Shift = peek) · ` radial · V vent fins · WASD walk · Shift run · Q/E deck down/up · R/F ladder (tube hall)</span><br>GLB slots filled: ' + n + ' / ' + Object.keys(slots).length; decks.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.id === st.room)); }
   R.forEach(r => { const b = document.createElement('button'); b.textContent = r.id + '  ' + r.name; b.dataset.id = r.id; b.onclick = () => goTo(r.id); decks.appendChild(b); });
   function place(id, x, z) { const r = roomG[id].metadata.room; st.room = id; st.lvl = 0; const q = pushOut(r, x, z, 0); who.position.set(q[0], r.y + .95, q[1]); }
   function enter(id) { st.mode = 'room'; st.room = id; const r = roomG[id].metadata.room; dust.emitter = roomG[id].getAbsolutePosition().clone(); dust.maxEmitBox.setAll(r.r * .85); dust.minEmitBox.set(-r.r * .85, .2, -r.r * .85); dust.maxEmitBox.y = Math.min(r.h, 6) - .3; st.tgt.set(0, r.y + (r.kind === 'tubes' ? 12 : 1.2), 0); cam.radius = r.kind === 'tubes' ? 30 : r.id === 'A1' ? 11 : 7.5; cam.beta = r.kind === 'tubes' ? 1.3 : r.id === 'A1' ? .8 : 1.3; hud(); }
@@ -419,12 +429,61 @@
   }
   // radial menu on a right-click of a contact on a zoomed screen
   const radEl = document.createElement('div'); radEl.style.cssText = 'position:fixed;display:none;z-index:25;width:0;height:0'; document.body.appendChild(radEl);
-  const radClose = () => { radEl.style.display = 'none'; };
-  function radOpen(x, y, label) { const mk = (id, lab) => ({ id, lab, off: CTL.can(id).ok === false }), items = [mk('act:classify', 'CLASSIFY'), mk('act:lock', 'LOCK'), mk('act:ping', 'PING'), mk('act:probe', 'PROBE'), mk('act:rule', 'RULE OUT'), mk('fire', LS.ctx.guardUp ? 'FIRE' : 'ARM FIRE')]; radEl.innerHTML = ''; radEl.style.left = x + 'px'; radEl.style.top = y + 'px'; radEl.style.display = 'block';
-    const core = document.createElement('div'); core.textContent = label; core.style.cssText = 'position:absolute;transform:translate(-50%,-50%);color:#c4dcd2;font:bold 12px monospace;background:#08201c;border:1px solid #1d4a42;border-radius:12px;padding:4px 8px'; radEl.appendChild(core);
-    items.forEach((it, i) => { const a = -Math.PI / 2 + i * 2 * Math.PI / items.length, b = document.createElement('button'); b.type = 'button'; b.textContent = it.lab; b.style.cssText = 'position:absolute;transform:translate(-50%,-50%);width:92px;font:bold 12px monospace;padding:8px 2px;background:#08201c;color:#f0ab3a;border:2px solid #7a5a1d;border-radius:20px;cursor:pointer;opacity:' + (it.off ? .35 : 1) + ';left:' + Math.round(Math.cos(a) * 92) + 'px;top:' + Math.round(Math.sin(a) * 92) + 'px'; b.onclick = e => { e.stopPropagation(); radClose(); CTL.activate(it.id); }; radEl.appendChild(b); }); snd2('tick'); }
-  cv.addEventListener('contextmenu', e => { e.preventDefault(); radClose(); if (!HS.ok || !st.zoom || typeof CTL === 'undefined') return; sc.pointerX = e.offsetX; sc.pointerY = e.offsetY; const h = scrHit(); if (h && h.reg && /^sel:\d+$/.test(h.reg.id)) { CTL.select(+h.reg.id.slice(4)); radOpen(e.clientX, e.clientY, 'CONTACT ' + h.reg.id.slice(4)); } });
-  addEventListener('pointerdown', e => { if (!radEl.contains(e.target)) radClose(); });
+  // ---- radial menus (docs/command_experience.md): a marking menu. Hold a key (or right-click), flick toward an item, release. Two levels at most. Time runs at 25% while one is open.
+  const RADIAL = window.RADIAL = { open: false, items: null, cx: 0, cy: 0, sticky: false, sel: -1, by: null }, ptr = { x: 0, y: 0 };
+  addEventListener('pointermove', e => { ptr.x = e.clientX; ptr.y = e.clientY; if (RADIAL.open && !RADIAL.sticky) radHover(); }, true);
+  const radClose = () => { radEl.style.display = 'none'; RADIAL.open = false; RADIAL.items = null; RADIAL.by = null; };
+  const idItem = (id, lab) => ({ lab, id, off: typeof CTL !== 'undefined' && CTL.can(id).ok === false });
+  function radIndex() { const n = RADIAL.items.length, dx = ptr.x - RADIAL.cx, dy = ptr.y - RADIAL.cy; if (Math.hypot(dx, dy) < 34) return -1; const a = Math.atan2(dy, dx) + Math.PI / 2, st2 = 2 * Math.PI / n; return Math.round(((a % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI)) / st2) % n; }
+  function radHover() { const k = radIndex(); if (k !== RADIAL.sel) { RADIAL.sel = k; [...radEl.querySelectorAll('button')].forEach((b, i) => { b.style.background = i === k ? '#3a2d0c' : '#08201c'; b.style.borderColor = i === k ? '#f0ab3a' : '#7a5a1d'; }); if (k >= 0) snd2('tick'); } }
+  function radialOpen(items, x, y, title, opts) {
+    opts = opts || {}; radEl.innerHTML = ''; radEl.style.left = x + 'px'; radEl.style.top = y + 'px'; radEl.style.display = 'block'; Object.assign(RADIAL, { open: true, items, cx: x, cy: y, sticky: !!opts.sticky, sel: -1, by: opts.by || null });
+    const core = document.createElement('div'); core.textContent = title || ''; core.style.cssText = 'position:absolute;transform:translate(-50%,-50%);color:#c4dcd2;font:bold 12px monospace;background:#08201c;border:1px solid #1d4a42;border-radius:12px;padding:4px 8px;white-space:nowrap'; radEl.appendChild(core);
+    items.forEach((it, i) => { const a = -Math.PI / 2 + i * 2 * Math.PI / items.length, b = document.createElement('button'); b.type = 'button'; b.textContent = it.lab + (it.kids ? ' ›' : ''); b.style.cssText = 'position:absolute;transform:translate(-50%,-50%);width:96px;font:bold 12px monospace;padding:8px 2px;background:#08201c;color:#f0ab3a;border:2px solid #7a5a1d;border-radius:20px;cursor:pointer;opacity:' + (it.off ? .4 : 1) + ';left:' + Math.round(Math.cos(a) * 96) + 'px;top:' + Math.round(Math.sin(a) * 96) + 'px'; b.onclick = e => { e.stopPropagation(); radPick(i); }; radEl.appendChild(b); });
+    snd2('tick'); }
+  function radPick(i) { const it = RADIAL.items && RADIAL.items[i]; if (!it) { radClose(); return; } if (it.kids) { const x = RADIAL.cx, y = RADIAL.cy; radialOpen(it.kids, x, y, it.lab, { sticky: true }); return; } radClose(); if (it.off) { tt('Not available right now', 'w'); return; } try { it.fn ? it.fn() : CTL.activate(it.id); } catch (e) { console.warn('radial', e); } }
+  function radRelease(by) { if (!RADIAL.open || RADIAL.sticky || (by && RADIAL.by && RADIAL.by !== by)) return; const k = radIndex(); if (k < 0) { radClose(); return; } radPick(k); }
+  // Ask verbs: the officer answers in words (a spoken line and a toast), straight from the live state
+  function askText(stn) { try { const S = HS.S, E = HS.E, an = (S.an || []).filter(a => a.state !== 'out'), sel = LS.ctx.sel != null ? S.an[LS.ctx.sel] : null, hos = an.filter(a => a.idStatus === 'hostile').length;
+    switch (stn) {
+      case 'sensors': return an.length + ' contacts, ' + hos + ' hostile' + (sel ? '. Selected S' + (sel.id + 1) + ', ' + (sel.state === 'locked' ? 'locked' : 'open') : '. Nothing selected.') + '.';
+      case 'fire': { if (!sel) return 'No contact selected.'; const si = E.solveInfo(S, sel); return 'S' + (sel.id + 1) + ' ' + (sel.state !== 'locked' ? 'not locked' : si.ready ? 'solution ready' : 'solution ' + Math.round(100 * si.prog) + ' percent') + '.'; }
+      case 'weapons': return 'Magazine ' + (S.mag ? S.mag.total : 0) + ' of ' + (S.mag ? S.mag.max : 0) + '. Point defence ' + (S.pd || 'cold') + '.';
+      case 'helm': return 'Speed ' + String(S.speed || 'v1').toUpperCase() + ', heading ' + Math.round(((S.hdg || 0) * 180 / Math.PI % 360 + 360) % 360) + '. Posture ' + (POSTURE.current) + '.';
+      case 'engineering': return 'Drive ' + Math.round((S.thrust || 0) * 100) + ' percent, water ' + Math.round(S.water || 0) + ' tonnes, load ' + (S.gNow || 0).toFixed(2) + ' g.';
+      case 'thermal': return 'Sink at ' + Math.round((S.sink ? S.sink.h : 0) * 100) + ' percent. Fins ' + (S.vent && S.vent.on ? 'out' : 'stowed') + '.';
+      case 'damage': { const hurt = Object.keys(S.crew || {}).filter(k => S.crew[k].inj); return 'Hull ' + Math.round(S.hull == null ? 100 : S.hull) + ' percent. ' + (hurt.length ? hurt.join(' and ') + ' hurt.' : 'Crew fit.'); }
+      case 'comms': { const c = CTL.topCall && CTL.topCall(); return c ? String(c.officer) + ' is waiting on you.' : 'No calls waiting. Link quiet.'; }
+    } } catch (e) { } return 'Standing by.'; }
+  const OFFR = { sensors: 'Quill', fire: 'Abara', weapons: 'Abara', helm: 'Abara', engineering: 'Castellan', thermal: 'Dace', damage: 'Fenwick', comms: 'Pell' };
+  const askItem = stn => ({ lab: 'REPORT', fn: () => { const t = askText(stn); say2(OFFR[stn], t, 2); tt(OFFR[stn].toUpperCase() + ': ' + t, 'g'); } });
+  // ship posture presets (not brace: that is the crew's body state and has its own order)
+  const POSTURE = window.POSTURE = { current: 'cruise', PRE: { silent: ['spd:v1', 'act:quiet', 'pd:cold'], cruise: ['spd:v3', 'pd:cold'], combat: ['spd:v4'], evade: ['spd:v5', 'post:evade'] }, LAB: { silent: 'Silent run', cruise: 'Cruise', combat: 'Combat', evade: 'Evade' },
+    set(name) { if (!this.PRE[name] || typeof CTL === 'undefined') return false; const done = [], skipped = []; for (const id of this.PRE[name]) { if (CTL.can(id).ok === false) { skipped.push(id); continue; } try { CTL.activate(id); done.push(id); } catch (e) { skipped.push(id); } } this.current = name; tt('POSTURE: ' + this.LAB[name].toUpperCase() + (skipped.length ? '  (' + skipped.length + ' not available now)' : ''), 'g'); say2('Abara', this.LAB[name] + ', aye.', 2); return { done, skipped }; } };
+  const mkSTN = () => ({ sensors: [askItem('sensors'), idItem('act:classify', 'CLASSIFY'), idItem('act:ping', 'PING'), idItem('act:quiet', 'QUIET'), idItem('act:rule', 'RULE OUT'), idItem('act:rescan', 'RESCAN')],
+    fire: [askItem('fire'), idItem('act:lock', 'LOCK'), idItem('act:refresh', 'REFRESH')],
+    weapons: [askItem('weapons'), idItem('act:probe', 'PROBE'), idItem('fire', 'FIRE'), idItem('pd:toggle', 'PD'), idItem('act:mark', 'MARK')],
+    helm: [askItem('helm'), idItem('spd:v1', 'SLOW 20'), idItem('spd:v3', 'CRUISE 60'), idItem('spd:v5', 'FAST 100'), idItem('post:still', 'HOLD'), idItem('post:evade', 'EVADE')],
+    engineering: [askItem('engineering'), idItem('spd:ab', 'REDLINE'), idItem('brace', 'BRACE')],
+    thermal: [askItem('thermal'), idItem('vent', 'VENT'), idItem('spd:cut', 'CUT SPEED')],
+    damage: [askItem('damage'), idItem('brace', 'BRACE')], comms: [askItem('comms'), idItem('ack', 'ACK ALARMS')] });
+  const callTree = () => { const STN = mkSTN(); return [{ lab: 'QUILL', kids: STN.sensors }, { lab: 'ABARA', kids: [askItem('fire'), idItem('act:lock', 'LOCK'), idItem('fire', 'FIRE'), idItem('act:probe', 'PROBE'), idItem('post:evade', 'EVADE'), idItem('spd:v3', 'CRUISE')] }, { lab: 'CASTELLAN', kids: STN.engineering }, { lab: 'DACE', kids: STN.thermal },
+    { lab: 'FENWICK', kids: STN.damage }, { lab: 'PELL', kids: STN.comms }, { lab: 'POSTURE', kids: Object.keys(POSTURE.LAB).map(k => ({ lab: POSTURE.LAB[k].toUpperCase(), fn: () => POSTURE.set(k) })) }]; };
+  function radOpen(x, y, label) { const id = n => idItem(n, n.split(':')[1].toUpperCase()); radialOpen([idItem('act:classify', 'CLASSIFY'), idItem('act:lock', 'LOCK'), idItem('act:ping', 'PING'), idItem('act:probe', 'PROBE'), idItem('act:rule', 'RULE OUT'), idItem('fire', LS.ctx.guardUp ? 'FIRE' : 'ARM FIRE')], x, y, label, { sticky: true }); }
+  cv.addEventListener('contextmenu', e => { e.preventDefault(); radClose(); if (!HS.ok || typeof CTL === 'undefined') return; ptr.x = e.clientX; ptr.y = e.clientY; if (st.zoom) { sc.pointerX = e.offsetX; sc.pointerY = e.offsetY; const h = scrHit(); if (h && h.reg && /^sel:\d+$/.test(h.reg.id)) { CTL.select(+h.reg.id.slice(4)); radOpen(e.clientX, e.clientY, 'CONTACT ' + h.reg.id.slice(4)); return; } } radialOpen(callTree(), e.clientX, e.clientY, 'CALL', { sticky: true }); });
+  addEventListener('pointerdown', e => { if (!radEl.contains(e.target) && !RADIAL.by) radClose(); });
+  // station keys: F1-F8. Tap = go to that screen, tap again = back to the command view. Hold = that station's radial. Shift + key = peek (back on release).
+  const SKEY = { F1: { m: 'pscr:overview', call: true }, F2: { st: 0, stn: 'sensors' }, F3: { st: 1, stn: 'fire' }, F4: { st: 2, stn: 'weapons' }, F5: { st: 3, stn: 'thermal' }, F6: { st: 4, stn: 'comms' }, F7: { m: 'pscr:helm', stn: 'helm' }, F8: { m: 'pscr:power', stn: 'engineering' } };
+  const skMesh = d => sc.meshes.find(m => m.metadata && m.metadata.screen && (d.m ? m.name === d.m : (m.metadata.station === d.st && !m.metadata.passive)));
+  const skDown = {}, bq = { timer: 0, held: false };
+  function stationDown(e, k) { const d = SKEY[k]; if (!d || !HS.ok) return false; e.preventDefault(); if (skDown[k]) return true; if (st.room !== 'A1') { tt('Stations are in the control room (key 9)', 'w'); return true; }
+    const o = skDown[k] = { t: performance.now(), peek: e.shiftKey, held: false };
+    if (!e.shiftKey) o.timer = setTimeout(() => { o.held = true; radialOpen(d.call ? callTree() : mkSTN()[d.stn], innerWidth / 2, innerHeight / 2, d.call ? 'CALL' : (OFFR[d.stn] || '').toUpperCase(), { by: k }); }, 250);
+    else { const m = skMesh(d); if (m) zoomTo(m); }
+    return true; }
+  function stationUp(k) { const o = skDown[k], d = SKEY[k]; if (!o) return; delete skDown[k]; clearTimeout(o.timer);
+    if (o.peek) { if (st.zoom) unzoom(); return; } if (o.held) { radRelease(k); return; }
+    const m = skMesh(d); if (!m) return; if (st.zoom && st.zoom.mesh === m) unzoom(); else zoomTo(m); }
   const ZKEY = { KeyC: 'act:classify', KeyL: 'act:lock', KeyP: 'act:ping', KeyO: 'act:probe', KeyX: 'act:rule', KeyR: 'act:refresh', KeyM: 'act:mark', KeyU: 'act:quiet', KeyY: 'pd:toggle', KeyH: 'post:still', KeyZ: 'post:evade', KeyF: 'fire', KeyG: 'guard' };
   function ctlKeys(e, k) {
     if (!HS.ok || typeof CTL === 'undefined') return false;
@@ -436,7 +495,7 @@
     if (st.zoom) { if (ZKEY[k]) { CTL.activate(ZKEY[k]); return true; } if (k === 'BracketLeft' || k === 'BracketRight') { const L = ['v1', 'v2', 'v3', 'v4', 'v5'], i = Math.max(0, L.indexOf(HS.S.speed)), j = Math.max(0, Math.min(4, i + (k === 'BracketRight' ? 1 : -1))); CTL.activate('spd:' + L[j]); return true; } }
     return false; }
   function hunt(dt) {
-    if (!HS.ok) return; const S = HS.S, E = HS.E; const ts = window.CIC ? CIC.tscale : 1; if (!S.over && !S.hold) E.tick(S, dt / E.P.secPerMin * ts); const evs = HS.A.update(S, S.over || S.hold ? 0 : dt * ts); if (evs && evs.length) onEvents(evs); LS.ctx.annOut = HS.ANN.update({ s: S, model: HS.A.model, E }); if (window.CIC) CIC.fire('frame', dt); callTick(dt); if (HS.Y && LK) HS.Y.lock = LK; if (HS.Y && window.SHIPSYS) { SHIPSYS.update(HS.Y, S, S.over || S.hold ? 0 : dt / E.P.secPerMin); if (window.PS) Object.assign(PS.ctx, { S, E, A: HS.A, Y: HS.Y, ann: LS.ctx.annOut }); }
+    if (!HS.ok) return; const S = HS.S, E = HS.E; const ts = (window.CIC ? CIC.tscale : 1) * (window.RADIAL && RADIAL.open ? .25 : 1); if (!S.over && !S.hold) E.tick(S, dt / E.P.secPerMin * ts); const evs = HS.A.update(S, S.over || S.hold ? 0 : dt * ts); if (evs && evs.length) onEvents(evs); LS.ctx.annOut = HS.ANN.update({ s: S, model: HS.A.model, E }); if (window.CIC) CIC.fire('frame', dt); callTick(dt); if (HS.Y && LK) HS.Y.lock = LK; if (HS.Y && window.SHIPSYS) { SHIPSYS.update(HS.Y, S, S.over || S.hold ? 0 : dt / E.P.secPerMin); if (window.PS) Object.assign(PS.ctx, { S, E, A: HS.A, Y: HS.Y, ann: LS.ctx.annOut }); }
     FINS.to = S.vent && S.vent.on ? 1 : 0; st.hunting = !S.over; { const bad = [], ao = LS.ctx.annOut || { lamps: {} }; for (const id in ao.lamps) { const l = ao.lamps[id]; if (l.state === 'warning' || l.state === 'caution') bad.push([l.state, id.toUpperCase().replace(/_/g, ' ')]); }
       if (HS.Y && window.SHIPSYS) SHIPSYS.lamps(HS.Y, S).forEach(l => { if (l.state === 'warning' || l.state === 'caution') bad.push([l.state, l.label]); });
       const w = bad.some(b => b[0] === 'warning'), key = bad.map(b => b[1]).join('|') + w; st.alarm = w ? 2 : bad.length ? 1 : 0;
@@ -445,13 +504,13 @@
     if (st.room !== 'A1' || st.mode !== 'room') return; const now = performance.now();
     for (const n in HS.tex) { const per = st.zoom && st.zoom.mesh.metadata.screen === n ? 110 : HS.tex[n].passive ? 700 : 450; if (now - (HS.last[n] || 0) < per) continue; HS.last[n] = now; HS.tex[n].o.paint(now); HS.tex[n].tex.update(false); } }
   const keys = {};
-  addEventListener('keydown', e => { keys[e.code] = 1; if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return; const k = e.code; if (ctlKeys(e, k)) return; if (k === 'Escape') unzoom();
-    if (k === 'Digit6') setCam('orbit'); else if (k === 'Digit7') setCam('shoulder'); else if (k === 'KeyV') { if (HS.ok && typeof CTL !== "undefined") { CTL.activate('vent'); return; } FINS.to = FINS.to ? 0 : 1; if (window.UI) UI.toast(FINS.to ? 'VENT: radiator blades running out' : 'Blades retracting (silent running)', FINS.to ? 'w' : 'g'); }
+  addEventListener('keydown', e => { keys[e.code] = 1; if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return; const k = e.code; if (stationDown(e, k)) return; if (k === 'Backquote') { e.preventDefault(); bq.timer = setTimeout(() => { bq.held = true; radialOpen(callTree(), innerWidth / 2, innerHeight / 2, 'CALL', { by: 'bq' }); }, 200); return; } if (ctlKeys(e, k)) return; if (k === 'Escape') unzoom();
+    if (k === 'Digit6') setCam('orbit'); else if (k === 'Digit7') setCam('shoulder'); else if (k === 'Digit9') setCam('cmd'); else if (k === 'KeyV') { if (HS.ok && typeof CTL !== "undefined") { CTL.activate('vent'); return; } FINS.to = FINS.to ? 0 : 1; if (window.UI) UI.toast(FINS.to ? 'VENT: radiator blades running out' : 'Blades retracting (silent running)', FINS.to ? 'w' : 'g'); }
     else if (k === 'KeyR' || k === 'PageUp') climbStep(1); else if (k === 'KeyF' || k === 'PageDown') climbStep(-1);
     else if (lkShown && (k === 'KeyH' || k === 'KeyJ' || k === 'KeyC')) lkAct(k === 'KeyH' ? 'inner' : k === 'KeyJ' ? 'outer' : 'cycle');
     else if (k === 'Digit8') document.getElementById('shipbtn').click();
     else if (k === 'KeyQ' || k === 'KeyE') { const i = R.findIndex(r => r.id === st.room), j = Math.max(0, Math.min(R.length - 1, i + (k === 'KeyQ' ? 1 : -1))); if (j !== i) goTo(R[j].id); } });
-  addEventListener('keyup', e => { delete keys[e.code]; }); addEventListener('blur', () => { for (const k in keys) delete keys[k]; });
+  addEventListener('keyup', e => { delete keys[e.code]; if (SKEY[e.code]) stationUp(e.code); if (e.code === 'Backquote') { clearTimeout(bq.timer); if (bq.held) radRelease('bq'); bq.held = false; } }); addEventListener('blur', () => { for (const k in keys) delete keys[k]; });
   // keyboard walking: relative to wherever the active camera looks (fp, room centre or orbit), clamped inside the room
   function drive(dt) {
     const dx = (keys.KeyD || keys.ArrowRight ? 1 : 0) - (keys.KeyA || keys.ArrowLeft ? 1 : 0), dz = (keys.KeyW || keys.ArrowUp ? 1 : 0) - (keys.KeyS || keys.ArrowDown ? 1 : 0); if ((!dx && !dz) || st.mode === 'ship') return; unzoom();
@@ -525,5 +584,5 @@
     for (const c of life.crew) { if (c.y0 === undefined) { c.y0 = c.h.position.y; c.r0 = c.h.rotation.y; } c.h.position.y = c.y0 + .008 * Math.sin(t * 1.7 + c.ph); c.h.rotation.y = c.r0 + .05 * Math.sin(t * .35 + c.ph); } }
   eng.runRenderLoop(() => sc.render()); addEventListener('resize', () => eng.resize());
   place('A1', 0, 2.5); enter('A1'); cam.target = st.tgt.clone(); setCam('shoulder');
-  window.SHIP_BJS.api = { airlock: LK && { L: LK, act: lkAct, dock: h => AIRLOCK.dock(LK, h), undock: () => AIRLOCK.undock(LK), arm: m => AIRLOCK.arm(LK, m), choose: i => AIRLOCK.choose(LK, i), status: () => AIRLOCK.status(LK), toLock: () => { goTo('B2'); } }, zoomTo, unzoom, scrTex, who, walkTo, cam, setCam, fp, st, goTo, enter, place, step, roomG, loadManifest: () => fetch('assets_manifest.json').then(r => r.json()).then(m => { manifest = m; return m; }) };
+  window.SHIP_BJS.api = { radial: { open: radialOpen, close: radClose, tree: callTree, pick: radPick, state: RADIAL, stations: mkSTN }, posture: POSTURE, stationDown, stationUp, airlock: LK && { L: LK, act: lkAct, dock: h => AIRLOCK.dock(LK, h), undock: () => AIRLOCK.undock(LK), arm: m => AIRLOCK.arm(LK, m), choose: i => AIRLOCK.choose(LK, i), status: () => AIRLOCK.status(LK), toLock: () => { goTo('B2'); } }, zoomTo, unzoom, scrTex, who, walkTo, cam, setCam, fp, st, goTo, enter, place, step, roomG, loadManifest: () => fetch('assets_manifest.json').then(r => r.json()).then(m => { manifest = m; return m; }) };
 })();

@@ -80,6 +80,49 @@
       const n = (S.probes || []).length; txt(g, 'PROBE MISSILES IN FLIGHT: ' + n, 44, 470, 26, n ? C.amb : C.dim);
       txt(g, 'MAGAZINE ' + (S.mag ? S.mag.total : 0) + ' / ' + (S.mag ? S.mag.max : 0), 44, 520, 22, C.txt); txt(g, 'PD ' + String(S.pd || 'armed').toUpperCase(), 44, 560, 22, S.pd === 'active' ? C.red : C.grn); }
   };
-  function make(name) { const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d'); const o = { name, c, paint(now) { if (!ctx.S) { g.fillStyle = C.bg; g.fillRect(0, 0, W, H); return; } try { P[name](g, (now || performance.now()) / 1000); } catch (e) { g.fillStyle = '#400'; g.fillRect(0, 0, W, H); g.fillStyle = '#fff'; g.font = '20px monospace'; g.fillText(name + ' ' + e.message, 20, 60); if (!o.warned) { o.warned = 1; console.error('passive ' + name, e); } } } }; return o; }
+
+  // ---- Command view: the round overview scope and the six station tiles (docs/command_experience.md)
+  const SIZE = { overview: [768, 768], tiles: [1536, 256] };
+  const TILES = [['Quill', 'SENSORS', 'sensors'], ['Abara', 'TAC / HELM', 'fire'], ['Castellan', 'ENGINEERING', 'engineering'], ['Dace', 'THERMAL', 'thermal'], ['Fenwick', 'DAMAGE CTL', 'damage'], ['Pell', 'SHIP AI', 'comms']];
+  const POST = { silent: 'SILENT RUN', cruise: 'CRUISE', combat: 'COMBAT', evade: 'EVADE' };
+  const relOf = a => { const { S, E } = ctx, p = a.idStatus === 'plan' ? E.truePos(a, S.t) : E.displayPos(S, a), me = S.player; return { x: p.x - me.x, y: p.y - me.y, rng: Math.hypot(p.x - me.x, p.y - me.y) }; };
+  const cstyle = (a, S) => { const foe = (S.inc || []).some(v => v.id === a.id && v.foe !== false && v.seen !== false); if (a.state === 'disabled') return ['#5f8a85', 'DEAD', 0]; if (a.kind === 'friend' && (a.idStatus === 'plan' || a.idStatus === 'confirmed')) return ['#4aa8ff', 'ALLY', 0]; if (a.idStatus === 'hostile' || foe) return [C.red, foe ? 'FIRING' : 'HOSTILE', 5]; if (a.state === 'locked') return [C.cya, 'LOCKED', 4]; if (a.stage > 0 || a.known) return [C.amb, 'TRACK', 3]; return ['#8aa6a0', 'SUSPECT', 1]; };
+  P.overview = function (g, t) {
+    const { S, E, Y } = ctx, cx = 384, cy = 384, R = 300; g.clearRect(0, 0, 768, 768);
+    g.fillStyle = '#04101a'; g.beginPath(); g.arc(cx, cy, 372, 0, 7); g.fill(); g.strokeStyle = C.line; g.lineWidth = 4; g.beginPath(); g.arc(cx, cy, 372, 0, 7); g.stroke();
+    // ring gauges: four arcs outside the scope (speed, heat, hull, power)
+    const rungs = ['v1', 'v2', 'v3', 'v4', 'v5', 'ab'], sp = Math.max(0, rungs.indexOf(S.speed)) / 5, heat = S.sink ? S.sink.h : 0, hull = (S.hull == null ? 100 : S.hull) / 100, pw = Y && Y.bus ? Y.bus.load / Math.max(1, Y.bus.cap) : 0;
+    [['SPEED', sp, C.cya, 0], ['HEAT', heat, heat > .8 ? C.red : C.amb, 1], ['HULL', hull, hull < .4 ? C.red : hull < .7 ? C.amb : C.grn, 2], ['POWER', Math.min(1, pw), pw > 1 ? C.red : C.blu, 3]].forEach(([nm, f, col, q]) => { const a0 = -Math.PI / 2 + q * Math.PI / 2 + .12, span = Math.PI / 2 - .24; g.lineWidth = 16; g.strokeStyle = '#0d2530'; g.beginPath(); g.arc(cx, cy, 346, a0, a0 + span); g.stroke(); g.strokeStyle = col; g.beginPath(); g.arc(cx, cy, 346, a0, a0 + span * Math.max(.01, Math.min(1, f))); g.stroke();
+      const am = a0 + span / 2; g.fillStyle = C.dim; g.font = 'bold 17px ' + F; g.textAlign = 'center'; g.fillText(nm, cx + Math.cos(am) * 318, cy + Math.sin(am) * 318 + 6); });
+    // scope
+    g.save(); g.beginPath(); g.arc(cx, cy, R, 0, 7); g.clip(); g.fillStyle = '#03121a'; g.fillRect(0, 0, 768, 768);
+    const live = (S.an || []).filter(a => a.state !== 'out'), maxR = Math.max(30, ...live.map(a => relOf(a).rng)) * 1.15, k = R / maxR;
+    g.strokeStyle = 'rgba(61,219,208,.22)'; g.lineWidth = 1.5; g.fillStyle = 'rgba(95,138,133,.9)'; g.font = '15px ' + F; for (let i = 1; i <= 3; i++) { g.beginPath(); g.arc(cx, cy, R * i / 3, 0, 7); g.stroke(); g.textAlign = 'left'; g.fillText(Math.round(maxR * i / 3), cx + 6, cy - R * i / 3 + 16); }
+    for (let d = 0; d < 360; d += 30) { const a = (d - 90) * Math.PI / 180; g.beginPath(); g.moveTo(cx + Math.cos(a) * R * .93, cy + Math.sin(a) * R * .93); g.lineTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R); g.stroke(); }
+    const sw = (t * .5) % (2 * Math.PI); const gr = g.createConicGradient ? g.createConicGradient(sw, cx, cy) : null; if (gr) { gr.addColorStop(0, 'rgba(61,219,208,.18)'); gr.addColorStop(.12, 'rgba(61,219,208,0)'); gr.addColorStop(1, 'rgba(61,219,208,0)'); g.fillStyle = gr; g.fillRect(0, 0, 768, 768); }
+    const sel = root.LS && root.LS.ctx ? root.LS.ctx.sel : null;
+    live.forEach(a => { const r = relOf(a), [col, lab, tier] = cstyle(a, S), x = cx + r.x * k, y = cy - r.y * k, rr = tier >= 4 ? 11 : 8; g.strokeStyle = col; g.fillStyle = col; g.lineWidth = 3; g.beginPath(); g.moveTo(x, y - rr); g.lineTo(x + rr, y); g.lineTo(x, y + rr); g.lineTo(x - rr, y); g.closePath(); if (tier >= 3) g.fill(); else { if (tier === 1) g.setLineDash([3, 3]); g.stroke(); g.setLineDash([]); }
+      if (tier >= 5) { g.globalAlpha = .55; g.beginPath(); g.arc(x, y, rr * 1.8 + 2 * Math.sin(t * 8), 0, 7); g.stroke(); g.globalAlpha = 1; } if (sel === a.id) { g.strokeStyle = '#fff'; g.lineWidth = 2; g.strokeRect(x - 17, y - 17, 34, 34); } g.fillStyle = col; g.font = 'bold 16px ' + F; g.textAlign = 'left'; g.fillText('S' + (a.id + 1), x + 14, y - 10); });
+    const hd = S.hdg || 0; g.strokeStyle = '#ffffff'; g.fillStyle = '#ffffff'; g.lineWidth = 2; g.beginPath(); g.moveTo(cx + Math.sin(hd) * 20, cy - Math.cos(hd) * 20); g.lineTo(cx - Math.sin(hd + 2.5) * 12, cy + Math.cos(hd + 2.5) * 12); g.lineTo(cx - Math.sin(hd - 2.5) * 12, cy + Math.cos(hd - 2.5) * 12); g.closePath(); g.fill();
+    g.restore();
+    // posture, incoming and the top threats
+    g.textAlign = 'center'; g.fillStyle = C.txt; g.font = 'bold 22px ' + F; g.fillText((POST[root.POSTURE ? root.POSTURE.current : 'cruise'] || 'CRUISE'), cx, 40);
+    const inc = (S.inc || []).filter(v => v.seen !== false && v.foe !== false); if (inc.length && Math.floor(t * 3) % 2 === 0) { g.fillStyle = C.red; g.font = 'bold 26px ' + F; g.fillText('INCOMING x' + inc.length, cx, cy - 120); }
+    const thr = live.map(a => ({ a, s: cstyle(a, S), r: relOf(a).rng })).sort((p, q) => q.s[2] - p.s[2] || p.r - q.r).slice(0, 5);
+    g.textAlign = 'left'; g.font = '18px ' + F; thr.forEach((o, i) => { g.fillStyle = o.s[0]; g.fillText('S' + (o.a.id + 1) + ' ' + o.s[1] + ' ' + o.r.toFixed(0), 40, 640 - (4 - i) * 0 + i * 20 - 20); });
+    const tc = root.CTL && root.CTL.topCall && root.CTL.topCall(); g.textAlign = 'center'; if (tc) { g.fillStyle = Math.floor(t * 2) % 2 ? C.amb : C.txt; g.font = 'bold 19px ' + F; g.fillText(String(tc.officer).toUpperCase() + ' CALLING', cx, 712); } else { g.fillStyle = C.dim; g.font = '18px ' + F; g.fillText('NO CALLS WAITING', cx, 712); }
+    g.textAlign = 'left';
+  };
+  P.tiles = function (g, t) {
+    const { S, A } = ctx, tc = root.CTL && root.CTL.topCall && root.CTL.topCall(); g.clearRect(0, 0, 1536, 256);
+    TILES.forEach(([nm, role, stn], i) => { const x = i * 256 + 6, w = 244, c = S.crew && S.crew[nm], hurt = c && c.inj, down = c && A && A.stunned && A.stunned(stn), calling = tc && tc.officer === nm, mode = A && A.model && A.model.autonomy[stn] || 'auto', ko = c && c.ko;
+      g.fillStyle = ko ? '#1a1a1a' : down ? '#2a0e0c' : calling ? '#2e2308' : '#0b222c'; g.fillRect(x, 6, w, 244); g.strokeStyle = ko || down ? C.red : calling && Math.floor(t * 2.5) % 2 ? C.amb : hurt ? C.amb : C.line; g.lineWidth = 4; g.strokeRect(x, 6, w, 244);
+      g.fillStyle = ko ? C.dim : C.txt; g.font = 'bold 36px ' + F; g.textAlign = 'left'; g.fillText(nm.toUpperCase(), x + 14, 52); g.fillStyle = C.dim; g.font = '20px ' + F; g.fillText(role, x + 14, 82);
+      g.fillStyle = mode === 'hands-on' ? C.cya : mode === 'supervised' ? C.amb : C.grn; g.font = 'bold 22px ' + F; g.fillText(String(mode).toUpperCase(), x + 14, 130);
+      const stt = ko ? 'KNOCKED OUT' : down ? 'STUNNED' : hurt ? 'HURT' : calling ? 'CALLING' : 'STANDING BY'; g.fillStyle = ko || down ? C.red : hurt || calling ? C.amb : C.dim; g.font = '22px ' + F; g.fillText(stt, x + 14, 176);
+      g.fillStyle = C.dim; g.font = '16px ' + F; g.fillText('F' + (i + 1), x + 14, 232); });
+  };
+  const SZ = n => SIZE[n] || [W, H];
+  function make(name) { const c = document.createElement('canvas'), [cw, ch] = SZ(name); c.width = cw; c.height = ch; const g = c.getContext('2d'); const o = { name, c, paint(now) { if (!ctx.S) { g.fillStyle = C.bg; g.fillRect(0, 0, cw, ch); return; } try { P[name](g, (now || performance.now()) / 1000); } catch (e) { g.fillStyle = '#400'; g.fillRect(0, 0, cw, ch); g.fillStyle = '#fff'; g.font = '20px monospace'; g.fillText(name + ' ' + e.message, 20, 60); if (!o.warned) { o.warned = 1; console.error('passive ' + name, e); } } } }; return o; }
   root.PS = { ctx, make, NAMES: Object.keys(P), W, H };
 })(typeof window !== 'undefined' ? window : globalThis);
