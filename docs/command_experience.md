@@ -57,3 +57,11 @@ Each layer unlocks after the player has used the previous one twice; terse mode 
 - Middle mouse click opens the ship radial (Posture, Readiness, Brace, Damage Control). The player walks to the nearest intercom first and the radial opens on arrival, so ship-wide orders are diegetic. Right-click or backtick still opens the Call radial for station calls.
 - Clicking a target on a screen opens the contact radial (Watch, Hail, Ping, Hostile, Rule out). Hail is a placeholder until the engine has a ship hail verb.
 - Readiness (Standing Watch, Alert, Battle Stations) is a new axis beside the posture presets; see docs/ship_conditions.md. A lamp at bottom right shows readiness and posture.
+
+
+## Screen navigation (2026-11-20)
+- Contact Picture: clicking a row's icon (TRK column) sends you to the main scope, where that contact flashes three times; clicking the ID likelihood opens Target ID for it; clicking elsewhere on the row just selects.
+- A bottom selector bar (always in the control room) holds prev/next contact, Contacts / Scope / Target ID jumps and a visible FIRE button (same guarded fire as key F). Keys: [ ] and Tab cycle contacts, F1-F8 jump to screens.
+- The left-tap radial on contact rows is removed; the contact radial (D) stays on right-click.
+- Every crew call has a "0 Wait" option, always available.
+- The scope shows hostile-launched missiles (red dots, trail, seconds to impact), tracked contacts' estimated tracks and our flight plan.

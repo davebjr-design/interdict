@@ -84,12 +84,16 @@ window.CTL_INIT = function () {
       case 'brace': C.setBrace(C.braceState() === 'free'); snd('click'); toast(C.braceState() === 'free' ? 'BRACE ordered' : 'Standing down from brace', 'w'); break;
       case 'ack': { const n = C.ANN.ackAll(); snd('click'); if (n) toast('Alarms acknowledged'); break; }
       case 'time': { const n = C.tscale === 1 ? 2 : C.tscale === 2 ? 4 : 1; C.setTime(n); toast('Time x' + n); break; }
+      case 'call:wait': { const c = topCall(); if (c && c.state === 'raised' && M().standBy(c.id)) { snd('click'); toast(String(c.officer).toUpperCase() + ': standing by, Captain.', 'g'); say(c.officer, 'Standing by, Captain.', 2); } else toast('Nothing to wait on', 'w'); break; }
       case 'sel:next': selStep(1); break;
+      case 'nav:scope': case 'nav:contacts': case 'nav:tid': if (window.SHIPNAV) window.SHIPNAV.go(id.slice(4)); break;
       case 'sel:prev': selStep(-1); break;
       case 'guard': toggleGuard(); break;
       default:
         if (/^spd:v\d$/.test(id)) { const k = id.slice(4); order('helm', 'speed', 'Speed ' + speedOf(k) + '%', { speed: k }); snd('click'); }
         else if (id.startsWith('sel:')) select(+id.slice(4));
+        else if (/^scope:\d+$/.test(id)) { select(+id.slice(6)); if (window.SHIPNAV) window.SHIPNAV.scope(+id.slice(6)); }
+        else if (/^tidgo:\d+$/.test(id)) { select(+id.slice(6)); if (window.SHIPNAV) window.SHIPNAV.go('tid'); }
         else if (id.startsWith('preset:')) { const p = A().setPreset(id.slice(7)); toast('SALVO PRESET: ' + p.name.toUpperCase() + '  (' + p.pattern + ', cone ' + p.cone + ')', 'g'); snd('toggle'); }
         else if (id.startsWith('auto:')) { const [, k, m] = id.split(':'); M().setAutonomy(k, m); toast(k.toUpperCase() + ': ' + m.toUpperCase() + (m === 'hands-on' ? '  (your orders here are instant)' : ''), m === 'hands-on' ? 'w' : 'g'); snd('toggle'); }
         else if (id.startsWith('ans:')) { const [, cid, i] = id.split(':'); const o = M().answer(+cid, +i); if (o) snd('click'); }

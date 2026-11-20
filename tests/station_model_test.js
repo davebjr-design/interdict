@@ -12,8 +12,8 @@ const run = (M, secs, step = 0.25) => { for (let t = 0; t < secs; t += step) M.t
 { const M = S.create({ seed: 2 }); const a = M.raise('S6', { n: 1 }), b = M.raise('W5', { eta: '45 seconds' }); run(M, 1);
   chk('critical call comes first', M.next().id === b.id);
   const t0 = a.expiresAt; chk('critical call shortens other timers', a.expiresAt <= M.now + 6.5);
-  const M2 = S.create({ seed: 2 }); const c = M2.raise('E1', {}); run(M2, 1); const e0 = c.expiresAt; chk('stand by extends once', M2.standBy(c.id) && c.expiresAt === e0 + 12 && !M2.standBy(c.id));
-  const M3 = S.create({ seed: 2 }); const d = M3.raise('W5', {}); run(M3, 1); chk('critical calls cannot be stood by', !M3.standBy(d.id)); }
+  const M2 = S.create({ seed: 2 }); const c = M2.raise('E1', {}); run(M2, 1); const e0 = c.expiresAt; chk('wait extends the call, and again, each time by less (never refused)', M2.standBy(c.id) && c.expiresAt === e0 + 12 && (() => { const e1 = c.expiresAt; return M2.standBy(c.id) && c.expiresAt > e1 && c.expiresAt - e1 < 12; })());
+  const M3 = S.create({ seed: 2 }); const d = M3.raise('W5', {}); run(M3, 1); const d0 = d.expiresAt; chk('a critical call can be waited on too, for half as long', M3.standBy(d.id) && d.expiresAt > d0 && d.expiresAt - d0 <= 6.01); }
 
 // 3 one officer, one call at a time (Abara bottleneck)
 { const M = S.create({ seed: 3 }); const a = M.raise('W2', { n: 1 }), b = M.raise('H1', {}); run(M, 0.25);

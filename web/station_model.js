@@ -219,8 +219,8 @@
     }
     function dismiss(id) { const c = st.calls.find(x => x.id === id); if (!c || c.state !== 'raised' || c.pri > 2) return false; c.state = 'dismissed'; return true; }
     function standBy(id) {
-      const c = st.calls.find(x => x.id === id); if (!c || c.state !== 'raised' || c.stood || c.pri > 3) return false;
-      c.stood = true; c.expiresAt += patience; return true;
+      const c = st.calls.find(x => x.id === id); if (!c || c.state !== 'raised') return false;   // always available (Dave, 2026-11-20): "wait" is never refused. Each wait buys a little less time, and a critical call buys half
+      c.waits = (c.waits || 0) + 1; c.stood = true; if (c.expiresAt != null) c.expiresAt += patience * Math.pow(0.6, c.waits - 1) * (c.pri >= 4 ? 0.5 : 1); return true;
     }
     function tick(dt) {
       st.now += dt;
