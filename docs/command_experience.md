@@ -51,3 +51,9 @@ Each layer unlocks after the player has used the previous one twice; terse mode 
 3. Tap / hold / peek station keys.
 4. Posture presets.
 5. CIC model rebuilt to match (dome, wall scope, stations, brace points).
+
+
+## Update 2026-11-20: radial entry points
+- Middle mouse click opens the ship radial (Posture, Readiness, Brace, Damage Control). The player walks to the nearest intercom first and the radial opens on arrival, so ship-wide orders are diegetic. Right-click or backtick still opens the Call radial for station calls.
+- Clicking a target on a screen opens the contact radial (Watch, Hail, Ping, Hostile, Rule out). Hail is a placeholder until the engine has a ship hail verb.
+- Readiness (Standing Watch, Alert, Battle Stations) is a new axis beside the posture presets; see docs/ship_conditions.md. A lamp at bottom right shows readiness and posture.
