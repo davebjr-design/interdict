@@ -109,7 +109,7 @@
     g.textAlign = 'center'; g.fillStyle = C.txt; g.font = 'bold 22px ' + F; g.fillText((POST[root.POSTURE ? root.POSTURE.current : 'cruise'] || 'CRUISE'), cx, 40);
     const inc = (S.inc || []).filter(v => v.seen !== false && v.foe !== false); if (inc.length && Math.floor(t * 3) % 2 === 0) { g.fillStyle = C.red; g.font = 'bold 26px ' + F; g.fillText('INCOMING x' + inc.length, cx, cy - 120); }
     const thr = live.map(a => ({ a, s: cstyle(a, S), r: relOf(a).rng })).sort((p, q) => q.s[2] - p.s[2] || p.r - q.r).slice(0, 5);
-    g.textAlign = 'left'; g.font = '18px ' + F; thr.forEach((o, i) => { g.fillStyle = o.s[0]; g.fillText('S' + (o.a.id + 1) + ' ' + o.s[1] + ' ' + o.r.toFixed(0), 40, 640 - (4 - i) * 0 + i * 20 - 20); });
+    g.textAlign = 'center'; g.font = '16px ' + F; thr.forEach((o, i) => { g.fillStyle = o.s[0]; g.fillText('S' + (o.a.id + 1) + ' ' + o.s[1] + ' ' + o.r.toFixed(0), cx, 596 + i * 18); });
     const tc = root.CTL && root.CTL.topCall && root.CTL.topCall(); g.textAlign = 'center'; if (tc) { g.fillStyle = Math.floor(t * 2) % 2 ? C.amb : C.txt; g.font = 'bold 19px ' + F; g.fillText(String(tc.officer).toUpperCase() + ' CALLING', cx, 712); } else { g.fillStyle = C.dim; g.font = '18px ' + F; g.fillText('NO CALLS WAITING', cx, 712); }
     g.textAlign = 'left';
   };
