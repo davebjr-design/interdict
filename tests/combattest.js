@@ -9,7 +9,7 @@ function lone(seed, o = {}) {
 }
 { const { s, a } = lone(3); E.lockContact(s, a.id); E.pingContact(s, a.id); E.tick(s, E.PLAYER.pingSolve + 0.05);
   chk('a ping on a fresh lock adds part of a solution, not all of it (' + a.solve.toFixed(2) + ')', a.solve > 0.3 && a.solve < 1); }
-{ const { s } = lone(4); E.setRoute(s, [{ x: 220, y: 120 }]); E.setSpeed(s, 'v4'); E.tick(s, 0.5); /* the drive is burning: engine heat follows the thrust */ const before = E.exposure(s).parts.find(p => p.k === 'engine').v; E.goQuiet(s);
+{ const { s } = lone(4); E.setRoute(s, [{ x: 220, y: 120 }]); E.setSpeed(s, 'v4'); E.tick(s, 0.1); /* the drive is burning (at 1 g the burn to cruise lasts only seconds, so look early): engine heat follows the thrust */ const before = E.exposure(s).parts.find(p => p.k === 'engine').v; E.goQuiet(s);
   const q = E.exposure(s).parts.find(p => p.k === 'engine'); chk('going quiet keeps the engine heat of the chosen speed', q && Math.abs(q.v - before) < 1e-9);
   const t = s.an.find(x => x.kind === 'real'); E.lockContact(s, t.id); t.solve = 1; chk('no launches while quiet', E.fire(s, t.id, null, 4) === false); }
 { const { s, a } = lone(5, { d: 8, v: 0 }); a.hp = a.hpMax = 180; E.lockContact(s, a.id); for (const w of s.analysts) E.assign(s, w.id, a.id); E.tick(s, 0.5); s.rFx = () => 0;

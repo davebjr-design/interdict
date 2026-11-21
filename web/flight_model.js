@@ -15,8 +15,8 @@
 (function (root) {
   'use strict';
   const G0 = 9.80665;
-  const SHIP = {   // the 140 m hull: about 11,000 t, 100 percent drive 0.15 g, redline 0.4 g for about 3 minutes, emergency 2.5 g for about 9 seconds, RCS spin 5.6e-4 rad/s2 (a 180 degree flip is about 150 s)
-    mass: 11e6, a100: 0.15 * G0, aRedline: 0.4 * G0, aEmergency: 2.5 * G0, redlineT: 180, emergencyT: 9,
+  const SHIP = {   // the 140 m hull: about 11,000 t, 100 percent drive 1 g, redline 3 g for about 30 seconds, emergency 6 g for about 5 seconds (Dave, 2026-11-20); the flip uses MANEUVER presets below, not a fixed rate
+    mass: 11e6, a100: 1 * G0, aRedline: 3 * G0, aEmergency: 6 * G0, redlineT: 30, emergencyT: 5,
     alpha: 5.6e-4, alphaGimbal: 5e-3, omegaMax: 0.05, isp: 8000, tank: 250e3 };
   // ---- maneuver aggressiveness (docs/firing_solution_and_g_load.md s1a): the peak g felt at the farthest crewed deck sets the spin acceleration.
   // Felt g = sqrt((alpha r)^2 + (w^2 r)^2); at the midpoint of a bang-bang flip w^2 = pi alpha, so the peak is sqrt(1 + pi^2) alpha r (about 3.3 alpha r). Flip time scales with sqrt(r).

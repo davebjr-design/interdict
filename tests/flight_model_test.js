@@ -6,9 +6,9 @@ const rng = seed => () => { seed = (seed * 1664525 + 1013904223) >>> 0; return s
 const P0 = { p: { x: 0, y: 0 }, v: { x: 0, y: 0 }, psi: 0 };
 
 // ---- constants ----
-chk('100 percent drive is 0.15 g (1.47 m/s2)', Math.abs(A - 0.15 * 9.80665) < 1e-9);
-chk('redline 0.4 g for 180 s, emergency 2.5 g for 9 s, spin 5.6e-4 rad/s2', Math.abs(S.aRedline / 9.80665 - 0.4) < 1e-9 && S.redlineT === 180 && Math.abs(S.aEmergency / 9.80665 - 2.5) < 1e-9 && S.emergencyT === 9 && S.alpha === 5.6e-4);
-chk('thrust 16 MN at 100 percent on 11,000 t (about 200 kg/s of water at Isp 8000 s)', Math.abs(S.mass * A / 1e6 - 16.2) < 0.2 && Math.abs(S.mass * A / (S.isp * 9.80665) - 206) < 5);
+chk('100 percent drive is 1 g (9.81 m/s2)', Math.abs(A - 1 * 9.80665) < 1e-9);
+chk('redline 3 g for 30 s, emergency 6 g for 5 s, default spin 5.6e-4 rad/s2 (flips use the maneuver presets)', Math.abs(S.aRedline / 9.80665 - 3) < 1e-9 && S.redlineT === 30 && Math.abs(S.aEmergency / 9.80665 - 6) < 1e-9 && S.emergencyT === 5 && S.alpha === 5.6e-4);
+chk('thrust 108 MN at 100 percent on 11,000 t (about 1,375 kg/s of water at Isp 8000 s: a 250 t tank is about 3 minutes of 1 g)', Math.abs(S.mass * A / 1e6 - 107.9) < 0.5 && Math.abs(S.mass * A / (S.isp * 9.80665) - 1375) < 10);
 
 // ---- rotation: flip time 2 sqrt(theta / alpha) ----
 { const T = F.rotTime(Math.PI); chk(`180 degree flip: ${T.toFixed(1)} s = 2 sqrt(pi / alpha) = ${(2 * Math.sqrt(Math.PI / S.alpha)).toFixed(1)} s (about 150)`, Math.abs(T - 2 * Math.sqrt(Math.PI / S.alpha)) < 1e-9 && Math.abs(T - 150) < 1);
@@ -37,7 +37,7 @@ chk('thrust 16 MN at 100 percent on 11,000 t (about 200 kg/s of water at Isp 800
 // ---- the prototype route: three clicks, 250 km ----
 { const wps = [{ p: { x: 90000, y: 30000 }, kind: 'turn' }, { p: { x: 140000, y: 110000 }, kind: 'turn' }, { p: { x: 70000, y: 150000 }, kind: 'stop' }];
   const pl = F.plan({ p: { x: 10000, y: 20000 }, v: { x: 0, y: 0 }, psi: 0 }, wps, { cruise: 80 });
-  chk(`prototype route: ${Math.round(pl.stats.time)} s, dv ${pl.stats.dv.toFixed(0)} m/s, ${pl.stats.propT.toFixed(1)} t (prototype: 3279 s, 344 m/s, 48 t)`, Math.abs(pl.stats.time - 3279) < 20 && Math.abs(pl.stats.dv - 344) < 5 && Math.abs(pl.stats.propT - 48.1) < 1);
+  chk(`prototype route: ${Math.round(pl.stats.time)} s, dv ${pl.stats.dv.toFixed(0)} m/s, ${pl.stats.propT.toFixed(1)} t (1 g drive: 3233 s; the prototype's 0.15 g gave 3279 s; same dv and water)`, Math.abs(pl.stats.time - 3233) < 20 && Math.abs(pl.stats.dv - 344) < 5 && Math.abs(pl.stats.propT - 48.1) < 1);
   chk('...no warnings', pl.warn.length === 0);
   const e = F.stateAt(pl, pl.stats.time + 1); chk(`arrival tolerance: ends ${d2(e.p, wps[2].p).toFixed(2)} m from the stop at rest`, d2(e.p, wps[2].p) < 5 && F.len(e.v) < 0.01);
   chk('waypoint times are increasing and the last is the end', pl.wpT.length === 3 && pl.wpT[0] < pl.wpT[1] && pl.wpT[1] < pl.wpT[2] && Math.abs(pl.wpT[2] - pl.stats.time) < 1e-6);
@@ -82,7 +82,7 @@ chk('thrust 16 MN at 100 percent on 11,000 t (about 200 kg/s of water at Isp 800
   const tl = F.plan(P0, [{ p: { x: 20000, y: 0 }, kind: 'turn' }, { p: { x: 20000, y: 800 }, kind: 'stop' }], { cruise: 80 }); chk('a corner with no room to rotate warns', tl.warn.length >= 1);
   const lowT = F.plan(P0, [{ p: { x: 20000, y: 0 }, kind: 'stop' }], { cruise: 20, thrust: 0.2 }), full = F.plan(P0, [{ p: { x: 20000, y: 0 }, kind: 'stop' }], { cruise: 20 });
   chk('a throttled burn (20 percent) takes five times as long for the same delta-v', Math.abs(lowT.segs.find(q => q.kind === 'burn').dur / full.segs.find(q => q.kind === 'burn').dur - 5) < 1e-6 && Math.abs(lowT.stats.dv - full.stats.dv) < 1e-6 && lowT.stats.peakThrust === 0.2);
-  const red = F.plan(P0, [{ p: { x: 90000, y: 0 }, kind: 'stop', thrust: S.aRedline / A }], { cruise: 150 }); chk(`redline thrust 0.4 g: peak ${red.stats.peakG.toFixed(2)} g, the burn to 150 m/s takes ${red.segs.find(q => q.kind === 'burn').dur.toFixed(0)} s`, Math.abs(red.stats.peakG - 0.4) < 1e-9 && Math.abs(red.segs.find(q => q.kind === 'burn').dur - 150 / S.aRedline) < 1e-6); }
+  const red = F.plan(P0, [{ p: { x: 90000, y: 0 }, kind: 'stop', thrust: S.aRedline / A }], { cruise: 150 }); chk(`redline thrust 3 g: peak ${red.stats.peakG.toFixed(2)} g, the burn to 150 m/s takes ${red.segs.find(q => q.kind === 'burn').dur.toFixed(0)} s`, Math.abs(red.stats.peakG - 3) < 1e-9 && Math.abs(red.segs.find(q => q.kind === 'burn').dur - 150 / S.aRedline) < 1e-6); }
 
 // ---- a long coast is silent, a stop-only plan from speed, and the speed change ----
 { const pl = F.plan({ p: { x: 0, y: 0 }, v: { x: 60, y: 0 }, psi: 0 }, [{ p: { x: 50000, y: 0 }, kind: 'stop' }], { cruise: 60 }); const co = pl.segs.find(q => q.kind === 'coast'); chk(`coast phase ${Math.round(co.dur)} s long with no thrust, then flip, then brake`, co.dur > 500 && co.thrust === 0 && pl.segs.map(q => q.kind).join() === 'coast,rotate,brake');

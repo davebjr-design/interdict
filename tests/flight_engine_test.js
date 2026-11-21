@@ -13,7 +13,7 @@ const untilPhase = (s, ph, max = 400) => { for (let t = 0; t < max && s.phase !=
   let maxg = 0, sawBurn = false, sawCoast = false, hotBurn = 0, hotCoast = 0;
   for (let t = 0; t < 3000 && s.posture === 'route' && !s.over; t += 0.5) { E.tick(s, 0.5 / SPM); maxg = Math.max(maxg, s.gNow); const h = E.exposure(s).parts.find(p => p.k === 'engine'); if (s.phase === 'burn') { sawBurn = true; hotBurn = h ? h.v : 0; } if (s.phase === 'coast') { sawCoast = true; hotCoast = h ? h.v : 0; } }
   chk(`the route completes (posture ${s.posture}) at the last point to within 0.5 km (${Math.hypot(s.player.x - 110, s.player.y - 110).toFixed(2)} km)`, Math.hypot(s.player.x - 110, s.player.y - 110) < 0.5);
-  chk('peak g on the route is 0.15 (100 percent drive), never more', maxg > 0.14 && maxg < 0.16);
+  chk('peak g on the route is 1 (100 percent drive), never more', maxg > 0.99 && maxg < 1.01);
   chk('burn phases run the drive hot, a coast makes none', sawBurn && sawCoast && hotBurn > 0 && hotCoast === 0);
   chk('the ship ends at rest', Math.hypot(s.vel.vx, s.vel.vy) < 0.02); }
 
@@ -63,8 +63,8 @@ const untilPhase = (s, ph, max = 400) => { for (let t = 0; t < max && s.phase !=
 
 // propellant is water, tracked as a mass; empty tanks mean drift
 { const s = fresh(11); s.player.x = 60; s.player.y = 60; E.setSpeed(s, 'v3'); E.setRoute(s, [{ x: 110, y: 60 }, { x: 110, y: 110 }]); run(s, 1); const plan = E.planInfo(s).propT, w0 = s.water;
-  for (let t = 0; t < 3000 && s.posture === 'route' && !s.over; t += 0.5) E.tick(s, 0.5 / SPM);
-  chk(`water used ${s.waterUsed.toFixed(1)} t against ${plan.toFixed(1)} t planned (a 250 t tank, ${w0.toFixed(0)} t at the start)`, Math.abs(s.waterUsed - plan) < 0.08 * plan && Math.abs(250 - s.water - s.waterUsed) < 1e-6 && w0 > 248);
+  for (let t = 0; t < 3000 && s.posture === 'route' && !s.over; t += 0.1) E.tick(s, 0.1 / SPM);
+  chk(`water used ${s.waterUsed.toFixed(1)} t against ${plan.toFixed(1)} t planned (a 250 t tank, ${w0.toFixed(0)} t at the start)`, Math.abs(s.waterUsed - plan) < 0.08 * plan && Math.abs(250 - s.water - s.waterUsed) < 1e-6 && w0 > 240);
   s.water = 0.3; E.setRoute(s, [{ x: 200, y: 200 }]); run(s, 400); const v1 = Math.hypot(s.vel.vx, s.vel.vy); run(s, 60);
   chk('with the tanks dry the ship drifts: a tank-empty event, no thrust, the velocity holds', s.water === 0 && s.nav.mode === 'dry' && s.thrust === 0 && Math.abs(Math.hypot(s.vel.vx, s.vel.vy) - v1) < 1e-6 && (s.evts || []).some(e => e.type === 'tanks_dry')); }
 

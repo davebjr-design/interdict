@@ -4,8 +4,8 @@ let bad = 0; const chk = (m, c) => { console.log(c ? 'ok   ' : 'FAIL ', m); if (
 const SPM = E.RULES.secPerMin, me = E.PLAYER;
 const run = (s, secs, dt = 0.25, A) => { for (let t = 0; t < secs && !s.over; t += dt) { E.tick(s, dt / SPM); if (A) A.update(s, dt); } };
 const evs = (s, t) => (s.evts || []).filter(e => e.type === t);
-// a hard burn under real flight: evasion burns at redline thrust (0.4 g) once the ship has turned onto the jink; wait for the burn, then hold for secs
-const hardBurn = (s, secs = 0) => { E.setOrder(s, 'evade', s.an[0].id); for (let t = 0; t < 150 && s.gNow < 0.3 && !s.over; t += 0.25) E.tick(s, 0.25 / SPM); run(s, secs); };
+// a hard burn under real flight: evasion burns at redline thrust (3 g) once the ship has turned onto the jink; wait for the burn, then hold for secs
+const hardBurn = (s, secs = 0) => { E.forceLoad(s, 3, secs + 1); run(s, Math.max(secs, 0.5)); };   // a 3 g load held for secs (a real evasion burn lasts only a second or two at 3 g; the forced load stands in)
 const calm = seed => E.newHunt(seed, { nreal: 1, entry: 'standard' });
 
 // state machine
@@ -24,13 +24,13 @@ const calm = seed => E.newHunt(seed, { nreal: 1, entry: 'standard' });
 
 // load and the unsecure state
 { const s = calm(3); E.setOrder(s, 'close', s.an[0].id); E.setSpeed(s, 'v2'); for (let t = 0; t < 150 && s.gNow <= 0; t += 0.25) E.tick(s, 0.25 / SPM); run(s, 1);
-  chk('a normal burn (100% drive, 0.15 g) is a light load: not unsecure', s.gNow > 0.1 && s.gLoad < me.gThresh && !s.unsecure);
-  hardBurn(s, 1); chk('a hard burn (evasion at redline thrust, 0.4 g) is over the threshold: unsecure, an unsecure event', s.gLoad >= me.gThresh && s.unsecure && evs(s, 'unsecure').length === 1 && ['burn', 'evade'].includes(evs(s, 'unsecure')[0].data.why)); }
-{ const s = calm(3); E.brace(s, true); run(s, 8); hardBurn(s, 1); chk('secure: no longer unsecure under the same load', s.brace === 'secure' && !s.unsecure && s.gLoad >= me.gThresh); }
+  chk('a normal burn (100% drive, 1 g) is a light load: not unsecure', s.gNow > 0.1 && s.gLoad < me.gThresh && !s.unsecure);
+  hardBurn(s, 0); chk('a hard burn (evasion at redline thrust, 3 g) is over the threshold: unsecure, an unsecure event', s.gLoad >= me.gThresh && s.unsecure && evs(s, 'unsecure').length === 1 && ['burn', 'evade'].includes(evs(s, 'unsecure')[0].data.why)); }
+{ const s = calm(3); E.brace(s, true); run(s, 8); hardBurn(s, 0); chk('secure: no longer unsecure under the same load', s.brace === 'secure' && !s.unsecure && s.gLoad >= me.gThresh); }
 
 // the work rate: free 1, loaded and unsecure 0.75, secure 0.95
 { const rate = (setup) => { const s = calm(4); setup(s); run(s, 1); let n = 0; const a = s.an.find(x => x.kind === 'real'); E.assign(s, 'dace', a.id); const d0 = s.analysts.length; const r0 = Object.values(a.read).reduce((m, q) => m + (q.den || 0), 0); run(s, 40); return Object.values(a.read).reduce((m, q) => m + (q.den || 0), 0) - r0; };
-  const free = rate(s => { }), secure = rate(s => { E.brace(s, true); }), loaded = rate(s => { hardBurn(s); });
+  const free = rate(s => { }), secure = rate(s => { E.brace(s, true); }), loaded = rate(s => { E.forceLoad(s, 3, 60); });
   chk(`reading rate: free ${free.toFixed(1)}, secure ${secure.toFixed(1)}, loaded and unsecure ${loaded.toFixed(1)}`, free > secure && secure > 0 && free > loaded); }
 
 // injuries: redline unsecure hurts people; secure does not; the rule can be switched off
