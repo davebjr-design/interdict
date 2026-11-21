@@ -29,6 +29,7 @@
     for (let gy = Math.ceil((N.v.cy - N.view) / step) * step; gy <= N.v.cy + N.view; gy += step) { const p = toPx(0, gy); g.beginPath(); g.moveTo(MX, p.y); g.lineTo(MX + MS, p.y); g.stroke(); g.fillText(gy, MX + 4, p.y - 3); }
     // contacts (what the crew believe)
     for (const a of s.an) { if (a.state === 'out') continue; const r = LS.rel(a), p = toPx(r.x, r.y), st = LS.style(a); g.strokeStyle = st.col; g.fillStyle = st.fill === 'solid' || st.fill === 'halo' ? st.col : 'transparent'; g.lineWidth = 2; g.beginPath(); g.arc(p.x, p.y, 7, 0, 7); if (st.fill === 'solid' || st.fill === 'halo') g.fill(); g.stroke(); g.fillStyle = st.col; g.font = '14px ' + FONT; g.fillText('S' + (a.id + 1), p.x + 10, p.y - 6); }
+    { const sa = LS.ctx.sel != null ? s.an[LS.ctx.sel] : null; if (sa && sa.state !== 'out') { const r = LS.rel(sa), p = toPx(r.x, r.y); g.strokeStyle = '#fff'; g.lineWidth = 2; g.strokeRect(p.x - 12, p.y - 12, 24, 24); } }
     // the plan the ship is flying
     const pi = s.nav && s.nav.mode === 'route' && e.planInfo ? e.planInfo(s) : null;
     if (pi && pi.path) { g.strokeStyle = C.pas; g.lineWidth = 3; g.setLineDash([]); g.beginPath(); pi.path.forEach((q, i) => { const p = toPx(q.x, q.y); i ? g.lineTo(p.x, p.y) : g.moveTo(p.x, p.y); }); g.stroke(); pi.wps.forEach((w, i) => { const p = toPx(w.x, w.y); g.strokeStyle = C.pas; g.lineWidth = 2; g.strokeRect(p.x - 6, p.y - 6, 12, 12); }); }
@@ -79,6 +80,7 @@
     opt = opt || {}; const s = S(), e = E();
     if (id === 'nav:map') {
       if (!N.v || opt.x == null) return { ok: true };
+      for (const a of s.an) { if (a.state === 'out') continue; const r = LS.rel(a), p = toPx(r.x, r.y); if (Math.hypot(opt.x - p.x, opt.y - p.y) < 14) { if (root.CTL) root.CTL.select(a.id); toast('Selected S' + (a.id + 1) + ' (' + LS.style(a).lab + ')', 'g'); return { ok: true }; } }   // a contact marker selects the contact, here as everywhere
       let best = null, bd = 1e9; const me = toPx(s.player.x, s.player.y); let prev = me;
       N.draft.forEach((q, i) => { const b = toPx(q.x, q.y), d = Math.hypot(opt.x - b.x, opt.y - b.y); if (d < 18 && d < bd) { best = { t: 'wp', i }; bd = d; } prev = b; });
       if (!best) { prev = me; N.draft.forEach((q, i) => { const b = toPx(q.x, q.y), d = segDist(opt.x, opt.y, prev, b); if (d < 12 && d < bd) { best = { t: 'leg', i }; bd = d; } prev = b; }); }
