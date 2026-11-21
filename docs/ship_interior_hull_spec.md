@@ -434,3 +434,6 @@ Each sealed cell is a damage zone, so the damage control screen can draw seven c
 5. **Cue colours.** Are the maker hues (Orrin teal, Vask red, Halden ochre, ours bone white), the tube-load rings and brass-on-ours the right set? Vask red may clash with the scope's red-means-hostile, so it may need to be a darker maroon.
 6. **Control-room ceiling.** Bay A's forward head is a 2.0 m dome so the CIC keeps its 3.0 to 5.0 m ceiling; confirm against the 3D room.
 7. **Where the shafts meet the tanks.** Decided (15 November): two wall-built stair shafts, port and starboard, replace the central trunk. Each takes about 0.7 m of a room's rim and about 0.7 m of the annulus, so at layout they must be fitted between the tank arcs and the four stowed radiator channels.
+
+## Why the crew are forward (decision, 2026-11-20)
+The crew section (CIC, berths, mess, junction) sits at the bow, with the reactors, missile hold and lithium zone aft. This is an in-world design choice, not a gameplay mechanic: with the sealed hatches between sections, the dangerous aft sections can be severed and jettisoned in an emergency, leaving the crew section intact. The layout is not being changed to reduce flip g at the CIC; the longer distance from the pivot is accepted, and gentler flips are the cost of the bow position (see docs/firing_solution_and_g_load.md).
