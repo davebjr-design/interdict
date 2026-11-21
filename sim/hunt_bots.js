@@ -35,6 +35,12 @@
     if (opt.treat && E.treat && s.crew) for (const k in s.crew) if (s.crew[k].inj && s.crew[k].treatUntil == null) { E.treat(s, k); break; }   // Fenwick sees to the hurt, one at a time
     if (s.hull < 15 && !s.spool) { E.retreat(s); return; }
     if (opt.discipline && !s.spool && s.mag && s.mag.total < s.mag.perSalvo && live(s).length && !s.volleys.length) { E.retreat(s); return; }   // dry magazine with warships left: break contact rather than stand and be shot
+    if (opt.evadeOrder) {   // dogleg captain: while a volley is inbound the officer flies crazy-Ivan doglegs (posture evade); afterwards it resumes the hunt
+      if (incoming(s)) { if (!mem.evading) { mem.evading = true; const v = seenInc(s)[0]; E.setOrder(s, 'evade', v.id != null ? v.id : null); } }
+      else if (mem.evading) { mem.evading = false; E.setOrder(s, 'still', null); }
+    } else if (opt.quietOrder) {   // quiet captain: goes dark when fired on and holds still until the sky is clear
+      if (incoming(s)) { if (!mem.evading) { mem.evading = true; E.goQuiet(s); } } else if (mem.evading) mem.evading = false;
+    } else
     if (incoming(s)) { const v = seenInc(s)[0]; if (mem.dodge !== v) { mem.dodge = v; const dx = v.aim.x - v.from.x, dy = v.aim.y - v.from.y, d = Math.hypot(dx, dy) || 1, sg = r() < 0.5 ? 1 : -1; E.setRoute(s, [{ x: s.player.x - dy / d * 14 * sg, y: s.player.y + dx / d * 14 * sg, speed: 'v4' }]); } }
     else if (mem.dodge && s.posture !== 'route') { mem.dodge = null; E.setSpeed(s, 'v2'); }
     for (const a of s.an) if (a.state === 'open') { const c = E.classify(s, a); if (a.idStatus === 'hostile' || (c.n >= 2 && c.post.real > 0.9)) E.lockContact(s, a.id); else if (c.n >= 2 && c.post.real < 0.04 && c.p > 0.9) E.dismissContact(s, a.id); }
@@ -94,6 +100,8 @@
     },
     reader: (s, k, r, mem) => reader(s, k, r, mem, {}),
     steady: (s, k, r, mem) => reader(s, k, r, mem, Object.assign({ discipline: true, coil: true, treat: true }, EXP)),
+    dodger: (s, k, r, mem) => reader(s, k, r, mem, Object.assign({ discipline: true, coil: true, treat: true, evadeOrder: true }, EXP)),
+    quiet: (s, k, r, mem) => reader(s, k, r, mem, Object.assign({ discipline: true, coil: true, treat: true, quietOrder: true }, EXP)),
     random(s, k, r) {
       if (s.sink.h > 0.9 && !s.vent.on) E.startVent(s); else if (s.vent.on && r() < 0.05) E.stopVent(s);
       if (r() < 0.02) { const a = s.an[Math.floor(r() * s.an.length)]; if (a.state === 'open') r() < 0.5 ? E.lockContact(s, a.id) : E.dismissContact(s, a.id); }
