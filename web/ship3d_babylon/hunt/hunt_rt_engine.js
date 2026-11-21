@@ -479,9 +479,27 @@ const HuntRT = (() => {
   }
   function navMake(s, plan, mode, extra) { s.nav = Object.assign({ plan, t0: s.t, mode, id: (s.navId = (s.navId || 0) + 1), made: s.t, last: { x: s.player.x, y: s.player.y }, dirty: false, base: 0 }, extra || {}); s.planInfoCache = null; return s.nav; }
   function navSet(s, wps, o = {}) {   // plan from where we are through km waypoints [{x, y, kind, speed}]; cruise is the set speed unless a waypoint carries its own
-    const st = navStart(s), k0 = o.speed || s.speed, w = wps.map((q, i) => { const k = q.speed && SPEED[q.speed] ? q.speed : k0; return { p: toM(q), kind: q.kind || (i === wps.length - 1 ? 'stop' : 'turn'), cruise: o.cruise || cruiseOf(s, k), thrust: o.thrust != null ? o.thrust : thrOf(k) }; });
+    const st = navStart(s), k0 = o.speed || s.speed, w = wps.map((q, i) => { const k = q.speed && SPEED[q.speed] ? q.speed : k0; return { p: toM(q), kind: q.kind || (i === wps.length - 1 ? 'stop' : 'turn'), cruise: o.cruise || cruiseOf(s, k), thrust: q.g > 0 ? q.g * FL.G0 / FL.SHIP.a100 : o.thrust != null ? o.thrust : thrOf(k), flip: q.flip > 0 ? q.flip : undefined }; });   // q.g is the burn g of the leg that ends at this waypoint, q.flip the flip g at its elbow
     const pl = FL.plan(st, w, { cruise: o.cruise || cruiseOf(s, k0), thrust: o.thrust != null ? o.thrust : thrOf(k0), ship: Object.assign({}, s.shipP, FL.maneuverShip(o.maneuver || s.maneuver || 'normal', s.shipP.crewR)) });
-    return navMake(s, pl, o.mode || 'route', Object.assign({ wps: wps.map(q => ({ x: q.x, y: q.y, kind: q.kind })), goal: wps.length ? wps[wps.length - 1] : null }, o.extra));
+    return navMake(s, pl, o.mode || 'route', Object.assign({ wps: wps.map(q => ({ x: q.x, y: q.y, kind: q.kind, g: q.g, flip: q.flip })), goal: wps.length ? wps[wps.length - 1] : null }, o.extra));
+  }
+  // ---- plotted g (Dave, 2026-11-21): every leg has a burn g and every elbow a flip g, in half-g detents; Auto navigate fills them from a style ----
+  const NAV_STYLES = { stealth: { g: 0.2, flip: 0.25, speed: 'v2', label: 'Stealth' }, standard: { g: 1, flip: 0.25, speed: 'v3', label: 'Standard' }, combat: { g: 3, flip: 3, speed: 'v5', label: 'Combat' }, emergency: { g: 6, flip: 6, speed: 'v5', label: 'Emergency' } };
+  const G_DETENTS = [0.25, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6];
+  const snapG = g => G_DETENTS.reduce((b, d) => Math.abs(d - g) < Math.abs(b - g) ? d : b, G_DETENTS[0]);
+  const gBand = g => g <= 1 ? 'quiet' : g <= 2 ? 'firm' : g <= 3 ? 'combat' : 'emergency';
+  function autoRoute(s, pt, style, via) {   // the navigator plots: straight to the point (through any via points) at the style's burn and flip g
+    const st = NAV_STYLES[style] || NAV_STYLES.standard, pts = (via || []).concat([pt]);
+    return pts.map((q, i) => ({ x: q.x, y: q.y, g: st.g, flip: st.flip, speed: st.speed, kind: i === pts.length - 1 ? 'stop' : 'turn' }));
+  }
+  function previewRoute(s, pts, o = {}) {   // what a route would cost, without committing to it: time, propellant, peak g, flips, strain-line crossings, fatigue estimate, warnings
+    const sp = s.shipP || Object.assign({}, FL.SHIP, s.me.ship || {}); pts = pts.filter(q => !navBlocked(s, q.x, q.y)); if (!pts.length) return null;
+    const st = navStart(s), k0 = pts[0].speed && SPEED[pts[0].speed] ? pts[0].speed : s.speed, w = pts.map((q, i) => { const k = q.speed && SPEED[q.speed] ? q.speed : k0; return { p: toM(q), kind: q.kind || (i === pts.length - 1 ? 'stop' : 'turn'), cruise: cruiseOf(s, k), thrust: q.g > 0 ? q.g * FL.G0 / FL.SHIP.a100 : thrOf(k), flip: q.flip > 0 ? q.flip : undefined }; });
+    const pl = FL.plan(st, w, { cruise: cruiseOf(s, k0), thrust: w[0].thrust, ship: Object.assign({}, sp, FL.maneuverShip(o.maneuver || s.maneuver || 'normal', sp.crewR)) });
+    let cross = 0, prev = 0, fat = 0, peak = 0; const flips = [];
+    for (const sg of pl.segs) { const pr = sg.R || pl.ship, g = sg.kind === 'rotate' ? FL.rotG(pr.alpha, Math.min(pr.alpha * sg.dur / 2, pr.omegaMax), pr.crewR || FL.SHIP.crewR) : (sg.thrust || 0) * pl.ship.a100 / FL.G0;
+      if (sg.kind === 'rotate') flips.push({ g, dur: sg.dur }); peak = Math.max(peak, g); if (g > s.me.gStrain && prev <= s.me.gStrain) { cross++; fat += s.me.gFatJolt; } if (g > s.me.gStrain) fat += s.me.gFatK * (g - s.me.gStrain) * sg.dur; prev = g; }
+    return { timeSec: pl.stats.time, dv: pl.stats.dv, propT: pl.stats.propT, peakG: peak, flips, strainCrossings: cross, fatigue: Math.min(1, fat), warn: pl.warn, path: FL.sample(pl, 3).map(q => ({ x: q.p.x / KM, y: q.p.y / KM, kind: q.kind })), wps: pts.map((q, i) => ({ x: q.x, y: q.y, g: q.g, flip: q.flip, t: pl.wpT[i] })) };
   }
   function navHold(s) { const pl = FL.hold(navStart(s), { ship: Object.assign({}, s.shipP, FL.maneuverShip(s.maneuver || 'normal', s.shipP.crewR)) }); return navMake(s, pl, 'hold', { wps: [], goal: null }); }
   const navTau = s => (s.t - s.nav.t0) * GM;
@@ -517,14 +535,14 @@ const HuntRT = (() => {
     const nav = s.nav; if (!nav) return null;
     if (!s.planInfoCache || s.planInfoCache.id !== nav.id) {
       const pl = nav.plan, segs = pl.segs.map(g => ({ kind: g.kind, t0: nav.t0 + g.t0 / GM, dur: g.dur / GM, durSec: g.dur, p0: toKm(g.p0), psi0: g.psi0, dth: g.dth || 0, thrust: g.thrust, g: g.thrust * FL.SHIP.a100 / FL.G0 }));
-      s.planInfoCache = { id: nav.id, mode: nav.mode, t0: nav.t0, segs, path: FL.sample(pl, 3).map(q => ({ t: nav.t0 + q.t / GM, x: q.p.x / KM, y: q.p.y / KM, psi: q.psi, kind: q.kind, thrust: q.thrust })), wps: (nav.wps || []).map((w, i) => ({ x: w.x, y: w.y, kind: w.kind || null, t: pl.wpT[i] != null ? nav.t0 + pl.wpT[i] / GM : null })), endT: nav.t0 + pl.stats.time / GM, timeSec: pl.stats.time, dv: pl.stats.dv, propT: pl.stats.propT, peakG: pl.stats.peakG, warn: pl.warn.slice(), cuts: pl.cuts.map(c => ({ i: c.i, cutKm: c.cut / KM })), end: toKm(pl.end.p) };
+      s.planInfoCache = { id: nav.id, mode: nav.mode, t0: nav.t0, segs, path: FL.sample(pl, 3).map(q => ({ t: nav.t0 + q.t / GM, x: q.p.x / KM, y: q.p.y / KM, psi: q.psi, kind: q.kind, thrust: q.thrust })), wps: (nav.wps || []).map((w, i) => ({ x: w.x, y: w.y, kind: w.kind || null, g: w.g, flip: w.flip, t: pl.wpT[i] != null ? nav.t0 + pl.wpT[i] / GM : null })), endT: nav.t0 + pl.stats.time / GM, timeSec: pl.stats.time, dv: pl.stats.dv, propT: pl.stats.propT, peakG: pl.stats.peakG, warn: pl.warn.slice(), cuts: pl.cuts.map(c => ({ i: c.i, cutKm: c.cut / KM })), end: toKm(pl.end.p) };
     }
     const q = navState(s), c = s.planInfoCache; c.now = { x: s.player.x, y: s.player.y, psi: q.psi, w: q.w, speed: speedNow(s), speedMs: speedNow(s) * MS, thrust: q.thrust, g: q.g, phase: q.kind, remainSec: Math.max(0, (c.endT - s.t) * GM) };
     return c;
   }
   function navPlanRoute(s) {   // fly s.route from s.routeI: intermediate points are turns, the last is a stop unless the point says otherwise
     const rest = s.route.slice(s.routeI); if (!rest.length) return navHold(s);
-    const wps = rest.map((q, i) => ({ x: q.x, y: q.y, speed: q.speed, kind: q.kind || (i === rest.length - 1 ? 'stop' : 'turn') }));
+    const wps = rest.map((q, i) => ({ x: q.x, y: q.y, speed: q.speed, g: q.g, flip: q.flip, kind: q.kind || (i === rest.length - 1 ? 'stop' : 'turn') }));
     return navSet(s, wps, { mode: 'route', speed: rest[0].speed || s.speed, extra: { base: s.routeI } });
   }
   function navStep(s) {   // run every substep: choose waypoints for the posture, evaluate the plan at s.t, and publish position, velocity, heading, thrust
@@ -538,7 +556,7 @@ const HuntRT = (() => {
     const c = { x: clamp(pk.x, 4, P.arena - 4), y: clamp(pk.y, 4, P.arena - 4) }, edge = Math.abs(c.x - pk.x) > 1e-9 || Math.abs(c.y - pk.y) > 1e-9;
     if (edge) { navMake(s, FL.plan({ p: toM(c), v: { x: 0, y: 0 }, psi: q.psi }, [], { ship: s.shipP }), 'idle', { wps: [], goal: null }); q = navState(s); pk = c; if (s.posture === 'route') { s.posture = 'still'; } if (!s.edgeSaid || s.t - s.edgeSaid > 4) { s.edgeSaid = s.t; report(s, 'Abara', 'We have reached the edge of the arena. Drive off, holding position.', 'info'); } }
     s.player.x = pk.x; s.player.y = pk.y; s.nav.last = { x: pk.x, y: pk.y };
-    s.vel = { vx: q.v.x * KMGM, vy: q.v.y * KMGM }; s.hdg = q.psi; s.omega = q.w; s.thrust = q.thrust; s.phase = q.kind; s.gNow = q.g; { const ps = s.nav.plan.ship || s.shipP; s.gSpin = q.kind === 'rotate' ? FL.rotG(ps.alpha, Math.abs(q.w), ps.crewR || FL.SHIP.crewR) : 0; }   // the felt g of a flip at the farthest crewed deck
+    s.vel = { vx: q.v.x * KMGM, vy: q.v.y * KMGM }; s.hdg = q.psi; s.omega = q.w; s.thrust = q.thrust; s.phase = q.kind; s.gNow = q.g; { const sgR = q.i != null && s.nav.plan.segs[q.i] && s.nav.plan.segs[q.i].R, ps = sgR || s.nav.plan.ship || s.shipP; s.gSpin = q.kind === 'rotate' ? FL.rotG(ps.alpha, Math.abs(q.w), ps.crewR || FL.SHIP.crewR) : 0; }   // the felt g of a flip at the farthest crewed deck
     { const dt = Math.max(0, s.t - s.navT) * GM, used = q.thrust * s.shipP.a100 * s.shipP.mass / (s.shipP.isp * FL.G0) * dt / 1000; s.navT = s.t; s.water = Math.max(0, s.water - used); s.waterUsed += used; if (s.water <= 0 && !s.dryTold) { s.dryTold = true; evt(s, 'tanks_dry', {}); report(s, 'Castellan', 'Drive tanks are dry, Captain. We hold what velocity we have.', 'bad', true); } }
     if (s.posture === 'route') {   // waypoints are reached when the plan says so; the end of the plan is the end of the route
       const nav = s.nav, tau = navTau(s); let i = s.routeI - nav.base;
@@ -547,7 +565,7 @@ const HuntRT = (() => {
   }
   const KEEP = { planet: 6, star: 16 };   // no courses into a planet's pull or into the star's glare
   function navBlocked(s, x, y) { for (const b of s.bodies) { const d = Math.hypot(b.x - x, b.y - y), k = KEEP[b.kind] ?? 0; if (k && d < b.r + k) return b.kind === 'star' ? 'Too close to the star: the glare and radiation would cook us.' : 'That is inside a planet\'s gravity well. We will not chart a course there.'; } return null; }
-  function setRoute(s, pts) { if (s.over) return false; pts = pts.filter(q => !navBlocked(s, q.x, q.y)); s.route = pts.map(q => ({ x: clamp(q.x, 6, P.arena - 6), y: clamp(q.y, 6, P.arena - 6), speed: q.speed, kind: q.kind })); s.routeI = 0; if (s.nav) s.nav.dirty = true; if (s.route.length) { s.posture = 'route'; s.orderId = null; s.orderUntil = null; report(s, 'Abara', `New flight plan, ${s.route.length} waypoint${s.route.length > 1 ? 's' : ''}.`, 'info'); } else { s.posture = 'still'; report(s, 'Abara', 'Flight plan cleared. Holding position.', 'info'); } return true; }
+  function setRoute(s, pts) { if (s.over) return false; pts = pts.filter(q => !navBlocked(s, q.x, q.y)); s.route = pts.map(q => ({ x: clamp(q.x, 6, P.arena - 6), y: clamp(q.y, 6, P.arena - 6), speed: q.speed, kind: q.kind, g: q.g, flip: q.flip })); s.routeI = 0; if (s.nav) s.nav.dirty = true; if (s.route.length) { s.posture = 'route'; s.orderId = null; s.orderUntil = null; report(s, 'Abara', `New flight plan, ${s.route.length} waypoint${s.route.length > 1 ? 's' : ''}.`, 'info'); } else { s.posture = 'still'; report(s, 'Abara', 'Flight plan cleared. Holding position.', 'info'); } return true; }
   function relBearing(s, pt) { const b = Math.atan2(pt.x - s.player.x, -(pt.y - s.player.y)) * 180 / Math.PI, h = Math.atan2(Math.cos(s.hdg || 0) * 0 + (Math.cos(s.hdg || 0)), -(Math.sin(s.hdg || 0))) * 180 / Math.PI; return ((b - h + 540) % 360) - 180; }
   function setSpeed(s, k) { k = SPD_ALIAS[k] || k; if (s.over || !SPEED[k]) return false; s.burn = null; s.speed = k; if (s.posture === 'route' && s.route[s.routeI]) s.route[s.routeI].speed = k; if (s.nav) s.nav.dirty = true; return true; }
   function setOrder(s, mode, id, mins) {
@@ -860,7 +878,7 @@ const HuntRT = (() => {
   function upcomingLoad(s, horizonGs) {   // the next planned segment (within horizonGs game-seconds) whose felt g would need a brace: { g, kind, inGs } or null. Turn points are known ahead, so the crew can brace for them
     if (!s.nav || !s.nav.plan) return null; const pl = s.nav.plan, ps = pl.ship || s.shipP, tau = (s.t - s.nav.t0) * GM;
     for (const g of pl.segs) { if (g.t0 + g.dur < tau) continue; if (g.t0 > tau + horizonGs) break;
-      const gl = g.kind === 'rotate' ? FL.rotG(ps.alpha, Math.min(ps.alpha * g.dur / 2, ps.omegaMax), ps.crewR || FL.SHIP.crewR) : (g.thrust || 0) * ps.a100 / FL.G0;
+      const pr = g.R || ps, gl = g.kind === 'rotate' ? FL.rotG(pr.alpha, Math.min(pr.alpha * g.dur / 2, pr.omegaMax), pr.crewR || FL.SHIP.crewR) : (g.thrust || 0) * ps.a100 / FL.G0;
       if (gl >= s.me.gThresh) return { g: gl, kind: g.kind, inGs: Math.max(0, g.t0 - tau) }; }
     return null;
   }
@@ -1115,6 +1133,6 @@ const HuntRT = (() => {
     }
   }
   function setPellAct(s, on) { s.pellAct = !!on && s.integration >= 75; }
-  return { gPhys: gPhysNow, gState, upcomingLoad, forceLoad, knockOut, moveKo, captainTakes, captainLeaves, koOf, evt, brgOf, setPD, probe: probeSalvo, markHostile, pdIntercept, emit, setDifficulty, getDifficulty, DIFFICULTY, applyPlayer, RULES, PLAYER, AI, maneuver, trackState, redlineBurn, navBlocked, reanalyze, investigate, heatRate, visIf, arenaPlan, PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, planInfo, navState, navStart, enemyThrust, enemyState, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge, hailContact, hailLine, HAIL, roleOf, PSET, deployProbes, setProbeLink, recoverProbes, linkNeeded, MOMENTS, MOMENT_RULES, PREP, momentCheck, momentPing, moment, prep, brace, stunned, seenInc, detectLevel, SEEKER_LINEAGE, setBrace: (s, on) => brace(s, on, 'co'), braceNeeded, crewEff, treat, GLOAD, CREW };
+  return { NAV_STYLES, G_DETENTS, snapG, gBand, autoRoute, previewRoute, gPhys: gPhysNow, gState, upcomingLoad, forceLoad, knockOut, moveKo, captainTakes, captainLeaves, koOf, evt, brgOf, setPD, probe: probeSalvo, markHostile, pdIntercept, emit, setDifficulty, getDifficulty, DIFFICULTY, applyPlayer, RULES, PLAYER, AI, maneuver, trackState, redlineBurn, navBlocked, reanalyze, investigate, heatRate, visIf, arenaPlan, PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, planInfo, navState, navStart, enemyThrust, enemyState, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge, hailContact, hailLine, HAIL, roleOf, PSET, deployProbes, setProbeLink, recoverProbes, linkNeeded, MOMENTS, MOMENT_RULES, PREP, momentCheck, momentPing, moment, prep, brace, stunned, seenInc, detectLevel, SEEKER_LINEAGE, setBrace: (s, on) => brace(s, on, 'co'), braceNeeded, crewEff, treat, GLOAD, CREW };
 })();
 if (typeof module !== 'undefined') module.exports = HuntRT;

@@ -82,7 +82,7 @@
   // ---- plan evaluation ----
   function segState(sg, tau, S) {
     tau = clamp(tau, 0, sg.dur); const p = add(add(sg.p0, mul(sg.v0, tau)), mul(sg.acc, 0.5 * tau * tau)), v = add(sg.v0, mul(sg.acc, tau));
-    let psi = sg.psi0, w = 0;
+    let psi = sg.psi0, w = 0; if (sg.R) S = sg.R;   // a rotation planned at its own flip g (per-elbow setting) is evaluated with its own limits
     if (sg.kind === 'rotate') { if (sg.settle) { const wl = sg.w0, sgn = wl < 0 ? -1 : 1, t = Math.min(tau, sg.dur); psi = wrap(sg.psi0 + wl * t - sgn * 0.5 * S.alpha * t * t); w = wl - sgn * S.alpha * t; } else { const r = rotAt(sg.dth, sg.dur, tau, S); psi = wrap(sg.psi0 + r.a); w = r.w; } }
     return { p, v, psi, w, kind: sg.kind, thrust: sg.thrust || 0, g: (sg.thrust || 0) * S.a100 / G0, acc: sg.acc };
   }
@@ -98,13 +98,13 @@
   // ---- the planner ----
   const propellant = (dv, S = SHIP) => S.mass * (1 - Math.exp(-dv / (S.isp * G0)));   // kg, rocket equation
   function plan(start, wps, opts = {}) {
-    const S = Object.assign({}, SHIP, opts.ship), cruise0 = opts.cruise || 80, thr0 = opts.thrust != null ? opts.thrust : 1, Aof = f => S.a100 * f;
+    const S = Object.assign({}, SHIP, opts.ship), cruise0 = opts.cruise || 80, thr0 = opts.thrust != null ? opts.thrust : 1, Aof = f => S.a100 * f; let R = S;   // R: the rotation limits in force, S unless a waypoint sets its own flip g
     const st = { t: 0, p: { ...start.p }, v: { ...start.v }, psi: start.psi || 0 }, segs = [], warn = [], wpT = [], Dist = [];
     let dvTot = 0, peak = 0;
     const push = (kind, dur, extra) => segs.push(Object.assign({ kind, t0: st.t, dur, p0: { ...st.p }, v0: { ...st.v }, psi0: st.psi, acc: { x: 0, y: 0 }, thrust: 0 }, extra));
     const coast = d => { if (!(d > 1e-6)) return; push('coast', d); st.p = add(st.p, mul(st.v, d)); st.t += d; };
-    const rotDur = psiT => rotTime(wrap(psiT - st.psi), S);
-    const rotateTo = psiT => { const dth = wrap(psiT - st.psi), T = rotTime(dth, S); if (T < 1e-6) { st.psi = wrap(psiT); return; } push('rotate', T, { dth }); st.p = add(st.p, mul(st.v, T)); st.psi = wrap(st.psi + dth); st.t += T; };
+    const rotDur = psiT => rotTime(wrap(psiT - st.psi), R);
+    const rotateTo = psiT => { const dth = wrap(psiT - st.psi), T = rotTime(dth, R); if (T < 1e-6) { st.psi = wrap(psiT); return; } push('rotate', T, R === S ? { dth } : { dth, R }); st.p = add(st.p, mul(st.v, T)); st.psi = wrap(st.psi + dth); st.t += T; };
     const burn = (psi, T, f, kind) => { if (!(T > 1e-6)) return; const a = mul(dir(psi), Aof(f)); st.psi = wrap(psi); push(kind, T, { acc: a, thrust: f }); st.p = add(add(st.p, mul(st.v, T)), mul(a, 0.5 * T * T)); st.v = add(st.v, mul(a, T)); st.t += T; dvTot += Aof(f) * T; peak = Math.max(peak, f); if (kind !== 'brake' && T > S.redlineT && f * S.a100 >= S.aRedline - 1e-9) warn.push(`a redline burn of ${Math.round(T)} s is past the ${S.redlineT} s limit`); };
     // a spin left over from before (a replan in the middle of a rotation): brake it first
     if (Math.abs(start.omega || 0) > 1e-7) { const w0 = start.omega, sgn = w0 < 0 ? -1 : 1, T = Math.abs(w0) / S.alpha; push('rotate', T, { settle: true, w0, dth: sgn * w0 * w0 / (2 * S.alpha) }); st.p = add(st.p, mul(st.v, T)); st.psi = wrap(st.psi + sgn * w0 * w0 / (2 * S.alpha)); st.t += T; }
@@ -117,8 +117,9 @@
       }
       if (len(dvv) < 0.05) return; rotateTo(ang(dvv)); burn(ang(dvv), len(dvv) / A, f, kind);
     }
-    const rtFlip = rotTime(Math.PI, S);
+    let rtFlip = rotTime(Math.PI, S);
     for (let i = 0; i < wps.length; i++) {
+      R = wps[i].flip > 0 ? Object.assign({}, S, maneuverShip(wps[i].flip, S.crewR || SHIP.crewR)) : S; rtFlip = rotTime(Math.PI, R);
       const w = wps[i], next = wps[i + 1], c0 = w.cruise || cruise0, f = w.thrust != null ? w.thrust : thr0, A = Aof(f);
       if (len(sub(w.p, st.p)) < 1 && len(st.v) < 0.5) { wpT.push(st.t); continue; }   // already there
       if (w.kind === 'stop') {
