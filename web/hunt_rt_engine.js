@@ -480,10 +480,10 @@ const HuntRT = (() => {
   function navMake(s, plan, mode, extra) { s.nav = Object.assign({ plan, t0: s.t, mode, id: (s.navId = (s.navId || 0) + 1), made: s.t, last: { x: s.player.x, y: s.player.y }, dirty: false, base: 0 }, extra || {}); s.planInfoCache = null; return s.nav; }
   function navSet(s, wps, o = {}) {   // plan from where we are through km waypoints [{x, y, kind, speed}]; cruise is the set speed unless a waypoint carries its own
     const st = navStart(s), k0 = o.speed || s.speed, w = wps.map((q, i) => { const k = q.speed && SPEED[q.speed] ? q.speed : k0; return { p: toM(q), kind: q.kind || (i === wps.length - 1 ? 'stop' : 'turn'), cruise: cruiseOf(s, k), thrust: o.thrust != null ? o.thrust : thrOf(k) }; });
-    const pl = FL.plan(st, w, { cruise: cruiseOf(s, k0), thrust: o.thrust != null ? o.thrust : thrOf(k0), ship: s.shipP });
+    const pl = FL.plan(st, w, { cruise: cruiseOf(s, k0), thrust: o.thrust != null ? o.thrust : thrOf(k0), ship: Object.assign({}, s.shipP, FL.maneuverShip(o.maneuver || s.maneuver || 'normal', s.shipP.crewR)) });
     return navMake(s, pl, o.mode || 'route', Object.assign({ wps: wps.map(q => ({ x: q.x, y: q.y, kind: q.kind })), goal: wps.length ? wps[wps.length - 1] : null }, o.extra));
   }
-  function navHold(s) { const pl = FL.hold(navStart(s), { ship: s.shipP }); return navMake(s, pl, 'hold', { wps: [], goal: null }); }
+  function navHold(s) { const pl = FL.hold(navStart(s), { ship: Object.assign({}, s.shipP, FL.maneuverShip(s.maneuver || 'normal', s.shipP.crewR)) }); return navMake(s, pl, 'hold', { wps: [], goal: null }); }
   const navTau = s => (s.t - s.nav.t0) * GM;
   function navState(s, t) { return FL.stateAt(s.nav.plan, ((t == null ? s.t : t) - s.nav.t0) * GM); }
   function navClamp(s, x, y) { const m = 8; return { x: clamp(x, m, P.arena - m), y: clamp(y, m, P.arena - m) }; }
@@ -496,7 +496,7 @@ const HuntRT = (() => {
       const done = st.mode === 'evade' && s.t >= st.t0 + st.plan.stats.time / GM - 0.05;
       if (st.mode === 'evade' && !st.dirty && !done) return;
       const sg = st.mode === 'evade' ? -st.sg : (Math.floor(s.t / 2) % 2 ? 1 : -1), h = (s.hdg || 0) + sg * 0.35, g = navClamp(s, pl.x + Math.cos(h) * 35, pl.y + Math.sin(h) * 35);
-      navSet(s, [{ x: g.x, y: g.y, kind: 'turn' }], { mode: 'evade', speed: 'v5', thrust: FL.SHIP.aRedline / FL.SHIP.a100, extra: { sg } }); return;
+      navSet(s, [{ x: g.x, y: g.y, kind: 'turn' }], { mode: 'evade', speed: 'v5', thrust: FL.SHIP.aRedline / FL.SHIP.a100, maneuver: 'combat', extra: { sg } }); return;
     }
     if (!a || ['out', 'disabled'].includes(a.state)) return;
     const t = displayPos(s, a), dx = t.x - pl.x, dy = t.y - pl.y, d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d;
@@ -537,7 +537,7 @@ const HuntRT = (() => {
     const c = { x: clamp(pk.x, 4, P.arena - 4), y: clamp(pk.y, 4, P.arena - 4) }, edge = Math.abs(c.x - pk.x) > 1e-9 || Math.abs(c.y - pk.y) > 1e-9;
     if (edge) { navMake(s, FL.plan({ p: toM(c), v: { x: 0, y: 0 }, psi: q.psi }, [], { ship: s.shipP }), 'idle', { wps: [], goal: null }); q = navState(s); pk = c; if (s.posture === 'route') { s.posture = 'still'; } if (!s.edgeSaid || s.t - s.edgeSaid > 4) { s.edgeSaid = s.t; report(s, 'Abara', 'We have reached the edge of the arena. Drive off, holding position.', 'info'); } }
     s.player.x = pk.x; s.player.y = pk.y; s.nav.last = { x: pk.x, y: pk.y };
-    s.vel = { vx: q.v.x * KMGM, vy: q.v.y * KMGM }; s.hdg = q.psi; s.omega = q.w; s.thrust = q.thrust; s.phase = q.kind; s.gNow = q.g;
+    s.vel = { vx: q.v.x * KMGM, vy: q.v.y * KMGM }; s.hdg = q.psi; s.omega = q.w; s.thrust = q.thrust; s.phase = q.kind; s.gNow = q.g; { const ps = s.nav.plan.ship || s.shipP; s.gSpin = q.kind === 'rotate' ? FL.rotG(ps.alpha, Math.abs(q.w), ps.crewR || FL.SHIP.crewR) : 0; }   // the felt g of a flip at the farthest crewed deck
     { const dt = Math.max(0, s.t - s.navT) * GM, used = q.thrust * s.shipP.a100 * s.shipP.mass / (s.shipP.isp * FL.G0) * dt / 1000; s.navT = s.t; s.water = Math.max(0, s.water - used); s.waterUsed += used; if (s.water <= 0 && !s.dryTold) { s.dryTold = true; evt(s, 'tanks_dry', {}); report(s, 'Castellan', 'Drive tanks are dry, Captain. We hold what velocity we have.', 'bad', true); } }
     if (s.posture === 'route') {   // waypoints are reached when the plan says so; the end of the plan is the end of the route
       const nav = s.nav, tau = navTau(s); let i = s.routeI - nav.base;
@@ -850,10 +850,18 @@ const HuntRT = (() => {
   const CREW = { Quill: 'sensors', Abara: 'attack', Castellan: 'engineering', Dace: 'thermal', Fenwick: 'damage' };
   function loadNow(s) {
     let g = 0, why = null;
-    if ((s.gNow || 0) > 0) { g = s.gNow; why = s.posture === 'evade' ? 'evade' : g > 0.3 ? 'burn' : 'burn'; }   // the real thrust-derived g of the burn in progress; coast and flip are weightless
+    if ((s.gNow || 0) > 0) { g = s.gNow; why = s.posture === 'evade' ? 'evade' : 'burn'; }
+    if ((s.gSpin || 0) > g) { g = s.gSpin; why = 'flip'; }   // the real thrust-derived g of the burn in progress; coast and flip are weightless
     if (s.spool && GLOAD.spool > g) { g = GLOAD.spool; why = 'spool'; }
     if (s.gForce && s.t < s.gForce.until && s.gForce.g > g) { g = s.gForce.g; why = 'burn'; }   // a forced load: the sandbox and the tests hold the crew under g without flying a burn
     return { g, why };
+  }
+  function upcomingLoad(s, horizonGs) {   // the next planned segment (within horizonGs game-seconds) whose felt g would need a brace: { g, kind, inGs } or null. Turn points are known ahead, so the crew can brace for them
+    if (!s.nav || !s.nav.plan) return null; const pl = s.nav.plan, ps = pl.ship || s.shipP, tau = (s.t - s.nav.t0) * GM;
+    for (const g of pl.segs) { if (g.t0 + g.dur < tau) continue; if (g.t0 > tau + horizonGs) break;
+      const gl = g.kind === 'rotate' ? FL.rotG(ps.alpha, Math.min(ps.alpha * g.dur / 2, ps.omegaMax), ps.crewR || FL.SHIP.crewR) : (g.thrust || 0) * ps.a100 / FL.G0;
+      if (gl >= s.me.gThresh) return { g: gl, kind: g.kind, inGs: Math.max(0, g.t0 - tau) }; }
+    return null;
   }
   function forceLoad(s, g, secs) { s.gForce = g > 0 ? { g, until: s.t + secs / P.secPerMin } : null; return s.gForce; }   // hold the crew under g for secs real seconds (0 g clears it)
   function braceNeeded(s, kind) {   // would this order put the crew under load while they are not secure? false, or { why, g } (the adapter raises call H4 on it)
@@ -923,10 +931,11 @@ const HuntRT = (() => {
     for (const k in s.crew) { const c = s.crew[k]; if (c.stunUntil != null && s.t >= c.stunUntil) { c.stunUntil = null; evt(s, 'recovered', { officer: k, station: CREW[k] }); report(s, 'Pell', `${k} is back on the board.`, 'info'); } }
     if (s.brace === 'bracing' && s.t >= s.braceDone) { s.brace = 'secure'; evt(s, 'brace_complete', { by: s.braceBy }); }
     const L = loadNow(s), seen = seenInc(s), soon = seen.some(v => v.at - s.t < me.braceTime * 1.2), near = seen.some(v => v.at - s.t <= me.braceTime * 1.5), loaded = L.g >= me.gThresh, mode = s.braceAuto;   // only a SEEN volley counts: the crew cannot brace for what they have not detected
-    if (s.brace === 'free' && s.braceRule) { if ((mode === 'vampire' || mode === 'all') && near) brace(s, true, 'auto');   // a seen volley within braceTime x 1.5 of impact (about 10 s); one first seen late (the seeker route) braces at once
+    const ahead = s.braceRule && s.t >= (s.noUnsecEvt || 0) && (mode === 'vampire' || mode === 'all') ? upcomingLoad(s, me.braceTime * 1.5 * GM) : null;   // a planned turn or burn that needs a brace
+    if (s.brace === 'free' && s.braceRule) { if ((mode === 'vampire' || mode === 'all') && (near || ahead)) { if (ahead && !near) evt(s, 'brace_plan', { g: ahead.g, kind: ahead.kind, inGs: ahead.inGs }); brace(s, true, 'auto'); }   // a seen volley within braceTime x 1.5 of impact (about 10 s); one first seen late (the seeker route) braces at once
       else if (mode === 'all' && loaded) brace(s, true, 'auto'); }
     if (s.brace === 'secure' && s.braceBy === 'auto' && mode !== 'off') {   // the crew stand easy on their own once the load and the threat have gone
-      if (loaded || seen.length) s.calmSince = s.t; else if (s.t - s.calmSince >= me.braceHold) brace(s, false, 'auto');
+      if (loaded || seen.length || ahead) s.calmSince = s.t; else if (s.t - s.calmSince >= me.braceHold) brace(s, false, 'auto');
     } else s.calmSince = s.t;
     const uns = s.braceRule && s.brace !== 'secure' && (loaded || soon);
     s.gLoad = soon && s.brace !== 'secure' ? Math.max(L.g, GLOAD.impact) : L.g;
@@ -1081,6 +1090,6 @@ const HuntRT = (() => {
     }
   }
   function setPellAct(s, on) { s.pellAct = !!on && s.integration >= 75; }
-  return { forceLoad, knockOut, moveKo, captainTakes, captainLeaves, koOf, evt, brgOf, setPD, probe: probeSalvo, markHostile, pdIntercept, emit, setDifficulty, getDifficulty, DIFFICULTY, applyPlayer, RULES, PLAYER, AI, maneuver, trackState, redlineBurn, navBlocked, reanalyze, investigate, heatRate, visIf, arenaPlan, PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, planInfo, navState, navStart, enemyThrust, enemyState, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge, hailContact, hailLine, HAIL, roleOf, PSET, deployProbes, setProbeLink, recoverProbes, linkNeeded, MOMENTS, MOMENT_RULES, PREP, momentCheck, momentPing, moment, prep, brace, stunned, seenInc, detectLevel, SEEKER_LINEAGE, setBrace: (s, on) => brace(s, on, 'co'), braceNeeded, crewEff, treat, GLOAD, CREW };
+  return { upcomingLoad, forceLoad, knockOut, moveKo, captainTakes, captainLeaves, koOf, evt, brgOf, setPD, probe: probeSalvo, markHostile, pdIntercept, emit, setDifficulty, getDifficulty, DIFFICULTY, applyPlayer, RULES, PLAYER, AI, maneuver, trackState, redlineBurn, navBlocked, reanalyze, investigate, heatRate, visIf, arenaPlan, PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, planInfo, navState, navStart, enemyThrust, enemyState, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge, hailContact, hailLine, HAIL, roleOf, PSET, deployProbes, setProbeLink, recoverProbes, linkNeeded, MOMENTS, MOMENT_RULES, PREP, momentCheck, momentPing, moment, prep, brace, stunned, seenInc, detectLevel, SEEKER_LINEAGE, setBrace: (s, on) => brace(s, on, 'co'), braceNeeded, crewEff, treat, GLOAD, CREW };
 })();
 if (typeof module !== 'undefined') module.exports = HuntRT;
