@@ -17,8 +17,8 @@ Sources: Reif and Tate (https://scholars.duke.edu/publication/795347), NASA PEG 
 
 ## 2. Numbers for the 140 m hull (targets)
 
-* Mass about 11,000 t, 100 percent thrust 0.15 g (1.47 m/s2), Isp 8,000 s.
-* Rotation by RCS couple: about 5.6e-4 rad/s2, so a 180 degree flip takes **150 s** (about 290 s on two nozzles). A 90 degree turn takes about 106 s.
+* Mass about 11,000 t, 100 percent thrust 1 g (9.81 m/s2) since 2026-11-20 (was 0.15 g), Isp 8,000 s.
+* (Superseded 2026-11-20: flips now come from maneuver presets, `FL.maneuverShip(mode)`: normal 0.25 g about 31 s, firm 1 g about 15 s, combat 3 g about 9 s, emergency 6 g about 6 s for 180 degrees, game seconds, at a 57 m crew distance.) Original: rotation by RCS couple: about 5.6e-4 rad/s2, so a 180 degree flip takes **150 s** (about 290 s on two nozzles). A 90 degree turn takes about 106 s.
 * Rotation by pod gimbal (plus or minus 5 degrees): about 5e-3 rad/s2, flip about 50 s, but only while burning. Used for steering inside a burn, not for flips at rest.
 * Stop from 80 m/s (4.8 km/min): 54 s burn over 2.2 km. The flip costs more time than the burn.
 * Prototype route (three clicks, 250 km): 54 min 39 s, delta-v 344 m/s, 48 t of water reaction mass. Compare 250 t tank: about 1.8 km/s of delta-v total.

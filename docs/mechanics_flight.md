@@ -19,10 +19,10 @@ Code: `web/flight_model.js` (pure physics and planner, global `Flight`, no engin
 | Quantity | Value | Where |
 |---|---|---|
 | Hull mass | 11,000 t | `SHIP.mass` |
-| 100 percent drive | 0.15 g (1.47 m/s2), 16 MN, 200 kg/s of water | `SHIP.a100` |
-| Redline | 0.4 g for about 3 min | `SHIP.aRedline`, `redlineT` (the 3 min limit is a parameter, not yet enforced) |
-| Emergency | 2.5 g for about 9 s | `SHIP.aEmergency`, `emergencyT` (not wired to any control) |
-| RCS rotation | 5.6e-4 rad/s2: a 180 degree flip is 150 s, 90 degrees about 106 s | `SHIP.alpha` |
+| 100 percent drive | 1 g (9.81 m/s2), 108 MN, 1.4 t/s of water (retuned 2026-11-20; was 0.15 g) | `SHIP.a100` |
+| Redline | 3 g for about 30 s (retuned; was 0.4 g, 3 min) | `SHIP.aRedline`, `redlineT` (the 3 min limit is a parameter, not yet enforced) |
+| Emergency | 6 g for about 5 s (retuned; was 2.5 g, 9 s) | `SHIP.aEmergency`, `emergencyT` (not wired to any control) |
+| RCS rotation | default 5.6e-4 rad/s2 (150 s flip) is now overridden by the maneuver presets in `FL.MANEUVER` (see docs/firing_solution_and_g_load.md s1a) | `SHIP.alpha` |
 | Gimbal | 5e-3 rad/s2, plus or minus 5 degrees, while burning only | `SHIP.alphaGimbal` (integrator only; the planner ignores it, which is the conservative side) |
 | Isp, tank | 8,000 s, 250 t of water in the drive tanks | `SHIP.isp`, `SHIP.tank`; the 20 t crew reserve is locked and not touched |
 | Time | physics in SI, converted at the engine boundary: 1 game minute = 60 s of fiction = 16 real s; 1 km/gmin = 16.67 m/s | `KM`, `GM`, `MS`, `KMGM` |

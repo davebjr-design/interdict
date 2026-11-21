@@ -199,7 +199,7 @@ An Ohio-sized fission reactor runs the ship; two separate fusion main engines mo
 
 - **Coupling:** a 2.4 m ring on each pylon carries power, magnet control and two 0.4 m lithium lines. This is the coupling Castellan inspects; a drive swap at a yard is a coupling job.
 - **Bell:** open or ducted, per the tech-choices note. A ducted bell has its knee at a higher speed rung.
-- **Thrust (target):** 100 percent is about 0.15 g, redline about 0.4 g, an emergency burn about 2 to 3 g for seconds, limited by reaction mass (below). Braced couches are advised above about 1 g.
+- **Thrust (target, retuned 2026-11-20):** 100 percent is 1 g, redline about 3 g for about 30 s, an emergency burn about 6 g for a few seconds, limited by reaction mass (below). Braced couches are advised above about 1 g.
 - **Spool:** the pods need start energy from the reactor and a spool time (about 3 game minutes at standard in the engine).
 - **Heat to the hull:** the pods' waste heat goes into the lithium sink. Blanket, shield and coil losses ride the two 0.4 m lithium lines through the pylon couplings back to the sink loop: about 270 MW at 100 percent drive (scaling roughly with drive power), plus 25 to 30 MW from the plant, so about 300 MW in all. At 270 MW the lines carry about 130 kg/s of lithium on a 500 K rise, roughly 0.26 m³/s or about 1 m/s in each line, so the plumbing is credible. The vent fins reject that heat to space while they are out (see Vent fins); with the fins retracted for silent running it all stays in the sink and the sink warms. Scale warning: the cited design loses about 25 percent of its fusion power as heat. A 270 MW heat budget is a quarter of about 1.1 GW of fusion power, which that design would turn into a drive of about 10 kN, not 16 MN. This ship's 0.15 g needs about 640 GW of jet power, so it is a torch drive about 1,500 times beyond the cited design, and its waste heat is only about 0.04 percent of its jet power. That is a deliberate piece of fiction and the one big leap in the engine spec; the sink model depends on it, and everything else here follows real concepts.
 
@@ -239,9 +239,9 @@ What a 250 t tank buys in each mode (targets; flow is thrust divided by exhaust 
 | Mode | Specific impulse | Thrust | Flow | A full tank lasts |
 |---|---|---|---|---|
 | Cruise (high Isp) | 15,000 s | 0.8 MN (5 percent, about 0.007 g) | 5.4 kg/s | about 13 hours |
-| 100 percent | 8,000 s | 16 MN (0.15 g) | 200 kg/s | about 21 minutes |
-| Redline | 3,000 s | 43 MN (0.4 g) | 1.5 t/s | about 3 minutes |
-| Emergency burn | about 1,000 s | 270 MN (2.5 g) | 27 t/s | about 9 seconds |
+| 100 percent | 8,000 s | 108 MN (1 g) | 1.4 t/s | about 3 minutes |
+| Redline | 3,000 s | 324 MN (3 g) | 11 t/s at Isp 3,000 (the engine uses 4.1 t/s at a fixed 8,000 s) | about 25-60 seconds |
+| Emergency burn | about 1,000 s | 650 MN (6 g) | 66 t/s | about 4 seconds |
 | Creep thrusters (steam) | about 200 s | 0.1 MN (0.001 g) | 53 kg/s | about 80 minutes |
 
 A full tank is about 1.8 km/s of delta-v at 100 percent settings and about 3.4 km/s in cruise mode (250 t out of about 11,000 t). Creep is very expensive: an hour at 0.001 g spends about 190 t, three quarters of a tank, to change speed by about 35 m/s. The pods in cruise mode make the same change for about 2.6 t, about seventy times less, but run hot and light a plume. So quiet is costly and efficient is loud, which is a real trade for the hunt.
@@ -419,7 +419,7 @@ Each sealed cell is a damage zone, so the damage control screen can draw seven c
 - Ring rooms: accepted. Each pressure cell is a drum along the ship axis and each room is a round disc (a puck) about 10 m across and 3 m thick, stacked fore and aft, about three to a bay; the missile bay is the one long hall. Under thrust "down" is the aft face, always, because the engines fire aft and the ship flips to brake. Ships accelerate, flip, and brake hard; the flight model and the click-a-waypoint planner are in docs/maneuver_model.md.
 - Deck layout follows the Rocinante's "skyscraper" model: a stack of decks joined by two stair shafts (one each side, built into the wall) with a ladder and a round door into each floor, laid along the ship's axis with the bow at the top. Moving between decks is a click on the ladder that plays a short animation (grab a rung, swing through the door) rather than free climbing. Decision (15 November): two wall-built shafts replace the single central trunk, which leaves the middle of every deck free and gives a second route.
 - All hulls are black, ours and every other ship's. Colour is used only as cue marks: maker bands, tube-load rings and hazard stripes (see Finish and colour cues).
-- Drive thrust: keep 0.15 g at 100 percent, stated in the fiction as a lost-technology yard pod. The speed rungs stay as they are.
+- Drive thrust (revised 20 November): 1 g at 100 percent, 3 g redline for about 30 s, 6 g emergency for a few seconds, pegged to gravity so a normal transit is accelerate, flip, brake at 1 g (see docs/firing_solution_and_g_load.md). Crew g-tolerance limits how hard the ship can be pushed. The speed rungs stay as cruise caps. A full 250 t water tank is now about 3 minutes of 1 g burn, so propellant limits the number of manoeuvres, not the time under way.
 - Propellant: water as reaction mass, held in forward tanks (250 t of drive water, a 20 t crew reserve and a 60 m³ settling tank), plus fuel cassettes (deuterium and helium-3, a magazine of 8) as the fusion fuel. Both are common enough to find or buy and scarce enough to force salvage. Water sets how far the ship goes; cassettes set how long its pods run and whether it can jump.
 - Tube geometry (16 November): tube caps sit flush on the dorsal skin, so each 8.6 m tube has 2.0 m in the ring and 6.6 m in the cell, ending 1.6 m past the axis; the 3 m ventral ordnance gallery fits in the 3.4 m below the bases. Tube pitch is 2.45 m (29.4 m for twelve).
 - Complement: about 75 designed, five or six working.
@@ -437,3 +437,7 @@ Each sealed cell is a damage zone, so the damage control screen can draw seven c
 
 ## Why the crew are forward (decision, 2026-11-20)
 The crew section (CIC, berths, mess, junction) sits at the bow, with the reactors, missile hold and lithium zone aft. This is an in-world design choice, not a gameplay mechanic: with the sealed hatches between sections, the dangerous aft sections can be severed and jettisoned in an emergency, leaving the crew section intact. The layout is not being changed to reduce flip g at the CIC; the longer distance from the pivot is accepted, and gentler flips are the cost of the bow position (see docs/firing_solution_and_g_load.md).
+
+
+## Retune note (2026-11-20)
+The drive was retuned from 0.15 g to 1 g (redline 3 g, emergency 6 g). The tables above that still quote the old thrust, flow, tank-life and sink-fill times describe the 0.15 g ship; the new figures are in the thrust table and docs/g_retune_audit.md. Scaling to check: a 1 g burn is about 6.7 times the old thrust and flow, so waste heat in the sink at 100 percent drive is about 6.7 times the old 270 MW (about 1.8 GW) for the 3 minutes a tank lasts, about 23 percent of the sink.
