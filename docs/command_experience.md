@@ -65,3 +65,7 @@ Each layer unlocks after the player has used the previous one twice; terse mode 
 - The left-tap radial on contact rows is removed; the contact radial (D) stays on right-click.
 - Every crew call has a "0 Wait" option, always available.
 - The scope shows hostile-launched missiles (red dots, trail, seconds to impact), tracked contacts' estimated tracks and our flight plan.
+
+## Two tutorials (decision, 2026-11-20)
+- **Story tutorial (exists):** the current Act 1 tutorial hunt, taught inside the fiction with the crew.
+- **Officer training (new, stand-alone):** a separate mode that puts a ship in a sandbox, for learning and practising the systems outside the story: stations and autonomy modes, screens and navigation, hailing and identification, firing solutions and hit probabilities, brace and g limits, maneuvers and flips. It uses the sandbox panel and maneuver test matrix already planned (docs/ship_animation_and_sandbox.md) and the layered tutorial steps above, but is playable any time and repeatable.
