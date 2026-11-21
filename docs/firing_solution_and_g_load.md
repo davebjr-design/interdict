@@ -4,7 +4,7 @@ Decisions from Dave, with the proposed mechanics. Not built yet unless marked.
 
 ## 1. Drive pegged to gravity
 - Normal drive is 1 g. Transit is accelerate, flip at the halfway point, decelerate at 1 g. Combat manoeuvring is separate and uses higher loads.
-- Proposed values (to confirm): redline about 3 g for about 30 s; emergency about 6 g for a few seconds; flip time open (currently about 150 s).
+- Confirmed values (Dave, 2026-11-20): normal drive 1 g; redline about 3 g for about 30 s; emergency about 6 g for a few seconds. Flip time comes from the maneuver aggressiveness in section 1a, not a fixed 150 s.
 - Skyscraper decks stack along the thrust axis, so a 1 g burn gives a real floor; the flip is free fall.
 
 ## 2. Per-character g tolerance
@@ -26,3 +26,18 @@ Decisions from Dave, with the proposed mechanics. Not built yet unless marked.
 - Sometimes the officer has a hunch (for example "I think they'll break left"). It arrives as a call card with options: take the hunch, stay on the numbers, or wait (Wait is always available).
 - The hunch is drawn from the target's real hidden state, with accuracy set by the officer's skill. Good officers are right more often than not, but never always.
 - A wrong hunch costs the shot; the result feeds the officer's standing with the captain.
+
+
+## 1a. Maneuver aggressiveness and flip g
+- Felt g at a crew position from a flip has two parts: spin-up (angular acceleration x distance from the pivot) and centripetal (spin rate squared x distance). Both peak at the halfway point of a bang-bang flip, where the centripetal part is about pi times the spin-up part. Peak felt g = sqrt(1 + pi^2) * alpha * r, about 3.3 * alpha * r.
+- A 180 degree flip takes T = 2 * sqrt(pi / alpha); peak spin rate is sqrt(pi * alpha). Flip time scales with the square root of the distance r from the pivot.
+- Crew distance: assume 50-70 m for the farthest crewed deck (CIC is at the bow, about 57 m from the hull's middle). The layout stays as it is: the crew section is forward so the dangerous aft sections can be severed and jettisoned in an emergency (see the hull spec).
+- Presets (peak felt g at the far deck; flip time for r = 50-70 m): normal 0.25 g, about 29-34 s; firm 1 g, about 15-17 s; combat 3 g, about 8-10 s; emergency 6 g, about 6-7 s (rare). During a flip the main engine is off; during a turn-and-burn the two loads add as vectors.
+- Plotted turn points are known ahead, so the crew automatically call for brace shortly before each turn (strapping in takes about 6 s, so about 10 s ahead for combat-grade turns; none for normal ones).
+
+## 5. Why the limits exist (design theory, 2026-11-20)
+Without crew limits a firing solution is nearly worthless: as soon as a vampire is detected the target could max its engines and cover a huge distance, so any predicted position would be wrong. The crew's g tolerance bounds how hard any ship can accelerate, which bounds the reachable set (radius 0.5 * a_max * t^2) and gives the firing solution something real to compute: a hit probability, and sometimes a no-escape zone.
+- Aggressive maneuvering is penalised, not forbidden. Above about 2 g the crew accumulate fatigue and station efficiency falls; above individual tolerance they black out. The evader trades safety from the missile against the health of its own crew, and the player feels that trade on their own ship.
+- The same bound applies to us: our best dodge is limited by Abara's and the crew's tolerance, and braced crew (reduced fatigue, cannot be thrown) can take more than unbraced ones.
+- Identifying a target tells you its class and so its limits, which shrinks the reachable disc. That gives probing, hailing and identification a direct combat payoff.
+- Per-character tolerance means a ship's best evasion depends on who is aboard, and crew training or recruitment can move it.
