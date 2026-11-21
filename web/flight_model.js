@@ -18,6 +18,16 @@
   const SHIP = {   // the 140 m hull: about 11,000 t, 100 percent drive 0.15 g, redline 0.4 g for about 3 minutes, emergency 2.5 g for about 9 seconds, RCS spin 5.6e-4 rad/s2 (a 180 degree flip is about 150 s)
     mass: 11e6, a100: 0.15 * G0, aRedline: 0.4 * G0, aEmergency: 2.5 * G0, redlineT: 180, emergencyT: 9,
     alpha: 5.6e-4, alphaGimbal: 5e-3, omegaMax: 0.05, isp: 8000, tank: 250e3 };
+  // ---- maneuver aggressiveness (docs/firing_solution_and_g_load.md s1a): the peak g felt at the farthest crewed deck sets the spin acceleration.
+  // Felt g = sqrt((alpha r)^2 + (w^2 r)^2); at the midpoint of a bang-bang flip w^2 = pi alpha, so the peak is sqrt(1 + pi^2) alpha r (about 3.3 alpha r). Flip time scales with sqrt(r).
+  const MANEUVER = { normal: 0.25, firm: 1, combat: 3, emergency: 6 };   // peak felt g at the far deck
+  SHIP.crewR = 57;   // m from the pivot to the farthest crewed deck (the CIC at the bow)
+  const FLIPK = Math.sqrt(1 + Math.PI * Math.PI);
+  function maneuverShip(mode, r = SHIP.crewR) {   // ship overrides for plan({ ship }): alpha from the target peak g; omegaMax lifted so it never binds
+    const g = typeof mode === 'number' ? mode : MANEUVER[mode]; if (!(g > 0)) throw new Error('unknown maneuver ' + mode);
+    const alpha = g * G0 / (FLIPK * r); return { alpha, omegaMax: 2 * Math.sqrt(Math.PI * alpha), crewR: r, maneuver: typeof mode === 'string' ? mode : null };
+  }
+  const rotG = (alpha, w, r = SHIP.crewR) => Math.hypot(alpha * r, w * w * r) / G0;   // g felt at distance r from the pivot with spin acceleration alpha and spin rate w
   const TAU = 2 * Math.PI, EPS = 1e-9;
   const wrap = x => { x = (x + Math.PI) % TAU; if (x < 0) x += TAU; return x - Math.PI; };
   const len = v => Math.hypot(v.x, v.y), sub = (a, b) => ({ x: a.x - b.x, y: a.y - b.y }), add = (a, b) => ({ x: a.x + b.x, y: a.y + b.y }), mul = (a, k) => ({ x: a.x * k, y: a.y * k });
@@ -155,6 +165,6 @@
     for (const sg of pl.segs) { const end = sg.t0 + sg.dur; while (t < end - 1e-9) { const h = Math.min(dt, end - t); s = step(s, sg.kind === 'rotate' ? { thrust: 0, psiTarget: wrap(sg.psi0 + sg.dth) } : { thrust: sg.thrust, psiTarget: sg.psi0 }, h, S); t += h; } }
     return s;
   }
-  const API = { SHIP, G0, plan, hold, replan, stateAt, step, slew, rotTime, rotAt, sample, runPlan, propellant, wrap, stopDistance: (v, a) => v * v / (2 * a), unit, len, ang };
+  const API = { SHIP, G0, MANEUVER, maneuverShip, rotG, plan, hold, replan, stateAt, step, slew, rotTime, rotAt, sample, runPlan, propellant, wrap, stopDistance: (v, a) => v * v / (2 * a), unit, len, ang };
   root.Flight = API; if (typeof module !== 'undefined') module.exports = API;
 })(typeof window !== 'undefined' ? window : globalThis);
