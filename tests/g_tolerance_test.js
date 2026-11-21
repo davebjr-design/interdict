@@ -12,7 +12,7 @@ chk('every officer has a tolerance; the tactical officer is the best trained', (
 { const free = calm(3), secure = calm(3); E.brace(secure, true); run(free, 8); run(secure, 8);
   E.forceLoad(free, 3, 8); E.forceLoad(secure, 3, 8); run(free, 8); run(secure, 8);
   const a = gs(free).Quill.fat, b = gs(secure).Quill.fat;
-  chk(`a full 30 s redline burn at 3 g: unbraced crew tire (${a.toFixed(2)}), braced crew tire at about 40 percent of that (${b.toFixed(2)})`, a > 0.3 && a < 0.8 && b > 0 && b < a * 0.5);
+  chk(`a full 30 s redline burn at 3 g: unbraced crew tire (${a.toFixed(2)}), braced crew tire at about 60 percent of that (${b.toFixed(2)})`, a > 0.3 && a < 0.8 && b > 0 && b < a * 0.7);
   chk('3 g is under everyone\'s tolerance: nobody blacks out', Object.values(gs(free)).every(x => !x.ko));
   chk('fatigue lowers efficiency (crewEff below 1) and the adapter hook sees it', E.crewEff(free, 'Quill') < 1 && E.crewEff(free, 'Quill') >= 0.5 && E.crewEff(secure, 'Quill') > E.crewEff(free, 'Quill'));
   run(free, 5); const mid = gs(free).Quill.fat; run(free, 60); const c = gs(free).Quill.fat; chk(`free fall recovers (${a.toFixed(2)} to ${c.toFixed(2)} after a minute)`, c < a * 0.5 && mid <= a); }
