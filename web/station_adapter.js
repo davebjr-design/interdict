@@ -49,8 +49,8 @@
     function fireSalvo(s, id, p) {
       const a = s.an[id]; if (!a) return false;
       if (a.state === 'open') { E.lockContact(s, id); return false; }   // first lock it; the crew will call when the solution is good
-      const f = Presets.toFire(p); let n = 0;
-      for (let k = 0; k < f.tubes; k++) if (E.fire(s, id, null, f.cone, f.kind, f.homing)) n++;
+      const f = Presets.toFire(p); let n = 0; const hc = s.hunchCone && s.hunchCone.id === id && s.t < s.hunchCone.until ? s.hunchCone.delta : 0, cone = Math.max(2, f.cone + hc);   // a taken hunch bends the cone
+      for (let k = 0; k < f.tubes; k++) if (E.fire(s, id, null, cone, f.kind, f.homing)) n++;
       return n > 0;
     }
     function linkGate(o, need) {   // a manoeuvre that would break a laser probe link: ask first (call H2P: Hold course / Turn anyway / Switch probes to radio)

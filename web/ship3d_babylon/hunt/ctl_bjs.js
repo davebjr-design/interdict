@@ -68,6 +68,8 @@ window.CTL_INIT = function () {
       case 'act:challenge': order('comms', 'challenge', 'Challenge' + lab, d); snd('click'); break;
       case 'act:rescan': order('sensors', 'rescan', 'Rescan' + lab, d); snd('click'); break;
       case 'act:refresh': order('fire', 'refresh', 'Refresh solution' + lab, d); snd('click'); break;
+      case 'act:decoy': if (E.launchDecoy(S(), 60)) snd('click'); break;
+      case 'act:destruct': if (E.commandDestruct(S())) snd('fire'); break;
       case 'act:mark': order('weapons', 'mark_hostile', 'Mark hostile' + lab, d); snd('click'); break;
       case 'act:quiet': order('sensors', 'quiet', 'Go quiet'); snd('click'); break;
       case 'fire': order('weapons', 'fire', 'Fire' + lab, d); closeGuard(); snd('fire'); C.shake(.3); break;
@@ -92,6 +94,8 @@ window.CTL_INIT = function () {
       case 'guard': toggleGuard(); break;
       default:
         if (/^spd:v\d$/.test(id)) { const k = id.slice(4); order('helm', 'speed', 'Speed ' + speedOf(k) + '%', { speed: k }); snd('click'); }
+        else if (/^rs:[\d.]+$/.test(id)) { S().runSilent = +id.slice(3); snd('click'); }
+        else if (/^hunch:(take|numbers|wait):/.test(id)) { const m = id.split(':'); E.hunchAnswer(S(), m.slice(2).join(':'), m[1]); snd('click'); }
         else if (id.startsWith('sel:')) select(+id.slice(4));
         else if (/^scope:\d+$/.test(id)) { select(+id.slice(6)); if (window.SHIPNAV) window.SHIPNAV.scope(+id.slice(6)); }
         else if (/^tidgo:\d+$/.test(id)) { select(+id.slice(6)); if (window.SHIPNAV) window.SHIPNAV.go('tid'); }
