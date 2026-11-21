@@ -96,7 +96,7 @@
     if (id === 'nav:undo') { N.draft.pop(); if (N.draft.length) N.draft[N.draft.length - 1].kind = 'stop'; N.sel = null; return { ok: true }; }
     if (id === 'nav:clear') { N.draft = []; N.sel = null; return { ok: true }; }
     if (id === 'nav:engage') { if (!N.draft.length) { toast('Nothing plotted', 'w'); return { ok: false }; } if (root.CTL_ORDER) root.CTL_ORDER('helm', 'route', 'Flight plan, ' + N.draft.length + ' waypoint' + (N.draft.length > 1 ? 's' : ''), { pts: N.draft.map(q => Object.assign({}, q)) }); N.draft = []; N.sel = null; return { ok: true }; }
-    return { ok: true };
+    return null;   // not ours (nav:scope, nav:contacts, nav:tid, nav:back belong to the ship layer)
   }
   root.NAVUI = { act, N };
 })(typeof window !== 'undefined' ? window : globalThis);

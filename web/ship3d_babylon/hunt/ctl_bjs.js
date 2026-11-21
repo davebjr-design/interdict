@@ -86,7 +86,8 @@ window.CTL_INIT = function () {
       case 'time': { const n = C.tscale === 1 ? 2 : C.tscale === 2 ? 4 : 1; C.setTime(n); toast('Time x' + n); break; }
       case 'call:wait': { const c = topCall(); if (c && c.state === 'raised' && M().standBy(c.id)) { snd('click'); toast(String(c.officer).toUpperCase() + ': standing by, Captain.', 'g'); say(c.officer, 'Standing by, Captain.', 2); } else toast('Nothing to wait on', 'w'); break; }
       case 'sel:next': selStep(1); break;
-      case 'nav:scope': case 'nav:contacts': case 'nav:tid': if (window.SHIPNAV) window.SHIPNAV.go(id.slice(4)); break;
+      case 'nav:scope': case 'nav:contacts': case 'nav:tid': case 'nav:nav': if (window.SHIPNAV) window.SHIPNAV.go(id.slice(4)); break;
+      case 'nav:back': if (window.SHIPNAV) window.SHIPNAV.back(); snd('click'); break;
       case 'sel:prev': selStep(-1); break;
       case 'guard': toggleGuard(); break;
       default:
@@ -106,7 +107,7 @@ window.CTL_INIT = function () {
   function activate(id, opt) {
     opt = opt || {};
     if (/^sel:\d+$/.test(id)) { const t = now(), last = LX.lastSel; LX.lastSel = { id, t }; if (last && last.id === id && t - last.t < 450) { LX.lastSel = null; return activate('stgo:' + id.slice(4), opt); } }   // double-click a contact row: the next step for it
-    if (id.startsWith('nav:') && window.NAVUI) { window.CTL_ORDER = order; window.CTL_TOAST = toast; return window.NAVUI.act(id, opt); }
+    if (id.startsWith('nav:') && window.NAVUI) { window.CTL_ORDER = order; window.CTL_TOAST = toast; const r = window.NAVUI.act(id, opt); if (r) return r; }
     if (id === 'fire' && !LX.guardUp) { openGuard(); return { ok: true, armed: true }; }
     const c = can(id); if (c.ok === false) { deny(c.why); return c; }
     if (id === 'fire') return run('fire');
