@@ -120,6 +120,16 @@
     g.textAlign = 'center'; g.font = '16px ' + F; thr.forEach((o, i) => { g.fillStyle = o.s[0]; g.fillText('S' + (o.a.id + 1) + ' ' + o.s[1] + ' ' + o.r.toFixed(0), cx, 596 + i * 18); });
     const tc = root.CTL && root.CTL.topCall && root.CTL.topCall(); g.textAlign = 'center'; if (tc) { g.fillStyle = Math.floor(t * 2) % 2 ? C.amb : C.txt; g.font = 'bold 19px ' + F; g.fillText(String(tc.officer).toUpperCase() + ' CALLING', cx, 712); } else { g.fillStyle = C.dim; g.font = '18px ' + F; g.fillText('NO CALLS WAITING', cx, 712); }
     g.textAlign = 'left';
+    // g-load gauge and brace warning (Dave, 2026-11-20): what the crew feel now, where it sits against 1 g (cruise), 2 g (fatigue starts), 3 g (redline) and the weakest crew's blackout limit
+    { const gp = E.gPhys ? E.gPhys(S) : (S.gNow || 0), crew = E.gState ? E.gState(S).filter(x => !x.ko) : [], tol = crew.length ? Math.min(...crew.map(x => x.tol)) : 0, X = 304, Wd = 160, Y0 = 112, col = gp > 3 ? C.red : gp > 2 ? C.amb : gp > 1.05 ? C.cya : C.grn;
+      g.save(); g.fillStyle = 'rgba(2,12,18,.82)'; g.fillRect(X - 8, Y0 - 6, Wd + 16, 62); g.strokeStyle = C.line; g.lineWidth = 2; g.strokeRect(X - 8, Y0 - 6, Wd + 16, 62);
+      txt(g, 'G ' + gp.toFixed(2), X, Y0 + 14, 24, col); g.textAlign = 'right'; g.fillStyle = C.dim; g.font = '15px ' + F; g.fillText(gp < .05 ? 'FREE FALL' : (S.gSpin || 0) > (S.gNow || 0) ? 'FLIP' : 'BURN', X + Wd, Y0 + 12); g.textAlign = 'left';
+      const sc = Wd / 6; g.fillStyle = '#ffffff18'; g.fillRect(X, Y0 + 26, Wd, 8); g.fillStyle = col; g.fillRect(X, Y0 + 26, Math.min(Wd, gp * sc), 8);
+      [1, 2, 3].forEach(v => { g.fillStyle = v === 2 ? C.amb : C.dim; g.fillRect(X + v * sc - 1, Y0 + 22, 2, 16); }); if (tol) { g.fillStyle = C.red; g.fillRect(X + Math.min(6, tol) * sc - 1, Y0 + 22, 3, 16); }
+      const me = E.PLAYER || {}, up = E.upcomingLoad && S.nav ? E.upcomingLoad(S, (me.braceTime || .4) * 2 * 60) : null, tired = crew.some(x => x.fat >= .3);
+      if (up && S.brace !== 'secure') { if (Math.floor(t * 3) % 2 === 0) txt(g, 'BRACE ' + up.g.toFixed(1) + 'g ' + (up.kind === 'rotate' ? 'TURN' : 'BURN') + ' IN ' + Math.ceil(up.inGs * (E.RULES.secPerMin / 60)) + 's', X, Y0 + 52, 15, C.amb); else txt(g, S.brace === 'bracing' ? 'BRACING' : 'NOT BRACED', X, Y0 + 52, 15, C.red); }
+      else txt(g, S.brace === 'secure' ? 'CREW BRACED' : tired ? 'CREW TIRED' : 'crew free', X, Y0 + 52, 15, S.brace === 'secure' ? C.grn : tired ? C.amb : C.dim);
+      g.restore(); }
   };
   P.tiles = function (g, t) {
     const { S, A } = ctx, tc = root.CTL && root.CTL.topCall && root.CTL.topCall(); g.clearRect(0, 0, 1536, 256);
@@ -127,8 +137,9 @@
       g.fillStyle = ko ? '#1a1a1a' : down ? '#2a0e0c' : calling ? '#2e2308' : '#0b222c'; g.fillRect(x, 6, w, 244); g.strokeStyle = ko || down ? C.red : calling && Math.floor(t * 2.5) % 2 ? C.amb : hurt ? C.amb : C.line; g.lineWidth = 4; g.strokeRect(x, 6, w, 244);
       g.fillStyle = ko ? C.dim : C.txt; g.font = 'bold 36px ' + F; g.textAlign = 'left'; g.fillText(nm.toUpperCase(), x + 14, 52); g.fillStyle = C.dim; g.font = '20px ' + F; g.fillText(role, x + 14, 82);
       g.fillStyle = mode === 'hands-on' ? C.cya : mode === 'supervised' ? C.amb : C.grn; g.font = 'bold 22px ' + F; g.fillText(String(mode).toUpperCase(), x + 14, 130);
-      const stt = ko ? 'KNOCKED OUT' : down ? 'STUNNED' : hurt ? 'HURT' : calling ? 'CALLING' : 'STANDING BY'; g.fillStyle = ko || down ? C.red : hurt || calling ? C.amb : C.dim; g.font = '22px ' + F; g.fillText(stt, x + 14, 176);
-      g.fillStyle = C.dim; g.font = '16px ' + F; g.fillText('F' + (i + 1), x + 14, 232); });
+      const gf = c && c.gFat || 0, stt = ko ? (c.koCause === 'blackout' ? 'BLACKED OUT' : 'KNOCKED OUT') : down ? 'STUNNED' : hurt ? 'HURT' : gf >= .3 ? 'TIRED (G)' : calling ? 'CALLING' : 'STANDING BY'; g.fillStyle = ko || down ? C.red : hurt || calling ? C.amb : C.dim; g.font = '22px ' + F; g.fillText(stt, x + 14, 176);
+      if (c) { const tol = c.gTol != null ? c.gTol : 0, bx = x + 14, bw = w - 28; g.fillStyle = '#ffffff18'; g.fillRect(bx, 194, bw, 10); g.fillStyle = gf >= .6 ? C.red : gf >= .3 ? C.amb : C.grn; g.fillRect(bx, 194, bw * Math.min(1, gf), 10); g.fillStyle = C.dim; g.font = '15px ' + F; g.fillText('G-FATIGUE', bx, 222); g.textAlign = 'right'; g.fillText('BLACKOUT ' + (tol ? tol.toFixed(1) + ' g' : '-'), bx + bw, 222); g.textAlign = 'left'; }
+      g.fillStyle = C.dim; g.font = '16px ' + F; g.fillText('F' + (i + 1), x + 190, 82); });
   };
   const SZ = n => SIZE[n] || [W, H];
   function make(name) { const c = document.createElement('canvas'), [cw, ch] = SZ(name); c.width = cw; c.height = ch; const g = c.getContext('2d'); const o = { name, c, paint(now) { if (!ctx.S) { g.fillStyle = C.bg; g.fillRect(0, 0, cw, ch); return; } try { P[name](g, (now || performance.now()) / 1000); } catch (e) { g.fillStyle = '#400'; g.fillRect(0, 0, cw, ch); g.fillStyle = '#fff'; g.font = '20px monospace'; g.fillText(name + ' ' + e.message, 20, 60); if (!o.warned) { o.warned = 1; console.error('passive ' + name, e); } } } }; return o; }

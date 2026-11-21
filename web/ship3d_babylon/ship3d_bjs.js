@@ -549,6 +549,9 @@
         if (e.type === 'impact' && d.dmg >= 6) this.throwAvatar(Math.min(1, d.dmg / 40), 'hit');
         else if (e.type === 'jump') this.throwAvatar(.9, 'jump');
         else if (e.type === 'unsecure') this.throwAvatar(.35, 'hard burn');
+        else if (e.type === 'brace_plan') tt('BRACE: ' + d.g.toFixed(1) + ' g ' + (d.kind === 'rotate' ? 'turn' : 'burn') + ' ahead, crew are strapping in', 'w');
+        else if (e.type === 'g_tired') tt(String(d.officer).toUpperCase() + ' is tiring under the load', 'w');
+        else if (e.type === 'ko' && d.cause === 'blackout') { tt(String(d.officer).toUpperCase() + ' BLACKED OUT (g-force)', 'w'); if (d.officer === 'Abara') this.ab.ko = true; }
         else if (e.type === 'ko' && d.officer === 'Abara') this.ab.ko = true;
         else if (e.type === 'woke' && d.officer === 'Abara') this.ab.ko = false; } },
     update(S, dt) { this.events(S); dt = Math.min(dt, .1);
