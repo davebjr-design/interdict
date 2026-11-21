@@ -130,3 +130,7 @@ Still open (audit punch list): P1 prop collision in `clampIn`; tube hall racks a
 - Posture presets (silent, cruise, combat, evade) apply bundles of CTL actions; not brace. `SHIP_BJS.api.posture.set(name)`.
 - Control room: front wall scope and tiles, flanking monitors; ceiling collar of 24 lamp panels (hidden when the camera is above), pipe runs, command dais, chart table (chart texture, lamp, Abara's locked drawer), Pell's pedestal with the dead red-key slot, belts at the five stations and the command chair, handholds around the wall and by the hatches. 22 brace points are listed in `window.BRACE_POINTS.A1` (type belt/handhold/rail) for the brace system. Abara stands at the chart table.
 - Not yet: station tiles do not yet show the current order; Helm, thermal and engineering still share screens; knocked-out state not in the engine (tile reads `crew[name].ko` when it exists).
+
+## 2026-11-21 graphics pass
+- Floor retuned: lighter plating with clearer tile contrast, metallic .35 -> .06, roughness .92, bump level .55 and normal strength 2.2 -> 1.6 (the old floor mirrored consoles and read as murk), anisotropic filtering x8 on floor and wall textures.
+- Stair shafts: the 1.4 m port and starboard shafts exist as geometry with hatches; the full-height ladders inside them are NOT built yet (still just hatches). Next 3D task if wanted.

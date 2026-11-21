@@ -23,10 +23,10 @@
   const rnd = (() => { let q = 7; return () => (q = (q * 16807) % 2147483647) / 2147483647; })();
   const speckle = (g, w, h, n, a) => { for (let i = 0; i < n; i++) { const v = rnd() < .5 ? 0 : 255; g.fillStyle = 'rgba(' + v + ',' + v + ',' + v + ',' + a * rnd() + ')'; g.fillRect(rnd() * w, rnd() * h, 1 + rnd() * 2, 1 + rnd() * 2); } };
   const floorTex = ptex('floorTex', 512, 512, (g, w, h) => {
-    g.fillStyle = '#35505e'; g.fillRect(0, 0, w, h); speckle(g, w, h, 5000, .12);
-    for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) { const x = i * 256, y = j * 256; g.fillStyle = (i + j) % 2 ? '#324c59' : '#38535f'; g.fillRect(x + 4, y + 4, 248, 248);
-      g.fillStyle = 'rgba(0,0,0,.35)'; for (let a = 0; a < 7; a++) for (let b = 0; b < 7; b++) { g.beginPath(); g.arc(x + 36 + a * 30, y + 36 + b * 30, 3, 0, 6.3); g.fill(); } }
-    g.strokeStyle = '#142229'; g.lineWidth = 5; g.strokeRect(0, 0, w, h); g.beginPath(); g.moveTo(256, 0); g.lineTo(256, h); g.moveTo(0, 256); g.lineTo(w, 256); g.stroke();
+    g.fillStyle = '#4a6471'; g.fillRect(0, 0, w, h); speckle(g, w, h, 2500, .06);
+    for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) { const x = i * 256, y = j * 256; g.fillStyle = (i + j) % 2 ? '#3d5764' : '#587583'; g.fillRect(x + 4, y + 4, 248, 248);
+      g.fillStyle = 'rgba(0,0,0,.22)'; for (let a = 0; a < 7; a++) for (let b = 0; b < 7; b++) { g.beginPath(); g.arc(x + 36 + a * 30, y + 36 + b * 30, 3, 0, 6.3); g.fill(); } }
+    g.strokeStyle = '#1b2d36'; g.lineWidth = 6; g.strokeRect(0, 0, w, h); g.beginPath(); g.moveTo(256, 0); g.lineTo(256, h); g.moveTo(0, 256); g.lineTo(w, 256); g.stroke();
     g.fillStyle = '#c9a24a'; for (const [x, y] of [[8, 8], [248, 8], [8, 248], [248, 248], [264, 8], [504, 8], [8, 264], [248, 264], [264, 248], [504, 248], [264, 264], [504, 264], [264, 504], [504, 504], [8, 504], [248, 504]]) g.fillRect(x - 2, y - 2, 5, 5); }, 3, 3);
   const wallTex = ptex('wallTex', 512, 512, (g, w, h) => {
     g.fillStyle = '#2d4753'; g.fillRect(0, 0, w, h * .62); g.fillStyle = '#4a5636'; g.fillRect(0, h * .62, w, h * .38); speckle(g, w, h, 6000, .1);
@@ -47,7 +47,7 @@
       if ((i + j) % 2) { g.save(); g.beginPath(); g.rect(x + 14, y + 14, 228, 228); g.clip(); g.strokeStyle = '#c8c8c8'; g.lineWidth = 5; for (let d = -256; d < 512; d += 20) { g.beginPath(); g.moveTo(x + d, y); g.lineTo(x + d + 256, y + 256); g.stroke(); g.beginPath(); g.moveTo(x + d + 256, y); g.lineTo(x + d, y + 256); g.stroke(); } g.restore(); }
       else { g.fillStyle = '#505050'; for (let a = 0; a < 7; a++) for (let b = 0; b < 7; b++) { g.beginPath(); g.arc(x + 36 + a * 30, y + 36 + b * 30, 4, 0, 6.3); g.fill(); } }
       g.strokeStyle = '#2a2a2a'; g.lineWidth = 7; g.strokeRect(x, y, 256, 256); g.strokeStyle = '#b4b4b4'; g.lineWidth = 3; g.strokeRect(x + 9, y + 9, 238, 238); }
-    g.fillStyle = '#f0f0f0'; for (const [x, y] of RIV) { g.beginPath(); g.arc(x, y, 6, 0, 6.3); g.fill(); } }, 3, 3, 2.2);
+    g.fillStyle = '#d8d8d8'; for (const [x, y] of RIV) { g.beginPath(); g.arc(x, y, 5, 0, 6.3); g.fill(); } }, 3, 3, 1.6);
   const WW = 440, WH = 1024, wallTex2 = ptex('wallTex2', WW, WH, (g, w, h) => {
     g.fillStyle = '#2d4753'; g.fillRect(0, 0, w, h * .62); g.fillStyle = '#4a5636'; g.fillRect(0, h * .62, w, h * .38); speckle(g, w, h, 9000, .1);
     g.fillStyle = 'rgba(0,0,0,.22)'; g.fillRect(46, 70, w - 92, h * .62 - 150); g.fillStyle = 'rgba(0,0,0,.5)'; for (let k = 0; k < 8; k++) g.fillRect(70, h * .18 + k * 30, w - 140, 9);
@@ -60,7 +60,7 @@
     g.strokeStyle = '#303030'; g.lineWidth = 9; g.strokeRect(0, 0, w, h); g.fillStyle = '#b8b8b8'; g.fillRect(0, h * .62 - 5, w, 10); g.strokeStyle = '#555'; g.lineWidth = 5; for (let x = 110; x < w; x += 110) { g.beginPath(); g.moveTo(x, h * .62 + 14); g.lineTo(x, h - 40); g.stroke(); }
     g.fillStyle = '#f0f0f0'; for (let y = 24; y < h; y += 70) for (const x of [14, w - 14]) { g.beginPath(); g.arc(x, y, 5, 0, 6.3); g.fill(); } }, 1, 1, 2.2);
   const floorM = pbr('#ffffff'), wallM = pbr('#ffffff'), brass = pbr('#c9a24a', { metal: .7, rough: .4 }), steel = pbr('#5d7f90', { metal: .5 }), ringM = pbr('#8fb0bd');
-  floorM.albedoTexture = floorTex; floorM.bumpTexture = floorBump; floorM.roughness = .8; floorM.metallic = .35; wallM.albedoTexture = wallTex2; wallM.bumpTexture = wallBump; wallM.roughness = .75; wallM.metallic = .3;
+  floorM.albedoTexture = floorTex; floorM.bumpTexture = floorBump; floorM.roughness = .92; floorM.metallic = .06; floorM.bumpTexture.level = .55; for (const t of [floorTex, floorBump, wallTex2, wallBump]) t.anisotropicFilteringLevel = 8; wallM.albedoTexture = wallTex2; wallM.bumpTexture = wallBump; wallM.roughness = .75; wallM.metallic = .3;
   
   const cyl = (n, d, h, m, par, x, y, z) => { const c = B.MeshBuilder.CreateCylinder(n, { diameter: d, height: h, tessellation: 48 }, sc); c.material = m; c.parent = par || null; c.position.set(x || 0, y || 0, z || 0); return c; };
   const box = (n, w, h, d, m, par, x, y, z) => { const c = B.MeshBuilder.CreateBox(n, { width: w, height: h, depth: d }, sc); c.material = m; c.parent = par || null; c.position.set(x || 0, y || 0, z || 0); return c; };
