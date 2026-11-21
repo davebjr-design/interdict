@@ -23,6 +23,7 @@ Decisions from Dave, with the proposed mechanics. Not built yet unless marked.
 - Hit probability = seeker coverage of the uncertainty region x survival of point defense over the active time.
 
 ## 4. Officer hunch
+- Hunches should be really rare (Dave, 2026-11-20; transcribed from dictation, so confirm that this is what was meant).
 - Sometimes the officer has a hunch (for example "I think they'll break left"). It arrives as a call card with options: take the hunch, stay on the numbers, or wait (Wait is always available).
 - The hunch is drawn from the target's real hidden state, with accuracy set by the officer's skill. Good officers are right more often than not, but never always.
 - A wrong hunch costs the shot; the result feeds the officer's standing with the captain.
