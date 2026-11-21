@@ -42,3 +42,10 @@ Without crew limits a firing solution is nearly worthless: as soon as a vampire 
 - The same bound applies to us: our best dodge is limited by Abara's and the crew's tolerance, and braced crew (reduced fatigue, cannot be thrown) can take more than unbraced ones.
 - Identifying a target tells you its class and so its limits, which shrinks the reachable disc. That gives probing, hailing and identification a direct combat payoff.
 - Per-character tolerance means a ship's best evasion depends on who is aboard, and crew training or recruitment can move it.
+
+## 6. Firing solution sequence: decisions (Dave, 2026-11-21)
+- **Identification odds** (is it a warship, decoy or static) show as normal on the contact card during detection.
+- **Hit probability** (a range, low to high) shows only once the solution is resolved (SOL RDY), not on lock and not on request. Resolving the solution is what buys the number.
+- **Run-silent distance** defaults to a standard 3/4 of the way to the target (missiles go active for the last quarter). The player can move it; the officer's pick is marked.
+- **Hunches** are rarer than first proposed: about 1 solution in 10.
+- **Recall.** No general recall of missiles. The one case that matters is a premature launch where a positive identification then comes back friendly. Proposal: the officer calls "ID returned friendly" and the captain can order a command-destruct, which works only until the missiles go active at the run-silent point. The nearer to the target the run-silent point is, the longer the recall window, which ties the distance choice to this risk.
