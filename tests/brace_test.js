@@ -47,7 +47,7 @@ const calm = seed => E.newHunt(seed, { nreal: 1, entry: 'standard' });
   chk('some hunt produced an injury', !!s);
   if (s) { const k = Object.keys(s.crew).find(x => s.crew[x].inj), inj = evs(s, 'injury')[0];
     chk('injury event names the officer, station and cause', inj && inj.data.officer && inj.data.station && ['burn', 'evade'].includes(inj.data.cause));
-    chk('an injured officer works at 60 percent', E.crewEff(s, k) === 0.6 && E.crewEff(s, 'Quill') === (s.crew.Quill.inj ? 0.6 : 1));
+    { const f = x => 1 - 0.5 * (s.crew[x].gFat || 0); chk('an injured officer works at 60 percent (times any g-fatigue)', Math.abs(E.crewEff(s, k) - 0.6 * f(k)) < 1e-9 && Math.abs(E.crewEff(s, 'Quill') - (s.crew.Quill.inj ? 0.6 : 1) * f('Quill')) < 1e-9); }
     const L = AN.derive({ s, E }); chk('annunciator: CREW INJ lit while someone is hurt', L.crewinj && L.crewinj.state !== 'off' && L.crewinj.state !== undefined);
     E.setSpeed(s, 'v2'); E.treat(s, k); run(s, 8); chk('treatment takes a game minute (16 s): still hurt at 8 s', s.crew[k].inj); run(s, 14); chk('then back on station (treated event)', !s.crew[k].inj && evs(s, 'treated').length >= 1); } }
 
