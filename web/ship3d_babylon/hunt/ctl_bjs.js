@@ -103,6 +103,7 @@ window.CTL_INIT = function () {
   }
   function activate(id, opt) {
     opt = opt || {};
+    if (id.startsWith('nav:') && window.NAVUI) { window.CTL_ORDER = order; window.CTL_TOAST = toast; return window.NAVUI.act(id, opt); }
     if (id === 'fire' && !LX.guardUp) { openGuard(); return { ok: true, armed: true }; }
     const c = can(id); if (c.ok === false) { deny(c.why); return c; }
     if (id === 'fire') return run('fire');

@@ -124,5 +124,5 @@
   };
   function make(name) { const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d'); const t = new THREE.CanvasTexture(c); t.anisotropy = 4; const o = { name, c, g, t, paint(now) { cur = name; regs[name] = []; try { P[name](g, (now || performance.now()) / 1000); } catch (e) { g.fillStyle = '#400'; g.fillRect(0, 0, W, H); g.fillStyle = '#fff'; g.font = '20px monospace'; g.fillText(name + ' ' + e.message, 20, 60); if (!o.warned) { o.warned = 1; console.error('screen ' + name, e); } } t.needsUpdate = true; } }; return o; }
   function hit(name, x, y) { const r = regs[name]; if (!r) return null; for (let i = r.length - 1; i >= 0; i--) { const q = r[i]; if (x >= q.x && x <= q.x + q.w && y >= q.y && y <= q.y + q.h) return q; } return null; }
-  root.LS = { ctx, make, P, regs, hit, style, W, H, C, fmtT, fmtS, rel };
+  root.LS = { ctx, make, P, regs, hit, style, W, H, C, fmtT, fmtS, rel, reg, btn, hdr, scan, hov };
 })(window);

@@ -120,7 +120,7 @@
   } catch (e) { console.warn('hunt init', e); }
   const scrTex = n => HS.tex[n] || (HS.tex[n] = (() => { const o = LS.make(n), tex = new B.DynamicTexture('scr_' + n, o.c, sc, true, B.Texture.TRILINEAR_SAMPLINGMODE, B.Engine.TEXTUREFORMAT_RGBA, false); o.paint(performance.now()); tex.update(false); const m = new B.StandardMaterial('scrM_' + n, sc); m.disableLighting = true; m.emissiveTexture = tex; m.backFaceCulling = false; return { o, tex, m }; })());
   const polar = (g, a, rad, ry0) => { const n = new B.TransformNode('fx', sc); n.parent = g; n.position.set(Math.cos(a) * rad, 0, Math.sin(a) * rad); n.rotation.y = -a + Math.PI / 2 + (ry0 || 0); return n; };   // local z = radial outward, x = tangent
-  const SCRN = [['contacts', 'waterfall'], ['tid', 'tma'], ['engage', 'payload'], ['thermal', 'damage'], ['comms', 'contacts']];   // the five CIC stations, left to right
+  const SCRN = [['contacts', 'waterfall'], ['tid', 'tma'], ['engage', 'payload'], ['thermal', 'damage'], ['comms', 'nav']];   // the five CIC stations, left to right
   const SCR_W = .76, SCR_H = .57;   // crewed-station screens: 46% larger than the first pass (.52 x .39)
   function mkScreens(i, top) {
     if (!HS.ok || !top) return;
@@ -446,7 +446,7 @@
   const scrHit = () => { const p = sc.pick(sc.pointerX, sc.pointerY, m => !!(m.metadata && m.metadata.screen)); if (!p || !p.hit || !p.pickedMesh || !p.pickedMesh.metadata || !p.pickedMesh.metadata.screen) return null; const uv = p.getTextureCoordinates(); if (!uv) return null; const x = uv.x * LS.W, y = uv.y * LS.H; return { n: p.pickedMesh.metadata.screen, mesh: p.pickedMesh, x, y, reg: p.pickedMesh.metadata.passive ? null : LS.hit(p.pickedMesh.metadata.screen, x, y) }; };
   sc.onPointerObservable.add(pi => { if (!HS.ok) return;
     if (pi.type === B.PointerEventTypes.POINTERMOVE) { if (!st.zoom) return; const h = scrHit(pi); LS.ctx.hover = h && h.mesh === st.zoom.mesh && h.reg ? { scr: h.n, id: h.reg.id } : { scr: null, id: null }; cv.style.cursor = LS.ctx.hover.id ? 'pointer' : ''; return; }
-    if (pi.type !== B.PointerEventTypes.POINTERTAP) return; const h = scrHit(pi); if (!h) return; if (!st.zoom || st.zoom.mesh !== h.mesh) zoomTo(h.mesh); else if (h.reg) CTL.activate(h.reg.id); });
+    if (pi.type !== B.PointerEventTypes.POINTERTAP) return; const h = scrHit(pi); if (!h) return; if (!st.zoom || st.zoom.mesh !== h.mesh) zoomTo(h.mesh); else if (h.reg) CTL.activate(h.reg.id, { x: h.x, y: h.y }); });
   // screen-to-screen navigation (Dave, 2026-11-20): contact icon -> main scope with 3 flashes, ID likelihood -> Target ID
   window.SHIPNAV = { go(name) { if (st.room !== 'A1') { tt('Stations are in the control room (key 9)', 'w'); return; } const m = name === 'scope' ? sc.getMeshByName('pscr:overview') : sc.getMeshByName('scr:' + name); if (m && (!st.zoom || st.zoom.mesh !== m)) zoomTo(m); },
     scope(id) { LS.ctx.flash = { id, t0: performance.now() }; this.go('scope'); } };
@@ -572,7 +572,7 @@
   cv.addEventListener('contextmenu', e => { e.preventDefault(); radClose(); if (!HS.ok || typeof CTL === 'undefined') return; ptr.x = e.clientX; ptr.y = e.clientY; if (st.zoom) { sc.pointerX = e.offsetX; sc.pointerY = e.offsetY; const h = scrHit(); if (h && h.reg && /^sel:\d+$/.test(h.reg.id)) { CTL.select(+h.reg.id.slice(4)); radOpen(e.clientX, e.clientY, 'CONTACT ' + h.reg.id.slice(4)); return; } } radialOpen(callTree(), e.clientX, e.clientY, 'CALL', { sticky: true }); });
   addEventListener('pointerdown', e => { if (!radEl.contains(e.target) && !RADIAL.by) radClose(); });
   // station keys: F1-F8. Tap = go to that screen, tap again = back to the command view. Hold = that station's radial. Shift + key = peek (back on release).
-  const SKEY = { F1: { m: 'pscr:overview', call: true }, F2: { st: 0, stn: 'sensors' }, F3: { st: 1, stn: 'fire' }, F4: { st: 2, stn: 'weapons' }, F5: { st: 3, stn: 'thermal' }, F6: { st: 4, stn: 'comms' }, F7: { m: 'pscr:helm', stn: 'helm' }, F8: { m: 'pscr:power', stn: 'engineering' } };
+  const SKEY = { F1: { m: 'pscr:overview', call: true }, F2: { st: 0, stn: 'sensors' }, F3: { st: 1, stn: 'fire' }, F4: { st: 2, stn: 'weapons' }, F5: { st: 3, stn: 'thermal' }, F6: { st: 4, stn: 'comms' }, F7: { m: 'scr:nav', stn: 'helm' }, F8: { m: 'pscr:power', stn: 'engineering' } };
   const skMesh = d => sc.meshes.find(m => m.metadata && m.metadata.screen && (d.m ? m.name === d.m : (m.metadata.station === d.st && !m.metadata.passive)));
   const skDown = {}, bq = { timer: 0, held: false };
   function stationDown(e, k) { const d = SKEY[k]; if (!d || !HS.ok) return false; e.preventDefault(); if (skDown[k]) return true; if (st.room !== 'A1') { tt('Stations are in the control room (key 9)', 'w'); return true; }
