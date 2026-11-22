@@ -238,6 +238,7 @@ const HuntRT = (() => {
       if (a.aware && a.know < a.ai.knowLose && s.t > (a.nextFire ?? 0) - 1) { a.aware = false; report(s, 'Dace', `Contact ${a.id + 1} seems to have lost us. It is back on patrol.`, 'good'); }
     }
     s.stage = mx;
+    ourTierCalls(s);
   }
   // ---- detection: everyone always has a trace. What a ship shows depends on what it is doing; what we learn depends on that trace, our sensors, the range, and what is in the way.
   function backdrop(s, a) {   // is a bright star screen behind that contact, seen from here?
@@ -815,6 +816,25 @@ const HuntRT = (() => {
     if (!gone.length) { report(s, 'Abara', 'Nothing in flight that we can still reach, Captain.', 'info'); return false; }
     if (typeof alert === 'function') alert(s, s.me.launchAlert * 2); report(s, 'Abara', `Command-destruct sent: ${gone.length} volley${gone.length > 1 ? 's' : ''} down. That was a radio call; anyone listening heard it.`, 'bad'); evt(s, 'destruct', { n: gone.length }); return true;
   }
+  // ---- the two gauges (Dave, 2026-11-22): what we know of a contact, and what it knows of us (the officer's estimate, with error) ----
+  const OUR_TIERS = ['NO READ', 'NOTICED', 'IDENTIFIED', 'FIRM SOLUTION'], THEIR_TIERS = ['UNAWARE', 'AWARE', 'CLOSING', 'FIRM FIX'];
+  function knowledge(s, a) {
+    if (!a || a.state === 'out') return null;
+    const cl = classify(s, a), res = resolution(s, a), si = a.state === 'locked' ? solveInfo(s, a) : null, u = uncertainty(s, a);
+    const oTier = si && si.ready && !si.stale ? 3 : cl.p >= 0.8 && res >= 0.5 ? 2 : res > 0.05 ? 1 : 0, lvl = oTier === 3 ? 1 : Math.min(0.97, res * (0.55 + 0.45 * clamp((cl.p - 0.34) / 0.5, 0, 1)));
+    // the officer reads their reaction (course changes, emissions, a launch), not their instruments: lures and ghosts show none, and the estimate is noisier the less we hold the track
+    const real = a.kind === 'real', ui = a.ui = a.ui || { t: -9, e: 0, tr: 0 };
+    const nz = (rng32(((a.id + 1) * 2654435761 + Math.floor(s.t * 2)) >>> 0)() - 0.5) * 2 * 0.2 * (1 - clamp(u.conf, 0, 1)), est = real ? clamp((a.know || 0) + nz, 0, 1) : 0;
+    if (s.t - ui.t >= 0.25) { ui.tr = ui.t > -9 ? est - ui.e : 0; ui.e = est; ui.t = s.t; }
+    const tTier = est >= 0.95 ? 3 : est >= 0.62 ? 2 : est >= 0.3 ? 1 : 0;
+    return { ours: { level: lvl, tier: oTier, label: OUR_TIERS[oTier], idP: cl.p, res }, theirs: { level: est, tier: tTier, label: THEIR_TIERS[tTier], trend: ui.tr > 0.02 ? 1 : ui.tr < -0.02 ? -1 : 0, reaction: real && (a.aware || est > 0.05) } };
+  }
+  function ourTierCalls(s) {   // crew call as each of our tiers is first reached on a contact (the enemy's tiers already have calls)
+    if (s.t - (s._kcT === undefined ? -1 : s._kcT) < 0.1) return; s._kcT = s.t;
+    for (const a of s.an) { if (a.state !== 'open' && a.state !== 'locked') continue; const k = knowledge(s, a); if (!k) continue; const prev = a.oTier || 0, t = k.ours.tier;
+      if (t > prev) { if (t === 2) report(s, 'Quill', `Contact ${a.id + 1}: we are fairly sure what it is. ${Math.round(k.ours.idP * 100)} percent ${k.ours.idP >= 0.5 ? 'warship' : 'not a warship'}.`, 'info'); }
+      a.oTier = Math.max(prev, t); }
+  }
   function closeInfo(s, a) { const tau = (s.t - a.anchor.t) + 0.1, est = estAt(a, tau); return { est, d: Math.hypot(est.x - s.player.x, est.y - s.player.y) }; }
   function fireClose(s, id) {   // coilgun: instant, ignores scatter grids, short range, loud
     const a = s.an[id]; if (s.over || s.t < s.quietUntil || stunned(s, 'Abara') || !a || a.state !== 'locked' || !a.anchor || s.t < s.cwCd) return false;
@@ -1179,6 +1199,6 @@ const HuntRT = (() => {
     }
   }
   function setPellAct(s, on) { s.pellAct = !!on && s.integration >= 75; }
-  return { rsFx, firingSolution, hunchFor, hunchAnswer, launchDecoy, decoyPos, decoyLit, commandDestruct, NAV_STYLES, G_DETENTS, snapG, gBand, autoRoute, previewRoute, gPhys: gPhysNow, gState, upcomingLoad, forceLoad, knockOut, moveKo, captainTakes, captainLeaves, koOf, evt, brgOf, setPD, probe: probeSalvo, markHostile, pdIntercept, emit, setDifficulty, getDifficulty, DIFFICULTY, applyPlayer, RULES, PLAYER, AI, maneuver, trackState, redlineBurn, navBlocked, reanalyze, investigate, heatRate, visIf, arenaPlan, PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, planInfo, navState, navStart, enemyThrust, enemyState, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge, hailContact, hailLine, HAIL, roleOf, PSET, deployProbes, setProbeLink, recoverProbes, linkNeeded, MOMENTS, MOMENT_RULES, PREP, momentCheck, momentPing, moment, prep, brace, stunned, seenInc, detectLevel, SEEKER_LINEAGE, setBrace: (s, on) => brace(s, on, 'co'), braceNeeded, crewEff, treat, GLOAD, CREW };
+  return { knowledge, rsFx, firingSolution, hunchFor, hunchAnswer, launchDecoy, decoyPos, decoyLit, commandDestruct, NAV_STYLES, G_DETENTS, snapG, gBand, autoRoute, previewRoute, gPhys: gPhysNow, gState, upcomingLoad, forceLoad, knockOut, moveKo, captainTakes, captainLeaves, koOf, evt, brgOf, setPD, probe: probeSalvo, markHostile, pdIntercept, emit, setDifficulty, getDifficulty, DIFFICULTY, applyPlayer, RULES, PLAYER, AI, maneuver, trackState, redlineBurn, navBlocked, reanalyze, investigate, heatRate, visIf, arenaPlan, PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, planInfo, navState, navStart, enemyThrust, enemyState, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge, hailContact, hailLine, HAIL, roleOf, PSET, deployProbes, setProbeLink, recoverProbes, linkNeeded, MOMENTS, MOMENT_RULES, PREP, momentCheck, momentPing, moment, prep, brace, stunned, seenInc, detectLevel, SEEKER_LINEAGE, setBrace: (s, on) => brace(s, on, 'co'), braceNeeded, crewEff, treat, GLOAD, CREW };
 })();
 if (typeof module !== 'undefined') module.exports = HuntRT;

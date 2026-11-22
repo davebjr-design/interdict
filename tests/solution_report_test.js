@@ -17,4 +17,6 @@ chk('second decoy blocked while probe tube reloads', E.launchDecoy(d, 60) === fa
 chk('decoy not lit before delay, lit after', !E.decoyLit(d, d.decoys.list[0])); d.t += 2; chk('lit after delay', E.decoyLit(d, d.decoys.list[0]));
 d.t += 10; chk('decoy fades after its life', !E.decoyLit(d, d.decoys.list[0]));
 const c = E.newHunt(4, { nreal: 1, nlure: 0, entry: 'standard' }); chk('command-destruct with nothing in flight does nothing', E.commandDestruct(c) === false);
+{ const k = E.knowledge(s, t); chk('knowledge: two gauges with tiers', k && k.ours.label && k.theirs.label && k.ours.level >= 0 && k.theirs.level <= 1);
+  const l = s.an.find(x => x.kind !== 'real'); if (l) chk('a lure shows no reaction', E.knowledge(s, l).theirs.level === 0 && !E.knowledge(s, l).theirs.reaction); }
 console.log(fails ? 'SOLUTION REPORT FAILED' : 'ALL OK (solution report)'); process.exit(fails ? 1 : 0);
