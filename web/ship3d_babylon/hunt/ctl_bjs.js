@@ -13,7 +13,7 @@ window.CTL_INIT = function () {
   const C = CIC, E = C.E, LX = LS.ctx, TH = C.THREE, UI_ = window.UI, snd = n => { try { window.AUD && AUD.play(n); } catch (e) { } }, say = (w, t, p) => { try { window.AUD && AUD.say(w, t, p); } catch (e) { } };
   const S = () => C.S, A = () => C.A, M = () => C.A.model, OFF = Stations.OFFICER;
   const selA = () => { const s = S(); const a = LX.sel != null ? s.an[LX.sel] : null; return a && a.state !== 'out' ? a : null; };
-  const tag = a => 'S' + (a.id + 1), live = a => a && (a.state === 'open' || a.state === 'locked') && a.idStatus !== 'plan';
+  const tag = a => 'S' + (a.id + 1), live = a => a && (a.state === 'open' || a.state === 'locked') && a.idStatus !== 'plan' && (!E.isShown || E.isShown(a, S()));
   const modeOf = k => M().autonomy[k], now = () => performance.now();
   // ---------- selection ----------
   function select(id) { if (id == null || !S().an[id] || S().an[id].state === 'out') return; if (LX.sel !== id) snd('tick'); LX.sel = id; }

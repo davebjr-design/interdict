@@ -96,7 +96,7 @@
       const am = a0 + span / 2; g.fillStyle = C.dim; g.font = 'bold 17px ' + F; g.textAlign = 'center'; g.fillText(nm, cx + Math.cos(am) * 318, cy + Math.sin(am) * 318 + 6); });
     // scope
     g.save(); g.beginPath(); g.arc(cx, cy, R, 0, 7); g.clip(); g.fillStyle = '#03121a'; g.fillRect(0, 0, 768, 768);
-    const live = (S.an || []).filter(a => a.state !== 'out'), maxR = Math.max(30, ...live.map(a => relOf(a).rng)) * 1.15, k = R / maxR;
+    const live = (S.an || []).filter(a => a.state !== 'out' && (!ctx.E || !ctx.E.isShown || ctx.E.isShown(a, S))), maxR = Math.max(30, ...live.map(a => relOf(a).rng)) * 1.15, k = R / maxR;
     g.strokeStyle = 'rgba(61,219,208,.22)'; g.lineWidth = 1.5; g.fillStyle = 'rgba(95,138,133,.9)'; g.font = '15px ' + F; for (let i = 1; i <= 3; i++) { g.beginPath(); g.arc(cx, cy, R * i / 3, 0, 7); g.stroke(); g.textAlign = 'left'; g.fillText(Math.round(maxR * i / 3), cx + 6, cy - R * i / 3 + 16); }
     for (let d = 0; d < 360; d += 30) { const a = (d - 90) * Math.PI / 180; g.beginPath(); g.moveTo(cx + Math.cos(a) * R * .93, cy + Math.sin(a) * R * .93); g.lineTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R); g.stroke(); }
     const sw = (t * .5) % (2 * Math.PI); const gr = g.createConicGradient ? g.createConicGradient(sw, cx, cy) : null; if (gr) { gr.addColorStop(0, 'rgba(61,219,208,.18)'); gr.addColorStop(.12, 'rgba(61,219,208,0)'); gr.addColorStop(1, 'rgba(61,219,208,0)'); g.fillStyle = gr; g.fillRect(0, 0, 768, 768); }

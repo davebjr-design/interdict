@@ -3,7 +3,7 @@
 const HuntRT = (() => {
   const FL = (typeof Flight !== 'undefined' && Flight) || require('./flight_model.js');   // Newtonian flight (web/flight_model.js, docs/mechanics_flight.md): SI inside, km and game minutes out
   // RULES: the world, the same for every ship. Never trimmed, never scaled by difficulty.
-  const RULES = { dmgExp: 2, sensRef: 40, visDiv: 0.2, visFloor: 0.06, visCap: 0.85, ventSig: 1, floorM: 0.12, blockM: 0.12, edge: 18, N: 8, nreal: 2, nlure: 3, arena: 240, sub: 0.05, secPerMin: 16, halfLife: 3, bait: 0.75, blastSat: 1.6, launchDetect: 1, launchSym: 1 };   // launchDetect 0: the off switch (docs/mechanics_vampire_detect.md): no launch is ever detected, every volley is first seen when its seeker lights, and our own launches use the old flat roll. launchSym 0: only our launches use the old flat roll
+  const RULES = { dmgExp: 2, sensRef: 40, visDiv: 0.2, visFloor: 0.06, visCap: 0.85, ventSig: 1, floorM: 0.12, blockM: 0.12, edge: 18, N: 8, nreal: 2, nlure: 3, arena: 240, sub: 0.05, secPerMin: 16, halfLife: 3, bait: 0.75, blastSat: 1.6, launchDetect: 1, launchSym: 1, visTier: 0, visOn: 0.4, visOff: 0.28, visTrans: 0.14 };   // launchDetect 0: the off switch (docs/mechanics_vampire_detect.md): no launch is ever detected, every volley is first seen when its seeker lights, and our own launches use the old flat roll. launchSym 0: only our launches use the old flat roll
   // PLAYER: our ship and our actions. Copied into s.me for each hunt; trims, Pell assists and decision moments touch only s.me (applyPlayer).
   const PLAYER = { hailCd: 0.4, hailAlert: 0.04, hailReach: 1.2, meltHull: 3, meltSys: 0.15, forcedRetract: 0.8, readDone: 8, pingSolve: 0.6, pingGain: 0.4, pingWeight: 2, spoolMove: 0.3, spoolDog: 11.25, spool: 3, spoolVis: 0.9, spoolHeat: 0.06, homeWarned: 0.15, missQuiet: 0.08, homePull: 0.5, missiles: 6, dispMin: 0.8, dispK: 0.03, closeDmg: 32, empRecover: 0.02, symP: 0.8, classDen: 12, sinkK: 0.7, ventFull: 4, ventMin: 0.08, forcedStop: 0.25, sensR: 120, pingAlert: 0.3, launchAlert: 0.3, launchSeen: 0.35, pingFix: 0.7, hitFix: 0.75, salvoFix: 0.5, coilAlert: 0.2, solveStale: 3, uncDen: 20, uncMin: 2, uncMax: 16, solveMin: 0.8, solveMax: 3, solveDen: 8, clutterR: 18, base: 0.02, glowFocus: 0.01, glowTrack: 0.03, chase: 5, decoyStall: 0.55, rescan: 5, engage: 1, missileSpeed: 40, alongStretch: 1.5, autoPeriod: 0.8, focusPeriod: 0.45, killR: 7, glowPell: 0.012, integrationPerMin: 0.8, fixLo: 0.35, fixSpan: 0.4, driftK: 0.9, certReady: 0.6, certBleed: 0.5, manPen: 1.5, manWin: 3, manLoss: 0.35, spdK: 0.2, backK: 0.6, quietDur: 2.5, quietCd: 10, quietHaz: 0.2, suggestShort: 0.72, tubes: 3, reload: 4, darkWindow: 6, darkHaz: 0.5, darkWarm: 4, wakeDur: 3, wakeGlow: 0.1, wpReach: 2, moveRate: 1.1, shipSpeed: 1, holdOff: 5, pingCd: 4, pingDur: 1.5, pingGlow: 0.14, selfRadius: 7, closeRange: 18, closeCd: 2, closeKill: 8, closeAcc: 0.85, closeGlow: 0.12, closeDur: 2, blastGlow: 0.08, blastDur: 1.5, nearGlow: 0.025, nearRange: 24, closeBump: 0.5, beamGlow: 0.08, beamDur: 1, beamCd: 2, beamBump: 0.35, shareReads: 2, pellFriction: 0.08, classNoise: 1, pingRounds: 3, noRedline: 0, ventAfterglow: 0, leadSpread: 1, pingReach: 2, magTotal: 60, magSalvos: 10, magLow: 12, magHe: 54, magEmp: 3, magFlare: 3, pdGrid: 'light', pdArm: 0.125, pdDur: 0.6, pdGlow: 0.08, pdAlert: 0.08, pdCold: 0.3, probeR: 22, probeCd: 0.5,
     forceAt: 1, redHeat: 1, braceTime: 0.4, braceHold: 1, gThresh: 2, runSilent: 0.75, hunchP: 0.1, hunchRight: 0.7, decoyCount: 4, decoyLife: 3, decoyBelieve: 0.7, evadeOffKm: 3, evadeAheadKm: 6, evadeCruise: 60, gStrain: 2, gFatK: 0.0167, gFatJolt: 0.12, gFatEff: 0.5, gRecover: 0.0017, gBraceTol: 1.3, gBraceFat: 0.6, gSudden: 0.85, gTol: { Quill: 4.5, Abara: 6.5, Castellan: 5, Dace: 4.5, Fenwick: 4 }, injGate: 2, injK: 0.25, impactInj: 0.3, treatTime: 1, braceReact: 1.3, braceReactMoving: 1.6, rateSecure: 0.95, rateBracing: 0.9, rateLoaded: 0.75, stunP: 0.4, stunRef: 30, koDmg: 30, koP: 0.35, koRef: 50, koMin: 1.0, koSpan: 2.0, koMove: 0.25, koEff: 0.25, stunMin: 0.4, stunSpan: 0.35, injDmg: 20, hurtQuill: 0.8, hurtDace: 0.9, hurtAbara: 1.4, hurtVent: 0.8, hurtSpool: 1.3 };   // brace (docs/mechanics_brace.md); times in game minutes (0.4 = about 6 s)
@@ -59,11 +59,11 @@ const HuntRT = (() => {
   const LOADOUTS = [   // the same fields rule our ship and theirs: sensor = how well it reads others, sig = how loud it is, crew = reaction and discipline, sink = heat capacity, spd = drive, dmg = warhead
     { id: 'cutter', cls: 'destroyer', name: 'Salvage cutter', sensor: 1.0, sig: 1.0, crew: 1.0, sink: 1.0, spd: 1.0, dmg: 1.0 },
     { id: 'picket', lineage: 'halden', cls: 'destroyer', name: 'Picket', sensor: 1.0, sig: 1.0, crew: 1.0, sink: 1.0, spd: 1.0, dmg: 1.0, blurb: 'Standard patrol ship.' },
-    { id: 'hound', lineage: 'vask', cls: 'destroyer', name: 'Hound', sensor: 1.3, sig: 1.2, crew: 1.0, sink: 0.9, spd: 1.15, dmg: 1.0, blurb: 'Sharp sensors, loud drive.' },
-    { id: 'shade', lineage: 'orrin', cls: 'cruiser', name: 'Shade', sensor: 0.9, sig: 0.72, crew: 1.0, sink: 0.9, spd: 0.9, dmg: 0.8, blurb: 'Stealthy, lightly armed.' },
+    { id: 'hound', lineage: 'vask', cls: 'destroyer', name: 'Hound', sens: { thermal: 1.3, em: 1.4, reactor: 1.0, optical: 1.2 }, sensor: 1.3, sig: 1.2, crew: 1.0, sink: 0.9, spd: 1.15, dmg: 1.0, blurb: 'Sharp sensors, loud drive.' },
+    { id: 'shade', lineage: 'orrin', cls: 'cruiser', name: 'Shade', sens: { thermal: 0.8, em: 1.2, reactor: 0.9, optical: 0.9 }, sensor: 0.9, sig: 0.72, crew: 1.0, sink: 0.9, spd: 0.9, dmg: 0.8, blurb: 'Stealthy, lightly armed.' },
     { id: 'veteran', lineage: 'vask', cls: 'cruiser', name: 'Veteran', sensor: 1.0, sig: 1.0, crew: 1.25, sink: 1.1, spd: 1.0, dmg: 1.1, blurb: 'Fast hands, vents only when it is safe.' },
     { id: 'green', lineage: 'halden', cls: 'destroyer', name: 'Green crew', sensor: 0.85, sig: 1.0, crew: 0.75, sink: 0.9, spd: 1.0, dmg: 1.0, blurb: 'Slow to react, careless about heat.' },
-    { id: 'brute', cls: 'battleship', name: 'Brute', sensor: 0.9, sig: 1.25, crew: 0.95, sink: 1.4, spd: 0.85, dmg: 1.4, blurb: 'Big heat sinks, loud, hits hard.' }];
+    { id: 'brute', cls: 'battleship', name: 'Brute', sens: { thermal: 0.8, em: 0.9, reactor: 1.1, optical: 0.9 }, sensor: 0.9, sig: 1.25, crew: 0.95, sink: 1.4, spd: 0.85, dmg: 1.4, blurb: 'Big heat sinks, loud, hits hard.' }];
   function makeBodies(r, start) {   // two bright backdrops (eclipse screens) and one or two dark planets (cover)
     const A = P.arena, out = [], far = (x, y, m) => out.every(b => Math.hypot(b.x - x, b.y - y) > m) && Math.hypot(start.x - x, start.y - y) > 70;
     const add = (kind, rad, halo, tries = 60) => { for (let i = 0; i < tries; i++) { const x = 40 + r() * (A - 80), y = 40 + r() * (A - 80); if (far(x, y, 70)) { out.push({ kind, x, y, r: rad, halo }); return; } } };
@@ -147,7 +147,7 @@ const HuntRT = (() => {
   function detectLevel(s, a) { return !a || a.state === 'disabled' ? 0 : clamp(uncertainty(s, a).conf, 0, 1); }
   const foeLevel = e => clamp(e.know || 0, 0, 1);
   function launchSeenBy(s, amt, reach = 1) {   // our launch is noticed by each live warship with the probability of its own detection level of us (the same rule as theirs): those that notice get the usual alert. Returns how many noticed. launchSym 0 / launchDetect 0: the old flat roll
-    const legacy = s.rFx() < s.me.launchSeen; let n = 0;   // one rFx draw either way, so a paired sweep stays paired
+    s.emSpike = { t: s.t, until: s.t + 0.5, v: 0.9 }; const legacy = s.rFx() < s.me.launchSeen; let n = 0;   // one rFx draw either way, so a paired sweep stays paired
     if (!RULES.launchDetect || !RULES.launchSym) { if (legacy) { alert(s, amt, reach); n = 1; } return n; }
     for (const e of s.an) if (e.kind === 'real' && e.state !== 'disabled') { const hit = s.rDet() < foeLevel(e); if (hit) { n++; const p = truePos(e, s.t); e.know = Math.min(1.2, (e.know || 0) + amt * rangeF(Math.hypot(p.x - s.player.x, p.y - s.player.y), e.ai.sensR * reach) * (blocked(s, p, s.player) ? P.blockM : 1)); } }
     return n;
@@ -177,7 +177,7 @@ const HuntRT = (() => {
         const sg = Math.hypot(aimSigma(a) * (0.5 + dGo / a.ai.aimRange) / Math.sqrt(perf(a)), blur), aim = { x: hq.x + hq.vx * (tf0 + (s.t - hq.t)) * lead + gauss(a.r) * sg, y: hq.y + hq.vy * (tf0 + (s.t - hq.t)) * lead + gauss(a.r) * sg }, tf = Math.hypot(aim.x - f.x, aim.y - f.y) / a.ai.missileSpeed;
         s.inc.push({ dmg: a.load.dmg, id: a.id, foe: true, t0: s.t, at: s.t + tf, from: { x: f.x, y: f.y }, aim, dir: Math.atan2(aim.y - f.y, aim.x - f.x), cone: a.ai.cone * (1.4 - 0.7 * clamp(((a.know || 0) - 0.33) / 0.67, 0, 1)) * a.ai.coneStill + a.ai.coneMove * Math.hypot(hq.vx, hq.vy) * tf0, disp: dispOf(a.ai, Math.hypot(aim.x - f.x, aim.y - f.y)), off: Array.from({ length: a.ai.missiles }, () => [gauss(a.r), gauss(a.r)]), stretch: a.ai.alongStretch, killR: a.ai.killR, dmgW: a.ai.dmgW });
         a.nextFire = s.t + a.ai.fireCd * (0.8 + 0.4 * a.r()) * (1.3 - 0.4 * clamp(((a.know || 0) - 0.33) / 0.67, 0, 1)) / (a.load.crew * perf(a));   // a firm fix on us means a faster rhythm
-        a.lastFire = s.t; if (a.onDecoy) { a.onDecoy.spent = true; evt(s, 'decoy_taken', { id: a.id }); a.onDecoy = null; }
+        a.lastFire = s.t; a.spike = { t: s.t, until: s.t + 0.5, em: 0.9, thermal: 0.5 }; if (a.onDecoy) { a.onDecoy.spent = true; evt(s, 'decoy_taken', { id: a.id }); a.onDecoy = null; }
         const vq = s.inc[s.inc.length - 1], roll = s.rDet(), det = !!(s.tut || (RULES.launchDetect && a.idStatus !== 'plan' && roll < detectLevel(s, a))), blind = s.seekerActive === 0 || (a.ai.blind > 0 && quiet && s.rDet() < a.ai.blind), sd = (s.seekerActive ?? a.ai.seekerActive) * (SEEKER_LINEAGE[a.load.lineage] || 1);   // one roll per volley: it is seen at launch with the probability of our detection level of the launcher (detectLevel), so a firmly tracked ship is seen, an unseen one is not; a hidden launch is only noticed when the seeker lights up
         vq.seen = det; vq.seekAt = blind || !(sd > 0) ? Infinity : Math.max(vq.t0, vq.at - sd / a.ai.missileSpeed); vq.hot = false; vq.blind = blind || !(sd > 0); vq.level = detectLevel(s, a); vq.count = a.ai.missiles; vq.via = det ? 'launch' : null;
         if (det) { markHostile(s, a); warnVampire(s, vq, 'launch'); }   // an unseen shooter is marked hostile only when its seeker lights
@@ -259,6 +259,48 @@ const HuntRT = (() => {
     if (a.kind === 'lure') return 0.55; if (a.kind === 'ghost') return 0.2; if (a.vent) return P.ventSig; if (a.state === 'disabled') return 0.1;
     const v = legVel(a, s.t); return Math.min(1, visOf(enemyAct(s, a, Math.hypot(v.vx, v.vy))) * (a.load ? a.load.sig : 1) * (a.sil || 1));
   }
+  // ---- visibility tiers (Dave, 2026-11-22): every ship has a signature and a sensor rating in the SAME four categories, and a ship is on the scope only above a threshold ----
+  //   thermal: heat and light (IR / optical array)   em: radio, radar, power pulses (spectrum analyzer, gauss meter)   reactor: neutrino / radiation line (short range)   optical: eclipse against a bright backdrop
+  //   level of a category = signature x sensor x range falloff x planet block; total = 1 - product(1 - category).  Off unless RULES.visTier is 1.
+  const CATS = ['thermal', 'em', 'reactor', 'optical'], CAT_NAME = { thermal: 'HEAT / LIGHT', em: 'EM EMISSION', reactor: 'REACTOR LINE', optical: 'ECLIPSE' }, CAT_SENSOR = { thermal: 'IR array', em: 'spectrum analyzer', reactor: 'neutrino counter', optical: 'optical array' }, CAT_RANGE = { thermal: 1, em: 1.6, reactor: 0.67, optical: 1.3 };
+  const sensOf = (who, c) => (who && who.sens && who.sens[c] != null ? who.sens[c] : (who && who.sensor) || 1);
+  function emSig(s, a) {   // radio and power: a quiet chatter floor, our pings and hails raise it, a launch is a spike
+    if (a.kind === 'lure') return 0.35; if (a.kind === 'ghost') return 0.12; const sp = a.spike && s.t < a.spike.until ? a.spike.em * (1 - (s.t - a.spike.t) / (a.spike.until - a.spike.t)) : 0;
+    return Math.min(1.5, (a.state === 'disabled' ? 0.02 : 0.1 + (a.aware ? 0.06 : 0) + (a.lit || 0) * 0.5) + sp);
+  }
+  function sigCat(s, a, c) {   // what that ship gives off in a category, 0..1.5 (our own signature is ourSigCat)
+    const real = a.kind === 'real' || a.kind === 'friend', v = enemyVis(s, a);
+    if (c === 'thermal') return (real ? 0.25 + 0.9 * v : a.kind === 'lure' ? 0.55 : 0.15) * (a.vent ? 1.6 : 1) + (a.spike && s.t < a.spike.until ? a.spike.thermal * (1 - (s.t - a.spike.t) / (a.spike.until - a.spike.t)) : 0);
+    if (c === 'em') return emSig(s, a);
+    if (c === 'reactor') return real ? (a.state === 'disabled' ? 0.1 : 0.55 + 0.5 * v) : a.kind === 'lure' ? 0.15 : 0.04;
+    return backdrop(s, a) ? (real ? 0.9 : 0.05) : 0;
+  }
+  function visBreakdown(s, a) {   // per category: signature, our sensor, range falloff, level; plus the total and a bearing error that grows as the level falls
+    const p = truePos(a, s.t), d = Math.hypot(p.x - s.player.x, p.y - s.player.y), bl = blocked(s, s.player, p) ? RULES.blockM : 1, out = {}; let miss = 1;
+    for (const c of CATS) { const sg = sigCat(s, a, c), se = sensOf(s.me, c), lv = Math.max(0, sg * se * rangeF(d, s.me.sensR * CAT_RANGE[c] * pmv(a, 'sensR', 1)) * bl); out[c] = { sig: sg, sens: se, level: lv, name: CAT_NAME[c], sensor: CAT_SENSOR[c] }; miss *= 1 - Math.min(1, lv); }
+    const total = 1 - miss; return { cats: out, total, d, bearingErr: 4 + 40 * (1 - Math.min(1, total)) };
+  }
+  function ourSigCat(s, c, who) {   // our own signature in a category, as an enemy would meet it
+    const v = ourVis(s), sp = s.emSpike && s.t < s.emSpike.until ? s.emSpike.v * (1 - (s.t - s.emSpike.t) / (s.emSpike.until - s.emSpike.t)) : 0;
+    if (c === 'thermal') return v; if (c === 'em') return Math.min(1.5, 0.1 + (s.pd === 'active' ? 0.6 : 0) + (s.t < s.quietUntil ? -0.06 : 0) + sp); if (c === 'reactor') return 0.5 * (s.t < s.quietUntil ? 0.6 : 1) + 0.4 * v; return 0.5;
+  }
+  function seenState(s, a, bd) {   // unseen / transient (a flicker with a bearing) / contact, with hysteresis so a ship near the line does not flicker
+    const t = bd.total, was = a.seen || 'unseen';
+    if (t >= RULES.visOn || (was === 'contact' && t >= RULES.visOff)) return 'contact';
+    return t >= RULES.visTrans ? 'transient' : 'unseen';
+  }
+  function updateVisibility(s) {
+    if (!RULES.visTier) return;
+    for (const a of s.an) { if (a.state === 'out') continue; const bd = a.vb = visBreakdown(s, a), ns = seenState(s, a, bd), was = a.seen || 'unseen';
+      if (ns !== was) { a.seen = ns; a.seenT = s.t; const br = Math.round((brgOf(s.player, truePos(a, s.t)) + gauss(s.rP) * bd.bearingErr + 360) % 360), n = a.id + 1;
+        const top = CATS.reduce((m, c) => bd.cats[c].level > bd.cats[m].level ? c : m, 'thermal'), why = { thermal: 'a heat bloom', em: 'an emission', reactor: 'a reactor line', optical: 'a shadow on the star' }[top];
+        if (ns === 'transient' && was === 'unseen') report(s, 'Dace', `Something faint, bearing ${String(br).padStart(3, '0')}: ${why}. Cannot call it.`, 'info');
+        else if (ns === 'contact') { if (!a.everSeen) report(s, 'Dace', `New contact, bearing ${String(br).padStart(3, '0')}. ${why[0].toUpperCase() + why.slice(1)}. Designating S${n}.`, 'caution', true); else report(s, 'Dace', `S${n} is back on the scope.`, 'info'); a.everSeen = true; }
+        else if (ns !== 'contact' && was === 'contact') report(s, 'Dace', `We have lost S${n}. It is below our sensors.`, 'caution');
+        evt(s, 'seen', { id: a.id, from: was, to: ns, bearing: br }); }
+      else a.seen = ns; }
+  }
+  const isShown = (a, s) => !RULES.visTier || (a.seen === 'contact' || a.seen === 'transient' || (a.seen === undefined && !s));
   function infoMult(s, a, ch) {   // how fast one read on this contact teaches us anything
     const p = truePos(a, s.t), d = Math.hypot(p.x - s.player.x, p.y - s.player.y), v = enemyVis(s, a), hot = a.vent ? 1.6 : 1;
     const sig = ch === 'thermal' ? (0.25 + 0.9 * v) * hot : ch === 'reactor' ? 0.55 + 0.5 * v : 1, R = (ch === 'thermal' ? s.me.sensR : ch === 'reactor' ? s.me.sensR * 0.67 : s.me.sensR * 1.3) * pmv(a, 'sensR', 1);
@@ -283,6 +325,7 @@ const HuntRT = (() => {
   const TEXT = { thermal: { strong: 'thermal bloom, strong', faint: 'faint thermal, could be nothing', none: 'nothing thermal' }, reactor: { strong: 'neutrino line, steady', faint: 'faint neutrino flutter', none: 'no reactor signature' }, occlusion: { strong: 'eclipse profile solid, one hard-edged shadow the size of a hull', none: 'eclipse profile shows no shape, nothing hull-sized' } };   // the V read is a profile (how deep and solid the shadow is), not just 'it blocks light'
   function readIsDone(s, a, ch) { const q = a.read[ch]; return !!q && (q.den >= s.me.readDone * pmv(a, 'readDone', 1) || ((!!q.blind || !!q.said) && s.t - q.t < 6)); }   // a blind channel is retried every few minutes
   function doRead(s, who, a, focus) {
+    if (RULES.visTier && a.seen !== 'contact') return;   // below the threshold there is nothing to read
     const ch = who.ch, n = a.id + 1, o = obsRead(s, a, ch, focus ? 3 : 1, focus ? 0.22 : 0.45);
     if (o === null) { const q = a.read[ch]; q.t = s.t; if (!q.said) { q.said = true; report(s, who.name, `Contact ${n}: no bright screen behind that bearing. I cannot judge it by occlusion.`, 'info'); } return; }
     const q = a.read[ch], c = cat(o.v);
@@ -618,6 +661,7 @@ const HuntRT = (() => {
     s.t += h; moveShip(s, h); foes(s); if (s.over) return;
     { const hs = stealthState(s); if (hs !== (s.heat || 'cold')) { const was = s.heat || 'cold'; s.heat = hs; if (hs === 'hot') report(s, 'Dace', 'We are running hot. Anything listening can hear us. Ease off the sensors or go quiet.', 'danger'); else if (was === 'hot') report(s, 'Dace', 'Heat is coming down. We are not shouting any more.', 'good'); } }
     enemyAI(s, h); sinkStep(s, h); if (s.over) return;
+    updateVisibility(s);
     braceStep(s, h);
     probeStep(s, h);
     if (s.spool && s.t >= s.spool.at) { s.spool = null; evt(s, 'jump', { escaped: s.an.filter(a => a.kind === 'real' && a.state !== 'disabled').length }); s.escaped = s.an.filter(a => a.kind === 'real' && a.state !== 'disabled').length; s.over = s.dog ? 'jump' : s.disabled ? 'breach' : 'breach0'; report(s, 'Abara', s.dog && s.escaped ? 'Breach drive spooled. Jumping, with hostiles left behind. Expect them to warn the next sector.' : 'Breach drive spooled. Jumping.', s.dog && s.escaped ? 'danger' : 'bad'); return; }
@@ -1199,6 +1243,6 @@ const HuntRT = (() => {
     }
   }
   function setPellAct(s, on) { s.pellAct = !!on && s.integration >= 75; }
-  return { knowledge, rsFx, firingSolution, hunchFor, hunchAnswer, launchDecoy, decoyPos, decoyLit, commandDestruct, NAV_STYLES, G_DETENTS, snapG, gBand, autoRoute, previewRoute, gPhys: gPhysNow, gState, upcomingLoad, forceLoad, knockOut, moveKo, captainTakes, captainLeaves, koOf, evt, brgOf, setPD, probe: probeSalvo, markHostile, pdIntercept, emit, setDifficulty, getDifficulty, DIFFICULTY, applyPlayer, RULES, PLAYER, AI, maneuver, trackState, redlineBurn, navBlocked, reanalyze, investigate, heatRate, visIf, arenaPlan, PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, planInfo, navState, navStart, enemyThrust, enemyState, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge, hailContact, hailLine, HAIL, roleOf, PSET, deployProbes, setProbeLink, recoverProbes, linkNeeded, MOMENTS, MOMENT_RULES, PREP, momentCheck, momentPing, moment, prep, brace, stunned, seenInc, detectLevel, SEEKER_LINEAGE, setBrace: (s, on) => brace(s, on, 'co'), braceNeeded, crewEff, treat, GLOAD, CREW };
+  return { CATS, CAT_NAME, visBreakdown, ourSigCat, updateVisibility, isShown, knowledge, rsFx, firingSolution, hunchFor, hunchAnswer, launchDecoy, decoyPos, decoyLit, commandDestruct, NAV_STYLES, G_DETENTS, snapG, gBand, autoRoute, previewRoute, gPhys: gPhysNow, gState, upcomingLoad, forceLoad, knockOut, moveKo, captainTakes, captainLeaves, koOf, evt, brgOf, setPD, probe: probeSalvo, markHostile, pdIntercept, emit, setDifficulty, getDifficulty, DIFFICULTY, applyPlayer, RULES, PLAYER, AI, maneuver, trackState, redlineBurn, navBlocked, reanalyze, investigate, heatRate, visIf, arenaPlan, PARTS, MODULES, salvage, reactOf, WARHEAD, HPMAX, dmgEst, landings, perf, symbolFor, shipClass, LOADOUTS, startVent, stopVent, ourVis, enemyVis, infoMult, backdrop, blocked, rangeF, refreshSolution, uncertainty, missilePos, setRoute, relBearing, planInfo, navState, navStart, enemyThrust, enemyState, solveInfo, resolution, P, POSTURE, ANALYSTS, THRESH, goQuiet, advice, setPellAct, newHunt, tick, assign, lockContact, dismissContact, fire, retreat, fanInfo, estAt, spreadAt, START, setOrder, setSpeed, pingContact, displayPos, SPEED, truePos, selfRisk, fireClose, closeInfo, volleyFx, cat, exposure, classify, stealthState, challenge, hailContact, hailLine, HAIL, roleOf, PSET, deployProbes, setProbeLink, recoverProbes, linkNeeded, MOMENTS, MOMENT_RULES, PREP, momentCheck, momentPing, moment, prep, brace, stunned, seenInc, detectLevel, SEEKER_LINEAGE, setBrace: (s, on) => brace(s, on, 'co'), braceNeeded, crewEff, treat, GLOAD, CREW };
 })();
 if (typeof module !== 'undefined') module.exports = HuntRT;

@@ -37,7 +37,7 @@
     g.fillStyle = C.dim; g.font = 'bold 22px ' + FONT; g.fillText('SHIP RESOURCES', x, y); g.fillStyle = C.line; g.fillRect(x, y + 12, w, 2);
     rows.forEach(([k, f, lab, col], i) => { const yy = y + 48 + i * 38; g.fillStyle = C.txt; g.font = '22px ' + FONT; g.fillText(k, x, yy); g.fillStyle = '#ffffff14'; g.fillRect(x + 220, yy - 14, 460, 24); g.fillStyle = col; g.fillRect(x + 220, yy - 14, 460 * Math.max(0, Math.min(1, f)), 24); g.fillStyle = C.txt; g.fillText(lab, x + 700, yy); });
   }
-  const live = a => a.state !== 'out';
+  const live = a => a.state !== 'out' && (!ctx.E.isShown || ctx.E.isShown(a, ctx.S));
   // two-gauge strip (Dave, 2026-11-22): what we know of the contact above, what it knows of us below (officer's estimate), each with labelled tiers
   function gauges(g, x, y, w, a, big) {
     const E = ctx.E, S = ctx.S, k = a && E.knowledge ? E.knowledge(S, a) : null; if (!k) return;
