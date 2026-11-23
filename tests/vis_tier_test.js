@@ -19,5 +19,13 @@ const o = E.visBreakdown(far, f); chk('a contact that is not seen cannot be read
   chk('our signature: rail spikes EM, gas spikes thermal', eR > eG && tG > tR);
   const w = E.visBreakdown(q, q.an[0]); chk('bearing error is a finite number of degrees', w.bearingErr > 0 && w.bearingErr < 120);
   chk('their view of us is scaled into the 0.06..0.85 band', (v => v >= 0.06 && v <= 0.85)(E.theirVis(q, q.an.find(x => x.kind === 'real') || q.an[0]))); }
+{ E.RULES.precharge = 1; const q = E.newHunt(5, { nreal: 1, nlure: 0, entry: 'standard' }); q.me.launch = 'rail'; q.pd = 'armed';
+  const e0 = E.ourSigCat(q, 'em'); E.setCharge(q, true); for (let i = 0; i < 40; i++) E.tick(q, 0.1 / 16); const eMid = E.ourSigCat(q, 'em'), c = E.capOf(q);
+  chk('charging raises our EM signature (' + e0.toFixed(2) + ' -> ' + eMid.toFixed(2) + ')', c.q > 0 && eMid > e0);
+  for (let i = 0; i < 200; i++) E.tick(q, 0.1 / 16); chk('the bank fills in about capTime and holds a steady whine', c.q >= 0.999 && Math.abs(E.ourSigCat(q, 'em') - (e0 + E.RULES.capHold)) < 0.02);
+  const g = E.newHunt(5, { nreal: 1, nlure: 0, entry: 'standard' }); g.me.launch = 'rail'; const t0 = g.an[0]; t0.state = 'locked'; t0.solve = 1; E.tick(g, 0.01);
+  chk('firing a rail with cold capacitors refuses and starts charging', E.fire(g, 0, null, 6) === false && E.capOf(g).on === true);
+  E.setLaunch(q, 'gas'); E.tick(q, 0.1 / 16); chk('switching to cold gas drops the charge and its EM', E.capOf(q).q === 0 && E.ourSigCat(q, 'em') <= e0 + 0.01);
+  E.RULES.precharge = 0; const z = E.newHunt(5, { nreal: 1, nlure: 0, entry: 'standard' }); E.setCharge(z, true); chk('flag off: charge does nothing', !z.cap || z.cap.q === 0); }
 E.RULES.visTier = 0;
 console.log(fails ? 'VIS TIER FAILED' : 'ALL OK (vis tier)'); process.exit(fails ? 1 : 0);
