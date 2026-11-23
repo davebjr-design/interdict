@@ -5,11 +5,12 @@
 (function (root) {
   'use strict';
   const LS = root.LS; if (!LS || !LS.P) return;
-  const C = LS.C, W = LS.W, H = LS.H, FONT = 'monospace', MX = 16, MY = 76, MS = 640, PX = 676, PW = 332;
+  const C = LS.C, W = LS.W, H = LS.H, FONT = 'monospace', MX = 16, MY = 76, MS = 584, PX = 676, PW = 332;
   const N = { draft: [], sel: null, style: 'standard', view: 30, v: null };
   LS.ctx.nav = N;
   const BAND = { quiet: '#3fd38a', firm: '#3ddbd0', combat: '#f0ab3a', emergency: '#ff4a3d' };
   const STYLES = ['stealth', 'standard', 'combat', 'emergency'];
+  const SPD = [['v1', '20'], ['v2', '40'], ['v3', '60'], ['v4', '80'], ['v5', '100'], ['ab', 'RED']], spdLab = k => (SPD.find(x => x[0] === k) || [0, '--'])[1];
   const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
   const toPx = (wx, wy) => ({ x: MX + MS / 2 + (wx - N.v.cx) * N.v.k, y: MY + MS / 2 + (wy - N.v.cy) * N.v.k });
   const toWorld = (x, y) => ({ x: N.v.cx + (x - MX - MS / 2) / N.v.k, y: N.v.cy + (y - MY - MS / 2) / N.v.k });
@@ -19,6 +20,19 @@
   const gOf = () => { const q = N.sel && N.draft[N.sel.i]; return !q ? null : N.sel.t === 'wp' ? (q.flip != null ? q.flip : styleDef(N.style).flip) : (q.g != null ? q.g : styleDef(N.style).g); };
   const segDist = (px, py, a, b) => { const dx = b.x - a.x, dy = b.y - a.y, l2 = dx * dx + dy * dy || 1, t = clamp(((px - a.x) * dx + (py - a.y) * dy) / l2, 0, 1); return Math.hypot(px - (a.x + t * dx), py - (a.y + t * dy)); };
 
+  // the leg / elbow strip under the map: pick any leg or elbow and set it on its own (Dave, 2026-11-23)
+  function stripUI(g, e) {
+    const y0 = MY + MS + 10, n = N.draft.length, cw = Math.min(40, Math.floor((MS - 4) / Math.max(1, n * 2)));
+    g.fillStyle = C.dim; g.font = 'bold 15px ' + FONT; g.fillText(n ? 'ROUTE' : 'ROUTE: CLICK THE MAP TO ADD WAYPOINTS', MX, y0 + 12);
+    for (let i = 0; i < n; i++) for (const k of ['leg', 'wp']) { const q = N.draft[i], on = N.sel && N.sel.t === k && N.sel.i === i, x = MX + 74 + (i * 2 + (k === 'wp' ? 1 : 0)) * cw, v = k === 'wp' ? (q.flip != null ? q.flip : 1) : (q.g != null ? q.g : 1), col = BAND[e.gBand(v)];
+      g.fillStyle = on ? col : col + '30'; g.fillRect(x, y0, cw - 2, 26); g.strokeStyle = on ? '#fff' : col; g.lineWidth = on ? 3 : 1.5; g.strokeRect(x, y0, cw - 2, 26); g.fillStyle = on ? '#04100d' : C.txt; g.font = 'bold 13px ' + FONT; g.textAlign = 'center'; g.fillText((k === 'wp' ? 'E' : 'L') + (i + 1), x + (cw - 2) / 2, y0 + 17); g.textAlign = 'left'; LS.reg(x, y0, cw - 2, 26, 'nav:sel:' + k + ':' + i, (k === 'wp' ? 'Elbow ' : 'Leg ') + (i + 1)); }
+    const y1 = y0 + 36, q = N.sel && N.draft[N.sel.i];
+    if (!q) { g.fillStyle = C.dim; g.font = '15px ' + FONT; g.fillText(n ? 'Pick a leg (L) or an elbow (E) to set it on its own. Legs: burn g and speed. Elbows: flip g and turn.' : '', MX, y1 + 24); return; }
+    if (N.sel.t === 'leg') { g.fillStyle = C.txt; g.font = 'bold 16px ' + FONT; g.fillText('LEG ' + (N.sel.i + 1) + ' SPEED', MX, y1 + 28); const cur = q.speed || styleDef(N.style).speed; SPD.forEach(([k, l], i) => LS.btn(g, MX + 150 + i * 74, y1, 70, 44, l, 'nav:spd:' + k, { col: k === 'ab' ? C.hos : C.amber, on: cur === k, fs: 20 })); }
+    else { const last = N.sel.i === N.draft.length - 1; g.fillStyle = C.txt; g.font = 'bold 16px ' + FONT; g.fillText('ELBOW ' + (N.sel.i + 1) + ' TURN', MX, y1 + 28);
+      if (last) { g.fillStyle = C.dim; g.font = '16px ' + FONT; g.fillText('Final point: the ship always stops here.', MX + 150, y1 + 28); }
+      else { LS.btn(g, MX + 150, y1, 220, 44, 'CARRY THROUGH', 'nav:kind:turn', { col: C.pas, on: q.kind !== 'stop', fs: 18 }); LS.btn(g, MX + 380, y1, 220, 44, 'STOP HERE', 'nav:kind:stop', { col: C.amber, on: q.kind === 'stop', fs: 18 }); } }
+  }
   LS.P.nav = function (g, t) {
     const s = S(), e = E(); LS.hdr(g, 'NAV PLANNER', C.pas, 'ROUTE · G · AUTO NAVIGATE');
     N.v = { cx: s.player.x, cy: s.player.y, k: MS / (2 * N.view) };
@@ -40,14 +54,15 @@
     N.draft.forEach((q, i) => { const a = toPx(prev.x, prev.y), b = toPx(q.x, q.y), gg = q.g != null ? q.g : 1, col = BAND[e.gBand(gg)];
       const selLeg = N.sel && N.sel.t === 'leg' && N.sel.i === i, selWp = N.sel && N.sel.t === 'wp' && N.sel.i === i;
       g.strokeStyle = col; g.lineWidth = selLeg ? 7 : 2; g.globalAlpha = selLeg ? 1 : .55; g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(b.x, b.y); g.stroke(); g.globalAlpha = 1;
-      g.fillStyle = '#020c0a'; g.strokeStyle = selWp ? '#fff' : BAND[e.gBand(q.flip != null ? q.flip : 1)]; g.lineWidth = selWp ? 4 : 3; g.beginPath(); g.arc(b.x, b.y, 11, 0, 7); g.fill(); g.stroke();
+      g.fillStyle = '#020c0a'; g.strokeStyle = selWp ? '#fff' : BAND[e.gBand(q.flip != null ? q.flip : 1)]; g.lineWidth = selWp ? 4 : 3; g.beginPath(); if (q.kind === 'stop' && i < N.draft.length - 1) g.rect(b.x - 11, b.y - 11, 22, 22); else g.arc(b.x, b.y, 11, 0, 7); g.fill(); g.stroke();
       g.fillStyle = '#fff'; g.font = 'bold 15px ' + FONT; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(i + 1, b.x, b.y + 1); g.textAlign = 'left';
-      g.fillStyle = col; g.font = '13px ' + FONT; g.fillText((gg).toFixed(gg % 1 ? 2 : 0) + 'g', (a.x + b.x) / 2 + 6, (a.y + b.y) / 2 - 6); prev = q; });
+      g.fillStyle = col; g.font = '13px ' + FONT; g.fillText((gg).toFixed(gg % 1 ? 2 : 0) + 'g · ' + spdLab(q.speed || styleDef(N.style).speed), (a.x + b.x) / 2 + 6, (a.y + b.y) / 2 - 6); prev = q; });
     // the ship: heading and velocity
     { const p = toPx(s.player.x, s.player.y), h = s.hdg || 0; g.save(); g.translate(p.x, p.y); g.rotate(h); g.fillStyle = '#fff'; g.beginPath(); g.moveTo(14, 0); g.lineTo(-9, 8); g.lineTo(-9, -8); g.closePath(); g.fill(); g.restore();
       const sp = Math.hypot(s.vel.vx, s.vel.vy) * 1000 / 60; if (sp > 1) { const vx = s.vel.vx / Math.hypot(s.vel.vx, s.vel.vy), vy = s.vel.vy / Math.hypot(s.vel.vx, s.vel.vy), l = Math.min(150, sp * N.v.k * 0.5); g.strokeStyle = '#ffffff90'; g.lineWidth = 2; g.beginPath(); g.moveTo(p.x, p.y); g.lineTo(p.x + vx * l, p.y + vy * l); g.stroke(); } }
     g.restore(); g.strokeStyle = C.line; g.lineWidth = 2; g.strokeRect(MX, MY, MS, MS); LS.reg(MX, MY, MS, MS, 'nav:map', 'Click to add a waypoint, a marker to set its flip g, a leg to set its burn g');
-    g.fillStyle = C.dim; g.font = '15px ' + FONT; g.fillText('SPAN ' + (2 * N.view).toFixed(0) + ' KM · MAP: ADD · MARKER: FLIP G · LEG: BURN G', MX, MY + MS + 22);
+    g.fillStyle = C.dim; g.font = '15px ' + FONT; g.fillStyle = 'rgba(2,12,10,.75)'; g.fillRect(MX + 1, MY + MS - 24, 500, 22); g.fillStyle = C.dim; g.font = '14px ' + FONT; g.fillText('SPAN ' + (2 * N.view).toFixed(0) + ' KM · MAP: ADD · MARKER: ELBOW · LEG: BURN', MX + 6, MY + MS - 9);
+    stripUI(g, e);
     LS.btn(g, MX + MS - 100, MY + 8, 44, 40, '+', 'nav:zoom+', { fs: 26, col: C.pas }); LS.btn(g, MX + MS - 50, MY + 8, 44, 40, '-', 'nav:zoom-', { fs: 26, col: C.pas });
     // ---- right panel: auto navigate
     g.fillStyle = C.dim; g.font = 'bold 20px ' + FONT; g.fillText('AUTO NAVIGATE', PX, MY + 14);
@@ -91,6 +106,9 @@
     }
     if (id.startsWith('nav:style:')) { N.style = id.slice(10); N.draft.forEach(q => applyStyle(q, N.style)); toast('AUTO NAVIGATE: ' + styleDef(N.style).label.toUpperCase() + (N.draft.length ? ' (route re-plotted)' : ' (applies to the next waypoint)'), 'g'); return { ok: true }; }
     if (id.startsWith('nav:g:')) { const v = +id.slice(6), q = N.sel && N.draft[N.sel.i]; if (!q) { toast('Click a marker or a leg first', 'w'); return { ok: true }; } if (N.sel.t === 'wp') q.flip = v; else q.g = v; if (v > s.me.gStrain) toast(v + ' g is over the 2 g strain line: every use tires the crew', 'w'); return { ok: true }; }
+    if (id.startsWith('nav:sel:')) { const [, , k, i] = id.split(':'); if (N.draft[+i]) N.sel = { t: k, i: +i }; return { ok: true }; }
+    if (id.startsWith('nav:spd:')) { const q = N.sel && N.sel.t === 'leg' && N.draft[N.sel.i]; if (!q) { toast('Pick a leg first', 'w'); return { ok: true }; } q.speed = id.slice(8); return { ok: true }; }
+    if (id.startsWith('nav:kind:')) { const q = N.sel && N.sel.t === 'wp' && N.draft[N.sel.i]; if (!q || N.sel.i === N.draft.length - 1) { toast('Pick an elbow (not the final point) first', 'w'); return { ok: true }; } q.kind = id.slice(9); return { ok: true }; }
     if (id === 'nav:zoom+') { N.view = clamp(N.view * 0.7, 8, 120); return { ok: true }; }
     if (id === 'nav:zoom-') { N.view = clamp(N.view / 0.7, 8, 120); return { ok: true }; }
     if (id === 'nav:undo') { N.draft.pop(); if (N.draft.length) N.draft[N.draft.length - 1].kind = 'stop'; N.sel = null; return { ok: true }; }

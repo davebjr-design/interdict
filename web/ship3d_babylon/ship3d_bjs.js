@@ -529,8 +529,8 @@
     engineering: [askItem('engineering'), idItem('spd:ab', 'REDLINE'), idItem('brace', 'BRACE')],
     thermal: [askItem('thermal'), idItem('vent', 'VENT'), idItem('spd:cut', 'CUT SPEED')],
     damage: [askItem('damage'), idItem('brace', 'BRACE')], comms: [askItem('comms'), idItem('ack', 'ACK ALARMS')] });
-  const callTree = () => { const STN = mkSTN(); return [{ lab: 'QUILL', kids: STN.sensors }, { lab: 'ABARA', kids: [askItem('fire'), idItem('act:lock', 'LOCK'), idItem('fire', 'FIRE'), idItem('act:probe', 'PROBE'), idItem('post:evade', 'EVADE'), idItem('spd:v3', 'CRUISE')] }, { lab: 'CASTELLAN', kids: STN.engineering }, { lab: 'DACE', kids: STN.thermal },
-    { lab: 'FENWICK', kids: STN.damage }, { lab: 'PELL', kids: STN.comms }, { lab: 'POSTURE', kids: Object.keys(POSTURE.LAB).map(k => ({ lab: POSTURE.LAB[k].toUpperCase(), fn: () => POSTURE.set(k) })) }]; };
+  const callTree = () => { const STN = mkSTN(); return [{ lab: 'SENSORS', kids: STN.sensors }, { lab: 'WEAPONS', kids: [askItem('fire'), idItem('act:lock', 'LOCK'), idItem('fire', 'FIRE'), idItem('act:probe', 'PROBE'), idItem('post:evade', 'EVADE'), idItem('spd:v3', 'CRUISE')] }, { lab: 'ENGINEERING', kids: STN.engineering }, { lab: 'THERMAL', kids: STN.thermal },
+    { lab: 'DAMAGE', kids: STN.damage }, { lab: 'COMMS', kids: STN.comms }, { lab: 'POSTURE', kids: Object.keys(POSTURE.LAB).map(k => ({ lab: POSTURE.LAB[k].toUpperCase(), fn: () => POSTURE.set(k) })) }]; };
   // Readiness (docs/ship_conditions.md): how the crew is posted. Separate from POSTURE (how the ship moves and emits). Lamp shape plus colour so colour is never the only cue. Pell sounds the alert.
   const READY = window.READINESS = { current: 'watch', LAB: { watch: 'Standing Watch', alert: 'Alert', battle: 'Action Stations' }, SHORT: { watch: 'WATCH', alert: 'ALERT', battle: 'ACTION' }, SHAPE: { watch: '●', alert: '▲', battle: '■' }, COL: { watch: '#4cd98a', alert: '#ffb43c', battle: '#ff5a4d' },
     PELL: { watch: 'Standing watch. All stations on auto.', alert: 'Alert. All hands to stations.', battle: 'Action stations. Action stations.' },
@@ -628,7 +628,7 @@
   const skDown = {}, bq = { timer: 0, held: false };
   function stationDown(e, k) { const d = SKEY[k]; if (!d || !HS.ok) return false; e.preventDefault(); if (skDown[k]) return true; if (st.room !== 'A1') { tt('Stations are in the control room (key 9)', 'w'); return true; }
     const o = skDown[k] = { t: performance.now(), peek: e.shiftKey, held: false };
-    if (!e.shiftKey) o.timer = setTimeout(() => { o.held = true; radialOpen(d.call ? callTree() : mkSTN()[d.stn], innerWidth / 2, innerHeight / 2, d.call ? 'CALL' : (OFFR[d.stn] || '').toUpperCase(), { by: k }); }, 250);
+    if (!e.shiftKey) o.timer = setTimeout(() => { o.held = true; radialOpen(d.call ? callTree() : mkSTN()[d.stn], innerWidth / 2, innerHeight / 2, d.call ? 'CALL' : (({fire:'weapons',helm:'nav'})[d.stn] || d.stn).toUpperCase(), { by: k }); }, 250);
     else { const m = skMesh(d); if (m) zoomTo(m); }
     return true; }
   function stationUp(k) { const o = skDown[k], d = SKEY[k]; if (!o) return; delete skDown[k]; clearTimeout(o.timer);
