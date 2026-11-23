@@ -15,10 +15,10 @@
   const E = root.HuntRT || (typeof process !== 'undefined' && process.env.HUNT_ENGINE ? require(process.env.HUNT_ENGINE) : req('../web/hunt_rt_engine.js'));
   const CONES = [0, 2, 4, 6, 9, 12];
   const EXP = (typeof process !== 'undefined' && process.env.BOT_OPT) ? JSON.parse(process.env.BOT_OPT) : {};   // exploration only: BOT_OPT='{"homing":true,"stand":40}'
-  const live = s => s.an.filter(a => a.kind === 'real' && a.state !== 'disabled');
+  const live = s => E.shownAn(s).filter(a => a.kind === 'real' && a.state !== 'disabled');
   const seenInc = s => (s.inc || []).filter(v => v.seen !== false);   // the crew only know of a volley once it is detected (launch seen, or the seeker lit)
   const incoming = s => seenInc(s).length > 0;
-  const anyAware = s => s.an.some(a => a.kind === 'real' && a.aware && a.state !== 'disabled');
+  const anyAware = s => E.shownAn(s).some(a => a.kind === 'real' && a.aware && a.state !== 'disabled');
   const dist = (s, a) => { const p = E.displayPos(s, a); return Math.hypot(p.x - s.player.x, p.y - s.player.y); };
   function sinkCare(s, cautious) {
     if (s.vent.on) { if (!s.vent.forced && s.sink.h < (cautious ? 0.25 : 0.3)) E.stopVent(s); if (cautious && !s.vent.forced && (incoming(s) || anyAware(s)) && s.sink.h < 0.7) E.stopVent(s); return; }
@@ -43,8 +43,8 @@
     } else
     if (incoming(s)) { const v = seenInc(s)[0]; if (mem.dodge !== v) { mem.dodge = v; const dx = v.aim.x - v.from.x, dy = v.aim.y - v.from.y, d = Math.hypot(dx, dy) || 1, sg = r() < 0.5 ? 1 : -1; E.setRoute(s, [{ x: s.player.x - dy / d * 14 * sg, y: s.player.y + dx / d * 14 * sg, speed: 'v4' }]); } }
     else if (mem.dodge && s.posture !== 'route') { mem.dodge = null; E.setSpeed(s, 'v2'); }
-    for (const a of s.an) if (a.state === 'open') { const c = E.classify(s, a); if (a.idStatus === 'hostile' || (c.n >= 2 && c.post.real > 0.9)) E.lockContact(s, a.id); else if (c.n >= 2 && c.post.real < 0.04 && c.p > 0.9) E.dismissContact(s, a.id); }
-    const locked = s.an.filter(a => a.state === 'locked'), open = s.an.filter(a => a.state === 'open' && a.idStatus !== 'plan');
+    for (const a of E.shownAn(s)) if (a.state === 'open') { const c = E.classify(s, a); if (a.idStatus === 'hostile' || (c.n >= 2 && c.post.real > 0.9)) E.lockContact(s, a.id); else if (c.n >= 2 && c.post.real < 0.04 && c.p > 0.9) E.dismissContact(s, a.id); }
+    const locked = E.shownAn(s).filter(a => a.state === 'locked'), open = E.shownAn(s).filter(a => a.state === 'open' && a.idStatus !== 'plan');
     const need = locked.filter(a => !fireReady(s, a) || E.trackState(s, a).state !== 'lock');
     const focus = open.map(a => ({ a, c: E.classify(s, a) })).sort((x, y) => (y.c.post.real - x.c.post.real) || (x.c.n - y.c.n))[0];
     s.analysts.forEach((w, i) => {
@@ -75,14 +75,14 @@
     camper(s, k, r) {
       sinkCare(s, false);
       if (incoming(s)) E.goQuiet(s);
-      for (const a of s.an) if (a.state === 'open' && a.idStatus === 'hostile') E.lockContact(s, a.id);
-      for (const a of s.an) if (a.state === 'locked') { if (a.stale) E.refreshSolution(s, a.id); else if (fireReady(s, a)) E.fire(s, a.id, null, 0); }
+      for (const a of E.shownAn(s)) if (a.state === 'open' && a.idStatus === 'hostile') E.lockContact(s, a.id);
+      for (const a of E.shownAn(s)) if (a.state === 'locked') { if (a.stale) E.refreshSolution(s, a.id); else if (fireReady(s, a)) E.fire(s, a.id, null, 0); }
     },
     pingfire(s, k, r) {
       sinkCare(s, false);
       if (incoming(s)) E.goQuiet(s);
-      for (const a of s.an) if (a.state === 'open' && a.idStatus === 'hostile') E.lockContact(s, a.id);
-      for (const a of s.an) if (a.state === 'locked') {
+      for (const a of E.shownAn(s)) if (a.state === 'open' && a.idStatus === 'hostile') E.lockContact(s, a.id);
+      for (const a of E.shownAn(s)) if (a.state === 'locked') {
         if ((a.solve || 0) < 1 || a.stale) E.pingContact(s, a.id);
         if (a.stale && s.t >= s.pingCd) E.refreshSolution(s, a.id);
         if (fireReady(s, a)) E.fire(s, a.id, null, 0);
@@ -90,13 +90,13 @@
     },
     pinger(s, k, r) {
       sinkCare(s, false);
-      const open = s.an.filter(a => ['open', 'locked'].includes(a.state));
+      const open = E.shownAn(s).filter(a => ['open', 'locked'].includes(a.state));
       const tgt = open.filter(a => a.state === 'locked')[0] || open.sort((x, y) => dist(s, x) - dist(s, y))[0];
       if (tgt && (s.orderId !== tgt.id || s.posture !== 'close')) E.setOrder(s, 'close', tgt.id);
       if (tgt) E.setSpeed(s, s.sink.h > 0.8 ? 'v4' : 'ab');
       if (tgt) E.pingContact(s, tgt.id);
-      for (const a of s.an) if (a.state === 'open') { const c = E.classify(s, a); if (a.idStatus === 'hostile' || (c.n >= 2 && c.post.real > 0.45)) E.lockContact(s, a.id); else if (c.n >= 2 && c.post.real < 0.1) E.dismissContact(s, a.id); }
-      for (const a of s.an) if (a.state === 'locked') { if (a.stale) E.refreshSolution(s, a.id); if (fireReady(s, a)) E.fire(s, a.id, null, 0); if (a.anchor && E.closeInfo(s, a).d <= E.P.closeRange) E.fireClose(s, a.id); }
+      for (const a of E.shownAn(s)) if (a.state === 'open') { const c = E.classify(s, a); if (a.idStatus === 'hostile' || (c.n >= 2 && c.post.real > 0.45)) E.lockContact(s, a.id); else if (c.n >= 2 && c.post.real < 0.1) E.dismissContact(s, a.id); }
+      for (const a of E.shownAn(s)) if (a.state === 'locked') { if (a.stale) E.refreshSolution(s, a.id); if (fireReady(s, a)) E.fire(s, a.id, null, 0); if (a.anchor && E.closeInfo(s, a).d <= E.P.closeRange) E.fireClose(s, a.id); }
     },
     reader: (s, k, r, mem) => reader(s, k, r, mem, {}),
     steady: (s, k, r, mem) => reader(s, k, r, mem, Object.assign({ discipline: true, coil: true, treat: true }, EXP)),
@@ -104,12 +104,12 @@
     quiet: (s, k, r, mem) => reader(s, k, r, mem, Object.assign({ discipline: true, coil: true, treat: true, quietOrder: true }, EXP)),
     random(s, k, r) {
       if (s.sink.h > 0.9 && !s.vent.on) E.startVent(s); else if (s.vent.on && r() < 0.05) E.stopVent(s);
-      if (r() < 0.02) { const a = s.an[Math.floor(r() * s.an.length)]; if (a.state === 'open') r() < 0.5 ? E.lockContact(s, a.id) : E.dismissContact(s, a.id); }
-      if (r() < 0.05) { const w = s.analysts[Math.floor(r() * 3)], a = s.an[Math.floor(r() * s.an.length)]; E.assign(s, w.id, a.id); }
-      if (r() < 0.02) { const a = s.an[Math.floor(r() * s.an.length)]; E.pingContact(s, a.id); }
-      if (r() < 0.02) { const m = ['still', 'evade', 'close', 'separate'][Math.floor(r() * 4)], a = s.an[Math.floor(r() * s.an.length)]; E.setOrder(s, m, a.id); E.setSpeed(s, ['v1', 'v2', 'v3', 'v4', 'v5'][Math.floor(r() * 5)]); }
+      if (r() < 0.02) { const a = (E.shownAn(s)[Math.floor(r() * E.shownAn(s).length)] || { state: "x", id: 0 }); if (a.state === 'open') r() < 0.5 ? E.lockContact(s, a.id) : E.dismissContact(s, a.id); }
+      if (r() < 0.05) { const w = s.analysts[Math.floor(r() * 3)], a = (E.shownAn(s)[Math.floor(r() * E.shownAn(s).length)] || { state: "x", id: 0 }); E.assign(s, w.id, a.id); }
+      if (r() < 0.02) { const a = (E.shownAn(s)[Math.floor(r() * E.shownAn(s).length)] || { state: "x", id: 0 }); E.pingContact(s, a.id); }
+      if (r() < 0.02) { const m = ['still', 'evade', 'close', 'separate'][Math.floor(r() * 4)], a = (E.shownAn(s)[Math.floor(r() * E.shownAn(s).length)] || { state: "x", id: 0 }); E.setOrder(s, m, a.id); E.setSpeed(s, ['v1', 'v2', 'v3', 'v4', 'v5'][Math.floor(r() * 5)]); }
       if (r() < 0.01) E.goQuiet(s);
-      for (const a of s.an) if (a.state === 'locked') { if (a.stale && r() < 0.1) E.refreshSolution(s, a.id); if (fireReady(s, a) && r() < 0.1) E.fire(s, a.id, a.anchor.spd * (2 + 6 * r()), Math.floor(r() * 25)); }
+      for (const a of E.shownAn(s)) if (a.state === 'locked') { if (a.stale && r() < 0.1) E.refreshSolution(s, a.id); if (fireReady(s, a) && r() < 0.1) E.fire(s, a.id, a.anchor.spd * (2 + 6 * r()), Math.floor(r() * 25)); }
     }
   };
   function mkRand(seed) { let a = (seed * 2654435761) >>> 0; return () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
