@@ -88,7 +88,7 @@ window.CTL_INIT = function () {
       case 'time': { const n = C.tscale === 1 ? 2 : C.tscale === 2 ? 4 : 1; C.setTime(n); toast('Time x' + n); break; }
       case 'call:wait': { const c = topCall(); if (c && c.state === 'raised' && M().standBy(c.id)) { snd('click'); toast(String(c.officer).toUpperCase() + ': standing by, Captain.', 'g'); say(c.officer, 'Standing by, Captain.', 2); } else toast('Nothing to wait on', 'w'); break; }
       case 'sel:next': selStep(1); break;
-      case 'nav:scope': case 'nav:contacts': case 'nav:tid': case 'nav:nav': if (window.SHIPNAV) window.SHIPNAV.go(id.slice(4)); break;
+      case 'nav:scope': case 'nav:contacts': case 'nav:tid': case 'nav:fire': case 'nav:nav': if (window.SHIPNAV) window.SHIPNAV.go(id.slice(4)); break;
       case 'nav:back': if (window.SHIPNAV) window.SHIPNAV.back(); snd('click'); break;
       case 'sel:prev': selStep(-1); break;
       case 'guard': toggleGuard(); break;
@@ -101,7 +101,7 @@ window.CTL_INIT = function () {
         else if (id.startsWith('sel:')) select(+id.slice(4));
         else if (/^scope:\d+$/.test(id)) { select(+id.slice(6)); if (window.SHIPNAV) window.SHIPNAV.scope(+id.slice(6)); }
         else if (/^tidgo:\d+$/.test(id)) { select(+id.slice(6)); if (window.SHIPNAV) window.SHIPNAV.go('tid'); }
-        else if (/^stgo:\d+$/.test(id)) { const a = S().an[+id.slice(5)]; select(+id.slice(5)); if (window.SHIPNAV) window.SHIPNAV.go(a && a.state === 'locked' ? 'engage' : 'tid'); }   // state column and double-click: the next step for what the contact is now
+        else if (/^stgo:\d+$/.test(id)) { const a = S().an[+id.slice(5)]; select(+id.slice(5)); if (window.SHIPNAV) window.SHIPNAV.go(a && a.state === 'locked' ? 'fire' : 'tid'); }   // state column and double-click: the next step for what the contact is now
         else if (/^wfgo:\d+$/.test(id)) { select(+id.slice(5)); if (window.SHIPNAV) window.SHIPNAV.go('waterfall'); }   // bearing, range and age are sensor readings: the scanning panel
         else if (id.startsWith('preset:')) { const p = A().setPreset(id.slice(7)); toast('SALVO PRESET: ' + p.name.toUpperCase() + '  (' + p.pattern + ', cone ' + p.cone + ')', 'g'); snd('toggle'); }
         else if (id.startsWith('auto:')) { const [, k, m] = id.split(':'); M().setAutonomy(k, m); toast(k.toUpperCase() + ': ' + m.toUpperCase() + (m === 'hands-on' ? '  (your orders here are instant)' : ''), m === 'hands-on' ? 'w' : 'g'); snd('toggle'); }

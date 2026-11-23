@@ -120,7 +120,7 @@
   } catch (e) { console.warn('hunt init', e); }
   const scrTex = n => HS.tex[n] || (HS.tex[n] = (() => { const o = LS.make(n), tex = new B.DynamicTexture('scr_' + n, o.c, sc, true, B.Texture.TRILINEAR_SAMPLINGMODE, B.Engine.TEXTUREFORMAT_RGBA, false); o.paint(performance.now()); tex.update(false); const m = new B.StandardMaterial('scrM_' + n, sc); m.disableLighting = true; m.emissiveTexture = tex; m.backFaceCulling = false; return { o, tex, m }; })());
   const polar = (g, a, rad, ry0) => { const n = new B.TransformNode('fx', sc); n.parent = g; n.position.set(Math.cos(a) * rad, 0, Math.sin(a) * rad); n.rotation.y = -a + Math.PI / 2 + (ry0 || 0); return n; };   // local z = radial outward, x = tangent
-  const SCRN = [['contacts', 'waterfall'], ['tid', 'tma'], ['engage', 'payload'], ['thermal', 'damage'], ['comms', 'nav']];   // the five CIC stations, left to right
+  const SCRN = [['contacts', 'waterfall'], ['tid', 'fire'], ['thermal', 'damage'], ['comms', 'nav']];   // the four CIC stations (fire control replaced track, engage and payload 2026-11-23), left to right
   const SCR_W = .76, SCR_H = .57;   // crewed-station screens: 46% larger than the first pass (.52 x .39)
   function mkScreens(i, top) {
     if (!HS.ok || !top) return;
@@ -236,7 +236,7 @@
       const slot2 = box('pellslot', .16, .02, .05, pbr('#050505'), g, px, .99, pz); slot2.isPickable = false; box('pellkey', .1, .02, .035, pbr('#101010', { emit: '#7a1410', ei: .4 }), g, px, 1.0, pz).isPickable = false; }
     // brace points: belts at each station couch and the command chair, handholds flanking each console and locker, grab bars by the hatches
     const belt = (x, y, z, ry, tag) => { const b1 = box('belt', .06, .5, .02, hazM, g, x, y, z), b2 = box('belt', .06, .5, .02, hazM, g, x, y, z); b1.rotation.set(0, ry, .5); b2.rotation.set(0, ry, -.5); b1.isPickable = b2.isPickable = false; BP.push({ x, z, y, type: 'belt', tag }); };
-    for (let i = 0; i < 5; i++) { const a = -1.2 + i * .6, sx = Math.sin(a) * 3.15, sz = -Math.cos(a) * 3.15; belt(sx, .62, sz, -a + Math.PI, 'station' + i); }
+    for (let i = 0; i < 4; i++) { const a = -.9 + i * .6, sx = Math.sin(a) * 3.15, sz = -Math.cos(a) * 3.15; belt(sx, .62, sz, -a + Math.PI, 'station' + i); }
     belt(0, .62, -.9 + .25, 0, 'command');
     for (let i = 0; i < 10; i++) { const a = -1.5 + i * .33 - (i > 4 ? 0 : 0), hx = Math.sin(a) * (r - .25), hz = -Math.cos(a) * (r - .25); const bar = box('handhold', .05, .55, .05, pbr('#e8c23a', { metal: .4, rough: .5 }), g, hx, 1.2, hz); bar.isPickable = false; BP.push({ x: hx, z: hz, y: 1.2, type: 'handhold' }); }
     for (const sx of [-1, 1]) { const bar = box('hatchbar', .05, .9, .05, pbr('#e8c23a', { metal: .4, rough: .5 }), g, sx * (r - .3), 1.0, .85); bar.isPickable = false; BP.push({ x: sx * (r - .3), z: .85, y: 1.0, type: 'handhold' }); }
@@ -247,7 +247,7 @@
   function prop(kind, g, r, h) {
     if (kind === 'cic') {
       // five stations on the aft arc: a console on the wall, a seat and a crew member in front of it facing the screens
-      for (let i = 0; i < 5; i++) { const a = -1.2 + i * .6, s = Math.sin(a), c = -Math.cos(a);
+      for (let i = 0; i < 4; i++) { const a = -.9 + i * .6, s = Math.sin(a), c = -Math.cos(a);
         slot('console', rt => box('consfb', 2, .9, .7, steel, rt, 0, .45, 0), g, s * 4.15, 0, c * 4.15, { id: 'console' + i, ry: -a, ground: true, onload: h => mkScreens(i, h.getChildren()[0]) });
         slot('couch', rt => box('couch', 1.2, .5, .6, pbr('#4a4f7a'), rt, 0, .25, 0), g, s * 3.15, 0, c * 3.15, { id: 'couch' + i, ry: -a + Math.PI, ground: true, size: 1.15 });
         crewSlot(g, 'crew' + i, s * 3.33, c * 3.33, Math.PI - a, 0); }
@@ -623,7 +623,7 @@
   cv.addEventListener('contextmenu', e => { e.preventDefault(); radClose(); if (!HS.ok || typeof CTL === 'undefined') return; ptr.x = e.clientX; ptr.y = e.clientY; if (st.zoom) { sc.pointerX = e.offsetX; sc.pointerY = e.offsetY; const h = scrHit(); if (h && h.reg && /^sel:\d+$/.test(h.reg.id)) { CTL.select(+h.reg.id.slice(4)); radOpen(e.clientX, e.clientY, 'CONTACT ' + h.reg.id.slice(4)); return; } } radialOpen(callTree(), e.clientX, e.clientY, 'CALL', { sticky: true }); });
   addEventListener('pointerdown', e => { if (!radEl.contains(e.target) && !RADIAL.by) radClose(); });
   // station keys: F1-F8. Tap = go to that screen, tap again = back to the command view. Hold = that station's radial. Shift + key = peek (back on release).
-  const SKEY = { F1: { m: 'pscr:overview', call: true }, F2: { st: 0, stn: 'sensors' }, F3: { st: 1, stn: 'fire' }, F4: { st: 2, stn: 'weapons' }, F5: { st: 3, stn: 'thermal' }, F6: { st: 4, stn: 'comms' }, F7: { m: 'scr:nav', stn: 'helm' }, F8: { m: 'pscr:power', stn: 'engineering' } };
+  const SKEY = { F1: { m: 'pscr:overview', call: true }, F2: { st: 0, stn: 'sensors' }, F3: { m: 'scr:fire', stn: 'fire' }, F4: { m: 'scr:fire', stn: 'weapons' }, F5: { st: 2, stn: 'thermal' }, F6: { st: 3, stn: 'comms' }, F7: { m: 'scr:nav', stn: 'helm' }, F8: { m: 'pscr:power', stn: 'engineering' } };
   const skMesh = d => sc.meshes.find(m => m.metadata && m.metadata.screen && (d.m ? m.name === d.m : (m.metadata.station === d.st && !m.metadata.passive)));
   const skDown = {}, bq = { timer: 0, held: false };
   function stationDown(e, k) { const d = SKEY[k]; if (!d || !HS.ok) return false; e.preventDefault(); if (skDown[k]) return true; if (st.room !== 'A1') { tt('Stations are in the control room (key 9)', 'w'); return true; }
