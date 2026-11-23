@@ -115,7 +115,7 @@
   const HS = { ok: false, tex: {}, last: {} };
   if (typeof HuntRT !== 'undefined' && window.LS && window.StationAdapter && window.Annunciator) try {
     window.THREE = window.THREE || { CanvasTexture: function (c) { this.image = c; } };
-    const E = HuntRT; E.P.secPerMin = 16; HS.E = E; HS.S = E.newHunt(7, { entry: 'standard', friendly: true }); HS.A = StationAdapter.create({ engine: E, seed: 7, command: 'tight', preset: 'ambush' }); HS.A.update(HS.S, 0); HS.ANN = Annunciator.create();
+    const E = HuntRT; E.P.secPerMin = 16; E.RULES.visTier = 1; /* visibility tiers on in the 3D build */ HS.E = E; HS.S = E.newHunt(7, { entry: 'standard', friendly: true }); HS.A = StationAdapter.create({ engine: E, seed: 7, command: 'tight', preset: 'ambush' }); HS.A.update(HS.S, 0); HS.ANN = Annunciator.create();
     LS.ctx.S = HS.S; LS.ctx.E = E; LS.ctx.A = HS.A; LS.ctx.sel = null; window.CTL_HOST = { E, S: () => HS.S, A: () => HS.A, ANN: () => HS.ANN }; window.CTL_INIT(); HS.ok = true; if (window.AUD) AUD.attach(); if (window.SHIPSYS) { HS.Y = SHIPSYS.create(); if (window.PS) Object.assign(PS.ctx, { S: HS.S, E, A: HS.A, Y: HS.Y, ann: HS.ANN.update({ s: HS.S, model: HS.A.model, E }) }); }
   } catch (e) { console.warn('hunt init', e); }
   const scrTex = n => HS.tex[n] || (HS.tex[n] = (() => { const o = LS.make(n), tex = new B.DynamicTexture('scr_' + n, o.c, sc, true, B.Texture.TRILINEAR_SAMPLINGMODE, B.Engine.TEXTUREFORMAT_RGBA, false); o.paint(performance.now()); tex.update(false); const m = new B.StandardMaterial('scrM_' + n, sc); m.disableLighting = true; m.emissiveTexture = tex; m.backFaceCulling = false; return { o, tex, m }; })());
@@ -445,7 +445,7 @@
     hud();
   }
   function zoomStep() { const z = st.zoom; fp.position = B.Vector3.Lerp(fp.position, z.pos, .12); z.zt = B.Vector3.Lerp(z.zt, z.tgt, .15); fp.setTarget(z.zt); fp.fov += (.85 - fp.fov) * .12; }
-  const scrHit = () => { const p = sc.pick(sc.pointerX, sc.pointerY, m => !!(m.metadata && m.metadata.screen)); if (!p || !p.hit || !p.pickedMesh || !p.pickedMesh.metadata || !p.pickedMesh.metadata.screen) return null; const uv = p.getTextureCoordinates(); if (!uv) return null; const x = uv.x * LS.W, y = uv.y * LS.H; return { n: p.pickedMesh.metadata.screen, mesh: p.pickedMesh, x, y, reg: p.pickedMesh.metadata.passive ? null : LS.hit(p.pickedMesh.metadata.screen, x, y) }; };
+  const scrHit = () => { const p = sc.pick(sc.pointerX, sc.pointerY, m => !!(m.metadata && m.metadata.screen)); if (!p || !p.hit || !p.pickedMesh || !p.pickedMesh.metadata || !p.pickedMesh.metadata.screen) return null; const uv = p.getTextureCoordinates(); if (!uv) return null; const x = uv.x * LS.W, y = uv.y * LS.H; return { n: p.pickedMesh.metadata.screen, mesh: p.pickedMesh, x, y, reg: p.pickedMesh.metadata.passive ? (window.PS && PS.hit ? (() => { const sz = PS.SZ(p.pickedMesh.metadata.screen); return PS.hit(p.pickedMesh.metadata.screen, uv.x * sz[0], uv.y * sz[1]); })() : null) : LS.hit(p.pickedMesh.metadata.screen, x, y) }; };
   sc.onPointerObservable.add(pi => { if (!HS.ok) return;
     if (pi.type === B.PointerEventTypes.POINTERMOVE) { if (!st.zoom) return; const h = scrHit(pi); LS.ctx.hover = h && h.mesh === st.zoom.mesh && h.reg ? { scr: h.n, id: h.reg.id } : { scr: null, id: null }; cv.style.cursor = LS.ctx.hover.id ? 'pointer' : ''; return; }
     if (pi.type !== B.PointerEventTypes.POINTERTAP) return; const h = scrHit(pi); if (!h) return; if (!st.zoom || st.zoom.mesh !== h.mesh) zoomTo(h.mesh); else if (h.reg) CTL.activate(h.reg.id, { x: h.x, y: h.y }); });

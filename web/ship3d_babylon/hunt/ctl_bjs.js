@@ -94,6 +94,8 @@ window.CTL_INIT = function () {
       case 'guard': toggleGuard(); break;
       default:
         if (/^spd:v\d$/.test(id)) { const k = id.slice(4); order('helm', 'speed', 'Speed ' + speedOf(k) + '%', { speed: k }); snd('click'); }
+        else if (id === 'launch:toggle') { const s = S(); E.setLaunch(s, (s.me.launch || 'rail') === 'gas' ? 'rail' : 'gas'); snd('click'); }
+        else if (id.startsWith('flt:')) { if (window.PS && PS.toggleFlt(id.slice(4))) snd('click'); }
         else if (/^rs:[\d.]+$/.test(id)) { S().runSilent = +id.slice(3); snd('click'); }
         else if (/^hunch:(take|numbers|wait):/.test(id)) { const m = id.split(':'); E.hunchAnswer(S(), m.slice(2).join(':'), m[1]); snd('click'); }
         else if (id.startsWith('sel:')) select(+id.slice(4));

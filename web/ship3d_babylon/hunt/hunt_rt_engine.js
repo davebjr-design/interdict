@@ -298,9 +298,9 @@ const HuntRT = (() => {
     for (const a of s.an) { if (a.state === 'out') continue; const bd = a.vb = visBreakdown(s, a), ns = seenState(s, a, bd), was = a.seen || 'unseen';
       if (ns !== was) { a.seen = ns; a.seenT = s.t; const br = Math.round((brgOf(s.player, truePos(a, s.t)) + gauss(s.rP) * bd.bearingErr + 360) % 360), n = a.id + 1;
         const top = CATS.reduce((m, c) => bd.cats[c].level > bd.cats[m].level ? c : m, 'thermal'), why = { thermal: 'a heat bloom', em: 'an emission', reactor: 'a reactor line', optical: 'a shadow on the star' }[top];
-        if (ns === 'transient' && was === 'unseen') report(s, 'Dace', `Something faint, bearing ${String(br).padStart(3, '0')}: ${why}. Cannot call it.`, 'info');
-        else if (ns === 'contact') { if (!a.everSeen) report(s, 'Dace', `New contact, bearing ${String(br).padStart(3, '0')}. ${why[0].toUpperCase() + why.slice(1)}. Designating S${n}.`, 'caution', true); else report(s, 'Dace', `S${n} is back on the scope.`, 'info'); a.everSeen = true; }
-        else if (ns !== 'contact' && was === 'contact') report(s, 'Dace', `We have lost S${n}. It is below our sensors.`, 'caution');
+        if (ns === 'transient' && was === 'unseen' && s.t - (a.callT ?? -9) > 1.5) report(s, 'Dace', `Something faint, bearing ${String(br).padStart(3, '0')}: ${why}. Cannot call it.`, 'info');
+        else if (ns === 'contact') { if (!a.everSeen) report(s, 'Dace', `New contact, bearing ${String(br).padStart(3, '0')}. ${why[0].toUpperCase() + why.slice(1)}. Designating S${n}.`, 'caution', true); else if (s.t - (a.callT ?? -9) > 1.5) report(s, 'Dace', `S${n} is back on the scope.`, 'info'); a.everSeen = true; a.callT = s.t; }
+        else if (ns !== 'contact' && was === 'contact') { if (s.t - (a.callT ?? -9) > 1.5) report(s, 'Dace', `We have lost S${n}. It is below our sensors.`, 'caution'); a.callT = s.t; }
         evt(s, 'seen', { id: a.id, from: was, to: ns, bearing: br }); }
       else a.seen = ns;
       if (a.seen === 'transient' && (a.trT === undefined || s.t - a.trT > 0.4)) { a.trT = s.t; a.trErr = bd.bearingErr; a.trBrg = (brgOf(s.player, truePos(a, s.t)) + gauss(s.rP) * bd.bearingErr + 360) % 360; } }
