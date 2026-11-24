@@ -55,6 +55,8 @@ window.CTL_INIT = function () {
     if (hands) { o.ackAt = o.execAt = m.now; o.doneAt = m.now + .6; o.instant = true; }
     toast((hands ? 'DIRECT: ' : 'ORDER: ') + (note || label) + (hands ? '' : '  → ' + OFF[stn]), 'g'); return o;
   }
+  // direct controls (no crew order) still get the officer's four-part answer (web/crew_reports.js): read the ship, act, read again
+  function direct(verb, d, fn) { const CR = window.CrewReports, s = S(); if (!CR || !s) return fn(); const before = CR.snap(E, s), r0 = fn(); if (r0 === false) return r0; try { const r = CR.report({ E, s, verb, before, d: (typeof d === 'function' ? d() : d) || {}, mode: M().autonomy[(CR.OFFICER[verb] === 'Abara' ? 'weapons' : 'sensors')] || 'supervised' }); if (r && window.CREW_SAY) window.CREW_SAY(r); } catch (e) { console.warn('report', e); } return r0; }
   const speedOf = k => ({ v1: 20, v2: 40, v3: 60, v4: 80, v5: 100, ab: 'Redline' }[k]);
   function run(id) {
     const s = S(), a = selA(), d = a ? { id: a.id } : {}, lab = a ? ' ' + tag(a) : '';
@@ -68,8 +70,8 @@ window.CTL_INIT = function () {
       case 'act:challenge': order('comms', 'challenge', 'Challenge' + lab, d); snd('click'); break;
       case 'act:rescan': order('sensors', 'rescan', 'Rescan' + lab, d); snd('click'); break;
       case 'act:refresh': order('fire', 'refresh', 'Refresh solution' + lab, d); snd('click'); break;
-      case 'act:decoy': if (E.launchDecoy(S(), 60)) snd('click'); break;
-      case 'act:destruct': if (E.commandDestruct(S())) snd('fire'); break;
+      case 'act:decoy': direct('decoy', () => ({ left: S().decoys ? S().decoys.left : 0, secs: 60 }), () => E.launchDecoy(S(), 60)) && snd('click'); break;
+      case 'act:destruct': { const n = (S().volleys || []).length; if (direct('destruct', { n }, () => E.commandDestruct(S()))) snd('fire'); break; }
       case 'act:mark': order('weapons', 'mark_hostile', 'Mark hostile' + lab, d); snd('click'); break;
       case 'act:quiet': order('sensors', 'quiet', 'Go quiet'); snd('click'); break;
       case 'fire': order('weapons', 'fire', 'Fire' + lab, d); closeGuard(); snd('fire'); C.shake(.3); break;
@@ -94,7 +96,7 @@ window.CTL_INIT = function () {
       case 'guard': toggleGuard(); break;
       default:
         if (/^spd:v\d$/.test(id)) { const k = id.slice(4); order('helm', 'speed', 'Speed ' + speedOf(k) + '%', { speed: k }); snd('click'); }
-        else if (id.startsWith('tk:')) { E.setTubeKind(S(), +id.slice(3)); snd('click'); } else if (id === 'cap:all') { const s = S(), c = E.capOf(s); E.setCharge(s, !c.t.some(u => u.on)); snd('click'); } else if (id.startsWith('cap:')) { const s = S(), k = +id.slice(4), c = E.capOf(s); if (c.t[k]) E.setCharge(s, !c.t[k].on, k); snd('click'); } else if (id === 'launch:toggle') { const s = S(); E.setLaunch(s, (s.me.launch || 'rail') === 'gas' ? 'rail' : 'gas'); snd('click'); }
+        else if (id.startsWith('tk:')) { const i = +id.slice(3), s = S(); direct('kind', { n: i + 1, kind: E.tubeKind(s, i) === 'msl' ? 'PROBE' : 'MISSILE', secs: (E.RULES.tubeSwap || 0.3) * ((E.P && E.P.secPerMin) || 16) }, () => E.setTubeKind(s, i)); snd('click'); } else if (id === 'cap:all') { const s = S(), c = E.capOf(s), on = !c.t.some(u => u.on); direct(on ? 'armall' : 'bleedall', { secs: (E.RULES.capTime || 0.5) * ((E.P && E.P.secPerMin) || 16) }, () => E.setCharge(s, on)); snd('click'); } else if (id.startsWith('cap:')) { const s = S(), k = +id.slice(4), c = E.capOf(s); if (c.t[k]) { const on = !c.t[k].on; direct(on ? 'arm' : 'bleed', { n: k + 1, secs: (E.RULES.capTime || 0.5) * ((E.P && E.P.secPerMin) || 16) }, () => E.setCharge(s, on, k)); } snd('click'); } else if (id === 'launch:toggle') { const s = S(); direct('launch', {}, () => E.setLaunch(s, (s.me.launch || 'rail') === 'gas' ? 'rail' : 'gas')); snd('click'); }
         else if (id.startsWith('flt:')) { if (window.PS && PS.toggleFlt(id.slice(4))) snd('click'); }
         else if (/^rs:[\d.]+$/.test(id)) { S().runSilent = +id.slice(3); snd('click'); }
         else if (/^hunch:(take|numbers|wait):/.test(id)) { const m = id.split(':'); E.hunchAnswer(S(), m.slice(2).join(':'), m[1]); snd('click'); }

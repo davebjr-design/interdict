@@ -75,7 +75,7 @@
     }
     function execute(o) {
       const s = A.s; if (!s || s.over) return;
-      const d = o.data || {}, id = idOf(s, d), row = rowOf(o); let ok = true;
+      const d = o.data || {}, id = idOf(s, d), row = rowOf(o); let ok = true; const CR = root.CrewReports, before = CR ? CR.snap(E, s) : null, q0 = E.capOf ? E.capOf(s).queue.length : 0, vol0 = s.volleys ? s.volleys.length : 0;
       if (o.forced) s.noUnsecEvt = s.t + 3;   // a 'Go now': the crew know, do not raise H4 again for the same burn
       try {
         switch (o.verb) {
@@ -120,9 +120,26 @@
           default: ok = noop(o, TODO[o.verb] || 'TODO: no engine call for verb ' + o.verb); if (o.verb === 'seal') s.dmgPriority = 'seal';
         }
       } catch (e) { ok = false; A.errors.push(String(e && e.stack || e)); }
+      if (CR && before && o.verb === 'fire' && ok === false && E.capOf && E.capOf(s).queue.length > q0) ok = true;   // a fire order to cold tubes is queued, not refused: the tubes ready and it goes when they are hot
+      if (CR && before) { try { const r = reportOf(o, s, before, ok !== false, id, q0, vol0); if (r) outQ.push({ type: 'report', order: o, officer: r.officer, text: r.text, parts: r.parts, tier: r.tier, level: r.level, conf: r.conf }); } catch (e) { A.errors.push(String(e && e.stack || e)); } }
       A.done.push({ t: s.t, verb: o.verb, row, by: o.by, ok: ok !== false });
       outQ.push({ type: 'executed', order: o, ok: ok !== false });
       return ok !== false;
+    }
+    // the officer's four-part answer to an order: action, what changes, where we stand, what it means (web/crew_reports.js)
+    const REPORT_VERB = { classify: 'classify', rescan: 'rescan', track: 'lock', refresh: 'refresh', fire: 'fire', probe: 'probe', speed: 'speed', still: 'still', stop_here: 'still', evade: 'evade', route: 'route', vent: 'vent', vent_stop: 'ventstop', quiet: 'quiet', ping: 'ping', hail: 'hail', challenge: 'challenge', dismiss: 'rule', mark_hostile: 'mark', pd_active: 'pdon', pd_cold: 'pdoff', redline: 'redline', cut_thrust: 'cut', brace: 'brace' };
+    function reportOf(o, s, before, ok, id, q0, vol0) {
+      const CR = root.CrewReports; let verb = REPORT_VERB[o.verb]; if (!verb || !ok || o.by !== 'co' && o.by !== 'player') return null; if (o.verb === 'brace' && (o.data || {}).on === false) return null;
+      const rs = (E.P && E.P.secPerMin) || 16, a = id != null ? s.an[id] : null, d = { t: a ? 'S' + (a.id + 1) : '' };
+      if (verb === 'fire') { const q = E.capOf ? E.capOf(s).queue.length : 0; if (q > q0 && (!s.volleys || s.volleys.length === vol0)) { verb = 'firequeue'; d.secs = (E.RULES.capTime || 0.5) * rs; } else { const v = s.volleys[s.volleys.length - 1]; d.count = v && v.off ? v.off.length : 1; d.eta = v ? (v.at - s.t) * rs : 0; } }
+      if (verb === 'lock' || verb === 'refresh') { const si = a && a.state === 'locked' ? E.solveInfo(s, a) : null, ts = a && a.state === 'locked' ? E.trackState(s, a) : null; d.secs = si && isFinite(si.remain) ? si.remain * rs : 40; d.track = ts ? ts.state : 'passive'; d.conf0 = ts && ts.state === 'lock' ? 'sure' : ts && ts.state === 'track' ? 'likely' : 'guess'; }
+      if (verb === 'classify' || verb === 'rescan') { try { const cl = a ? E.classify(s, a) : null, p = cl && cl.post ? Math.max(cl.post.real, cl.post.lure, cl.post.ghost) : 0; d.conf0 = p >= 0.9 ? 'sure' : p >= 0.6 ? 'likely' : 'guess'; d.conf = p >= 0.9 ? 'a firm call' : p >= 0.6 ? 'a probable call' : 'no call yet'; } catch (e) { d.conf0 = 'guess'; d.conf = 'no call yet'; } }
+      if (verb === 'probe') { d.left = s.mag ? s.mag.total : 0; d.eta = a ? (E.closeInfo ? 90 : 90) : 90; }
+      if (verb === 'quiet') d.secs = s.me.quietDur * rs;
+      if (verb === 'redline') { const rate = E.heatRate(s) / 1; d.secs = rate > 0 ? Math.max(1, (1 - s.sink.h) / rate * rs) : 99; }
+      if (verb === 'brace') d.secs = 6;
+      if (verb === 'route') { const pi = E.planInfo ? E.planInfo(s) : null; if (pi) { d.legs = ((o.data || {}).pts || []).length; d.mins = Math.max(1, Math.round(pi.timeSec / 60)); d.g = pi.peakG; d.prop = (+pi.propT).toFixed(1); const f = (pi.segs || []).find(g => g.kind === 'rotate'); d.flip = f ? Math.max(1, Math.round((f.t0 - s.t) * rs)) : ''; } else return null; }
+      return CR.report({ E, s, verb, before, d, mode: M.autonomy[o.station] || 'supervised' });
     }
     function syncBody(s) {   // the crew's bodies: braced crew work from the couches, an injured officer is slower still; the doctrine sets how the crew brace on their own
       if (!E.crewEff) return;
@@ -149,7 +166,7 @@
       if (A.pdPending && !s.over) { if (s.t >= A.pdPending.until + 0.2) A.pdPending = null; else if (s.t >= A.pdPending.at) { E.setPD(s, 'active'); A.pdPending = null; } }
       const out = outQ; outQ = []; return out;
     }
-    A.update = update;
+    A.REPORT_VERB = REPORT_VERB; A.update = update;
     A.stunned = station => !!(A.s && E.stunned && Stations.OFFICER[station] && E.stunned(A.s, Stations.OFFICER[station]));   // the officer at this station is down from an impact
     A.handsOnBlocked = station => !!(A.s && A.s.brace && A.s.brace !== 'free' && station !== 'helm-brace' && M.autonomy[station] === 'hands-on') || (M.autonomy[station] === 'hands-on' && A.stunned(station));
     A.order = (station, verb, label, data) => {

@@ -471,9 +471,11 @@
   // ---- ported from cic3d: adapter events (calls, voice, toasts), the call card, brace / time / mute status, camera shake, keys and the radial menu
   const cv2 = cv, FX = { sh: 0 }; window.SHIPFX = { shake(a) { FX.sh = Math.max(FX.sh, Math.min(1, a || .3)); } };
   const tt = (t, k) => { try { window.UI && UI.toast(t, k); } catch (e) { } }, snd2 = n => { try { window.AUD && AUD.play(n); } catch (e) { } }, say2 = (w, t, p) => { try { window.AUD && AUD.say(w, t, p); } catch (e) { } };
+  window.CREW_SAY = r => { say2(r.officer, r.text, r.tier >= 2 ? 3 : 2); tt(String(r.officer).toUpperCase() + ': ' + r.text, r.level === 'lit' || r.level === 'conspicuous' ? 'w' : 'g'); };   // the officer's four-part answer (crew_reports.js): voiced and toasted
   function onEvents(evs) { for (const ev of evs) {
     if (ev.type === 'raise') { const c = ev.call; say2(c.officer, c.line, c.pri); snd2(c.pri >= 4 ? 'klaxon' : c.pri === 3 ? 'caution' : 'chime'); if (c.pri >= 3) tt(String(c.officer).toUpperCase() + ': ' + c.line, c.pri >= 4 ? 'w' : 'w'); }
-    else if (ev.type === 'order' && ev.order.by === 'co' && !ev.order.instant) { if (window.Stations) { if (ev.stage === 'issued') say2('Captain', Stations.captainLine(ev.order.label), 3); else if (ev.stage === 'acked') say2(ev.order.officer, Stations.ackLine(ev.order.label), 3); } }
+    else if (ev.type === 'order' && ev.order.by === 'co' && !ev.order.instant) { if (window.Stations) { if (ev.stage === 'issued') say2('Captain', Stations.captainLine(ev.order.label), 3); else if (ev.stage === 'acked' && !(window.CrewReports && HS.A && HS.A.REPORT_VERB && HS.A.REPORT_VERB[ev.order.verb])) say2(ev.order.officer, Stations.ackLine(ev.order.label), 3); } }
+    else if (ev.type === 'report') window.CREW_SAY(ev);
     else if (ev.type === 'default') { const c = ev.call, o = c.opts && c.opts[c.choice]; tt(String(c.officer).toUpperCase() + ': no answer, crew default' + (o ? ': ' + o.label : ''), 'w'); }
     else if (ev.type === 'noop') tt('NOT YET SIMULATED: ' + ev.order.label, 'w');
     else if (ev.type === 'executed' && !ev.ok && ev.order.by === 'co') tt(String(ev.order.officer).toUpperCase() + ': unable (' + ev.order.label + ')', 'w'); } }
