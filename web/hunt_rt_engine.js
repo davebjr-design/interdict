@@ -594,7 +594,8 @@ const HuntRT = (() => {
     let cross = 0, prev = 0, fat = 0, peak = 0; const flips = [];
     for (const sg of pl.segs) { const pr = sg.R || pl.ship, g = sg.kind === 'rotate' ? FL.rotG(pr.alpha, Math.min(pr.alpha * sg.dur / 2, pr.omegaMax), pr.crewR || FL.SHIP.crewR) : (sg.thrust || 0) * pl.ship.a100 / FL.G0;
       if (sg.kind === 'rotate') flips.push({ g, dur: sg.dur }); peak = Math.max(peak, g); if (g > s.me.gStrain && prev <= s.me.gStrain) { cross++; fat += s.me.gFatJolt; } if (g > s.me.gStrain) fat += s.me.gFatK * (g - s.me.gStrain) * sg.dur; prev = g; }
-    return { timeSec: pl.stats.time, dv: pl.stats.dv, propT: pl.stats.propT, peakG: peak, flips, strainCrossings: cross, fatigue: Math.min(1, fat), warn: pl.warn, path: FL.sample(pl, 3).map(q => ({ x: q.p.x / KM, y: q.p.y / KM, kind: q.kind })), wps: pts.map((q, i) => ({ x: q.x, y: q.y, g: q.g, flip: q.flip, t: pl.wpT[i] })) };
+    const rot = pl.segs.find(q => q.kind === 'rotate');   // when the first flip starts, in game minutes from now (the crew's report quotes it)
+    return { timeSec: pl.stats.time, dv: pl.stats.dv, propT: pl.stats.propT, peakG: peak, firstFlipT: rot ? rot.t0 / GM : null, flips, strainCrossings: cross, fatigue: Math.min(1, fat), warn: pl.warn, path: FL.sample(pl, 3).map(q => ({ x: q.p.x / KM, y: q.p.y / KM, kind: q.kind })), wps: pts.map((q, i) => ({ x: q.x, y: q.y, g: q.g, flip: q.flip, t: pl.wpT[i] })) };
   }
   function navHold(s) { const pl = FL.hold(navStart(s), { ship: Object.assign({}, s.shipP, FL.maneuverShip(s.maneuver || 'normal', s.shipP.crewR)) }); return navMake(s, pl, 'hold', { wps: [], goal: null }); }
   const navTau = s => (s.t - s.nav.t0) * GM;

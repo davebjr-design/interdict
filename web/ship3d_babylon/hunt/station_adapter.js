@@ -21,7 +21,7 @@
 (function (root) {
   'use strict';
   const req = n => (typeof require !== 'undefined' ? require(n) : null);
-  const Stations = root.Stations || req('./station_model.js'), Presets = root.SalvoPresets || req('./salvo_presets.js');
+  const Stations = root.Stations || req('./station_model.js'), Presets = root.SalvoPresets || req('./salvo_presets.js'), AB = root.Answerbacks || req('./answerbacks.js');   // answerbacks: an officer's follow-up question after an order (docs/answerbacks.md)
   const HELM_HOLD = { S6: 1, X1: 1, X2: 1, X3: 1 };   // on these rows 'Hold' means hold still (the quietest stance); elsewhere it means hold fire / hold off
   const SPD = ['v1', 'v2', 'v3', 'v4', 'v5', 'ab'];
   const TODO = {   // verbs the engine cannot do yet: logged no-ops
@@ -38,7 +38,7 @@
     cfg = cfg || {};
     const E = cfg.engine || root.HuntRT || req('./hunt_rt_engine.js');
     const M = Stations.create({ secPerMin: (E && E.RULES && E.RULES.secPerMin) || 16, command: cfg.command || 'tight', seed: cfg.seed || 1, autonomy: cfg.autonomy, doctrine: cfg.doctrine });
-    const A = { model: M, noops: [], done: [], errors: [], salvo: Presets.get(cfg.preset || 'ambush'), pdPending: null, seenLog: 0, seenEvt: 0, s: null, braceWait: [], blocked: [], style: { total: 0, picks: [] }, moments: cfg.moments === false ? [] : (cfg.moments || ['M02', 'M03', 'M04', 'M07', 'M09']) };
+    const A = { model: M, noops: [], done: [], errors: [], salvo: Presets.get(cfg.preset || 'ambush'), pdPending: null, seenLog: 0, seenEvt: 0, s: null, braceWait: [], blocked: [], ab: AB ? AB.create() : null, style: { total: 0, picks: [] }, moments: cfg.moments === false ? [] : (cfg.moments || ['M02', 'M03', 'M04', 'M07', 'M09']) };
     if (cfg.brace) M.setDoctrine({ brace: cfg.brace });
     let outQ = [];
     M.on(ev => { outQ.push(ev); if (ev.type === 'order' && ev.stage === 'executing') execute(ev.order); });
@@ -117,11 +117,12 @@
           case 'save_sink': case 'save_drive': s.dmgPriority = o.verb === 'save_sink' ? 'sink' : 'drive'; break;   // a flag only (no compartment model yet)
           case 'mark_hostile': if (id != null) E.markHostile(s, s.an[id]); break;
           case 'set_preset': A.setPreset(d.preset); break;
-          default: ok = noop(o, TODO[o.verb] || 'TODO: no engine call for verb ' + o.verb); if (o.verb === 'seal') s.dmgPriority = 'seal';
+          default: { const r = A.ab ? A.ab.run(o.verb, { E, s, M, doctrine: M.doctrine, id, d }) : null; if (r !== null) { ok = r; if (!r) noop(o, 'answerback could not be carried out'); } else { ok = noop(o, TODO[o.verb] || 'TODO: no engine call for verb ' + o.verb); if (o.verb === 'seal') s.dmgPriority = 'seal'; } }
         }
       } catch (e) { ok = false; A.errors.push(String(e && e.stack || e)); }
       if (CR && before && o.verb === 'fire' && ok === false && E.capOf && E.capOf(s).queue.length > q0) ok = true;   // a fire order to cold tubes is queued, not refused: the tubes ready and it goes when they are hot
       if (CR && before) { try { const r = reportOf(o, s, before, ok !== false, id, q0, vol0); if (r) outQ.push({ type: 'report', order: o, officer: r.officer, text: r.text, parts: r.parts, tier: r.tier, level: r.level, conf: r.conf }); } catch (e) { A.errors.push(String(e && e.stack || e)); } }
+      if (A.ab && ok !== false && (o.by === 'co' || o.by === 'player') && REPORT_VERB[o.verb]) { try { for (const r of A.ab.check({ E, s, M, doctrine: M.doctrine, verb: REPORT_VERB[o.verb], d, id })) { const c = M.raise(r.row, r.data); if (c) outQ.push({ type: 'answerback', row: r.row, call: c }); } } catch (e) { A.errors.push(String(e && e.stack || e)); } }   // an answerback: the officer asks one follow-up (web/answerbacks.js)
       A.done.push({ t: s.t, verb: o.verb, row, by: o.by, ok: ok !== false });
       outQ.push({ type: 'executed', order: o, ok: ok !== false });
       return ok !== false;
@@ -138,7 +139,7 @@
       if (verb === 'quiet') d.secs = s.me.quietDur * rs;
       if (verb === 'redline') { const rate = E.heatRate(s) / 1; d.secs = rate > 0 ? Math.max(1, (1 - s.sink.h) / rate * rs) : 99; }
       if (verb === 'brace') d.secs = 6;
-      if (verb === 'route') { const pi = E.planInfo ? E.planInfo(s) : null; if (pi) { d.legs = ((o.data || {}).pts || []).length; d.mins = Math.max(1, Math.round(pi.timeSec / 60)); d.g = pi.peakG; d.prop = (+pi.propT).toFixed(1); const f = (pi.segs || []).find(g => g.kind === 'rotate'); d.flip = f ? Math.max(1, Math.round((f.t0 - s.t) * rs)) : ''; } else return null; }
+      if (verb === 'route') { const pts = (o.data || {}).pts || [], pi = E.previewRoute && pts.length ? E.previewRoute(s, pts) : null; if (pi) { d.legs = pts.length; d.mins = Math.max(1, Math.round(pi.timeSec / 60)); d.g = pi.peakG; d.prop = (+pi.propT).toFixed(1); d.flip = pi.firstFlipT != null ? Math.max(1, Math.round(pi.firstFlipT * rs)) : ''; } else return null; }   // the numbers come from a fresh preview of the plotted route: the live plan is only rebuilt on the next tick, so it still shows the old route here
       return CR.report({ E, s, verb, before, d, mode: M.autonomy[o.station] || 'supervised' });
     }
     function syncBody(s) {   // the crew's bodies: braced crew work from the couches, an injured officer is slower still; the doctrine sets how the crew brace on their own
@@ -149,7 +150,7 @@
       for (const k in M.officers) { const e = E.crewEff(s, k), v = mul / Math.max(0.25, e); M.setBody(k, Math.abs(v - 1) < 1e-9 ? null : v); }
     }
     function update(s, dt) {
-      if (A.s !== s) { A.s = s; A.seenLog = s.log.length; A.seenEvt = (s.evts || []).length; A.pdPending = null; A.braceWait = []; A.style = { total: 0, picks: [] }; }   // a new hunt: start reading from now
+      if (A.s !== s) { A.s = s; A.seenLog = s.log.length; A.seenEvt = (s.evts || []).length; A.pdPending = null; A.braceWait = []; A.style = { total: 0, picks: [] }; if (AB) A.ab = AB.create(); }   // a new hunt: start reading from now
       syncBody(s);
       if (E.planInfo) { const pi = s.nav && s.nav.id !== A.planId ? E.planInfo(s) : null; if (pi) { A.planId = s.nav.id; outQ.push({ type: 'plan', id: pi.id, mode: pi.mode, endT: pi.endT, timeSec: pi.timeSec, dv: pi.dv, propT: pi.propT, peakG: pi.peakG, warn: pi.warn }); } }   // the flight plan changed: a summary for the console (the full path is A.plan())
       if (A.moments.length && E.momentCheck && !s.over) { try { E.momentCheck(s, { enabled: A.moments, drilled: cfg.command === 'tight' }); } catch (e) { A.errors.push(String(e && e.stack || e)); } }
@@ -158,6 +159,7 @@
       A.seenEvt = evts.length;
       if (s.log.length > A.seenLog) { try { M.ingest(s.log.slice(A.seenLog)); } catch (e) { A.errors.push(String(e)); } A.seenLog = s.log.length; }
       if (dt > 0) M.tick(dt);
+      if (A.ab && !s.over) { try { for (const r of A.ab.tick({ E, s, M })) outQ.push({ type: 'report', order: null, officer: r.officer, text: r.text, parts: [r.text], tier: 0, level: null, conf: null }); } catch (e) { A.errors.push(String(e && e.stack || e)); } }   // standing orders from answerbacks
       if (A.braceWait.length && !s.over) {   // orders held for the crew to be secure
         const keep = [];
         for (const w of A.braceWait) { if (s.brace === 'secure') execute(Object.assign({}, w.o, { forced: true })); else if (s.brace === 'free' || s.t - w.at > 1.5) outQ.push({ type: 'noop', order: w.o, why: 'brace order dropped: the crew are not bracing' }); else keep.push(w); }
