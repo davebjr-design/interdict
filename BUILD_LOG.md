@@ -305,6 +305,6 @@ Revised (Dave): evade should speed analysis modestly at a modest stealth cost, b
 
 ## 2026-11-20 to 24 (summary; details in the project docs and docs/)
 - Newtonian g model (1 g normal drive, flips, strain line at 2 g, redline 3 g, emergency 6 g), crew g-fatigue, firing solutions with run-silent distance and hit-probability range, nav planner (F7: waypoints, per-leg burn g and per-elbow flip g in half-g detents; `tests/navg_test.js`), per-ship visibility tiers and rail/gas launch signatures, dedicated Fire Control screen, tube readiness icons.
-- Crew reports: four-part officer answers on every order (`web/crew_reports.js`, `docs/crew_reports.md` if present, `tests/crew_reports_test.js`), with an Opus naturalness pass.
+- Crew reports: four-part officer answers on every order (`web/crew_reports.js`, design in the Game Project doc `crew-reports`, `tests/crew_reports_test.js`), with an Opus naturalness pass.
 - 2026-11-24 (night): **Answerbacks** (`web/answerbacks.js`, `docs/answerbacks.md`, `tests/answerbacks_test.js`). After an order the officer may ask one follow-up question; five exist (fins at a quarter or drain, bleed or keep tubes hot, go quiet after a ping, brace policy for a hard plan, rescan a probable read). Data table, standing orders, default on timeout, once-per-hunt limits. Route reports now use a fresh route preview (they showed the previous plan).
 
