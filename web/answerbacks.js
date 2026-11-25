@@ -51,10 +51,10 @@
       opts: O(['Go quiet', 'ab_quiet'], ['Stay loud', 'ab_loud']), def: 1, cost: 'a longer glow',
       run: { ab_quiet: x => x.E.goQuiet(x.s), ab_loud: () => true } },
     { id: 'AB4', st: 'helm', after: ['route'], once: 'hunt', to: 25,
-      when: x => { const pts = (x.d && x.d.pts) || [], pi = pts.length && x.E.previewRoute ? x.E.previewRoute(x.s, pts) : null; return pi && pi.peakG > x.s.me.gStrain && x.doctrine.brace !== 'auto' ? { g: (+pi.peakG).toFixed(1).replace(/\.0$/, '') } : null; },   // a fresh preview: the live plan is rebuilt on the next tick
-      line: d => `That plan peaks at ${d.g} g, over the strain line. Should the crew brace on their own ahead of every flip, or will you call each one, Captain?`,
-      opts: O(['Brace on their own', 'ab_brace_auto'], ['I will call them', 'ab_brace_ask']), def: 1, cost: 'a brace call before each hard burn',
-      run: { ab_brace_auto: x => { x.M.setDoctrine({ brace: 'auto' }); return true; }, ab_brace_ask: x => { x.M.setDoctrine({ brace: 'ask' }); return true; } } },
+      when: x => { const pts = (x.d && x.d.pts) || [], pi = pts.length && x.E.previewRoute ? x.E.previewRoute(x.s, pts) : null; return pi && pi.peakG > x.s.me.gStrain ? { g: (+pi.peakG).toFixed(1).replace(/\.0$/, '') } : null; },   // a fresh preview: the live plan is rebuilt on the next tick
+      line: d => `That plan peaks at ${d.g} g, over the strain line. I will call each flip five seconds out. Shall the crew brace on my call, or will you call the brace, Captain?`,
+      opts: O(['Crew brace on my call', 'ab_flip_auto'], ['I will call the brace', 'ab_flip_manual']), def: ctx => ctx.doctrine.flipBrace === 'manual' ? 1 : 0, cost: 'on my call the crew leave their hands-on controls for the flip; if you call it yourself and are late, they take the load unbraced',
+      run: { ab_flip_auto: x => { x.M.setDoctrine({ flipBrace: 'auto' }); return true; }, ab_flip_manual: x => { x.M.setDoctrine({ flipBrace: 'manual' }); return true; } } },
     { id: 'AB5', st: 'sensors', after: ['classify'], once: 'contact', to: 25,
       when: x => {
         const a = x.id != null ? x.s.an[x.id] : null; if (!a) return null;

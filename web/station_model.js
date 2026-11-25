@@ -47,6 +47,9 @@
       opts: O(['Brace first', 'brace_first'], ['Go now', 'go_now'], ['Cancel', 'cancel']), def: 0, cost: 'delay (about six seconds)' },
     H2P: { st: 'helm', pri: 3, to: 10, noBucket: true, line: d => 'Turning now breaks the probe link.', opts: O(['Hold course', 'cancel'], ['Turn anyway', 'go_now'], ['Switch probes to radio', 'probes_radio_go']), def: 0, cost: 'delay' },   // probe sets (docs/mechanics_probes.md)
     S10: { st: 'sensors', pri: 3, to: 14, noBucket: true, line: d => d.state === 'lost' ? `Set ${d.set} is lost.` : `The laser link to set ${d.set} is broken. Our ${d.cause} change did it.`, opts: O(['Wait for it', 'hold'], ['Switch to radio', 'probes_radio'], ['Recover the set', 'probes_recover']), def: 0, cost: 'the picture ages' },
+    // flip warning (Dave, 2026-11-25): Abara calls a flip or a hard burn five seconds out. flipBrace 'auto': the crew brace on the call (H7, information). 'manual': the captain calls the brace (H6, one click).
+    H6: { st: 'helm', pri: 3, to: 5, noBucket: true, line: d => d.kind === 'rotate' ? 'Flipping in five seconds, Captain.' : 'Hard burn in five seconds, Captain.', opts: O(['Brace', 'brace'], ['Hold', 'hold']), def: 1, cost: 'an unbraced crew under load are fatigued and can be hurt' },
+    H7: { st: 'helm', pri: 2, noBucket: true, line: d => d.kind === 'rotate' ? 'Brace. Flip in five.' : 'Brace. Burn in five.' },
     H5: { st: 'helm', pri: 1, line: d => d.text || 'Brace complete. Crew secure.' },
     D4: { st: 'damage', pri: 3, to: 14, line: d => `${d.officer || 'Someone'} is hurt${d.station ? ' at ' + d.station : ''}.`, opts: O(['Send Fenwick', 'treat'], ['Carry on', 'hold']), def: 0, cost: 'Fenwick leaves his post for a minute' },
     D1: { st: 'damage', pri: 3, line: d => d.text, opts: O(['Save the sink', 'save_sink'], ['Save the drive', 'save_drive'], ['Seal and sacrifice', 'seal']), def: 0, cost: 'drive degraded' },
@@ -98,6 +101,7 @@
     track_lost: d => ['S5', { n: d.n, id: d.id, ghost: d.ghost }],
     brace_complete: d => ['H5', { text: d.by === 'auto' ? 'Crew secure. The crew braced on their own.' : 'Brace complete. Crew secure.' }],
     unsecure: d => ['H4', { why: d.why, g: d.g }],
+    flip_warn: d => [d.auto ? 'H7' : 'H6', { kind: d.kind, g: d.g }],
     injury: d => ['D4', { officer: d.officer, station: d.station, cause: d.cause }],
     probe_link: d => d.state === 'broken' ? ['S10', { set: d.set, cause: d.cause }] : null,
     probe_lost: d => ['S10', { set: d.set, state: 'lost' }],
@@ -115,7 +119,7 @@
     for (let i = 0; i < k.length; i++) { h ^= k.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
     return (who === 'Captain' ? 'cap_' : 'ln_') + h.toString(16).padStart(8, '0');
   }
-  const DOCTRINE = { roe: 'hold-fire', pd: 'active-on-vampire', ping: 'ask', vent: 'at-90', damage: 'sink', reporting: 'standard' };
+  const DOCTRINE = { flipBrace: 'auto', roe: 'hold-fire', pd: 'active-on-vampire', ping: 'ask', vent: 'at-90', damage: 'sink', reporting: 'standard' };
 
   function create(cfg) {
     cfg = cfg || {};

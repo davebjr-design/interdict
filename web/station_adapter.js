@@ -145,7 +145,7 @@
     function syncBody(s) {   // the crew's bodies: braced crew work from the couches, an injured officer is slower still; the doctrine sets how the crew brace on their own
       if (!E.crewEff) return;
       for (const k in M.officers) { const c = s.crew && s.crew[k]; M.setStun(k, c && E.stunned && E.stunned(s, k) ? M.now + (c.stunUntil - s.t) * M.secPerMin : null); }   // a stunned officer's station is dead: the model holds his orders and calls until he is back
-      s.braceAuto = M.doctrine.brace === 'auto' ? 'all' : M.doctrine.brace === 'manual' ? 'off' : 'vampire';
+      s.braceAuto = M.doctrine.brace === 'auto' ? 'all' : M.doctrine.brace === 'manual' ? 'off' : 'vampire'; s.flipBrace = M.doctrine.flipBrace === 'manual' ? 'manual' : 'auto';   // flipBrace: who calls the brace for a planned flip or hard burn (answerback AB4)
       const mul = s.brace === 'secure' ? (s.me.braceReact || 1.3) : s.brace === 'bracing' ? (s.me.braceReactMoving || 1.6) : 1;
       for (const k in M.officers) { const e = E.crewEff(s, k), v = mul / Math.max(0.25, e); M.setBody(k, Math.abs(v - 1) < 1e-9 ? null : v); }
     }

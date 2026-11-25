@@ -8,10 +8,10 @@ const asked = (A, row) => A.model.pending().find(c => c.row === row);
 const answer = (A, call, verb) => { const i = call.opts.findIndex(o => o.verb === verb); return A.model.answer(call.id, i); };
 
 // the table itself
-chk('five answerbacks, each with a question, two options, a default and a cost', AB.DEFS.length === 5 && AB.DEFS.every(D => D.opts.length >= 2 && D.def >= 0 && D.def < D.opts.length && D.cost && D.line));
+chk('five answerbacks, each with a question, two options, a default and a cost', AB.DEFS.length === 5 && AB.DEFS.every(D => D.opts.length >= 2 && (typeof D.def === 'function' || (D.def >= 0 && D.def < D.opts.length)) && D.cost && D.line));
 chk('every option verb is handled, either here or by the adapter', AB.DEFS.every(D => D.opts.every(o => AB.VERB[o.verb] || ['rescan'].includes(o.verb))));
 chk('every row is registered with the station model', AB.DEFS.every(D => require('../web/station_model.js').ROWS[D.id]));
-chk('the default is always the drilled, no-surprise answer (the second option)', AB.DEFS.every(D => D.def === 1));
+chk('the default is always the drilled, no-surprise answer (the second option; AB4 keeps the current setting)', AB.DEFS.every(D => D.def === 1 || typeof D.def === 'function'));
 
 // AB1 Dace: fins out
 { const { s, A } = start(11); s.sink.h = 0.8; const o = []; A.order('thermal', 'vent', 'Vent', {}); run(s, 6, A, o);
@@ -35,12 +35,27 @@ chk('the default is always the drilled, no-surprise answer (the second option)',
   chk('AB3: a ping makes Quill ask about going quiet', !!c && c.officer === 'Quill' && /go quiet/.test(c.line), c && c.line);
   if (c) { answer(A, c, 'ab_quiet'); run(s, 15, A); chk('AB3: "go quiet" starts quiet running', s.t < s.quietUntil, 'quietUntil=' + s.quietUntil + ' t=' + s.t); } }
 
-// AB4 Abara: a route over the strain line
-{ const { s, A } = start(14); const pts = [{ x: 60, y: 60, g: 3, flip: 3, speed: 'v5', kind: 'stop' }];
-  A.order('helm', 'route', 'Route', { pts }); run(s, 8, A); const c = asked(A, 'AB4');
-  chk('AB4: a 3 g plan makes Abara ask about bracing', !!c && c.officer === 'Abara' && /strain line/.test(c.line) && /3 g/.test(c.line), c && c.line);
-  if (c) { answer(A, c, 'ab_brace_auto'); run(s, 15, A); chk('AB4: "brace on their own" sets the brace doctrine to auto', A.model.doctrine.brace === 'auto'); }
+// AB4 Abara: a route over the strain line (flip warning: the crew brace on her call, or the captain calls the brace)
+const dogleg = s => { const x = s.player.x, y = s.player.y, A = E.P.arena, mx = x < A / 2 ? 1 : -1; return [{ x: x + mx * 25, y, g: 1, flip: 3, speed: 'v1', kind: 'turn' }, { x: x + mx * 5, y, g: 1, flip: 0.25, speed: 'v1', kind: 'stop' }]; };   // out, then a 180 degree flip at 3 g (a 90 degree turn is felt at under 2 g and needs no brace)
+{ const { s, A } = start(14); A.order('helm', 'route', 'Route', { pts: dogleg(s) }); run(s, 8, A); const c = asked(A, 'AB4');
+  chk('AB4: a 3 g plan makes Abara ask who calls the brace', !!c && c.officer === 'Abara' && /strain line/.test(c.line) && /five seconds/.test(c.line) && /3 g/.test(c.line), c && c.line);
+  chk('AB4: the default keeps the current setting (the crew brace on her call)', c && A.model.defaultIndex(c) === 0);
+  if (c) { answer(A, c, 'ab_flip_manual'); run(s, 15, A); chk('AB4: "I will call the brace" sets flipBrace to manual', A.model.doctrine.flipBrace === 'manual' && s.flipBrace === 'manual'); }
   const q = start(14); q.A.order('helm', 'route', 'Route', { pts: [{ x: 100, y: 100, g: 1, flip: 0.25, speed: 'v3', kind: 'stop' }] }); run(q.s, 8, q.A); chk('AB4: a gentle plan is not asked about', !asked(q.A, 'AB4')); }
+// the flip warning itself, both ways
+const flipRun1 = (mode, seed) => { const { s, A } = start(seed); A.model.setDoctrine({ flipBrace: mode }); A.order('helm', 'route', 'Route', { pts: dogleg(s) }); let warned = false;
+  for (let t = 0; t < 900 && !s.over; t += 0.25) { run(s, 0.25, A); if ((s.evts || []).some(e => e.type === 'flip_warn')) { warned = true; if (mode === 'manual') break; } if (s.brace === 'secure' && warned) break; if (s.brace !== 'free' && !warned) return null; }   // null: an enemy volley braced the crew first, so this seed is not a clean test
+  return warned ? { s, A, secureAt: s.brace === 'secure' ? s.t : null } : null; };
+const flipRun = mode => { for (const seed of [21, 22, 23, 24, 25, 26, 27, 28]) { const r = flipRun1(mode, seed); if (r) return r; } return { s: start(21).s, A: start(21).A, secureAt: null }; };
+{ const r = flipRun('auto'), s = r.s, A = r.A; const ev = ((s.evts || []).find(e => e.type === 'flip_warn') || {}).data;
+  chk('flip warning (auto): the engine warns before a flip that needs a brace', !!ev && ev.auto === true && ev.kind === 'rotate', JSON.stringify(ev));
+  chk('flip warning (auto): the warning comes about five seconds out', ev && ev.inGs / 60 * SPM <= 5.3 && ev.inGs / 60 * SPM >= 3.5, ev && (ev.inGs / 60 * SPM).toFixed(2));
+  const call = A.model.calls.find(c => c.row === 'H7'); chk('flip warning (auto): Abara says "Brace. Flip in five."', !!call && call.officer === 'Abara' && call.line === 'Brace. Flip in five.', call && call.line);
+  chk('flip warning (auto): the crew brace by themselves and are secure before the flip starts', r.secureAt != null && s.braceBy === 'auto', 'secureAt=' + r.secureAt); }
+{ const r = flipRun('manual'), s = r.s, A = r.A; const ev = ((s.evts || []).find(e => e.type === 'flip_warn') || {}).data; const call = A.model.pending().find(c => c.row === 'H6');
+  chk('flip warning (manual): Abara says "Flipping in five seconds, Captain." and offers Brace', !!call && call.line === 'Flipping in five seconds, Captain.' && call.opts[0].verb === 'brace', call && call.line);
+  chk('flip warning (manual): the crew do not brace on their own', !!ev && ev.auto === false && s.brace === 'free', s.brace);
+  if (call) { answer(A, call, 'brace'); run(s, 8, A); chk('flip warning (manual): the captain\'s brace call straps the crew in', s.brace !== 'free', s.brace); } }
 
 // AB5 Quill: a probable classification
 { const { s, A } = start(15); const a = s.an.find(x => x.kind === 'real'); a.state = 'open';
